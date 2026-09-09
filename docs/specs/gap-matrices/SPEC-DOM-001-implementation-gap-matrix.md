@@ -1,1066 +1,771 @@
-# SPEC-DOM-001 — Implementation Gap Matrix
+# SPEC-DOM-001 — Component Implementation Gap Matrix
 
-Assessment timestamp: 2026-09-08T17:05:52.8841384-03:00
-Remediation timestamp: 2026-09-08
+Assessment timestamp: 2026-09-09T17:33:21-03:00 (America/Sao_Paulo).
+This is a read-only authority-to-repository comparison. Only this matrix
+artifact was replaced.
 
 ## 1. Executive Summary
 
-This matrix compares the 21 normative requirements of SPEC-DOM-001 with the
-repository baseline at commit 5318663b03b9d873261475dbd97702d77d2d3efc.
+The governing portfolio and target component audit gates pass. The current
+working tree contains a productive TypeScript domain/application slice for
+identity, snapshot, ADR-SPEC lineage, separated state inputs, pipeline ordering,
+and stale-write rejection. It does not contain durable persistence, concrete
+repositories/adapters, the remaining ticket/publication/audit lifecycle models,
+or a productive runtime host.
 
-The portfolio and component-spec gates pass:
-
-- Portfolio verdict: PORTFOLIO_DECOMPOSITION_APPROVED.
-- Component verdict: PASS — COMPONENT_SPEC_CONFORMANT.
-- Upstream normative component SPECs: none; DOM is the approved DAG root.
-
-The current repository has no productive DOM runtime, persistence boundary, or
-service implementation. It contains a deliberately disposable React prototype
-whose centralized mockDomain.ts simulates domain, scheduler, persistence,
-publication, recovery, onboarding, and evidence behavior in memory. Therefore
-all 21 locally owned requirements are classified MISSING, not IMPLEMENTED or
-CONTRADICTORY. Prototype tests are retained as supporting scenario evidence
-only.
-
-There are 21 distinct MAJOR behavior/compatibility gaps, including four
-boundary-bearing records whose local DOM semantics are now explicitly separated
-from foreign integration responsibilities. No productive wrong-owner or
-alternate-authority path was observed. The matrix has completed surgical
-remediation and is awaiting independent Gap Matrix re-audit; this artifact does
-not approve conformance or downstream planning.
+Twenty-one requirements were classified: 0 IMPLEMENTED, 3 PARTIAL, 6
+CONTRADICTORY, and 12 MISSING. The active contradictions are caller-supplied
+snapshot authority, PipelineId as a parallel pipeline identity, scalar
+pipeline rehydration without provenance, and advancement without a formal
+verdict. There are 22 distinct MAJOR gaps and no authority or completeness
+blocker. Result: READY_FOR_IMPLEMENTATION_PLAN.
 
 ## 2. Assessment Subject
 
 | Item | Value |
 | --- | --- |
 | Target SPEC | SPEC-DOM-001 |
-| Target path | docs/specs/SPEC-DOM-001-workflow-authority-and-governance.md |
-| Target title | Workflow Authority and Governance |
-| SPEC revision/status | 2 / PROPOSED |
-| Component conformance audit | docs/specs/audits/SPEC-DOM-001-component-conformance-audit.md |
+| SPEC path | docs/specs/SPEC-DOM-001-workflow-authority-and-governance.md |
+| SPEC revision/status | 3 / PROPOSED |
+| Component audit | docs/specs/audits/SPEC-DOM-001-component-conformance-audit.md |
 | Component verdict | PASS — COMPONENT_SPEC_CONFORMANT |
-| Governing portfolio | SPEC-PORTFOLIO-001, revision 2 |
-| Governing portfolio audit | docs/specs/SPEC-PORTFOLIO-001-decomposition-audit.md |
+| Governing portfolio | SPEC-PORTFOLIO-001, revision 2, PROPOSED |
+| Portfolio audit | docs/specs/SPEC-PORTFOLIO-001-decomposition-audit.md |
 | Portfolio verdict | PORTFOLIO_DECOMPOSITION_APPROVED |
-| Accepted ADR authority | ADR-0001, ADR-0002, ADR-0009 for owned DOM requirements; all 14 accepted ADRs were inspected for boundary checks |
-| Upstream normative component SPECs | None |
-| Repository baseline | 5318663b03b9d873261475dbd97702d77d2d3efc |
-| Branch/working tree | main; current HEAD includes the downstream EXEC-001 documentation commit; remediation files remain untracked |
-| Scope conclusion | Prototype/mock only; no productive DOM implementation located |
+| Accepted ADR authority | ADR-0001 revision 3, ADR-0002 revision 3, ADR-0009 revision 3 |
+| Normative upstream SPECs | none; DOM is the approved DAG root |
+| Repository commit | 5ec37e1bdf13250ae93e59ce24ef3c4b4c43a220 |
 
 ## 3. Frozen Baselines
 
-### COMPONENT_SPEC_BASELINE
-
-- Path: docs/specs/SPEC-DOM-001-workflow-authority-and-governance.md
-- ID/revision/status: SPEC-DOM-001 / 2 / PROPOSED.
-- SHA-256: 768937f1454fb63becd955780212468dbf4f2887a41eeebaad9a18d362716d98.
-- Conformance audit: docs/specs/audits/SPEC-DOM-001-component-conformance-audit.md.
-- Audit result: PASS — COMPONENT_SPEC_CONFORMANT.
-- The source audit records 21/21 normative requirements with ADR and portfolio
-  authority and declares no upstream normative dependency.
-
-### PORTFOLIO_BASELINE
-
-- Path: docs/specs/SPEC-PORTFOLIO-001-organization.md
-- ID/revision/status: SPEC-PORTFOLIO-001 / 2 / PROPOSED.
-- SHA-256: c449388972279d8add520564a9614cfa236f87b6c8932a70d5bc2d28eef6be86.
-- Governing audit SHA-256:
-  120f22d0080ac0640ebbdad7c460df5de2745788cfaea83a1859f2c577168104.
-- Governing audit verdict: PORTFOLIO_DECOMPOSITION_APPROVED.
-- Owned DOM obligations: O-001 through O-015 and O-049 through O-054.
-- The portfolio status remains PROPOSED; approval is supplied by the latest
-  independent decomposition audit, not by the portfolio document itself.
-
-### UPSTREAM_SPEC_BASELINES
-
-None. The approved portfolio and component audit identify DOM as the root of
-the normative dependency graph. The untracked
-docs/specs/SPEC-EXEC-001-skill-contracts-and-capability-registry.md is a
-downstream consumer of DOM, not an upstream prerequisite for this matrix, and
-was not used to establish DOM authority.
-
-### REPOSITORY_BASELINE
-
-- Commit: 5318663b03b9d873261475dbd97702d77d2d3efc.
-- Commit timestamp: 2026-09-08T17:02:56-03:00.
-- Commit subject: docs(spec): add DOM component conformance audit.
-- Branch: main, tracking origin/main.
-- Working tree before artifact creation: dirty only because
-  docs/specs/SPEC-EXEC-001-skill-contracts-and-capability-registry.md was
-  untracked.
-- Final verification also observed newly untracked .codex/skill support files
-  and docs/specs/audits/SPEC-EXEC-001-component-conformance-audit.md. These
-  appeared after the initial repository baseline capture, are outside the DOM
-  scope, and were not used as authority or implementation evidence.
-- Relevant committed implementation surfaces: prototype/src, prototype/tests,
-  prototype/package.json, and prototype/README.md.
-- No C#, .NET, database, migration, API, authentication, adapter, or
-  production service surface was found.
-
-### DOCUMENTATION_BASELINE
-
-The authority documents were read from the current filesystem and are frozen
-for this assessment:
-
-| Document | SHA-256 |
+| Baseline | Frozen value |
 | --- | --- |
-| docs/adrs/ADR-0001-workflow-domain-and-identity.md | 33705082b9d2f46e638cd93bdf27ca676cfc6181a2684ad583e4501f5d06d50d |
-| docs/adrs/ADR-0002-pipeline-state-machines-and-transitions.md | ef9289c6fca4bba73fca53ca38c71dd19110eb1cfe948358a7cca1fe14e177d9 |
-| docs/adrs/ADR-0009-audit-remediation-and-final-conformance.md | 4ab502aea4f09afe2c5fa33bfb6c5ee0d11e2d8f9af65f244209ce1fac935761 |
-| docs/specs/SPEC-PORTFOLIO-001-organization.md | c449388972279d8add520564a9614cfa236f87b6c8932a70d5bc2d28eef6be86 |
-| docs/specs/SPEC-PORTFOLIO-001-decomposition-audit.md | 120f22d0080ac0640ebbdad7c460df5de2745788cfaea83a1859f2c577168104 |
-| docs/specs/SPEC-DOM-001-workflow-authority-and-governance.md | 768937f1454fb63becd955780212468dbf4f2887a41eeebaad9a18d362716d98 |
-| docs/specs/audits/SPEC-DOM-001-component-conformance-audit.md | 12dc0461b57cf8074b1215c9147d480558bf738773b6c00a5da4700dc58a5414 |
+| COMPONENT_SPEC_BASELINE | SPEC revision 3; SHA-1 3fb90c4c100db38f66602ad6683231613eec07d2 |
+| PORTFOLIO_BASELINE | Portfolio revision 2; organization SHA-1 f405fd39663f4fb78bd963a9215cb39b4c3ce398; audit SHA-1 cc1d6b84c261498532b1d3b73e4ecb490b43e1b9 |
+| UPSTREAM_SPEC_BASELINES | none |
+| REPOSITORY_BASELINE | HEAD 5ec37e1bdf13250ae93e59ce24ef3c4b4c43a220; dirty tree with 2 status entries, 1 matrix change and 1 unstaged .gitignore change |
+| DOCUMENTATION_BASELINE | Component audit SHA-1 e5b181effdf4adac5231d175077e204348295d04; ADR-0001 ff987fbffdf5a9bd43c33743b617c0fa78a5a0eb; ADR-0002 dcc2f778c5c35c0c8e6f6607b7f492cd38455664; ADR-0009 6bf4631e789ebb44ce31e100203969a841ee8b45 |
 
-Historical audits, prototype reports, and prior remediation records were
-treated as navigation/supporting evidence only.
+The staged changes include the current src/, tests/, and DOM ticket/audit
+artifacts. They are evidence in the assessed tree, not a clean commit
+baseline. Existing matrices, plans, tickets, prototypes, and historical
+reports were supporting/navigation evidence only.
 
 ## 4. Authority and Ownership Context
 
-### Approved authority
-
-The effective authority order used here is accepted ADRs, approved portfolio
-decomposition, conformant target SPEC, conformant upstream SPECs, repository,
-tests, prototype, and historical evidence. ADR-0001, ADR-0002, and ADR-0009
-define the 21 DOM obligations. The portfolio assigns each one to DOM exactly
-once, with role CANONICAL_OWNER.
-
-### Portfolio ownership context
+Authority order: accepted ADR, approved portfolio decomposition, conformant
+component SPEC, conformant upstream SPECs, repository, tests, prototype,
+historical evidence.
 
 | Context | Approved value |
 | --- | --- |
-| OWNED_PORTFOLIO_OBLIGATIONS | O-001…O-015 and O-049…O-054 |
-| CONSUMED_PORTFOLIO_OBLIGATIONS | Non-authoritative references to EXEC-001 version/capability contracts; PLAT journal/persistence/recovery/effect evidence; GIT publication evidence; BACKEND mappings; OPS projections/preservation; UI interaction |
-| NORMATIVE_DEPENDENCIES | None; DOM is DAG root |
-| FAILURE_SEMANTICS_OWNED | SPEC/revision: UNKNOWN_SPEC, INELIGIBLE_REVISION; Dependency closure: INVALID_DEPENDENCY_CLOSURE; Command basis: INVALID_COMMAND_BASIS, STALE_REVISION |
-| FAILURE_SEMANTICS_CONSUMED | Repository, capability, contract, capacity, effect, publication, and local-session families owned by other portfolio components |
-| COMPATIBILITY_OWNERSHIP | OWNER for NEW_CANONICAL_PATH, semantic HISTORICAL_REPLAY, and CUTOVER; CONSUMER for LEGACY_COMPATIBILITY; NOT_APPLICABLE for RETIREMENT. PLAT/OPS own physical replay/preservation and GIT owns publication evidence. |
-| PROJECTION_ROLE | Canonical owner of DOM identity, lifecycle, state, commands, findings, verdicts, publication vocabulary, and invalidation; downstream backend, operations, UI, and Git views are mappings/projections |
+| OWNED_PORTFOLIO_OBLIGATIONS | O-001–O-015 and O-049–O-054 |
+| CONSUMED_PORTFOLIO_OBLIGATIONS | EXEC-001, PLAT-001, GIT-001, BACKEND-001, OPS-001, UI-001 reference-only contracts; no upstream DOM edge |
+| NORMATIVE_DEPENDENCIES | none |
+| FAILURE_SEMANTICS_OWNED | UNKNOWN_SPEC, INELIGIBLE_REVISION, INVALID_DEPENDENCY_CLOSURE, INVALID_COMMAND_BASIS, STALE_REVISION |
+| FAILURE_SEMANTICS_CONSUMED | repository, capability, session, capacity, effect/reconciliation, publication, and legacy failures from approved owners |
+| COMPATIBILITY_OWNERSHIP | DOM owns new canonical path, historical replay, and normative cutover; REPO owns legacy adaptation and retirement |
+| PROJECTION_ROLE | canonical state/verdict/lineage source; backend, operations, UI, logs, and reports are mappings/projections |
 
-The target SPEC explicitly excludes backend, scheduler, physical persistence,
-Git execution, API/security, operations, and UI authority. Their absence is
-not converted into local DOM MISSING requirements except where DOM's own
-integration expectation is material.
+SPEC_IMPLEMENTABILITY_CHECK = PASS was confirmed in the latest component
+audit. The audit records complete identity and reconstruction proofs for
+WorkflowPipeline, lifecycle, persistence, cross-SPEC authority, authority
+consumption, and temporal-authority applicability. No authority gap was
+converted into an implementation gap.
 
 ## 5. Normative Requirement Inventory
 
-Every implementation-relevant requirement from section 13 of the target SPEC
-is inventoried exactly once below. All roles are from the governed role enum.
+Each requirement is anchored once to its portfolio obligation. All 21 have
+valid ADR and portfolio authority and use CANONICAL_OWNER.
 
-| Requirement ID | Portfolio Obligation ID | ADR Authority | ADR Section | Ownership Role | SPEC Section | Normative Statement / Expected Observable Behavior | Dependencies | Failure Semantics | Compatibility Role |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| DOM-ID-001 | O-001 | ADR-0001 | Decisão | CANONICAL_OWNER | 13 | Persistent identities for every normative aggregate, stable lineage, historical resolution, and rejection of unresolved identity/revision references; AgentId, assignment, activity, session, effect, and publication identities remain distinct. | None; downstream consumers reference IDs | UNKNOWN_SPEC, INELIGIBLE_REVISION, INVALID_COMMAND_BASIS | NEW_CANONICAL_PATH |
-| DOM-INGEST-001 | O-002 | ADR-0001 | Invariantes | CANONICAL_OWNER | 13 | Processing starts only from explicit manual submission; file discovery, absent SPEC, or session state cannot initiate processing or choose ADRs. | None | INVALID_COMMAND_BASIS | NEW_CANONICAL_PATH |
-| DOM-SNAPSHOT-001 | O-003 | ADR-0001 | Decisão | CANONICAL_OWNER | 13 | Before execution, an immutable snapshot contains eligible ADR hashes, commit base, configuration, and exact applicable skill/contract versions and cannot absorb later authority or drift. | None; references non-authoritative EXEC-001 contract versions | INELIGIBLE_REVISION, STALE_REVISION | NEW_CANONICAL_PATH / HISTORICAL_REPLAY |
-| DOM-ELIG-001 | O-004 | ADR-0001 | Invariantes | CANONICAL_OWNER | 13 | Only ACCEPTED ADRs are eligible; proposed, rejected, superseded, unknown, or ineligible revisions fail closed without fallback. | None | UNKNOWN_SPEC, INELIGIBLE_REVISION | NEW_CANONICAL_PATH |
-| DOM-LINEAGE-001 | O-005 | ADR-0001 | Decisão | CANONICAL_OWNER | 13 | ADR-to-SPEC relationships are explicit, verifiable, many-to-many, and independent; progress of one SPEC cannot silently close or change another. | None | UNKNOWN_SPEC, INELIGIBLE_REVISION | NEW_CANONICAL_PATH / HISTORICAL_REPLAY |
-| DOM-LIFE-001 | O-006 | ADR-0001 | Invariantes | CANONICAL_OWNER | 13 | Decision lifecycle and realization lifecycle remain separate; acceptance is not implementation and execution cannot silently alter decision lifecycle. | None | INVALID_COMMAND_BASIS | NEW_CANONICAL_PATH |
-| DOM-REV-001 | O-007 | ADR-0001 | Invariantes | CANONICAL_OWNER | 13 | Remediation of an accepted, unimplemented ADR creates a new revision preserving lineage and invalidates eligibility derived from changed prior content. | None | INELIGIBLE_REVISION, STALE_REVISION | CUTOVER |
-| DOM-IMMUT-001 | O-008 | ADR-0001 | Invariantes and Decisão | CANONICAL_OWNER | 13 | Implemented ADRs are not silently rewritten; normative change uses reciprocal succession and preserves standardized front matter and operational evidence outside the ADR document. | None | STALE_REVISION | HISTORICAL_REPLAY |
-| DOM-PIPE-001 | O-009 | ADR-0002 | Decisão | CANONICAL_OWNER | 13 | Pipeline order is ADRs, SPECs, audit, Gap Matrix, Plan, tickets, implementation/audit, integration/conformance, main update, approval/publication; no stage declares a later stage complete. | None | INVALID_DEPENDENCY_CLOSURE | NEW_CANONICAL_PATH |
-| DOM-STATE-001 | O-010 | ADR-0002 | Decisão | CANONICAL_OWNER | 13 | Execution, SPEC, stage, activity, audit cycle, wave, ticket, migration, and publication have separate machines; higher states derive where possible and projections cannot create a second canonical transition. | None | INVALID_COMMAND_BASIS | NEW_CANONICAL_PATH |
-| DOM-CMD-001 | O-011 | ADR-0002 | Regras | CANONICAL_OWNER | 13 | Every domain command validates identity, revision, state, dependency, and verdict preconditions; invalid commands are recorded and produce no state or effect change. | None | INVALID_COMMAND_BASIS, STALE_REVISION, INVALID_DEPENDENCY_CLOSURE | NEW_CANONICAL_PATH |
-| DOM-TICKET-001 | O-012 | ADR-0002 | Transições funcionais | CANONICAL_OWNER | 13 | Ticket functional states are exactly DRAFT, READY, IMPLEMENTED, COMPLETED, BLOCKED, CANCELLED; COMPLETED and CANCELLED are terminal and resumed cancellation requires a new linked ticket. | None | INVALID_COMMAND_BASIS | NEW_CANONICAL_PATH |
-| DOM-TICKET-002 | O-013 | ADR-0002 | Transições funcionais | CANONICAL_OWNER | 13 | Only the eight specified ticket transitions are valid; invalid transitions are rejected and recorded; completed tickets are not reopened. | None | INVALID_COMMAND_BASIS, INVALID_DEPENDENCY_CLOSURE | NEW_CANONICAL_PATH |
-| DOM-PUB-001 | O-014 | ADR-0002 | Vocabulário | CANONICAL_OWNER | 13 | Publication candidate, approval, local integration, PR, merge, and remote confirmation remain distinct; PR_MERGED is not remote publication confirmation. | None; GIT executes and confirms publication | INVALID_COMMAND_BASIS, STALE_REVISION | NEW_CANONICAL_PATH / CUTOVER |
-| DOM-ADV-001 | O-015 | ADR-0002 | Regras de avanço | CANONICAL_OWNER | 13 | No auditable stage advances without formal verdict; SPEC/DAG/round/pause/cancel contracts remain independent; cancellation is cooperative and does not revert remote effects. | None | INVALID_DEPENDENCY_CLOSURE, INVALID_COMMAND_BASIS | NEW_CANONICAL_PATH |
-| DOM-AUDIT-001 | O-049 | ADR-0009 | Decisão | CANONICAL_OWNER | 13 | Governed SPECs, matrices, plans, tickets, implementations, integrations, migrations, and conformance have formal artifact/cycle/round identities without implicit cycle reuse. | None | INVALID_COMMAND_BASIS | NEW_CANONICAL_PATH |
-| DOM-AUDIT-002 | O-050 | ADR-0009 | Decisão | CANONICAL_OWNER | 13 | Only a structured audit verdict closes a cycle; remediation, no textual findings, or process termination never equals approval. | None | INVALID_COMMAND_BASIS | NEW_CANONICAL_PATH |
-| DOM-AUDIT-003 | O-051 | ADR-0009 | Decisão | CANONICAL_OWNER | 13 | Initial cycle limit is ten configurable rounds; reaching it pauses only the affected unit and requires explicit continuation authorization. | None | INVALID_COMMAND_BASIS | CUTOVER |
-| DOM-AUDIT-004 | O-052 | ADR-0009 | Decisão | CANONICAL_OWNER | 13 | Final conformance checks adherence, coverage, integration, regressions, tests, omissions, and extrapolations after tickets complete. | None | INVALID_COMMAND_BASIS | NEW_CANONICAL_PATH |
-| DOM-AUDIT-005 | O-053 | ADR-0009 | Decisão | CANONICAL_OWNER | 13 | Normative change returns the SPEC to the affected documentation stage, invalidates dependent downstream approvals, preserves history, and creates linked adjustment/substitution tickets without reopening completed tickets. | None | STALE_REVISION, INVALID_COMMAND_BASIS | CUTOVER / RETIREMENT |
-| DOM-AUDIT-006 | O-054 | ADR-0009 | Decisão | CANONICAL_OWNER | 13 | Before publication, conformance binds exact base/head/tree and commit-linked hashed evidence; any candidate drift invalidates merge authorization. | None; GIT/PLAT/OPS consume evidence | STALE_REVISION, INVALID_COMMAND_BASIS | HISTORICAL_REPLAY |
+| Requirement ID | Portfolio Obligation ID | ADR / section | Role | SPEC section | Normative statement and observable behavior | Dependencies | Failure semantics | Compatibility role |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| DOM-ID-001 | O-001 | ADR-0001 / Decisão | CANONICAL_OWNER | §13 | Stable persistent identity, lineage, revision, historical resolution, distinct kinds; canonical STAGE identity for WorkflowPipeline. | downstream references | UNKNOWN_SPEC, INELIGIBLE_REVISION | OWNER new path/replay |
+| DOM-INGEST-001 | O-002 | ADR-0001 / Invariantes | CANONICAL_OWNER | §13 | Processing starts only from explicit manual governed-artifact input. | none | INVALID_COMMAND_BASIS | OWNER new path |
+| DOM-SNAPSHOT-001 | O-003 | ADR-0001 / Decisão | CANONICAL_OWNER | §13 | Immutable pre-execution snapshot contains eligible ADRs/hashes, base, configuration, and exact versions. | EXEC-001; PLAT | INVALID_COMMAND_BASIS, STALE_REVISION | OWNER new path/replay |
+| DOM-ELIG-001 | O-004 | ADR-0001 / Invariantes | CANONICAL_OWNER | §13 | Only accepted ADRs and eligible revisions enter the snapshot; others fail closed. | ADR/revision authority | INELIGIBLE_REVISION | OWNER new path |
+| DOM-LINEAGE-001 | O-005 | ADR-0001 / Decisão | CANONICAL_OWNER | §13 | Explicit, verifiable, many-to-many ADR-SPEC lineage with independent progress. | none | INVALID_COMMAND_BASIS | OWNER new path |
+| DOM-LIFE-001 | O-006 | ADR-0001 / Invariantes | CANONICAL_OWNER | §13 | Decision and realization lifecycles are separate and cannot silently mutate one another. | realization consumers | INVALID_COMMAND_BASIS | OWNER new path |
+| DOM-REV-001 | O-007 | ADR-0001 / Invariantes | CANONICAL_OWNER | §13 | ADR remediation creates a revision, preserves lineage, and invalidates prior eligibility. | downstream mappings | INELIGIBLE_REVISION | OWNER cutover |
+| DOM-IMMUT-001 | O-008 | ADR-0001 / Decisão/Invariantes | CANONICAL_OWNER | §13 | Implemented ADRs are immutable; succession is reciprocal; operational metadata is persistent-record data. | PLAT, REPO | INELIGIBLE_REVISION | OWNER replay |
+| DOM-PIPE-001 | O-009 | ADR-0002 / Decisão | CANONICAL_OWNER | §13 | Canonical phase order is enforced and later restoration needs complete immediate-transition provenance. | PLAT provenance/replay | INVALID_DEPENDENCY_CLOSURE, STALE_REVISION | OWNER new path/replay |
+| DOM-STATE-001 | O-010 | ADR-0002 / Decisão | CANONICAL_OWNER | §13 | Aggregate state machines remain separate; derived state is not a second authority; provenance is immutable. | PLAT provenance/replay | INVALID_COMMAND_BASIS | OWNER new path/replay |
+| DOM-CMD-001 | O-011 | ADR-0002 / Regras | CANONICAL_OWNER | §13 | Commands validate canonical preconditions, reject and record invalid transitions, and cause no effect. | PLAT, BACKEND | INVALID_COMMAND_BASIS, STALE_REVISION | OWNER new path |
+| DOM-TICKET-001 | O-012 | ADR-0002 / Transições | CANONICAL_OWNER | §13 | Exactly six ticket functional states; completed/cancelled are terminal. | none | INVALID_COMMAND_BASIS | OWNER new path |
+| DOM-TICKET-002 | O-013 | ADR-0002 / Transições | CANONICAL_OWNER | §13 | Exactly eight valid ticket transitions; all others reject and record. | none | INVALID_COMMAND_BASIS | OWNER new path |
+| DOM-PUB-001 | O-014 | ADR-0002 / Vocabulário | CANONICAL_OWNER | §13 | Candidate, approval, integration, PR merge, and remote confirmation remain distinct; Git execution is foreign. | GIT evidence | INVALID_COMMAND_BASIS, STALE_REVISION | OWNER new path/cutover |
+| DOM-ADV-001 | O-015 | ADR-0002 / Regras | CANONICAL_OWNER | §13 | No auditable advance without formal verdict; independent progress and cooperative cancellation remain distinct. | EXEC, PLAT, GIT | INVALID_DEPENDENCY_CLOSURE, INVALID_COMMAND_BASIS | OWNER new path |
+| DOM-AUDIT-001 | O-049 | ADR-0009 / Decisão | CANONICAL_OWNER | §13 | Every governed artifact has distinct artifact, cycle, and round identities. | EXEC references | INVALID_COMMAND_BASIS | OWNER new path |
+| DOM-AUDIT-002 | O-050 | ADR-0009 / Decisão | CANONICAL_OWNER | §13 | Only a structured verdict for the exact cycle closes it. | audit consumers | INVALID_COMMAND_BASIS | OWNER new path |
+| DOM-AUDIT-003 | O-051 | ADR-0009 / Decisão | CANONICAL_OWNER | §13 | Ten-round initial limit is configurable; affected unit pauses; continuation is explicit. | EXEC | INVALID_COMMAND_BASIS | OWNER cutover |
+| DOM-AUDIT-004 | O-052 | ADR-0009 / Decisão | CANONICAL_OWNER | §13 | Final conformance checks adherence, coverage, integration, regressions, tests, omissions, extrapolations. | all evidence | INVALID_COMMAND_BASIS | OWNER new path |
+| DOM-AUDIT-005 | O-053 | ADR-0009 / Decisão | CANONICAL_OWNER | §13 | Normative change invalidates affected approvals, preserves history, and creates linked adjustment without reopening completed tickets. | PLAT, GIT, EXEC | STALE_REVISION, INVALID_COMMAND_BASIS | OWNER cutover |
+| DOM-AUDIT-006 | O-054 | ADR-0009 / Decisão | CANONICAL_OWNER | §13 | Exact base/head/tree and hash-linked evidence are required; drift invalidates authorization. | GIT, PLAT, OPS | STALE_REVISION, INVALID_COMMAND_BASIS | OWNER replay |
 
 ## 6. Existing Implementation Inventory
 
-| Surface | Material repository evidence | Assessment |
+| Surface | Material evidence | Assessment |
 | --- | --- | --- |
-| Domain and application | prototype/src/mockDomain.ts:700-744 creates scenario state, identities, tickets, findings, snapshots, publication, onboarding, and events in memory; :938-940 requests/clones/advances commands in memory | Prototype-only; no productive DOM authority |
-| Execution and scheduler | mockDomain.ts exposes scheduler registration, queue, leases, capacity, eligibility, and dispatch functions | Prototype-only scheduler simulation; scheduler is not a DOM implementation |
-| Persistence, journal, outbox, recovery | Recovery and journal-shaped fields exist in mockDomain.ts:719, :814-816, :909; no durable store or migration exists | Simulation only; no productive persistence/recovery |
-| Repository/Git/GitHub integration | Publication and onboarding fields/transitions exist in mockDomain.ts:720-721 and :910-928; no Git adapter, GitHub client, process execution, or repository service exists | Simulation only; foreign execution remains outside DOM |
-| Backend/API/transport/security | No server, route, transport, localhost listener, token, credential, or authentication implementation found; App.tsx imports mock state directly at line 3 | No productive consumer surface |
-| Operations/projections/UI | prototype/src/App.tsx provides views and controls; :52, :58, :73-75 explicitly describe/render mock state and events | UI is a prototype projection and does not establish authority |
-| Tests and probes | prototype/tests/mockDomain.test.ts and ui.test.ts contain 92 prototype/mock tests; fresh-adversarial-probe.ts is an independent mock probe | Test existence is real but scope is prototype-only |
-| Compatibility and cutover | Scenarios include drift, PR, migration, and ADR mutation; no production adapter, replay store, or cutover path exists | No productive compatibility implementation |
-
-The prototype README states that Git, GitHub, Codex CLI, database, email, and
-backend are simulated in memory, no external integration is executed, and the
-domain is centralized in mockDomain.ts. That statement is direct evidence
-against treating the prototype as the productive implementation.
+| Domain identity | src/domain/identity.ts:1-372; application handler src/application/identity.ts:1-34 | Immutable canonical identity/reference/record and revision catalog ports; no concrete durable repository. |
+| Snapshot/eligibility | src/domain/snapshot.ts:1-363; src/application/snapshot.ts:1-83 | Immutable in-memory basis and explicit command; caller status/hash accepted; no durable store. |
+| Lineage | src/domain/lineage.ts:1-150; src/application/lineage.ts:1-58 | Immutable relation/progress and repository ports; no concrete durable many-to-many repository. |
+| Pipeline/state | src/domain/pipeline.ts:1-384; src/application/pipeline.ts:1-66 | Immediate order, separate state inputs, derivation, and CAS-backed advance; scalar rehydration and PipelineId conflict with SPEC. |
+| Tickets/publication/audit | No productive symbols/files under src/ | Missing; prototype only. |
+| Persistence/recovery | No database, migration, journal, outbox, checkpoint, concrete repository, or durable evidence implementation. | Missing; interfaces do not prove availability. |
+| Runtime/API/security/operations/UI | No productive host/API/auth/Git/operations/UI under src/; UI is prototype/src. | Foreign/downstream surfaces absent or prototype-only. |
+| Tests | tests/dom-001-ticket-001.test.ts:122-514; ticket-002:96-215; ticket-004:67-192 | Productive slice tests exist; execution is separate below. |
+| Prototype | prototype/README.md states all domain, backend, database, Git, email, and GitHub behavior is in-memory simulation. | Supporting evidence only. |
 
 ## 7. Implementation Gap Matrix
 
-The primary matrix has one row per normative requirement. Test existence and
-test execution are deliberately separate. Every requirement is locally owned,
-so no pure foreign requirement is classified OWNED_BY_OTHER_SPEC.
+Test existence and test execution remain separate dimensions in this table.
 
 | Gap ID | Requirement ID | Portfolio Obligation ID | Ownership Role | Requirement Summary | Classification | Implementation Evidence | Test Evidence | Exact Delta / Verification Blocker | Owner | Dependencies | Confidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| GAP-001 | DOM-ID-001 | O-001 | CANONICAL_OWNER | Persistent aggregate identities and lineage | MISSING | No productive identity catalog; prototype creates in-memory IDs in mockDomain.ts:700-744 | Prototype existence: persistent-ID scenarios in prototype/tests/mockDomain.test.ts. Execution: npm test, 92/92 pass | OBSERVED: only mock identities exist. REQUIRED: durable canonical identity and historical resolution. DELTA: no productive identity authority path. | SPEC-DOM-001 | None | HIGH |
-| GAP-002 | DOM-INGEST-001 | O-002 | CANONICAL_OWNER | Explicit manual processing entry | MISSING | No productive submission boundary; prototype UI invokes mock commands from App.tsx:58 | Prototype existence: snapshot/start UI tests. Execution: npm test, 92/92 pass | OBSERVED: mock buttons initiate simulated commands. REQUIRED: manual entry is the only processing trigger. DELTA: no productive ingestion gate. | SPEC-DOM-001 | None | HIGH |
-| GAP-003 | DOM-SNAPSHOT-001 | O-003 | CANONICAL_OWNER | Immutable authority snapshot | MISSING | Snapshot fields and lock behavior exist only in mockDomain.ts:709, :758, :938-940 | Prototype existence: snapshot integrity and START_RUN tests at mockDomain.test.ts:1001-1040. Execution: npm test, 92/92 pass | OBSERVED: in-memory snapshot can be cloned and simulated. REQUIRED: immutable pre-execution snapshot with exact authority/version semantics. DELTA: no productive DOM snapshot authority that freezes the required inputs and rejects later authority drift. | SPEC-DOM-001 | None (normative); integration refs: SPEC-EXEC-001 version contract; SPEC-PLAT-001 persistence/recovery (foreign, not a DOM gap) | HIGH |
-| GAP-004 | DOM-ELIG-001 | O-004 | CANONICAL_OWNER | Accepted-only ADR eligibility | MISSING | eligibleAdrs and validateAdrIntegrity exist only in mockDomain.ts:749-758 | Prototype existence: ADR eligibility/hash negative tests at mockDomain.test.ts:1001-1032. Execution: npm test, 92/92 pass | OBSERVED: mock filtering fails closed in memory. REQUIRED: productive fail-closed eligibility authority with no fallback. DELTA: no productive eligibility evaluator. | SPEC-DOM-001 | None | HIGH |
-| GAP-005 | DOM-LINEAGE-001 | O-005 | CANONICAL_OWNER | Explicit independent many-to-many ADR/SPEC lineage | MISSING | Prototype stores adrIds and artifactCycleId fields in mock state; no productive lineage registry exists | Prototype existence: UI lineage scenario and mock state tests. Execution: npm test, 92/92 pass | OBSERVED: mock arrays display relationships. REQUIRED: explicit independently mutable/verifiable lineage. DELTA: no productive lineage authority. | SPEC-DOM-001 | None | HIGH |
-| GAP-006 | DOM-LIFE-001 | O-006 | CANONICAL_OWNER | Separate decision and realization lifecycles | MISSING | Prototype defines decision and implementation-like fields in mockDomain.ts:27-40 and :711; no productive lifecycle authority | Prototype existence: lifecycle/state tests in mockDomain.test.ts. Execution: npm test, 92/92 pass | OBSERVED: mock fields model separated statuses. REQUIRED: productive lifecycle separation and authorized mutation boundaries. DELTA: no productive lifecycle state authority. | SPEC-DOM-001 | None | HIGH |
-| GAP-007 | DOM-REV-001 | O-007 | CANONICAL_OWNER | Revision by remediation and eligibility invalidation | MISSING | ADR mutation/restoration is only an in-memory scenario in mockDomain.ts:737, :927 | Prototype existence: mockDomain.test.ts:823-827 and :1101-1104. Execution: npm test, 92/92 pass | OBSERVED: mock mutation scenario resets a mock snapshot. REQUIRED: revisioned remediation preserving lineage and invalidating prior derived eligibility. DELTA: no productive revision/cutover path. | SPEC-DOM-001 | None | HIGH |
-| GAP-008 | DOM-IMMUT-001 | O-008 | CANONICAL_OWNER | Immutable implemented ADRs and succession | MISSING | No productive ADR registry; prototype can mutate mock ADR state in :737 and :927 | Prototype existence: hash divergence/restoration tests. Execution: npm test, 92/92 pass | OBSERVED: mock record mutation/restoration is reversible in memory. REQUIRED: productive DOM immutability and reciprocal succession semantics; external evidence remains a separate contract. DELTA: no productive DOM immutability/succession authority; external evidence persistence/projection is foreign scope. | SPEC-DOM-001 | None (normative); integration refs: SPEC-PLAT-001 evidence persistence; SPEC-OPS-001 operational evidence projection/preservation (foreign, not a DOM gap) | HIGH |
-| GAP-009 | DOM-PIPE-001 | O-009 | CANONICAL_OWNER | Canonical pipeline ordering | MISSING | App.tsx renders stage labels and mockDomain.ts advances scenario steps; no productive pipeline coordinator exists | Prototype existence: normal-flow and stage tests. Execution: npm test, 92/92 pass | OBSERVED: UI/mock state shows an ordered scenario. REQUIRED: productive enforcement that no stage bypasses or completes a later stage. DELTA: no productive pipeline authority. | SPEC-DOM-001 | None | HIGH |
-| GAP-010 | DOM-STATE-001 | O-010 | CANONICAL_OWNER | Separate aggregate state machines and derived higher states | MISSING | Mock state has separate fields/types, but no productive aggregate state machines or projection boundary exists | Prototype existence: transition, ticket, publication, and scheduler tests. Execution: npm test, 92/92 pass | OBSERVED: TypeScript mock fields represent multiple states. REQUIRED: productive independent state machines with controlled derivation and no second authority. DELTA: no productive state-machine authority. | SPEC-DOM-001 | None | HIGH |
-| GAP-011 | DOM-CMD-001 | O-011 | CANONICAL_OWNER | Preconditions, rejection, and no partial effect | MISSING | requestCommand/advanceCommand validate and mutate cloned mock state at mockDomain.ts:938-940; no productive command boundary | Prototype existence: 92 tests include invalid transitions, stale state, and no-effect checks. Execution: npm test, 92/92 pass | OBSERVED: mock validation records simulated rejection. REQUIRED: productive canonical command validation, rejection semantics, and no state/effect mutation. DELTA: no productive DOM command authority for validation and no-transition semantics; durable journal/effect evidence is foreign scope. | SPEC-DOM-001 | None (normative); integration ref: SPEC-PLAT-001 journal/effect evidence (foreign, not a DOM gap) | HIGH |
-| GAP-012 | DOM-TICKET-001 | O-012 | CANONICAL_OWNER | Normative ticket states and terminality | MISSING | Ticket state types/fixtures exist in mockDomain.ts:17 and :712 only | Prototype existence: ticket transition and cancellation tests. Execution: npm test, 92/92 pass | OBSERVED: mock tickets expose the required labels. REQUIRED: productive terminal functional state authority and linked-ticket continuation rule. DELTA: no productive ticket aggregate. | SPEC-DOM-001 | None | HIGH |
-| GAP-013 | DOM-TICKET-002 | O-013 | CANONICAL_OWNER | Complete valid ticket transition table | MISSING | Mock validation has scenario-specific transitions; no productive ticket transition authority exists | Prototype existence: invalid transition and DAG/ticket tests. Execution: npm test, 92/92 pass | OBSERVED: mock transition guards are executable only in the prototype. REQUIRED: productive exact transition table with audit registration. DELTA: no productive transition authority. | SPEC-DOM-001 | None | HIGH |
-| GAP-014 | DOM-PUB-001 | O-014 | CANONICAL_OWNER | Publication vocabulary and remote confirmation distinction | MISSING | Publication state/type fields and mock effects exist at mockDomain.ts:22, :720, :910-917; no productive domain/GIT boundary | Prototype existence: publication, drift, PR, merge, and remote confirmation tests. Execution: npm test, 92/92 pass | OBSERVED: mock state distinguishes PR_MERGED and REMOTE_PUBLICATION_CONFIRMED. REQUIRED: productive canonical vocabulary and acceptance of foreign publication evidence without executing Git. DELTA: no productive publication authority boundary. | SPEC-DOM-001 | None; GIT remains foreign execution owner | HIGH |
-| GAP-015 | DOM-ADV-001 | O-015 | CANONICAL_OWNER | Verdict-gated independent advancement and cooperative cancellation | MISSING | Mock scenario transitions and cancellation exist in memory; no productive advancement/cancellation authority | Prototype existence: verdict, pause, cancel, conflict, and progress tests. Execution: npm test, 92/92 pass | OBSERVED: mock guards advance simulated work. REQUIRED: productive formal-verdict gates, independent progress, cooperative cancellation, and remote-effect preservation. DELTA: no productive advancement authority. | SPEC-DOM-001 | None | HIGH |
-| GAP-016 | DOM-AUDIT-001 | O-049 | CANONICAL_OWNER | Formal artifact/cycle/round identities | MISSING | Mock fields include artifactCycleId and round in :32, :713-714; no productive audit-cycle registry | Prototype existence: audit/remediation/round tests. Execution: npm test, 92/92 pass | OBSERVED: mock activities carry cycle/round labels. REQUIRED: productive formal cycles for every governed artifact without implicit reuse. DELTA: no productive audit-cycle authority. | SPEC-DOM-001 | None | HIGH |
-| GAP-017 | DOM-AUDIT-002 | O-050 | CANONICAL_OWNER | Structured verdict closes cycles | MISSING | Findings and audit commands are simulated in mockDomain.ts:716 and :886-928; no productive verdict boundary | Prototype existence: audit/remediation/reaudit tests. Execution: npm test, 92/92 pass | OBSERVED: mock state marks findings and commands. REQUIRED: only structured verdict closes a cycle and remediation cannot approve. DELTA: no productive structured-verdict authority. | SPEC-DOM-001 | None | HIGH |
-| GAP-018 | DOM-AUDIT-003 | O-051 | CANONICAL_OWNER | Ten-round limit and explicit continuation | MISSING | Mock rounds scenario and AUTHORIZE_ROUND command exist in memory; no productive cycle policy | Prototype existence: round-limit and authorization tests. Execution: npm test, 92/92 pass | OBSERVED: mock round 10 scenario requires a simulated command. REQUIRED: productive configurable limit, unit-local pause, and explicit authorization record. DELTA: no productive round policy. | SPEC-DOM-001 | None | HIGH |
-| GAP-019 | DOM-AUDIT-004 | O-052 | CANONICAL_OWNER | Final conformance coverage and regression checks | MISSING | Prototype labels a conformance stage and report artifact, but no productive final conformance evaluator exists | Prototype existence: complete journey and conformance scenario tests. Execution: npm test, 92/92 pass | OBSERVED: mock journey reaches simulated conformance/publication. REQUIRED: productive final conformance that verifies all named dimensions after ticket completion. DELTA: no productive final-conformance authority. | SPEC-DOM-001 | None | HIGH |
-| GAP-020 | DOM-AUDIT-005 | O-053 | CANONICAL_OWNER | Downstream invalidation after normative change | MISSING | Mock drift/mutation scenarios change in-memory state; no productive downstream approval registry or linked adjustment-ticket behavior | Prototype existence: drift, mutation, and invalidation tests. Execution: npm test, 92/92 pass | OBSERVED: mock publication/snapshot values are invalidated in memory. REQUIRED: productive downstream invalidation preserving history without reopening completed tickets. DELTA: no productive cutover/invalidation authority. | SPEC-DOM-001 | None | HIGH |
-| GAP-021 | DOM-AUDIT-006 | O-054 | CANONICAL_OWNER | Exact base/head/tree and hash-linked conformance evidence | MISSING | Mock publication stores SHA/tree fields and evidence IDs at mockDomain.ts:720, :911-917; no productive candidate/evidence binding | Prototype existence: publication identity/evidence tests and fresh-adversarial-probe.ts. Execution: npm test, npm run lint, npm run build, and npx tsx fresh-adversarial-probe.ts all pass for the prototype | OBSERVED: mock hashes and evidence IDs are deterministic in memory. REQUIRED: productive DOM conformance identity and drift-invalidating publication gate. DELTA: no productive DOM candidate identity/evidence gate; GIT publication evidence and PLAT/OPS physical preservation/replay remain foreign scope. | SPEC-DOM-001 | None (normative); integration refs: SPEC-GIT-001 publication evidence; SPEC-PLAT-001 preservation/replay; SPEC-OPS-001 operational preservation/replay (foreign, not DOM gaps) | HIGH |
+| GAP-001, GAP-002 | DOM-ID-001 | O-001 | CANONICAL_OWNER | Persistent identities and canonical pipeline identity | CONTRADICTORY | Generic catalog exists; PipelineId and no concrete persistence exist. | Productive identity/pipeline tests; command below 27/27 PASS. | OBSERVED: in-memory catalog and local PipelineId. REQUIRED: durable identity and canonical STAGE reference. DELTA: persistence absent and parallel authority active. | SPEC-DOM-001 | PLAT; downstream references | HIGH |
+| GAP-003 | DOM-INGEST-001 | O-002 | CANONICAL_OWNER | Manual processing entry | PARTIAL | Explicit SubmitManualExecutionHandler exists; no host-wide trigger boundary. | Productive manual-entry negative test; 27/27 PASS; prototype separately 92/92. | OBSERVED: explicit handler only. REQUIRED: sole processing trigger. DELTA: runtime-wide enforcement absent. | SPEC-DOM-001 | none | HIGH |
+| GAP-004, GAP-005 | DOM-SNAPSHOT-001 | O-003 | CANONICAL_OWNER | Immutable exact snapshot | CONTRADICTORY | Immutable in-memory snapshot; no durable store; basis comes from caller. | Productive snapshot tests; 27/27 PASS. | GAP-004 OBSERVED: no durable snapshot. REQUIRED: durable pre-execution basis. DELTA: persistence absent. GAP-005 OBSERVED: caller supplies status/hash. REQUIRED: current canonical authority. DELTA: caller authority bypass. | SPEC-DOM-001 | PLAT; EXEC-001 | HIGH |
+| GAP-005 | DOM-ELIG-001 | O-004 | CANONICAL_OWNER | Accepted-only eligibility | CONTRADICTORY | Policy checks supplied status and kind, not canonical lifecycle/revision. | Supplied-status negatives; 27/27 PASS. | OBSERVED: supplied ACCEPTED is sufficient. REQUIRED: actual ADR lifecycle/revision authority. DELTA: eligibility bypass. | SPEC-DOM-001 | ADR authority catalog | HIGH |
+| GAP-006 | DOM-LINEAGE-001 | O-005 | CANONICAL_OWNER | Independent many-to-many lineage | PARTIAL | Relation/progress and ports exist; no durable repository. | Productive lineage tests; 27/27 PASS. | OBSERVED: in-memory relation contract. REQUIRED: durable, independently queryable relation. DELTA: concrete storage absent. | SPEC-DOM-001 | none | HIGH |
+| GAP-007 | DOM-LIFE-001 | O-006 | CANONICAL_OWNER | Separated lifecycles | MISSING | No productive decision/realization lifecycle model. | Prototype only; 92/92 PASS. | OBSERVED: no productive lifecycle authority. REQUIRED: separate lifecycles and authorized transitions. DELTA: model absent. | SPEC-DOM-001 | realization consumers | HIGH |
+| GAP-008 | DOM-REV-001 | O-007 | CANONICAL_OWNER | Revision/remediation invalidation | MISSING | Generic identity revision is not ADR remediation or eligibility invalidation. | Prototype only; 92/92 PASS. | OBSERVED: no ADR remediation. REQUIRED: revision, lineage preservation, derived invalidation. DELTA: cutover behavior absent. | SPEC-DOM-001 | downstream mappings | HIGH |
+| GAP-009 | DOM-IMMUT-001 | O-008 | CANONICAL_OWNER | Implemented ADR immutability/succession | MISSING | No ADR registry, implemented guard, reciprocal succession, or operational record. | Prototype only; 92/92 PASS. | OBSERVED: no productive immutability boundary. REQUIRED: immutable implemented ADR and successor relation. DELTA: behavior absent. | SPEC-DOM-001 | PLAT; REPO | HIGH |
+| GAP-010 | DOM-PIPE-001, DOM-STATE-001 | O-009, O-010 | CANONICAL_OWNER | Ordered pipeline, separate machines, provenance rehydration | CONTRADICTORY | Ordering/derivation exists; rehydrate accepts scalar stage/revision with no chain. | Productive ordering/state tests; no chain witness; 27/27 PASS. | OBSERVED: later state materializes from scalars. REQUIRED: complete immediate-transition provenance. DELTA: forged/skipped later state accepted. | SPEC-DOM-001 | PLAT | HIGH |
+| GAP-011 | DOM-CMD-001 | O-011 | CANONICAL_OWNER | Command preconditions/rejection/no effect | PARTIAL | Pipeline handler validates id/target/CAS; no generic command/rejection journal/verdict checks. | Productive invalid/stale tests; 27/27 PASS. | OBSERVED: one in-memory command path. REQUIRED: all command families reject/record canonical reasons. DELTA: enforcement incomplete. | SPEC-DOM-001 | PLAT; BACKEND | HIGH |
+| GAP-012 | DOM-CMD-001 | O-011 | CANONICAL_OWNER | Canonical failure semantics | PARTIAL | Local errors use component-specific names and no durable semantic record. | Local error assertions; 27/27 PASS; no mapping execution. | OBSERVED: INELIGIBLE_ADR and PIPELINE_STALE are local labels. REQUIRED: approved DOM failure taxonomy and preserved meaning. DELTA: canonical failure boundary absent. | SPEC-DOM-001 | BACKEND; OPS; UI | HIGH |
+| GAP-013 | DOM-ADV-001 | O-015 | CANONICAL_OWNER | Verdict-gated advancement/cancellation | CONTRADICTORY | Advance validates target/revision only; no verdict/dependency/cancellation model. | Prototype only; 92/92 PASS. | OBSERVED: advance can occur without formal verdict. REQUIRED: verdict and dependency gates plus cooperative cancellation. DELTA: premature advancement permitted. | SPEC-DOM-001 | EXEC; PLAT; GIT | HIGH |
+| GAP-014 | DOM-TICKET-001 | O-012 | CANONICAL_OWNER | Ticket states/terminality | MISSING | No productive ticket aggregate. | Prototype only; 92/92 PASS. | OBSERVED: no productive ticket authority. REQUIRED: six functional states and terminal semantics. DELTA: state model absent. | SPEC-DOM-001 | none | HIGH |
+| GAP-015 | DOM-TICKET-002 | O-013 | CANONICAL_OWNER | Ticket transition table | MISSING | No productive transition command/recorder. | Prototype only; 92/92 PASS. | OBSERVED: no productive transition table. REQUIRED: eight valid transitions and rejection of all others. DELTA: enforcement absent. | SPEC-DOM-001 | none | HIGH |
+| GAP-016 | DOM-PUB-001 | O-014 | CANONICAL_OWNER | Publication vocabulary | MISSING | No productive publication model or DOM-GIT evidence boundary. | Prototype only; 92/92 PASS. | OBSERVED: publication exists only in mock. REQUIRED: distinct states and foreign Git execution. DELTA: productive vocabulary absent. | SPEC-DOM-001 | GIT | HIGH |
+| GAP-017 | DOM-AUDIT-001 | O-049 | CANONICAL_OWNER | Artifact/cycle/round identities | MISSING | No productive audit-cycle identity registry. | Prototype only; 92/92 PASS. | OBSERVED: no productive cycle identity. REQUIRED: distinct identities without implicit reuse. DELTA: authority absent. | SPEC-DOM-001 | EXEC | HIGH |
+| GAP-018 | DOM-AUDIT-002 | O-050 | CANONICAL_OWNER | Structured verdict closure | MISSING | No productive structured verdict/closure command. | Prototype only; 92/92 PASS. | OBSERVED: no productive closure. REQUIRED: exact structured verdict closes cycle. DELTA: remediation cannot be separated from approval. | SPEC-DOM-001 | audit consumers | HIGH |
+| GAP-019 | DOM-AUDIT-003 | O-051 | CANONICAL_OWNER | Ten-round limit/continuation | MISSING | No productive round counter, pause, or authorization. | Prototype only; 92/92 PASS. | OBSERVED: no productive policy. REQUIRED: configurable limit and explicit affected-unit continuation. DELTA: enforcement absent. | SPEC-DOM-001 | EXEC | HIGH |
+| GAP-020 | DOM-AUDIT-004 | O-052 | CANONICAL_OWNER | Final conformance evaluation | MISSING | No productive evaluator. | Prototype only; 92/92 PASS. | OBSERVED: no productive final conformance. REQUIRED: all named dimensions and remediation return. DELTA: evaluator absent. | SPEC-DOM-001 | all evidence | HIGH |
+| GAP-021 | DOM-AUDIT-005 | O-053 | CANONICAL_OWNER | Normative-change invalidation | MISSING | No downstream approval registry or cutover path. | Prototype only; 92/92 PASS. | OBSERVED: no productive invalidation. REQUIRED: obsolete affected approvals, preserved history, linked new adjustment without reopening completed tickets. DELTA: cutover absent. | SPEC-DOM-001 | PLAT; GIT; EXEC | HIGH |
+| GAP-022 | DOM-AUDIT-006 | O-054 | CANONICAL_OWNER | Exact candidate evidence/drift gate | MISSING | No productive base/head/tree binding or hash-linked evidence gate. | Prototype only; 92/92 PASS. | OBSERVED: mock fields only. REQUIRED: exact candidate revalidation and drift invalidation before publication. DELTA: gate absent. | SPEC-DOM-001 | GIT; PLAT; OPS | HIGH |
 
 ## 8. Detailed Gap Records
 
-Each record below is one distinct Gap ID. No requirements were grouped because
-their authoritative obligation, observable behavior, and closure evidence are
-materially distinct even though the same absent productive runtime is the
-repository-wide underlying condition.
+Each record below is exactly one distinct Gap ID. Deltas describe observed
+behavior, not implementation prescriptions.
 
 ### GAP-001
 
 - Affected Requirements: DOM-ID-001.
 - Portfolio Obligations: O-001.
-- Gap Category: BEHAVIOR_MISSING.
-- Severity: MAJOR.
-- Normative Expectation: DOM owns stable persistent identity, lineage,
-  historical resolution, and identity distinction across all listed
-  aggregates.
-- Current Repository Behavior: Only in-memory prototype identities are created.
-- Repository Evidence: prototype/src/mockDomain.ts:700-744; prototype/README.md:37-39.
-- Test Existence Evidence: prototype/tests/mockDomain.test.ts contains
-  persistent-publication and shared-execution identity tests.
-- Test Execution Evidence: npm test — PASS, 92 tests passed, 0 failed.
-- Exact Delta: No productive canonical identity catalog or historical resolver
-  exists; mock identity generation is not durable implementation evidence.
-- Ownership Boundary: DOM owns canonical identity; scheduler, persistence,
-  Git, backend, operations, and UI may reference or project it only.
-- Dependencies: None.
-- Observed Repository Boundary: prototype/mock boundary only.
-- Acceptance Evidence Needed: Executable productive tests proving identity
-  creation, uniqueness, immutability, scope, lineage, and invalid-reference
-  rejection.
+- Gap Category: BEHAVIOR_PARTIAL. Severity: MAJOR.
+- Normative Expectation: durable, unique, immutable, scoped, revisioned identity and historical resolution.
+- Current Repository Behavior: immutable identity value objects/catalog and repository ports exist; no durable repository.
+- Repository Evidence: src/domain/identity.ts:108-367; tests/dom-001-ticket-001.test.ts:122-379.
+- Test Existence Evidence: creation, uniqueness, revision, exact lookup, immutability, and filename-rejection assertions.
+- Test Execution Evidence: productive command below, 27/27 PASS.
+- Exact Delta: productive durable identity storage and historical resolution are absent.
+- Ownership Boundary: DOM owns identity meaning; PLAT owns physical durability. LOCAL_OBLIGATION: identity semantics. FOREIGN_OBLIGATION: physical storage. FOREIGN_OWNER: SPEC-PLAT-001. LOCAL_INTEGRATION_EXPECTATION: rehydration preserves canonical identity.
+- Dependencies: PLAT physical persistence.
+- Observed Repository Boundary: domain ports only; no adapter.
+- Acceptance Evidence Needed: durable creation, uniqueness, exact historical lookup, invalid-reference, and rehydration witnesses.
 
 ### GAP-002
 
-- Affected Requirements: DOM-INGEST-001.
-- Portfolio Obligations: O-002.
-- Gap Category: BEHAVIOR_MISSING.
-- Severity: MAJOR.
-- Normative Expectation: Explicit manual submission is the sole processing
-  trigger.
-- Current Repository Behavior: Prototype buttons call mock commands directly.
-- Repository Evidence: prototype/src/App.tsx:58; mockDomain.ts:938-940.
-- Test Existence Evidence: UI snapshot/start tests exist in
-  prototype/tests/ui.test.ts:108-132.
-- Test Execution Evidence: npm test — PASS, 92 tests passed, 0 failed.
-- Exact Delta: No productive ingestion boundary prevents file discovery,
-  absent SPEC, or session state from initiating processing.
-- Ownership Boundary: DOM owns manual-entry semantics; UI can request only.
-- Dependencies: None.
-- Observed Repository Boundary: Prototype interaction boundary.
-- Acceptance Evidence Needed: Productive negative tests for automatic discovery,
-  absent-SPEC initiation, and session-triggered initiation.
+- Affected Requirements: DOM-ID-001.
+- Portfolio Obligations: O-001.
+- Gap Category: BEHAVIOR_CONTRADICTORY. Severity: MAJOR.
+- Normative Expectation: WorkflowPipeline uses CanonicalIdentityReference kind STAGE, scope ExecutionId, value StageId as its sole identity.
+- Current Repository Behavior: WorkflowPipeline owns and resolves PipelineId.
+- Repository Evidence: src/domain/pipeline.ts:63-83,309-343; src/application/pipeline.ts:16-24.
+- Test Existence Evidence: tests assert PipelineId behavior, not the mandated Stage reference.
+- Test Execution Evidence: productive command below, 27/27 PASS.
+- Exact Delta: PipelineId is an alternate productive canonical authority.
+- Ownership Boundary: DOM owns canonical identity. LOCAL_OBLIGATION: canonical pipeline identity. FOREIGN_OBLIGATION: none. FOREIGN_OWNER: none. LOCAL_INTEGRATION_EXPECTATION: consumers receive only the canonical Stage reference.
+- Dependencies: none.
+- Observed Repository Boundary: src/domain/pipeline.ts.
+- Acceptance Evidence Needed: direct positive/negative witness that the Stage reference is the sole pipeline authority.
 
 ### GAP-003
 
-- Affected Requirements: DOM-SNAPSHOT-001.
-- Portfolio Obligations: O-003.
-- Gap Category: BEHAVIOR_MISSING.
-- Severity: MAJOR.
-- Normative Expectation: Immutable pre-execution snapshot freezes eligible ADR
-  hashes, base, configuration, and exact versions.
-- Current Repository Behavior: Snapshot is a cloneable in-memory object.
-- Repository Evidence: mockDomain.ts:709, :758, :938-940.
-- Test Existence Evidence: snapshot integrity and start revalidation tests at
-  mockDomain.test.ts:1001-1040.
-- Test Execution Evidence: npm test — PASS, 92 tests passed, 0 failed.
-- Exact Delta:
-  - OBSERVED: Only an in-memory mock snapshot can be cloned and simulated.
-  - REQUIRED: DOM-owned immutable pre-execution snapshot semantics that freeze
-    eligible ADR hashes, base, configuration, and exact applicable versions and
-    reject later authority drift.
-  - DELTA: No productive DOM snapshot authority exists. Durable persistence and
-    recovery are not part of this local delta.
-- Ownership Boundary:
-  - LOCAL_OBLIGATION: DOM owns snapshot identity, frozen authority/version
-    semantics, and drift rejection.
-  - FOREIGN_OBLIGATION: EXEC-001 owns the referenced version contract; PLAT-001
-    owns physical persistence and recovery of the snapshot/evidence.
-  - FOREIGN_OWNER: SPEC-EXEC-001; SPEC-PLAT-001.
-  - LOCAL_INTEGRATION_EXPECTATION: DOM consumes exact version metadata and
-    exposes the canonical snapshot boundary for PLAT persistence/recovery;
-    neither consumer redefines DOM semantics.
-- Dependencies: None (normative upstream; DOM is the DAG root). Non-normative
-  integration references are SPEC-EXEC-001 (version contract) and
-  SPEC-PLAT-001 (persistence/recovery). Foreign implementation state is absent
-  from the assessed productive repository and is not a local DOM gap.
-- Observed Repository Boundary: Prototype state object.
-- Acceptance Evidence Needed: Productive DOM tests for snapshot creation, lock,
-  later authority drift, and no mutable overwrite, plus separate contract and
-  integration evidence for exact version consumption and PLAT persistence/
-  recovery.
+- Affected Requirements: DOM-INGEST-001.
+- Portfolio Obligations: O-002.
+- Gap Category: BEHAVIOR_PARTIAL. Severity: MAJOR.
+- Normative Expectation: only explicit manual governed-artifact input starts processing.
+- Current Repository Behavior: SubmitManualExecutionHandler requires an explicit command; no runtime host proves the sole trigger.
+- Repository Evidence: src/application/snapshot.ts:19-83; tests/dom-001-ticket-002.test.ts:141-157.
+- Test Existence Evidence: discovery-only input and explicit command assertions.
+- Test Execution Evidence: productive command below, 27/27 PASS; prototype command, 92/92 PASS, separately.
+- Exact Delta: manual submission exists, but runtime-wide trigger enforcement is absent.
+- Ownership Boundary: DOM owns the entry gate; BACKEND/UI are mappings. LOCAL_OBLIGATION: manual trigger. FOREIGN_OBLIGATION: transport invocation. FOREIGN_OWNER: BACKEND/UI. LOCAL_INTEGRATION_EXPECTATION: discovery/session state cannot start processing.
+- Dependencies: none.
+- Observed Repository Boundary: application handler without host.
+- Acceptance Evidence Needed: runtime positive manual-start and negative discovery/session-start witnesses.
 
 ### GAP-004
 
-- Affected Requirements: DOM-ELIG-001.
-- Portfolio Obligations: O-004.
-- Gap Category: BEHAVIOR_MISSING.
-- Severity: MAJOR.
-- Normative Expectation: Only ACCEPTED ADRs at eligible revisions enter the
-  snapshot; all other cases fail closed.
-- Current Repository Behavior: In-memory filters and hash checks simulate the
-  rule.
-- Repository Evidence: mockDomain.ts:749-758.
-- Test Existence Evidence: mockDomain.test.ts:1001-1032 tests incomplete,
-  divergent, and implemented ADR conditions.
-- Test Execution Evidence: npm test — PASS, 92 tests passed, 0 failed.
-- Exact Delta: No productive eligibility authority or no-fallback rejection
-  path exists.
-- Ownership Boundary: DOM owns ADR eligibility; consumers cannot promote
-  proposed or stale ADRs.
-- Dependencies: None.
-- Observed Repository Boundary: Prototype integrity helper.
-- Acceptance Evidence Needed: Productive acceptance/rejection tests across all
-  listed lifecycle and revision cases.
+- Affected Requirements: DOM-SNAPSHOT-001.
+- Portfolio Obligations: O-003.
+- Gap Category: BEHAVIOR_PARTIAL. Severity: MAJOR.
+- Normative Expectation: snapshot basis is durably recorded before execution and replayable.
+- Current Repository Behavior: immutable snapshot and persistence port exist, but no durable implementation.
+- Repository Evidence: src/domain/snapshot.ts:211-326,328-363; src/application/snapshot.ts:55-83.
+- Test Existence Evidence: immutable confirmation and rehydration tests/dom-001-ticket-002.test.ts:96-215.
+- Test Execution Evidence: productive command below, 27/27 PASS; no durable execution witness.
+- Exact Delta: concrete durable snapshot persistence/recovery is absent.
+- Ownership Boundary: DOM owns snapshot meaning; PLAT owns storage/recovery. LOCAL_OBLIGATION: immutable basis. FOREIGN_OBLIGATION: durable storage. FOREIGN_OWNER: SPEC-PLAT-001. LOCAL_INTEGRATION_EXPECTATION: persisted material rehydrates unchanged.
+- Dependencies: PLAT persistence/recovery.
+- Observed Repository Boundary: ExecutionSnapshotRepository port only.
+- Acceptance Evidence Needed: restart/replay witness for all fields and corrupt/missing material rejection.
 
 ### GAP-005
 
-- Affected Requirements: DOM-LINEAGE-001.
-- Portfolio Obligations: O-005.
-- Gap Category: BEHAVIOR_MISSING.
-- Severity: MAJOR.
-- Normative Expectation: ADR-to-SPEC lineage is explicit, verifiable,
-  many-to-many, and independently progressed.
-- Current Repository Behavior: Mock state stores arrays of ADR IDs and display
-  metadata.
-- Repository Evidence: mockDomain.ts:705-711; App.tsx:62.
-- Test Existence Evidence: UI lineage scenario and mock relationship coverage
-  exist.
-- Test Execution Evidence: npm test — PASS, 92 tests passed, 0 failed.
-- Exact Delta: No productive lineage registry or independent update boundary
-  exists.
-- Ownership Boundary: DOM owns lineage; downstream progress is a projection.
-- Dependencies: None.
-- Observed Repository Boundary: Prototype display/state boundary.
-- Acceptance Evidence Needed: Productive tests proving many-to-many resolution
-  and isolation of progress between ADRs and SPECs.
+- Affected Requirements: DOM-SNAPSHOT-001, DOM-ELIG-001.
+- Portfolio Obligations: O-003, O-004.
+- Gap Category: BEHAVIOR_CONTRADICTORY. Severity: MAJOR.
+- Normative Expectation: eligibility and snapshot hashes/statuses come from canonical ADR authority, not caller claims.
+- Current Repository Behavior: handler resolves identity; policy accepts caller decisionStatus and contentHash.
+- Repository Evidence: src/application/snapshot.ts:41-53; src/domain/snapshot.ts:139-201.
+- Test Existence Evidence: tests reject supplied non-accepted statuses, but do not mutate canonical status and try false ACCEPTED.
+- Test Execution Evidence: productive command below, 27/27 PASS.
+- Exact Delta: caller can supply ACCEPTED and a hash without independent lifecycle/content validation.
+- Ownership Boundary: DOM owns ADR eligibility/snapshot authority. LOCAL_OBLIGATION: canonical read/validation. FOREIGN_OBLIGATION: none. FOREIGN_OWNER: none. LOCAL_INTEGRATION_EXPECTATION: current ADR revision/status is resolved before freezing.
+- Dependencies: canonical ADR lifecycle authority.
+- Observed Repository Boundary: application command input into domain value objects.
+- Acceptance Evidence Needed: mutation-window negative witness for false status/hash.
 
 ### GAP-006
 
-- Affected Requirements: DOM-LIFE-001.
-- Portfolio Obligations: O-006.
-- Gap Category: BEHAVIOR_MISSING.
-- Severity: MAJOR.
-- Normative Expectation: Decision and realization lifecycles are separate and
-  authorized independently.
-- Current Repository Behavior: Mock types expose decision and implementation
-  statuses but no productive lifecycle authority exists.
-- Repository Evidence: mockDomain.ts:27-40, :711.
-- Test Existence Evidence: lifecycle and state tests exist in
-  prototype/tests/mockDomain.test.ts.
-- Test Execution Evidence: npm test — PASS, 92 tests passed, 0 failed.
-- Exact Delta: No productive lifecycle transition authority prevents silent
-  cross-lifecycle mutation.
-- Ownership Boundary: DOM owns both lifecycle semantics; consumers map them.
-- Dependencies: None.
-- Observed Repository Boundary: TypeScript mock model.
-- Acceptance Evidence Needed: Productive tests for independent lifecycle
-  transitions and acceptance/implementation separation.
+- Affected Requirements: DOM-LINEAGE-001.
+- Portfolio Obligations: O-005.
+- Gap Category: BEHAVIOR_PARTIAL. Severity: MAJOR.
+- Normative Expectation: explicit ADR-SPEC many-to-many relations are durable, independently progressing, and queryable.
+- Current Repository Behavior: immutable relation/progress and ports exist; storage is absent.
+- Repository Evidence: src/domain/lineage.ts:57-150; src/application/lineage.ts:1-58.
+- Test Existence Evidence: productive independent relation, duplicate, progress, rehydration, and concurrency assertions.
+- Test Execution Evidence: productive command below, 27/27 PASS.
+- Exact Delta: no concrete durable lineage catalog.
+- Ownership Boundary: DOM owns relation meaning/progress. LOCAL_OBLIGATION: lineage. FOREIGN_OBLIGATION: none. FOREIGN_OWNER: none. LOCAL_INTEGRATION_EXPECTATION: historical relations remain independently addressable.
+- Dependencies: none.
+- Observed Repository Boundary: AdrSpecLineageRepository interface only.
+- Acceptance Evidence Needed: restart continuity and durable multiple-relation witnesses.
 
 ### GAP-007
 
-- Affected Requirements: DOM-REV-001.
-- Portfolio Obligations: O-007.
-- Gap Category: COMPATIBILITY_VIOLATION.
-- Severity: MAJOR.
-- Normative Expectation: Remediation creates a new revision, preserves lineage,
-  and invalidates eligibility derived from changed content.
-- Current Repository Behavior: ADR mutation/restoration is a reversible
-  in-memory scenario.
-- Repository Evidence: mockDomain.ts:737, :927.
-- Test Existence Evidence: mockDomain.test.ts:823-827 and :1101-1104.
-- Test Execution Evidence: npm test — PASS, 92 tests passed, 0 failed.
-- Exact Delta: No productive revision cutover or historical lineage-preserving
-  invalidation exists.
-- Ownership Boundary: DOM owns revision/cutover semantics.
-- Dependencies: None.
-- Observed Repository Boundary: Prototype governance scenario.
-- Acceptance Evidence Needed: Productive tests for successor revision, old
-  eligibility invalidation, and preserved historical relation.
+- Affected Requirements: DOM-LIFE-001.
+- Portfolio Obligations: O-006.
+- Gap Category: BEHAVIOR_MISSING. Severity: MAJOR.
+- Normative Expectation: decision and realization lifecycles are separate and only authorized transitions cross the boundary.
+- Current Repository Behavior: no productive lifecycle model exists.
+- Repository Evidence: no lifecycle symbols under src/; prototype/src/mockDomain.ts only.
+- Test Existence Evidence: prototype lifecycle scenarios only.
+- Test Execution Evidence: npm --prefix prototype test, 92/92 PASS; no productive direct test.
+- Exact Delta: productive lifecycle authority is absent.
+- Ownership Boundary: DOM owns semantic lifecycles; EXEC/GIT/PLAT provide realization contracts. LOCAL_OBLIGATION: lifecycle separation. FOREIGN_OBLIGATION: execution details. FOREIGN_OWNER: EXEC/GIT/PLAT. LOCAL_INTEGRATION_EXPECTATION: execution cannot mutate decision state implicitly.
+- Dependencies: realization consumers.
+- Observed Repository Boundary: prototype-only state.
+- Acceptance Evidence Needed: lifecycle isolation and authorized-transition witnesses.
 
 ### GAP-008
 
-- Affected Requirements: DOM-IMMUT-001.
-- Portfolio Obligations: O-008.
-- Gap Category: COMPATIBILITY_VIOLATION.
-- Severity: MAJOR.
-- Normative Expectation: Implemented ADRs are immutable and succeed only through
-  a reciprocal successor relation with external operational evidence.
-- Current Repository Behavior: Mock ADR records can be changed/restored in
-  memory; no productive registry exists.
-- Repository Evidence: mockDomain.ts:737, :927; prototype/README.md:37-39.
-- Test Existence Evidence: hash-divergence and restoration tests exist.
-- Test Execution Evidence: npm test — PASS, 92 tests passed, 0 failed.
-- Exact Delta:
-  - OBSERVED: Mock ADR record mutation/restoration is reversible in memory.
-  - REQUIRED: DOM-owned immutable implemented ADR semantics with reciprocal
-    successor linkage; operational evidence remains outside the ADR document.
-  - DELTA: No productive DOM immutability or succession authority exists.
-    External evidence persistence and operational projection are foreign scope.
-- Ownership Boundary:
-  - LOCAL_OBLIGATION: DOM owns normative ADR immutability, successor relations,
-    and historical semantic linkage.
-  - FOREIGN_OBLIGATION: PLAT-001 owns durable evidence persistence; OPS-001
-    owns operational evidence projection/preservation.
-  - FOREIGN_OWNER: SPEC-PLAT-001; SPEC-OPS-001.
-  - LOCAL_INTEGRATION_EXPECTATION: DOM exposes the successor/evidence identity
-    needed by foreign persistence and projection without assigning those
-    physical responsibilities to DOM.
-- Dependencies: None (normative upstream; DOM is the DAG root). Non-normative
-  integration references are SPEC-PLAT-001 (evidence persistence) and
-  SPEC-OPS-001 (operational projection/preservation). Foreign implementation
-  state is absent from the assessed productive repository and is not a local
-  DOM gap.
-- Observed Repository Boundary: Prototype-only ADR mutation scenario.
-- Acceptance Evidence Needed: Productive DOM tests proving silent rewrite
-  rejection and reciprocal succession, plus separate PLAT/OPS evidence proving
-  persistence and projection preserve the linked record.
+- Affected Requirements: DOM-REV-001.
+- Portfolio Obligations: O-007.
+- Gap Category: COMPATIBILITY_VIOLATION. Severity: MAJOR.
+- Normative Expectation: ADR remediation increments revision, preserves lineage/history, and invalidates derived eligibility.
+- Current Repository Behavior: generic identity revision exists, but no ADR remediation/content invalidation.
+- Repository Evidence: src/domain/identity.ts:206-280; no ADR lifecycle under src/.
+- Test Existence Evidence: prototype mutation/restoration only.
+- Test Execution Evidence: prototype command, 92/92 PASS; no productive direct test.
+- Exact Delta: accepted-ADR cutover and prior-basis invalidation are absent.
+- Ownership Boundary: DOM owns revision/cutover; REPO/BACKEND/OPS map it. LOCAL_OBLIGATION: revision/invalidation. FOREIGN_OBLIGATION: legacy adaptation/projection. FOREIGN_OWNER: REPO/BACKEND/OPS. LOCAL_INTEGRATION_EXPECTATION: stale derived eligibility is not reused.
+- Dependencies: downstream approval records.
+- Observed Repository Boundary: generic identity utility.
+- Acceptance Evidence Needed: revision/cutover witness preserving historical lineage.
 
 ### GAP-009
 
-- Affected Requirements: DOM-PIPE-001.
-- Portfolio Obligations: O-009.
-- Gap Category: BEHAVIOR_MISSING.
-- Severity: MAJOR.
-- Normative Expectation: The canonical governance pipeline cannot bypass or
-  complete later stages early.
-- Current Repository Behavior: Prototype renders ordered labels and advances
-  simulated scenario state.
-- Repository Evidence: App.tsx:52, :62; mockDomain.ts:863-884.
-- Test Existence Evidence: normal-flow and stage tests exist.
-- Test Execution Evidence: npm test — PASS, 92 tests passed, 0 failed.
-- Exact Delta: No productive pipeline authority enforces stage order or
-  prevents transport-driven reordering.
-- Ownership Boundary: DOM owns ordering; consumers cannot reorder phases.
-- Dependencies: None.
-- Observed Repository Boundary: UI/mock scenario.
-- Acceptance Evidence Needed: Productive tests for every stage boundary and
-  prohibited bypass.
+- Affected Requirements: DOM-IMMUT-001.
+- Portfolio Obligations: O-008.
+- Gap Category: BEHAVIOR_MISSING. Severity: MAJOR.
+- Normative Expectation: implemented ADR is immutable, succession reciprocal, and operational metadata is outside the ADR document.
+- Current Repository Behavior: no productive ADR registry or implemented-state guard.
+- Repository Evidence: no ADR/succession symbols under src/; prototype is non-authoritative.
+- Test Existence Evidence: prototype hash/succession scenarios only.
+- Test Execution Evidence: prototype command, 92/92 PASS.
+- Exact Delta: productive immutability, succession, and record boundary are absent.
+- Ownership Boundary: DOM owns immutability; PLAT stores operational evidence; REPO adapts legacy. LOCAL_OBLIGATION: ADR guard/succession. FOREIGN_OBLIGATION: physical evidence/legacy path. FOREIGN_OWNER: PLAT/REPO. LOCAL_INTEGRATION_EXPECTATION: consumers cannot rewrite implemented ADRs.
+- Dependencies: PLAT evidence; REPO compatibility.
+- Observed Repository Boundary: prototype mock.
+- Acceptance Evidence Needed: mutation rejection, reciprocal succession, and document-metadata isolation witnesses.
 
 ### GAP-010
 
-- Affected Requirements: DOM-STATE-001.
-- Portfolio Obligations: O-010.
-- Gap Category: BEHAVIOR_MISSING.
-- Severity: MAJOR.
-- Normative Expectation: Separate aggregate state machines exist and higher
-  states derive without a second canonical authority.
-- Current Repository Behavior: MockState contains multiple fields and enums,
-  but no productive aggregate/state implementation exists.
-- Repository Evidence: mockDomain.ts:15-23, :90-103.
-- Test Existence Evidence: transition, ticket, publication, and scheduler tests
-  exist.
-- Test Execution Evidence: npm test — PASS, 92 tests passed, 0 failed.
-- Exact Delta: No productive state-machine authority or projection rule can
-  prevent implicit combined transitions.
-- Ownership Boundary: DOM owns canonical states; backend/OPS/UI/GIT remain
-  mappings or projections.
-- Dependencies: None.
-- Observed Repository Boundary: In-memory TypeScript model.
-- Acceptance Evidence Needed: Productive tests for separate transitions,
-  derivation, and projection non-authority.
+- Affected Requirements: DOM-PIPE-001, DOM-STATE-001.
+- Portfolio Obligations: O-009, O-010.
+- Gap Category: BEHAVIOR_CONTRADICTORY. Severity: MAJOR.
+- Normative Expectation: later restoration requires canonical identity plus complete append-only immediate-transition provenance.
+- Current Repository Behavior: order and state derivation exist; rehydrate accepts stage/revision scalars without provenance.
+- Repository Evidence: src/domain/pipeline.ts:106-115,245-298,303-343; tests/dom-001-ticket-004.test.ts:67-156.
+- Test Existence Evidence: ordering/state tests exist; no chain completeness/skip/forgery witness.
+- Test Execution Evidence: productive command below, 27/27 PASS.
+- Exact Delta: forged/skipped later state can materialize without creation record, predecessor chain, or final snapshot match.
+- Ownership Boundary: DOM owns progression; PLAT stores/replays provenance. LOCAL_OBLIGATION: semantic reconstruction. FOREIGN_OBLIGATION: physical journal/replay. FOREIGN_OWNER: SPEC-PLAT-001. LOCAL_INTEGRATION_EXPECTATION: supplied chain is validated before materialization.
+- Dependencies: PLAT provenance/replay.
+- Observed Repository Boundary: scalar rehydration API.
+- Acceptance Evidence Needed: valid-chain, skip, missing predecessor, duplicate/order, divergence, and forged-state witnesses.
 
 ### GAP-011
 
 - Affected Requirements: DOM-CMD-001.
 - Portfolio Obligations: O-011.
-- Gap Category: BEHAVIOR_MISSING.
-- Severity: MAJOR.
-- Normative Expectation: Domain commands validate canonical preconditions,
-  record rejection, and make no state/effect change when rejected.
-- Current Repository Behavior: Mock request/advance functions clone and mutate
-  in-memory state.
-- Repository Evidence: mockDomain.ts:938-940.
-- Test Existence Evidence: prototype tests cover invalid transitions, stale
-  state, no-effect rejection, and command status.
-- Test Execution Evidence: npm test — PASS, 92 tests passed, 0 failed.
-- Exact Delta:
-  - OBSERVED: Mock validation records simulated rejection while mutating cloned
-    in-memory state.
-  - REQUIRED: DOM-owned validation of identity, revision, state, dependency, and
-    verdict preconditions with rejection and no state/effect mutation.
-  - DELTA: No productive DOM command authority exists for validation, rejection,
-    and no-transition semantics. Durable journal/effect evidence is foreign
-    scope.
-- Ownership Boundary:
-  - LOCAL_OBLIGATION: DOM owns command preconditions, rejection semantics, and
-    the no-state/no-effect transition rule.
-  - FOREIGN_OBLIGATION: PLAT-001 owns durable journal and effect evidence;
-    BACKEND/UI map the canonical command/result.
-  - FOREIGN_OWNER: SPEC-PLAT-001 for durable evidence; SPEC-BACKEND-001 and
-    SPEC-UI-001 are consumers/mappers only.
-  - LOCAL_INTEGRATION_EXPECTATION: DOM emits/accepts correlated command and
-    rejection/effect evidence through the PLAT contract; mappings do not alter
-    preconditions or semantic outcomes.
-- Dependencies: None (normative upstream; DOM is the DAG root). Non-normative
-  integration reference is SPEC-PLAT-001 (journal/effect evidence). Foreign
-  implementation state is absent from the assessed productive repository and is
-  not a local DOM gap.
-- Observed Repository Boundary: Prototype command loop.
-- Acceptance Evidence Needed: Productive DOM positive and negative command tests,
-  including stale identity/revision, dependency, and verdict cases, plus
-  separate PLAT evidence for durable rejection/effect recording.
+- Gap Category: BEHAVIOR_PARTIAL. Severity: MAJOR.
+- Normative Expectation: every command validates canonical preconditions, records rejection, and causes no state/effect mutation.
+- Current Repository Behavior: one pipeline handler validates id/target/CAS; generic command/rejection journal/verdict checks are absent.
+- Repository Evidence: src/application/pipeline.ts:16-40.
+- Test Existence Evidence: productive invalid/stale/no-mutation tests; no all-command/rejection-record witness.
+- Test Execution Evidence: productive command below, 27/27 PASS.
+- Exact Delta: enforcement and recording cover only one in-memory path.
+- Ownership Boundary: DOM owns command semantics; PLAT records; BACKEND maps. LOCAL_OBLIGATION: preconditions/no-effect. FOREIGN_OBLIGATION: journal/transport. FOREIGN_OWNER: PLAT/BACKEND. LOCAL_INTEGRATION_EXPECTATION: rejection meaning is preserved.
+- Dependencies: PLAT journal; BACKEND mapping.
+- Observed Repository Boundary: application handler and repository port.
+- Acceptance Evidence Needed: command-family positive/negative/no-effect witnesses.
 
 ### GAP-012
 
-- Affected Requirements: DOM-TICKET-001.
-- Portfolio Obligations: O-012.
-- Gap Category: BEHAVIOR_MISSING.
-- Severity: MAJOR.
-- Normative Expectation: Ticket functional states and terminality are canonical;
-  operational states cannot become functional states.
-- Current Repository Behavior: Mock ticket type and fixture contain the labels.
-- Repository Evidence: mockDomain.ts:17-18, :712.
-- Test Existence Evidence: ticket terminality and cancellation tests exist.
-- Test Execution Evidence: npm test — PASS, 92 tests passed, 0 failed.
-- Exact Delta: No productive ticket aggregate enforces the state set,
-  terminality, or linked-ticket continuation rule.
-- Ownership Boundary: DOM owns ticket functional state; execution/ops states
-  are separate consumers.
-- Dependencies: None.
-- Observed Repository Boundary: Prototype fixture.
-- Acceptance Evidence Needed: Productive tests for state set, terminal states,
-  and new-ticket continuation after cancellation.
+- Affected Requirements: DOM-CMD-001.
+- Portfolio Obligations: O-011.
+- Gap Category: FAILURE_SEMANTIC_VIOLATION. Severity: MAJOR.
+- Normative Expectation: DOM failure family/code meaning, retryability, terminality, and recovery semantics remain canonical.
+- Current Repository Behavior: local codes include INELIGIBLE_ADR, PIPELINE_STALE, and PIPELINE_NOT_FOUND; no canonical registry/record.
+- Repository Evidence: src/domain/snapshot.ts:9-19; src/domain/pipeline.ts:31-38.
+- Test Existence Evidence: tests assert local codes only; no cross-layer mapping test.
+- Test Execution Evidence: productive command below, 27/27 PASS.
+- Exact Delta: productive boundary has not preserved the approved DOM failure taxonomy.
+- Ownership Boundary: DOM owns semantic failures; BACKEND/OPS/UI map/log/present. LOCAL_OBLIGATION: canonical meaning. FOREIGN_OBLIGATION: mapping/logging. FOREIGN_OWNER: BACKEND/OPS/UI. LOCAL_INTEGRATION_EXPECTATION: mappings cannot rename meaning.
+- Dependencies: mapping contracts.
+- Observed Repository Boundary: domain error classes.
+- Acceptance Evidence Needed: all five DOM-owned code mapping and negative retry/recovery witnesses.
 
 ### GAP-013
 
-- Affected Requirements: DOM-TICKET-002.
-- Portfolio Obligations: O-013.
-- Gap Category: BEHAVIOR_MISSING.
-- Severity: MAJOR.
-- Normative Expectation: Exactly the eight specified ticket transitions are
-  valid; all others are rejected and recorded.
-- Current Repository Behavior: Mock validation implements scenario guards only.
-- Repository Evidence: mockDomain.ts:826-845 and :886-928.
-- Test Existence Evidence: invalid transition, DAG, cancellation, and
-  integration tests exist.
-- Test Execution Evidence: npm test — PASS, 92 tests passed, 0 failed.
-- Exact Delta: No productive exact transition table or audit record exists.
-- Ownership Boundary: DOM owns ticket transitions; Git and UI cannot redefine
-  them.
-- Dependencies: None.
-- Observed Repository Boundary: Prototype transition helper.
-- Acceptance Evidence Needed: Productive tests for all eight valid transitions
-  and every prohibited transition.
+- Affected Requirements: DOM-ADV-001.
+- Portfolio Obligations: O-015.
+- Gap Category: BEHAVIOR_CONTRADICTORY. Severity: MAJOR.
+- Normative Expectation: formal verdict and dependency closure gate every auditable advance; cancellation is cooperative.
+- Current Repository Behavior: advance validates target/revision only; no verdict/dependency/cancellation model.
+- Repository Evidence: src/application/pipeline.ts:16-40.
+- Test Existence Evidence: prototype verdict/cancellation scenarios only.
+- Test Execution Evidence: prototype command, 92/92 PASS; no productive direct test.
+- Exact Delta: productive advance is possible without formal verdict.
+- Ownership Boundary: DOM owns advancement/cancellation; EXEC/PLAT/GIT provide evidence/effects. LOCAL_OBLIGATION: gates/cooperative state. FOREIGN_OBLIGATION: execution/effects. FOREIGN_OWNER: EXEC/PLAT/GIT. LOCAL_INTEGRATION_EXPECTATION: foreign evidence does not redefine gates.
+- Dependencies: EXEC/PLAT/GIT contracts.
+- Observed Repository Boundary: pipeline application handler.
+- Acceptance Evidence Needed: no-verdict, closed-dependency, and cooperative-cancellation witnesses.
 
 ### GAP-014
 
-- Affected Requirements: DOM-PUB-001.
-- Portfolio Obligations: O-014.
-- Gap Category: BEHAVIOR_MISSING.
-- Severity: MAJOR.
-- Normative Expectation: Candidate, approval, local integration, PR, merge, and
-  remote confirmation are distinct canonical states.
-- Current Repository Behavior: Mock publication states and effects simulate
-  them in memory.
-- Repository Evidence: mockDomain.ts:22, :720, :910-917.
-- Test Existence Evidence: publication direct-push, PR, drift, merge, and
-  remote-confirmation tests exist.
-- Test Execution Evidence: npm test — PASS, 92 tests passed, 0 failed.
-- Exact Delta: No productive DOM publication vocabulary or evidence
-  acceptance boundary exists.
-- Ownership Boundary: DOM owns vocabulary and gates; SPEC-GIT-001 owns
-  execution/confirmation.
-- Dependencies: None.
-- Observed Repository Boundary: Prototype publication scenario.
-- Acceptance Evidence Needed: Productive tests proving PR_MERGED cannot close
-  publication and foreign evidence is mapped without semantic alteration.
+- Affected Requirements: DOM-TICKET-001.
+- Portfolio Obligations: O-012.
+- Gap Category: BEHAVIOR_MISSING. Severity: MAJOR.
+- Normative Expectation: exactly six functional ticket states and terminal no-reopen semantics.
+- Current Repository Behavior: no productive ticket aggregate/state model.
+- Repository Evidence: no ticket symbols under src/; prototype only.
+- Test Existence Evidence: prototype state assertions only.
+- Test Execution Evidence: prototype command, 92/92 PASS.
+- Exact Delta: productive ticket state authority is absent.
+- Ownership Boundary: DOM owns ticket semantics; EXEC/GIT/BACKEND/UI map. LOCAL_OBLIGATION: ticket state. FOREIGN_OBLIGATION: execution/transport. FOREIGN_OWNER: EXEC/GIT/BACKEND/UI. LOCAL_INTEGRATION_EXPECTATION: operational states cannot become functional authority.
+- Dependencies: none.
+- Observed Repository Boundary: prototype mock.
+- Acceptance Evidence Needed: six-state and terminal no-reopen witnesses.
 
 ### GAP-015
 
-- Affected Requirements: DOM-ADV-001.
-- Portfolio Obligations: O-015.
-- Gap Category: BEHAVIOR_MISSING.
-- Severity: MAJOR.
-- Normative Expectation: Formal verdict gates advancement, progress is
-  independent, pause/cancel are cooperative, and remote effects are preserved.
-- Current Repository Behavior: Mock scenarios simulate these guards.
-- Repository Evidence: mockDomain.ts:830-845, :886-928.
-- Test Existence Evidence: verdict, pause, cancellation, conflict, and
-  independent progress tests exist.
-- Test Execution Evidence: npm test — PASS, 92 tests passed, 0 failed.
-- Exact Delta: No productive advancement or cooperative-cancellation
-  authority exists.
-- Ownership Boundary: DOM owns decision/gate semantics; scheduler, Git, and UI
-  consume them.
-- Dependencies: None.
-- Observed Repository Boundary: Prototype scenario state.
-- Acceptance Evidence Needed: Productive tests for no-verdict rejection,
-  independent advancement, cooperative cancellation, and effect preservation.
+- Affected Requirements: DOM-TICKET-002.
+- Portfolio Obligations: O-013.
+- Gap Category: BEHAVIOR_MISSING. Severity: MAJOR.
+- Normative Expectation: exactly eight valid ticket transitions; every other transition rejects and records.
+- Current Repository Behavior: no productive ticket transition command/recorder.
+- Repository Evidence: no ticket transition symbols under src/.
+- Test Existence Evidence: prototype transition tests only.
+- Test Execution Evidence: prototype command, 92/92 PASS.
+- Exact Delta: productive transition enforcement is absent.
+- Ownership Boundary: DOM owns transition validity. LOCAL_OBLIGATION: transition table. FOREIGN_OBLIGATION: none. FOREIGN_OWNER: none. LOCAL_INTEGRATION_EXPECTATION: invalid transitions do not mutate state.
+- Dependencies: none.
+- Observed Repository Boundary: prototype mock.
+- Acceptance Evidence Needed: all eight positive and representative invalid/terminal witnesses.
 
 ### GAP-016
 
-- Affected Requirements: DOM-AUDIT-001.
-- Portfolio Obligations: O-049.
-- Gap Category: BEHAVIOR_MISSING.
-- Severity: MAJOR.
-- Normative Expectation: Every governed artifact has explicit artifact, cycle,
-  and round identity without implicit cycle reuse.
-- Current Repository Behavior: Mock activities carry cycle and round fields.
-- Repository Evidence: mockDomain.ts:32, :713-714.
-- Test Existence Evidence: audit/remediation/round tests exist.
-- Test Execution Evidence: npm test — PASS, 92 tests passed, 0 failed.
-- Exact Delta: No productive audit-cycle identity registry spans the governed
-  artifact set.
-- Ownership Boundary: DOM owns cycle identity; assignments/sessions are
-  related contracts and not substitutes.
-- Dependencies: None.
-- Observed Repository Boundary: Prototype activity fixture.
-- Acceptance Evidence Needed: Productive tests for unique artifact-cycle
-  identity and prohibited implicit reuse.
+- Affected Requirements: DOM-PUB-001.
+- Portfolio Obligations: O-014.
+- Gap Category: BEHAVIOR_MISSING. Severity: MAJOR.
+- Normative Expectation: publication candidate, approval, integration, PR merge, and remote confirmation are distinct; Git execution is GIT-owned.
+- Current Repository Behavior: no productive publication model or DOM-GIT boundary.
+- Repository Evidence: no publication symbols under src/; mock only.
+- Test Existence Evidence: prototype publication/drift/remote tests only.
+- Test Execution Evidence: prototype command, 92/92 PASS.
+- Exact Delta: productive vocabulary and foreign-evidence consumption are absent.
+- Ownership Boundary: DOM owns vocabulary/gates; GIT owns execution/confirmation. LOCAL_OBLIGATION: states. FOREIGN_OBLIGATION: push/PR/merge evidence. FOREIGN_OWNER: SPEC-GIT-001. LOCAL_INTEGRATION_EXPECTATION: PR_MERGED cannot become remote confirmation locally.
+- Dependencies: GIT evidence.
+- Observed Repository Boundary: prototype publication model.
+- Acceptance Evidence Needed: state distinction and no-DOM-Git-execution witnesses.
 
 ### GAP-017
 
-- Affected Requirements: DOM-AUDIT-002.
-- Portfolio Obligations: O-050.
-- Gap Category: BEHAVIOR_MISSING.
-- Severity: MAJOR.
-- Normative Expectation: Only a structured verdict closes a cycle; remediation
-  and process termination cannot approve.
-- Current Repository Behavior: Mock findings and command effects simulate
-  remediation/reaudit states.
-- Repository Evidence: mockDomain.ts:716, :886-928.
-- Test Existence Evidence: audit, remediation, reauditing, and verdict tests
-  exist.
-- Test Execution Evidence: npm test — PASS, 92 tests passed, 0 failed.
-- Exact Delta: No productive structured-verdict authority or closure boundary
-  exists.
-- Ownership Boundary: DOM owns verdict semantics; consumers may transport or
-  project them.
-- Dependencies: None.
-- Observed Repository Boundary: Prototype audit scenario.
-- Acceptance Evidence Needed: Productive tests proving structured verdict
-  identity/revision/cycle/round and remediation non-approval.
+- Affected Requirements: DOM-AUDIT-001.
+- Portfolio Obligations: O-049.
+- Gap Category: BEHAVIOR_MISSING. Severity: MAJOR.
+- Normative Expectation: each governed artifact has distinct artifact/cycle/round identity.
+- Current Repository Behavior: no productive audit-cycle identity registry.
+- Repository Evidence: no audit-cycle symbols under src/; prototype only.
+- Test Existence Evidence: prototype audit/remediation/round tests only.
+- Test Execution Evidence: prototype command, 92/92 PASS.
+- Exact Delta: formal cycle identity and non-reuse are absent.
+- Ownership Boundary: DOM owns cycle identity; EXEC supplies sessions/assignments. LOCAL_OBLIGATION: artifact/cycle/round identity. FOREIGN_OBLIGATION: session execution. FOREIGN_OWNER: SPEC-EXEC-002. LOCAL_INTEGRATION_EXPECTATION: session identity cannot replace cycle identity.
+- Dependencies: EXEC references.
+- Observed Repository Boundary: prototype mock.
+- Acceptance Evidence Needed: distinct-cycle and non-reuse witnesses.
 
 ### GAP-018
 
-- Affected Requirements: DOM-AUDIT-003.
-- Portfolio Obligations: O-051.
-- Gap Category: BEHAVIOR_MISSING.
-- Severity: MAJOR.
-- Normative Expectation: Ten-round limit pauses only the affected unit and
-  requires explicit continuation authorization.
-- Current Repository Behavior: Mock rounds scenario models round 10 and an
-  authorization command in memory.
-- Repository Evidence: mockDomain.ts:730, :837, :901.
-- Test Existence Evidence: round-limit and authorization tests exist.
-- Test Execution Evidence: npm test — PASS, 92 tests passed, 0 failed.
-- Exact Delta: No productive configurable round policy, local pause, or
-  authorization record exists.
-- Ownership Boundary: DOM owns cycle-round policy; execution carries out only
-  authorized continuation.
-- Dependencies: None.
-- Observed Repository Boundary: Prototype round scenario.
-- Acceptance Evidence Needed: Productive tests for the tenth round, unit
-  isolation, and single explicit continuation authorization.
+- Affected Requirements: DOM-AUDIT-002.
+- Portfolio Obligations: O-050.
+- Gap Category: BEHAVIOR_MISSING. Severity: MAJOR.
+- Normative Expectation: only a structured verdict for the exact artifact/revision/cycle/round closes a cycle.
+- Current Repository Behavior: no productive verdict/closure command.
+- Repository Evidence: no verdict symbols under src/; prototype only.
+- Test Existence Evidence: prototype verdict/remediation separation only.
+- Test Execution Evidence: prototype command, 92/92 PASS.
+- Exact Delta: productive closure cannot distinguish verdict from remediation/no findings.
+- Ownership Boundary: DOM owns closure; audit consumers map. LOCAL_OBLIGATION: structured closure. FOREIGN_OBLIGATION: audit execution. FOREIGN_OWNER: EXEC/consumer auditors. LOCAL_INTEGRATION_EXPECTATION: omission cannot self-approve.
+- Dependencies: audit records.
+- Observed Repository Boundary: prototype mock.
+- Acceptance Evidence Needed: structured-verdict positive and remediation-only negative witnesses.
 
 ### GAP-019
 
-- Affected Requirements: DOM-AUDIT-004.
-- Portfolio Obligations: O-052.
-- Gap Category: BEHAVIOR_MISSING.
-- Severity: MAJOR.
-- Normative Expectation: Final conformance checks adherence, coverage,
-  integration, regressions, tests, omissions, and extrapolations.
-- Current Repository Behavior: Prototype labels a conformance stage and
-  scenario, without a productive evaluator.
-- Repository Evidence: App.tsx:52, :62; mockDomain.ts:711-712.
-- Test Existence Evidence: complete journey and conformance scenario tests
-  exist.
-- Test Execution Evidence: npm test — PASS, 92 tests passed, 0 failed.
-- Exact Delta: No productive final-conformance authority verifies the complete
-  required set after ticket completion.
-- Ownership Boundary: DOM owns conformance lifecycle; implementation audits
-  provide evidence but cannot define closure.
-- Dependencies: None.
-- Observed Repository Boundary: Prototype stage/report projection.
-- Acceptance Evidence Needed: Productive tests for all final-conformance
-  dimensions and failure return to remediation.
+- Affected Requirements: DOM-AUDIT-003.
+- Portfolio Obligations: O-051.
+- Gap Category: BEHAVIOR_MISSING. Severity: MAJOR.
+- Normative Expectation: configurable ten-round limit, affected-unit pause, and explicit continuation.
+- Current Repository Behavior: no productive round counter/pause/authorization.
+- Repository Evidence: no round-policy symbols under src/; prototype only.
+- Test Existence Evidence: prototype round-limit tests only.
+- Test Execution Evidence: prototype command, 92/92 PASS.
+- Exact Delta: productive limit and continuation authorization are absent.
+- Ownership Boundary: DOM owns round semantics; EXEC executes activities. LOCAL_OBLIGATION: limit/pause/authorization. FOREIGN_OBLIGATION: activity scheduling. FOREIGN_OWNER: SPEC-EXEC-002. LOCAL_INTEGRATION_EXPECTATION: no implicit approval or cross-unit pause.
+- Dependencies: EXEC.
+- Observed Repository Boundary: prototype mock.
+- Acceptance Evidence Needed: tenth-round, unit isolation, and explicit continuation witnesses.
 
 ### GAP-020
 
-- Affected Requirements: DOM-AUDIT-005.
-- Portfolio Obligations: O-053.
-- Gap Category: COMPATIBILITY_VIOLATION.
-- Severity: MAJOR.
-- Normative Expectation: Normative change invalidates dependent downstream
-  approvals, preserves history, returns to the affected documentation stage,
-  and creates linked adjustment/substitution tickets.
-- Current Repository Behavior: Mock drift and ADR mutation invalidate simulated
-  state only.
-- Repository Evidence: mockDomain.ts:737, :910-912, :927.
-- Test Existence Evidence: drift, mutation, and invalidation tests exist.
-- Test Execution Evidence: npm test — PASS, 92 tests passed, 0 failed.
-- Exact Delta: No productive downstream approval registry, cutover authority,
-  or linked adjustment-ticket behavior exists.
-- Ownership Boundary: DOM owns invalidation/cutover; downstream components
-  consume the resulting status.
-- Dependencies: None.
-- Observed Repository Boundary: Prototype drift scenario.
-- Acceptance Evidence Needed: Productive tests for selective invalidation,
-  preserved completed tickets, and linked adjustment/substitution history.
+- Affected Requirements: DOM-AUDIT-004.
+- Portfolio Obligations: O-052.
+- Gap Category: BEHAVIOR_MISSING. Severity: MAJOR.
+- Normative Expectation: final conformance checks adherence, coverage, integration, regression, tests, omissions, and extrapolations.
+- Current Repository Behavior: no productive evaluator.
+- Repository Evidence: no evaluator symbols under src/; prototype report only.
+- Test Existence Evidence: prototype end-to-end scenarios only.
+- Test Execution Evidence: prototype command, 92/92 PASS.
+- Exact Delta: required final checks and remediation return are absent.
+- Ownership Boundary: DOM owns decision semantics; downstream components produce evidence. LOCAL_OBLIGATION: evaluation/closure. FOREIGN_OBLIGATION: evidence production. FOREIGN_OWNER: downstream components. LOCAL_INTEGRATION_EXPECTATION: missing evidence cannot pass.
+- Dependencies: cross-component evidence.
+- Observed Repository Boundary: prototype report.
+- Acceptance Evidence Needed: direct witness for each named dimension and finding return.
 
 ### GAP-021
 
+- Affected Requirements: DOM-AUDIT-005.
+- Portfolio Obligations: O-053.
+- Gap Category: COMPATIBILITY_VIOLATION. Severity: MAJOR.
+- Normative Expectation: normative change obsoletes affected approvals, preserves history, and creates linked adjustment without reopening completed tickets.
+- Current Repository Behavior: no downstream approval registry or cutover/invalidation.
+- Repository Evidence: no invalidation/cutover symbols under src/; prototype only.
+- Test Existence Evidence: prototype drift/invalidation tests only.
+- Test Execution Evidence: prototype command, 92/92 PASS.
+- Exact Delta: canonical cutover and historical downstream invalidation are absent.
+- Ownership Boundary: DOM owns cutover; PLAT/GIT/EXEC preserve/consume records. LOCAL_OBLIGATION: invalidation/continuation. FOREIGN_OBLIGATION: evidence/publication records. FOREIGN_OWNER: PLAT/GIT/EXEC. LOCAL_INTEGRATION_EXPECTATION: completed tickets remain terminal.
+- Dependencies: downstream approval/ticket records.
+- Observed Repository Boundary: prototype mock.
+- Acceptance Evidence Needed: selective invalidation, history preservation, and no-reopen witness.
+
+### GAP-022
+
 - Affected Requirements: DOM-AUDIT-006.
 - Portfolio Obligations: O-054.
-- Gap Category: COMPATIBILITY_VIOLATION.
-- Severity: MAJOR.
-- Normative Expectation: Conformance and external evidence bind exact base,
-  head, tree, and commit hashes; drift invalidates publication authorization.
-- Current Repository Behavior: Prototype stores deterministic hash-shaped
-  strings and simulates drift/remote evidence.
-- Repository Evidence: mockDomain.ts:705, :720, :911-917; prototype/README.md:37-39.
-- Test Existence Evidence: publication drift/PR tests and
-  fresh-adversarial-probe.ts cover identity/evidence separation.
-- Test Execution Evidence: npm test, npm run lint, npm run build, and
-  npx tsx fresh-adversarial-probe.ts — PASS for prototype baseline.
-- Exact Delta:
-  - OBSERVED: Mock hashes and evidence IDs are deterministic in memory.
-  - REQUIRED: DOM-owned exact candidate identity and conformance gate semantics
-    bind base/head/tree and invalidate authorization on drift.
-  - DELTA: No productive DOM candidate identity/evidence gate exists.
-    Publication evidence and physical preservation/replay are foreign scope.
-- Ownership Boundary:
-  - LOCAL_OBLIGATION: DOM owns exact conformance identity, hash-linked semantic
-    binding, and the drift-invalidating publication gate.
-  - FOREIGN_OBLIGATION: GIT-001 owns publication evidence; PLAT-001 owns durable
-    preservation/replay; OPS-001 owns operational preservation/replay projection.
-  - FOREIGN_OWNER: SPEC-GIT-001; SPEC-PLAT-001; SPEC-OPS-001.
-  - LOCAL_INTEGRATION_EXPECTATION: DOM accepts and correlates foreign Git,
-    platform, and operations evidence without redefining its semantic gate.
-- Dependencies: None (normative upstream; DOM is the DAG root). Non-normative
-  integration references are SPEC-GIT-001 (publication evidence),
-  SPEC-PLAT-001 (preservation/replay), and SPEC-OPS-001 (operational
-  preservation/replay). Foreign implementation state is absent from the
-  assessed productive repository and is not a local DOM gap.
-- Observed Repository Boundary: Prototype publication state.
-- Acceptance Evidence Needed: Productive DOM tests for exact base/head/tree
-  binding, drift invalidation, hash linkage, and no stale merge authorization,
-  plus separate GIT/PLAT/OPS evidence for publication evidence and physical
-  preservation/replay.
+- Gap Category: COMPATIBILITY_VIOLATION. Severity: MAJOR.
+- Normative Expectation: exact base/head/tree and hash-linked evidence bind candidate conformance; drift invalidates authorization.
+- Current Repository Behavior: no productive candidate binding or drift gate.
+- Repository Evidence: no exact-candidate symbols under src/; prototype fields only.
+- Test Existence Evidence: prototype publication/evidence tests only.
+- Test Execution Evidence: prototype command, 92/92 PASS.
+- Exact Delta: productive exact evidence/revalidation before publication is absent.
+- Ownership Boundary: DOM owns basis/invalidation; GIT produces evidence; PLAT/OPS preserve/project. LOCAL_OBLIGATION: exact-basis gate. FOREIGN_OBLIGATION: Git evidence/physical preservation. FOREIGN_OWNER: GIT/PLAT/OPS. LOCAL_INTEGRATION_EXPECTATION: drift cannot become approval.
+- Dependencies: GIT/PLAT/OPS evidence.
+- Observed Repository Boundary: prototype publication ledger.
+- Acceptance Evidence Needed: base/head/tree drift and hash-linked retrieval witnesses.
 
 ## 9. Contradictory Implementation Findings
 
-No productive contradiction was identified. The repository has no productive
-DOM implementation to violate the canonical owner boundary.
-
 | Requirement | Gap ID | Portfolio Obligation | Repository Location | Observed Behavior | Required Behavior | Wrong Owner? | Alternate Productive Path? | Can Mutate Canonical State? | Historical Non-Conformance Risk? | Severity |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| None in productive scope | — | — | — | Prototype-only mock behavior is not a productive authority | Productive implementation must satisfy DOM authority | NO | NO | NO productive path observed | Prototype may be mistaken for implementation if misclassified | NON_BLOCKING |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| DOM-ID-001 | GAP-002 | O-001 | src/domain/pipeline.ts:63-83,309-343 | PipelineId is pipeline identity. | Canonical STAGE reference only. | No | No | Yes, alternate lookup | Yes | MAJOR |
+| DOM-SNAPSHOT-001 / DOM-ELIG-001 | GAP-005 | O-003/O-004 | src/application/snapshot.ts:41-53 | Caller status/hash drives basis. | Current ADR authority decides. | No | No | Yes, false basis | Yes | MAJOR |
+| DOM-PIPE-001 / DOM-STATE-001 | GAP-010 | O-009/O-010 | src/domain/pipeline.ts:303-343 | Scalar later state rehydrates without chain. | Complete provenance required. | No | No | Yes, forged state | Yes | MAJOR |
+| DOM-ADV-001 | GAP-013 | O-015 | src/application/pipeline.ts:16-40 | Advance needs target/revision only. | Formal verdict/dependency closure. | No | No | Yes, premature advance | Yes | MAJOR |
 
-The prototype does contain mock mutation paths, including ADR restoration and
-publication effects, but they are explicitly documented as in-memory simulation
-and are therefore recorded as MISSING productive implementation, not as
-CONTRADICTORY productive behavior.
+No wrong semantic owner was found in backend, operations, UI, or projection
+surfaces because no productive versions exist. Prototype surfaces are
+non-authoritative.
 
 ## 10. Responsibility Leakage Analysis
 
-| Surface | Structural observation | Semantic result | Classification |
-| --- | --- | --- | --- |
-| prototype/src/mockDomain.ts | One mock file contains domain-shaped state, scheduler, publication, onboarding, recovery, and evidence scenarios | It is explicitly a disposable prototype and does not establish production ownership | Structural prototype concern; not counted as implementation leakage |
-| prototype/src/App.tsx | UI presents statuses and invokes mock commands | Presentation is prototype-only; no productive UI authority found | No wrong-owner implementation |
-| Prototype artifacts/reports | Reports describe simulated scenarios and historical conformance | They are supporting evidence only | No authority leakage |
-| Productive backend/API/OPS/UI/Git surfaces | No productive surfaces found | No alternate authority or consumer redefinition can be observed | No finding |
+| Observation | Result | Reason |
+| --- | --- | --- |
+| src/domain and src/application contain the current domain slice. | OWNERSHIP_CONFORMANT | Location follows DOM boundary. |
+| PipelineId is a semantic alternate authority. | WRONG_OWNER_IMPLEMENTATION / ALTERNATE_AUTHORITY_PRESENT | Semantic contradiction, not file-location concern. |
+| Repository interfaces are ports without adapters. | IMPLEMENTATION_LOCATION_CONCERN, NON_BLOCKING | Ports preserve ownership; availability is absent. |
+| Prototype UI/mock, reports, fixtures, and tests. | PROJECTION_OR_SUPPORT_ONLY | They cannot establish canonical authority. |
+| Productive backend/OPS/UI/GIT leakage. | NOT_OBSERVED | No productive surfaces found. |
 
-Counts:
-
-- WRONG_OWNER_IMPLEMENTATIONS: 0.
-- IMPLEMENTATION_LOCATION_CONCERNS: 0 in productive scope.
-- ALTERNATE_AUTHORITY_PRESENT: 0.
-- UNRESOLVED_OWNERSHIP: 0.
-
-The structural centralization of the prototype is not a reason to move or
-redesign production ownership; it is only a boundary to preserve when later
-implementation work is assessed.
+WRONG_OWNER_IMPLEMENTATIONS = 0.
+IMPLEMENTATION_LOCATION_CONCERNS = 1.
+PORTFOLIO_OWNERSHIP_VIOLATION_GAPS = 1, for GAP-002 alternate authority.
 
 ## 11. Failure Ownership Verification
 
-### DOM-owned failure families
-
-| Failure | Portfolio Semantic Owner | Component Role | Repository Implementation Location | Repository Semantic Owner | Result |
+| Failure | Portfolio semantic owner | Component role | Repository implementation location | Repository semantic owner | Result |
 | --- | --- | --- | --- | --- | --- |
-| UNKNOWN_SPEC | SPEC-DOM-001 | CANONICAL_OWNER | No productive location; mock validation only | Prototype mock authority | MISSING |
-| INELIGIBLE_REVISION | SPEC-DOM-001 | CANONICAL_OWNER | No productive location; mock validation only | Prototype mock authority | MISSING |
-| INVALID_DEPENDENCY_CLOSURE | SPEC-DOM-001 | CANONICAL_OWNER | No productive location; mock validation only | Prototype mock authority | MISSING |
-| INVALID_COMMAND_BASIS | SPEC-DOM-001 | CANONICAL_OWNER | No productive location; mock validation only | Prototype mock authority | MISSING |
-| STALE_REVISION | SPEC-DOM-001 | CANONICAL_OWNER | No productive location; mock validation only | Prototype mock authority | MISSING |
+| UNKNOWN_REPOSITORY, REPOSITORY_NOT_ENABLED | SPEC-REPO-001 | CONSUMER | none | none | NOT_APPLICABLE |
+| UNKNOWN_SPEC, INELIGIBLE_REVISION | SPEC-DOM-001 | OWNER | no canonical registry; supplied check in snapshot.ts:191-201 | local component check | MISSING |
+| UNKNOWN_CAPABILITY, INCOMPATIBLE_CAPABILITY | SPEC-EXEC-001 | CONSUMER | none | none | NOT_APPLICABLE |
+| INVALID_DEPENDENCY_CLOSURE | SPEC-DOM-001 | OWNER | no dependency/verdict model | none | MISSING |
+| INVALID_COMMAND_BASIS, STALE_REVISION | SPEC-DOM-001 | OWNER | pipeline.ts:28-40; local PIPELINE_STALE | local handler, non-canonical label | PARTIAL |
+| UNAUTHORIZED_LOCAL_SESSION | SPEC-BACKEND-001 | CONSUMER | none | none | NOT_APPLICABLE |
+| CAPACITY_UNKNOWN, CAPACITY_EXHAUSTED, AGENT_INELIGIBLE | SPEC-EXEC-002 | CONSUMER | none | none | NOT_APPLICABLE |
+| CONTRACT_INVALID, VERDICT_UNKNOWN | SPEC-EXEC-001 | CONSUMER | none | none | NOT_APPLICABLE |
+| EXPECTED_INCOMPLETE_EFFECT, MISSING_EFFECT, SEMANTIC_DIVERGENCE, CONFLICTING_EFFECT | SPEC-PLAT-001 | CONSUMER | none | none | NOT_APPLICABLE |
+| PUBLICATION_DRIFT, MERGE_CONFLICT, REMOTE_PUBLICATION_UNCONFIRMED | SPEC-GIT-001 | CONSUMER | none | none | NOT_APPLICABLE |
+| LEGACY_COMPATIBILITY_ONLY | SPEC-REPO-001 | CONSUMER | none | none | NOT_APPLICABLE |
 
-### Consumed failure families
-
-Repository, capability, session, capacity, contract, effect, and publication
-failure semantics remain foreign-owned by REPO, EXEC-001, BACKEND, EXEC-002,
-PLAT, and GIT respectively. Their productive implementations are not required
-to classify DOM's local obligations and are not converted into local DOM gaps.
-No repository mapping was found that redefines their semantics; the prototype
-only simulates their labels and scenarios.
-
-No FAILURE_SEMANTIC_VIOLATION gap is created: the observed condition is absence
-of productive DOM implementation, not a detected wrong semantic owner or
-consumer redefinition.
+GAP-012 records the one local failure semantic violation. Mappings were not
+used to manufacture a second local gap.
 
 ## 12. Compatibility / Cutover Verification
 
-| Dimension | Approved DOM role | Local repository evidence | Result | Local Gap IDs |
-| --- | --- | --- | --- | --- |
-| NEW_CANONICAL_PATH | OWNER, O-003/O-005 | No productive snapshot/lineage path; mock only | MISSING local behavior | GAP-003, GAP-005 |
-| LEGACY_COMPATIBILITY | CONSUMER of SPEC-REPO-001 | No productive legacy adapter or second DOM authority | No local obligation gap; no dual path observed | — |
-| HISTORICAL_REPLAY | OWNER for identity and semantic preservation, O-003/O-054 | Mock journal/recovery/hash fields only; no productive semantic replay boundary | MISSING local behavior; PLAT/OPS physical replay/preservation remains foreign | GAP-003, GAP-008, GAP-021 |
-| CUTOVER | OWNER, O-053 | Mock drift/mutation invalidation only; no productive approval registry | MISSING local behavior | GAP-007, GAP-020 |
-| RETIREMENT | NOT_APPLICABLE | Retirement of adapters/data belongs to compatibility owners | NOT_APPLICABLE | — |
+| Dimension | Approved DOM role | Repository observation | Result |
+| --- | --- | --- | --- |
+| NEW_CANONICAL_PATH | OWNER | Partial identity/snapshot/lineage/pipeline slice; remaining aggregates absent. | PARTIAL |
+| LEGACY_COMPATIBILITY | CONSUMER of REPO | No productive legacy adapter or second authority. | NOT_APPLICABLE |
+| HISTORICAL_REPLAY | OWNER | Scalar rehydration lacks provenance; durable replay absent. | MISSING, GAP-010/GAP-022 |
+| CUTOVER | OWNER | No normative-change invalidation path. | MISSING, GAP-008/GAP-021 |
+| RETIREMENT | NOT_APPLICABLE | Legacy retirement belongs to REPO. | NOT_APPLICABLE |
 
-No legacy bypass, dual canonical path, or productive premature retirement was
-observed. Missing local compatibility behavior is represented in the affected
-behavior/compatibility gaps above.
+No dual productive canonical path was found besides the PipelineId violation
+in GAP-002. Prototype drift/legacy scenarios are not productive support.
 
 ## 13. Cross-SPEC Dependency Matrix
 
-DOM has no upstream normative component dependency. The following rows record
-the four affected gaps' non-normative integration references and foreign
-implementation state. They do not add edges to the approved normative DAG;
-foreign implementation absence is not converted into a local DOM gap.
+DOM has no normative upstream dependencies. These approved downstream/consumed
+contracts are listed to preserve boundaries; their absence is not a local DOM
+gap.
 
 | Dependency SPEC | Portfolio Role | Foreign Ownership | Local Obligation | Repository Integration | Foreign Implementation State | Result |
 | --- | --- | --- | --- | --- | --- | --- |
-| SPEC-EXEC-001 | Downstream consumer of DOM; exact version/contract reference | SPEC-EXEC-001 owns version contract | DOM consumes exact version metadata for GAP-003 | No productive consumer integration found | No productive EXEC implementation in assessed repository; foreign state only | MISSING |
-| SPEC-PLAT-001 | Downstream consumer of DOM; persistence/effects/recovery | SPEC-PLAT-001 owns journal, evidence, persistence, recovery, and replay | DOM exposes snapshot, succession, command, and conformance boundaries for GAP-003/GAP-008/GAP-011/GAP-021 | No productive PLAT integration found | No productive PLAT implementation in assessed repository; foreign state only | MISSING |
-| SPEC-GIT-001 | Downstream consumer of DOM; publication evidence | SPEC-GIT-001 owns publication evidence | DOM accepts correlated evidence for GAP-021 without executing publication | No productive GIT integration found | No productive GIT implementation in assessed repository; foreign state only | MISSING |
-| SPEC-OPS-001 | Downstream consumer of DOM; operational projection/preservation | SPEC-OPS-001 owns operational evidence projection and preservation | DOM exposes semantic identities/evidence references for GAP-008/GAP-021 | No productive OPS integration found | No productive OPS implementation in assessed repository; foreign state only | MISSING |
+| SPEC-EXEC-001 | downstream consumer | versions/capabilities | store exact reference | no productive integration | pending downstream | NOT_REQUIRED_FOR_CURRENT_GAPS |
+| SPEC-EXEC-002 | downstream consumer | sessions/assignments/cycles/scheduler | preserve references | no productive integration | pending downstream | NOT_REQUIRED_FOR_CURRENT_GAPS |
+| SPEC-PLAT-001 | downstream consumer | persistence/journal/outbox/recovery | durable snapshot/provenance material; DOM validates meaning | repository ports only | no concrete integration | PARTIAL |
+| SPEC-REPO-001 | downstream consumer | repository/bootstrap/legacy adaptation | consume mapping without authority transfer | no productive integration | pending downstream | NOT_REQUIRED_FOR_CURRENT_GAPS |
+| SPEC-GIT-001 | downstream consumer | Git/worktree/PR/remote confirmation | consume publication evidence | no productive integration | pending downstream | NOT_REQUIRED_FOR_CURRENT_GAPS |
+| SPEC-BACKEND-001 | downstream consumer | application/transport/security | preserve command/failure semantics | no productive integration | pending downstream | NOT_REQUIRED_FOR_CURRENT_GAPS |
+| SPEC-OPS-001 | downstream consumer | operational projection/retention/export | project canonical state/verdict/lineage | no productive integration | pending downstream | NOT_REQUIRED_FOR_CURRENT_GAPS |
+| SPEC-UI-001 | downstream consumer | interaction/presentation | request/project, never confirm | prototype only | pending downstream | NOT_REQUIRED_FOR_CURRENT_GAPS |
 
-The `MISSING` results above describe foreign implementation state in the
-assessed repository, not `DEPENDENCY_INTEGRATION_GAP` records owned by DOM.
-
-The SPEC-EXEC-001 documentation is a downstream consumer of DOM in the
-portfolio direction and does not alter this result.
+AUTHORITY_CONSUMPTION_PROOFS = 0 for external upstream authorities.
+AUTHORITY_NOT_DEFINED = 0.
+AUTHORITY_DEFINED_BUT_NOT_CONSUMABLE = 0.
+AUTHORITY_CONSUMPTION_GAPS = 0.
+BLOCKED_BY_UPSTREAM_CONTRACT = 0.
 
 ## 14. Conformance Evidence Assessment
 
-The independent evidence dimensions are recorded for every requirement below.
-Implementation evidence answers whether productive behavior exists. Test
-existence answers whether assertions exist. Test execution answers what command
-was run on this baseline. Evidence status is independent of implementation
-classification.
+| Requirement | Implementation classification | Implementation evidence | Test-existence evidence | Test-execution evidence | Evidence status |
+| --- | --- | --- | --- | --- | --- |
+| DOM-ID-001 | CONTRADICTORY | generic catalog; no persistence; PipelineId authority | productive identity/pipeline tests | 27/27 PASS | WEAKLY_PROVEN |
+| DOM-INGEST-001 | PARTIAL | explicit handler; no host-wide guard | productive manual negative | 27/27 PASS; prototype 92/92 separately | WEAKLY_PROVEN |
+| DOM-SNAPSHOT-001 | CONTRADICTORY | immutable memory; no durable store; caller basis | productive snapshot tests | 27/27 PASS | WEAKLY_PROVEN |
+| DOM-ELIG-001 | CONTRADICTORY | supplied status checked; canonical status not read | supplied-status negatives | 27/27 PASS | WEAKLY_PROVEN |
+| DOM-LINEAGE-001 | PARTIAL | relation/ports; no durable repository | productive lineage tests | 27/27 PASS | WEAKLY_PROVEN |
+| DOM-LIFE-001 | MISSING | no productive lifecycle | prototype only | 92/92 PASS | NOT_IMPLEMENTED |
+| DOM-REV-001 | MISSING | no remediation/invalidation | prototype only | 92/92 PASS | NOT_IMPLEMENTED |
+| DOM-IMMUT-001 | MISSING | no ADR immutability/succession | prototype only | 92/92 PASS | NOT_IMPLEMENTED |
+| DOM-PIPE-001 | CONTRADICTORY | ordering exists; scalar rehydration violates provenance | ordering tests; no chain test | 27/27 PASS | WEAKLY_PROVEN |
+| DOM-STATE-001 | CONTRADICTORY | separation exists; provenance absent | separation tests; no chain test | 27/27 PASS | WEAKLY_PROVEN |
+| DOM-CMD-001 | PARTIAL | one handler; generic command/rejection absent | invalid/stale tests | 27/27 PASS | WEAKLY_PROVEN |
+| DOM-TICKET-001 | MISSING | no productive model | prototype only | 92/92 PASS | NOT_IMPLEMENTED |
+| DOM-TICKET-002 | MISSING | no productive table | prototype only | 92/92 PASS | NOT_IMPLEMENTED |
+| DOM-PUB-001 | MISSING | no productive publication model | prototype only | 92/92 PASS | NOT_IMPLEMENTED |
+| DOM-ADV-001 | CONTRADICTORY | no verdict/dependency/cancel gate | prototype only | 92/92 PASS | NOT_IMPLEMENTED |
+| DOM-AUDIT-001 | MISSING | no cycle identity | prototype only | 92/92 PASS | NOT_IMPLEMENTED |
+| DOM-AUDIT-002 | MISSING | no structured closure | prototype only | 92/92 PASS | NOT_IMPLEMENTED |
+| DOM-AUDIT-003 | MISSING | no round policy | prototype only | 92/92 PASS | NOT_IMPLEMENTED |
+| DOM-AUDIT-004 | MISSING | no final evaluator | prototype only | 92/92 PASS | NOT_IMPLEMENTED |
+| DOM-AUDIT-005 | MISSING | no downstream invalidation | prototype only | 92/92 PASS | NOT_IMPLEMENTED |
+| DOM-AUDIT-006 | MISSING | no exact candidate gate | prototype only | 92/92 PASS | NOT_IMPLEMENTED |
 
-| Requirement ID | Implementation Evidence | Test Existence Evidence | Test Execution Evidence | Evidence Status |
-| --- | --- | --- | --- | --- |
-| DOM-ID-001 | NOT_IMPLEMENTED: prototype identity tests only | Prototype identity tests exist | npm test — PASS, 92/92 | NOT_IMPLEMENTED |
-| DOM-INGEST-001 | NOT_IMPLEMENTED: prototype button/request flow only | UI snapshot/start assertions exist | npm test — PASS, 92/92 | NOT_IMPLEMENTED |
-| DOM-SNAPSHOT-001 | NOT_IMPLEMENTED: in-memory mock snapshot only | Snapshot lock/revalidation assertions exist | npm test — PASS, 92/92 | NOT_IMPLEMENTED |
-| DOM-ELIG-001 | NOT_IMPLEMENTED: mock filter/hash helper only | Eligibility/hash negative assertions exist | npm test — PASS, 92/92 | NOT_IMPLEMENTED |
-| DOM-LINEAGE-001 | NOT_IMPLEMENTED: mock arrays/display only | Prototype lineage coverage exists | npm test — PASS, 92/92 | NOT_IMPLEMENTED |
-| DOM-LIFE-001 | NOT_IMPLEMENTED: mock status fields only | Lifecycle/state assertions exist | npm test — PASS, 92/92 | NOT_IMPLEMENTED |
-| DOM-REV-001 | NOT_IMPLEMENTED: mock mutation scenario only | Revision/mutation assertions exist | npm test — PASS, 92/92 | NOT_IMPLEMENTED |
-| DOM-IMMUT-001 | NOT_IMPLEMENTED: no productive ADR registry | Hash divergence/restoration assertions exist | npm test — PASS, 92/92 | NOT_IMPLEMENTED |
-| DOM-PIPE-001 | NOT_IMPLEMENTED: mock ordered scenario only | Normal-flow/stage assertions exist | npm test — PASS, 92/92 | NOT_IMPLEMENTED |
-| DOM-STATE-001 | NOT_IMPLEMENTED: mock state enums only | State/transition assertions exist | npm test — PASS, 92/92 | NOT_IMPLEMENTED |
-| DOM-CMD-001 | NOT_IMPLEMENTED: mock request/advance loop only | Rejection/no-effect assertions exist | npm test — PASS, 92/92 | NOT_IMPLEMENTED |
-| DOM-TICKET-001 | NOT_IMPLEMENTED: mock ticket fixtures only | Ticket terminality assertions exist | npm test — PASS, 92/92 | NOT_IMPLEMENTED |
-| DOM-TICKET-002 | NOT_IMPLEMENTED: mock validation only | Valid/invalid transition assertions exist | npm test — PASS, 92/92 | NOT_IMPLEMENTED |
-| DOM-PUB-001 | NOT_IMPLEMENTED: mock publication state only | PR/drift/confirmation assertions exist | npm test — PASS, 92/92 | NOT_IMPLEMENTED |
-| DOM-ADV-001 | NOT_IMPLEMENTED: mock gate scenarios only | Verdict/pause/cancel assertions exist | npm test — PASS, 92/92 | NOT_IMPLEMENTED |
-| DOM-AUDIT-001 | NOT_IMPLEMENTED: mock cycle fields only | Cycle/assignment/round assertions exist | npm test — PASS, 92/92 | NOT_IMPLEMENTED |
-| DOM-AUDIT-002 | NOT_IMPLEMENTED: mock findings/commands only | Remediation/reaudit assertions exist | npm test — PASS, 92/92 | NOT_IMPLEMENTED |
-| DOM-AUDIT-003 | NOT_IMPLEMENTED: mock round command only | Round limit/authorization assertions exist | npm test — PASS, 92/92 | NOT_IMPLEMENTED |
-| DOM-AUDIT-004 | NOT_IMPLEMENTED: mock conformance journey only | End-to-end prototype journey assertions exist | npm test — PASS, 92/92 | NOT_IMPLEMENTED |
-| DOM-AUDIT-005 | NOT_IMPLEMENTED: mock drift invalidation only | Drift/mutation assertions exist | npm test — PASS, 92/92 | NOT_IMPLEMENTED |
-| DOM-AUDIT-006 | NOT_IMPLEMENTED: mock hash/evidence fields only | Publication identity/evidence assertions exist | npm test, npm run lint, npm run build, npx tsx fresh-adversarial-probe.ts — PASS | NOT_IMPLEMENTED |
+Executed commands and results:
 
-Environment/test limitation: the executed suite exercises the prototype
-package under prototype/, not a productive implementation. This limitation
-does not change the MISSING classification because the implementation absence
-is independently established.
+    node prototype/node_modules/tsx/dist/cli.mjs --test tests/*.test.ts
+    PASS — 27 tests, 0 failures, assessed working tree.
+    npm --prefix prototype test
+    PASS — 92 tests, 0 failures, prototype-only.
+    npm --prefix prototype run lint
+    PASS — tsc --noEmit.
+    npm --prefix prototype run build
+    PASS — Vite production build.
+    node prototype/node_modules/tsx/dist/cli.mjs prototype/fresh-adversarial-probe.ts
+    PASS — FRESH_ADVERSARIAL_PROBE_PASS.
+    npm test
+    BLOCKED/NOT_AVAILABLE — root package.json is absent; environment limitation only.
 
 ## 15. Coverage and Severity Metrics
 
-### Requirement counts
+| Metric | Value |
+| --- | ---: |
+| TOTAL_NORMATIVE_REQUIREMENTS | 21 |
+| TOTAL_CLASSIFIED_REQUIREMENTS | 21 |
+| IMPLEMENTED | 0 |
+| PARTIAL | 3 |
+| MISSING | 12 |
+| CONTRADICTORY | 6 |
+| NOT_APPLICABLE | 0 |
+| OWNED_BY_OTHER_SPEC | 0 |
+| UNVERIFIED | 0 |
+| TOTAL_DISTINCT_GAPS | 22 |
+| BLOCKER_GAPS | 0 |
+| MAJOR_GAPS | 22 |
+| MINOR_GAPS | 0 |
+| EVIDENCE_ONLY_GAPS | 0 |
+| PORTFOLIO_OWNERSHIP_VIOLATION_GAPS | 1 |
+| FAILURE_SEMANTIC_VIOLATION_GAPS | 1 |
+| COMPATIBILITY_VIOLATION_GAPS | 3 |
+| DEPENDENCY_INTEGRATION_GAPS | 0 |
+| MIXED_OWNERSHIP_REQUIREMENTS | 9 |
+| WRONG_OWNER_IMPLEMENTATIONS | 0 |
+| IMPLEMENTATION_LOCATION_CONCERNS | 1 |
+| UNRESOLVED_OWNERSHIP | 0 |
+| UNRESOLVED_MATERIAL_DELTA | 0 |
+| UNSUPPORTED_IMPLEMENTED_CLAIMS | 0 |
+| KNOWN_FALSE_POSITIVE_GAPS | 0 |
+| KNOWN_FALSE_NEGATIVE_GAPS | 0 |
 
-~~~text
-TOTAL_NORMATIVE_REQUIREMENTS = 21
-TOTAL_CLASSIFIED_REQUIREMENTS = 21
-IMPLEMENTED = 0
-PARTIAL = 0
-MISSING = 21
-CONTRADICTORY = 0
-NOT_APPLICABLE = 0
-OWNED_BY_OTHER_SPEC = 0
-UNVERIFIED = 0
-~~~
-
-### Gap counts
-
-~~~text
-TOTAL_DISTINCT_GAPS = 21
-BLOCKER_GAPS = 0
-MAJOR_GAPS = 21
-MINOR_GAPS = 0
-EVIDENCE_ONLY_GAPS = 0
-
-PORTFOLIO_OWNERSHIP_VIOLATION_GAPS = 0
-FAILURE_SEMANTIC_VIOLATION_GAPS = 0
-COMPATIBILITY_VIOLATION_GAPS = 4
-DEPENDENCY_INTEGRATION_GAPS = 0
-~~~
-
-COMPATIBILITY_VIOLATION_GAP_RECORDS is 4: GAP-007, GAP-008, GAP-020, and
-GAP-021. Severity metrics count distinct records only.
-
-### Ownership and reliability counts
-
-~~~text
-MIXED_OWNERSHIP_REQUIREMENTS = 4
-WRONG_OWNER_IMPLEMENTATIONS = 0
-IMPLEMENTATION_LOCATION_CONCERNS = 0
-
-UNRESOLVED_OWNERSHIP = 0
-UNRESOLVED_MATERIAL_DELTA = 0
-UNSUPPORTED_IMPLEMENTED_CLAIMS = 0
-KNOWN_FALSE_POSITIVE_GAPS = 0
-KNOWN_FALSE_NEGATIVE_GAPS = 0
-~~~
-
-Implementation coverage is calculated over all requirements wholly or partly
-owned by DOM:
-
-~~~text
-coverage = (IMPLEMENTED + 0.5 × PARTIAL) / (TOTAL - pure OWNED_BY_OTHER_SPEC)
-coverage = (0 + 0.5 × 0) / (21 - 0) = 0%
-~~~
-
-All 21 requirements remain in the denominator because none is pure foreign
-ownership.
+Coverage denominator is the 21 locally owned requirements, including nine
+mixed requirements (DOM-SNAPSHOT-001, DOM-IMMUT-001, DOM-PIPE-001,
+DOM-STATE-001, DOM-CMD-001, DOM-PUB-001, DOM-ADV-001, DOM-AUDIT-005, and
+DOM-AUDIT-006); no pure foreign rows exist. Formula:
+IMPLEMENTED / locally or partly owned requirements = 0 / 21 = 0%.
 
 ## 16. Material Reliability Checks
 
-| Check | Value | Classification |
-| --- | ---: | --- |
-| UNCLASSIFIED_REQUIREMENTS | 0 | PASS |
-| UNRESOLVED_OWNERSHIP | 0 | PASS |
-| UNRESOLVED_MATERIAL_DELTA | 0 | PASS |
-| UNSUPPORTED_IMPLEMENTED_CLAIMS | 0 | PASS |
-| KNOWN_FALSE_POSITIVE_GAPS | 0 | PASS |
-| KNOWN_FALSE_NEGATIVE_GAPS | 0 | PASS |
-| SPECIFICATION_AMBIGUITY | 0 | PASS |
-| ARCHITECTURAL_AUTHORITY_GAP | 0 | PASS |
-| PORTFOLIO_AUTHORITY_GAP | 0 | PASS |
-| SOURCE_SPEC_CONFORMANCE_DRIFT | 0 | PASS |
-| MIXED_OWNERSHIP_REQUIREMENTS | 4 | PASS — local/foreign obligations explicitly separated |
-| PLANNING_BLOCKING_FINDINGS_REMAINING | 0 | PASS — CGMA-MAJOR-001 remediated locally |
-| Portfolio gate | PORTFOLIO_DECOMPOSITION_APPROVED | PASS |
-| Component gate | PASS — COMPONENT_SPEC_CONFORMANT | PASS |
-| Upstream conformance gate | No upstream normative SPECs | PASS |
-| Accessible material repository surfaces | Yes; prototype and repository inventory inspected | PASS |
-| Exact deltas for every MISSING row | 21/21 | PASS |
-| Productive contradiction/bypass scan | No productive path exists to scan beyond prototype boundary | NON_BLOCKING |
+| Check | Value | Gate impact |
+| --- | --- | --- |
+| UNCLASSIFIED_REQUIREMENTS | 0 | pass |
+| UNRESOLVED_OWNERSHIP | 0 | pass |
+| UNRESOLVED_MATERIAL_DELTA | 0 | pass |
+| UNSUPPORTED_IMPLEMENTED_CLAIMS | 0 | pass |
+| KNOWN_FALSE_POSITIVE_GAPS | 0 | pass |
+| KNOWN_FALSE_NEGATIVE_GAPS | 0 | pass |
+| SPECIFICATION_AMBIGUITY | 0 | pass |
+| ARCHITECTURAL_AUTHORITY_GAP | 0 | pass |
+| PORTFOLIO_AUTHORITY_GAP | 0 | pass |
+| SOURCE_SPEC_CONFORMANCE_DRIFT | 0 | pass |
+| IDENTITY_AUTHORITY_GAPS | 0 | pass; SPEC audit |
+| RECONSTRUCTION_AUTHORITY_GAPS | 0 | pass; SPEC audit |
+| REHYDRATION_AUTHORITY_GAPS | 0 | pass; implementation gap only |
+| LIFECYCLE_AUTHORITY_GAPS | 0 | pass |
+| PERSISTENCE_SEMANTICS_GAPS | 0 | pass; physical absence is implementation state |
+| CROSS_SPEC_AUTHORITY_GAPS | 0 | pass |
+| SPEC_IMPLEMENTABILITY_CHECK | PASS | pass |
+| AUTHORITY_NOT_DEFINED | 0 | pass |
+| AUTHORITY_DEFINED_BUT_NOT_CONSUMABLE | 0 | pass |
+| AUTHORITY_CONSUMPTION_GAPS | 0 | pass |
+| BLOCKED_BY_UPSTREAM_CONTRACT | 0 | pass |
+| TEMPORAL_AUTHORITY_GAPS | 0 | pass; not applicable |
 
-The repository is dirty because of out-of-scope `.codex` skill support files
-and untracked gap-matrix artifacts; downstream EXEC documentation is present in
-the current HEAD. This is explicitly recorded and does not make the matrix
-incomplete; it is a documentation-baseline condition, not an indeterminate
-implementation delta.
-
-Matrix remediation status is labelled as follows:
-
-- PLANNING_BLOCKING_FINDINGS_REMAINING: 0. Authority, ownership, dependencies,
-  and each local material delta are determinate after the four boundary records
-  were decomposed.
-- NON_BLOCKING: prototype-only test scope, inability to execute a productive
-  suite that does not exist, and documentation-only baseline drift.
+All matrix defects are NON_BLOCKING for planning because authority and deltas
+are determinate. No PLANNING_BLOCKING matrix defect remains.
 
 ## 17. Implementation Readiness
 
-~~~text
-UNCLASSIFIED_REQUIREMENTS = 0
-UNRESOLVED_OWNERSHIP = 0
-UNRESOLVED_MATERIAL_DELTA = 0
-UNSUPPORTED_IMPLEMENTED_CLAIMS = 0
-KNOWN_FALSE_POSITIVE_GAPS = 0
-KNOWN_FALSE_NEGATIVE_GAPS = 0
-SPECIFICATION_AMBIGUITY = 0
-ARCHITECTURAL_AUTHORITY_GAP = 0
-PORTFOLIO_AUTHORITY_GAP = 0
-SOURCE_SPEC_CONFORMANCE_DRIFT = 0
-~~~
+| Gate | Result |
+| --- | --- |
+| Portfolio decomposition approval | PASS |
+| Component SPEC conformance | PASS |
+| Upstream SPEC conformance | PASS / not applicable; no upstream |
+| SPEC implementability | PASS |
+| Every requirement classified exactly once | PASS |
+| Every material delta bounded | PASS |
+| Ownership/boundary analysis complete | PASS |
+| Failure and compatibility ownership checked | PASS |
+| Authority consumption classified | PASS |
+| Test limitations separated from behavior | PASS |
 
-The local remediation invariants pass. The matrix does not claim that the
-prototype implements DOM, and it does not introduce production design,
-technology, modules, schemas, endpoints, algorithms, tickets, owners, or
-execution waves. Independent re-audit remains mandatory before any planning
-gate.
-
-RESULT: READY_FOR_INDEPENDENT_GAP_MATRIX_REAUDIT
+RESULT: READY_FOR_IMPLEMENTATION_PLAN
 
 ## 18. Recommended Next Governance Step
 
-Run `audit-component-implementation-gap-matrix` independently against the
-remediated matrix. Only a conformant re-audit may authorize a downstream
-Implementation Plan; the 21 stable Gap IDs and corrected boundary evidence are
-available for that later gate.
+Proceed to the downstream Implementation Plan gate using this matrix as the
+authority-to-repository baseline. The plan may decompose the 22 recorded gaps,
+but must not reassign ownership or invent identity, lifecycle, provenance,
+persistence, failure, or compatibility semantics.
 
 ## 19. Completeness Proof
 
-| Required proof | Evidence |
+| Proof obligation | Result |
 | --- | --- |
-| Every normative requirement inventoried | 21 requirement rows in section 5, matching the target SPEC's 21/21 audit inventory |
-| Every requirement classified exactly once | 21 primary matrix rows in section 7; all MISSING |
-| Every IMPLEMENTED claim evidenced | No IMPLEMENTED claims made; unsupported count is 0 |
-| Every PARTIAL/MISSING/CONTRADICTORY row has exact delta | All 21 rows contain OBSERVED, REQUIRED, and DELTA text; no PARTIAL or CONTRADICTORY rows |
-| Every pure foreign row identifies its owner | No pure foreign rows; foreign failure/consumer ownership is identified in sections 4, 11, and 13 |
-| Every mixed row separates local and foreign obligations | Four boundary-bearing rows explicitly declare LOCAL_OBLIGATION, FOREIGN_OBLIGATION, FOREIGN_OWNER, and LOCAL_INTEGRATION_EXPECTATION |
-| Every Gap has exactly one detail record | GAP-001 through GAP-021 each appear once in section 8 |
-| Every detail record has exactly one severity | Every detail record declares MAJOR exactly once |
-| Every grouped Gap preserves affected requirements | No normative requirements were grouped; each Gap has one affected requirement |
-| Severity metrics derive from distinct Gap records | 21 records, 21 MAJOR, 0 BLOCKER, 0 MINOR, 0 EVIDENCE_ONLY |
-| Failure ownership was checked | Section 11 checks all three DOM-owned families and records consumed foreign families |
-| Compatibility ownership was checked | Section 12 checks all five dimensions |
-| Portfolio ownership was checked | Sections 4, 5, 10, and 12 preserve the approved owner and projection roles |
-| Test existence and execution evidence remain distinct | Sections 7, 8, and 14 separate assertion existence from command/result |
-| No implementation design was introduced | No class, module, schema, endpoint, algorithm, refactor, ticket, or wave is prescribed |
-| No code/SPEC/portfolio was modified | Only this matrix artifact was created; authority and implementation files were read-only |
+| Every normative requirement inventoried | PASS — 21/21 from SPEC §13/§23 |
+| Every requirement classified exactly once | PASS — 21/21; zero unclassified |
+| Every IMPLEMENTED claim evidenced | PASS — zero IMPLEMENTED claims |
+| Every PARTIAL/MISSING/CONTRADICTORY row has exact delta | PASS — linked OBSERVED/REQUIRED/DELTA |
+| Every pure foreign row identifies owner | PASS — zero pure foreign rows |
+| Every mixed row separates local and foreign obligations | PASS — nine mixed requirements are listed in section 15; boundary fields in records |
+| Every Gap has exactly one detail record | PASS — GAP-001 through GAP-022 |
+| Every detail record has exactly one severity | PASS — all MAJOR |
+| Grouped gaps preserve affected requirements | PASS — GAP-005 and GAP-010 list all affected IDs |
+| Severity metrics derive from distinct records | PASS — 0 + 22 + 0 + 0 = 22 |
+| Failure ownership checked | PASS — 11 failure families |
+| Compatibility ownership checked | PASS — five dimensions |
+| Portfolio ownership checked | PASS |
+| Test existence and execution distinct | PASS — section 14 |
+| SPEC_IMPLEMENTABILITY_CHECK confirmed | PASS — component audit |
+| Authority gaps not converted to implementation gaps | PASS |
+| Authority consumption/producer-consumer classified | PASS |
+| Temporal authority checked where applicable | PASS — not applicable |
+| No implementation design introduced | PASS |
+| No code/SPEC/portfolio modified | PASS — only matrix artifact |
 
-~~~text
-TOTAL_NORMATIVE_REQUIREMENTS = 21
-TOTAL_CLASSIFIED_REQUIREMENTS = 21
-UNCLASSIFIED_REQUIREMENTS = 0
-TOTAL_DISTINCT_GAPS = 21
-MIXED_OWNERSHIP_REQUIREMENTS = 4
-UNRESOLVED_OWNERSHIP = 0
-UNRESOLVED_MATERIAL_DELTA = 0
-UNSUPPORTED_IMPLEMENTED_CLAIMS = 0
-KNOWN_FALSE_POSITIVE_GAPS = 0
-KNOWN_FALSE_NEGATIVE_GAPS = 0
-BLOCKER_GAPS = 0
-MAJOR_GAPS = 21
-MINOR_GAPS = 0
-EVIDENCE_ONLY_GAPS = 0
-PORTFOLIO_AUTHORITY_GAP = 0
-ARCHITECTURAL_AUTHORITY_GAP = 0
-SPECIFICATION_AMBIGUITY = 0
-SOURCE_SPEC_CONFORMANCE_DRIFT = 0
-~~~
+    TOTAL_NORMATIVE_REQUIREMENTS = 21
+    TOTAL_CLASSIFIED_REQUIREMENTS = 21
+    UNCLASSIFIED_REQUIREMENTS = 0
+    TOTAL_DISTINCT_GAPS = 22
+    MIXED_OWNERSHIP_REQUIREMENTS = 9
+    UNRESOLVED_OWNERSHIP = 0
+    UNRESOLVED_MATERIAL_DELTA = 0
+    UNSUPPORTED_IMPLEMENTED_CLAIMS = 0
+    KNOWN_FALSE_POSITIVE_GAPS = 0
+    KNOWN_FALSE_NEGATIVE_GAPS = 0
+    BLOCKER_GAPS = 0
+    MAJOR_GAPS = 22
+    MINOR_GAPS = 0
+    EVIDENCE_ONLY_GAPS = 0
+    PORTFOLIO_AUTHORITY_GAP = 0
+    ARCHITECTURAL_AUTHORITY_GAP = 0
+    SPECIFICATION_AMBIGUITY = 0
+    SOURCE_SPEC_CONFORMANCE_DRIFT = 0
+    IDENTITY_AUTHORITY_GAPS = 0
+    RECONSTRUCTION_AUTHORITY_GAPS = 0
+    REHYDRATION_AUTHORITY_GAPS = 0
+    LIFECYCLE_AUTHORITY_GAPS = 0
+    PERSISTENCE_SEMANTICS_GAPS = 0
+    CROSS_SPEC_AUTHORITY_GAPS = 0
+    SPEC_IMPLEMENTABILITY_CHECK = PASS
 
-Final remediation gate:
+Final readiness result:
 
-~~~text
-READY_FOR_INDEPENDENT_GAP_MATRIX_REAUDIT
-~~~
+    READY_FOR_IMPLEMENTATION_PLAN
