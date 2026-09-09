@@ -29,18 +29,18 @@ Current HEAD moved after the Plan Audit through documentary/support changes only
 
 | Ticket | Unit | Status | Wave | Blocked by |
 |---|---|---|---:|---|
-| `DOM-001-TICKET-001` | DOM-IMP-01 | READY | 1 | NONE |
-| `DOM-001-TICKET-002` | DOM-IMP-02 | BLOCKED | 2 | TICKET-001 |
-| `DOM-001-TICKET-003` | DOM-IMP-03 | BLOCKED | 3 | TICKET-001, TICKET-002 |
-| `DOM-001-TICKET-004` | DOM-IMP-04 | BLOCKED | 2 | TICKET-001 |
-| `DOM-001-TICKET-005` | DOM-IMP-05 | BLOCKED | 3 | TICKET-001, TICKET-004 |
+| `DOM-001-TICKET-001` | DOM-IMP-01 | DONE | 1 | NONE |
+| `DOM-001-TICKET-002` | DOM-IMP-02 | VALIDATION_REQUIRED | 2 | NONE |
+| `DOM-001-TICKET-003` | DOM-IMP-03 | BLOCKED | 3 | TICKET-002 |
+| `DOM-001-TICKET-004` | DOM-IMP-04 | VALIDATION_REQUIRED | 2 | NONE |
+| `DOM-001-TICKET-005` | DOM-IMP-05 | BLOCKED | 3 | TICKET-004 |
 | `DOM-001-TICKET-006` | DOM-IMP-06 | BLOCKED | 4 | TICKET-004, TICKET-005 |
 | `DOM-001-TICKET-007` | DOM-IMP-07 | BLOCKED | 4 | TICKET-004, TICKET-005 |
-| `DOM-001-TICKET-008` | DOM-IMP-08 | BLOCKED | 4 | TICKET-001, TICKET-005 |
+| `DOM-001-TICKET-008` | DOM-IMP-08 | BLOCKED | 4 | TICKET-005 |
 | `DOM-001-TICKET-009` | DOM-IMP-09 | BLOCKED | 5 | TICKET-008 |
 | `DOM-001-TICKET-010` | DOM-IMP-10 | BLOCKED | 5 | TICKET-003, TICKET-006 |
-| `DOM-001-TICKET-011` | DOM-IMP-11 | BLOCKED | 5 | TICKET-001, TICKET-007 |
-| `DOM-001-TICKET-012` | DOM-IMP-12 | BLOCKED | 6 | TICKET-001 through TICKET-011 |
+| `DOM-001-TICKET-011` | DOM-IMP-11 | BLOCKED | 5 | TICKET-007 |
+| `DOM-001-TICKET-012` | DOM-IMP-12 | BLOCKED | 6 | TICKET-002 through TICKET-011 |
 
 ## 4. Implementation Unit → Ticket Traceability
 
@@ -144,6 +144,11 @@ Additional direct edges preserved from the Plan: TICKET-001 → TICKET-011, TICK
 
 `ISSUE_DECOMPOSITION_READINESS` is `ISSUE_READY` for all 12 tickets. Initial execution status is derived separately from unresolved prerequisites: 1 `READY`, 11 `BLOCKED`. BLOCKED tickets retain `BLOCKED_BY`; no ticket is marked READY prematurely.
 
+Current execution state after finalizing TICKET-001: TICKET-001 is `DONE`.
+TICKET-002 and TICKET-004 are `READY` because their only blocker was satisfied.
+The remaining 9 tickets stay `BLOCKED` because they retain other unresolved
+dependency gates; no unrelated blocker was removed.
+
 ## 11. Cross-Spec Dependencies
 
 | Foreign owner | Consumer tickets | Contract consumed | Local blocker? |
@@ -186,8 +191,12 @@ PLAN_BLOCKED_UNITS = 0
 IMPLEMENTATION_UNITS_DECOMPOSED = 12
 IMPLEMENTATION_UNITS_NOT_DECOMPOSED = 0
 TICKETS_CREATED = 12
-READY_TICKETS = 1
-BLOCKED_TICKETS = 11
+READY_TICKETS = 0
+BLOCKED_TICKETS = 9
+IN_PROGRESS_TICKETS = 0
+IMPLEMENTED_TICKETS = 0
+VALIDATION_REQUIRED_TICKETS = 2
+DONE_TICKETS = 1
 PORTFOLIO_OBLIGATIONS_MAPPED = 21
 UNMAPPED_PORTFOLIO_OBLIGATIONS = 0
 ACTIVE_LOCAL_GAPS = 21
@@ -212,6 +221,13 @@ TICKET_BLOCKER_GRAPH_CYCLE = NO
 
 ```text
 TICKET_DECOMPOSITION_GATE: READY_FOR_TICKET_AUDIT
+CURRENT_IMPLEMENTATION_GATE: TICKET_VALIDATION_REQUIRED
 ```
 
-The mandatory next step is the independent `audit-component-implementation-tickets` audit.
+The decomposition remains audited and conformant. TICKET-002 and TICKET-004
+were implemented in the approved wave and now require independent validation.
+
+```text
+EXECUTION_GATE: INDEPENDENT_TICKET_AUDIT_REQUIRED
+NEXT_ACTION: audit-implemented-ticket
+```
