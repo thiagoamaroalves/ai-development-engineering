@@ -2,10 +2,10 @@
 
 ## 1. Status
 
-`STATUS: BLOCKED`  
+`STATUS: VALIDATION_REQUIRED`  
 `ISSUE_DECOMPOSITION_READINESS: ISSUE_READY`  
 `INITIAL_DAG_STATE: BLOCKED`  
-`BLOCKED_BY: DOM-001-TICKET-001`  
+`BLOCKED_BY: NONE`  
 `DEPENDS_ON: DOM-001-TICKET-001`  
 `UNBLOCKS: DOM-001-TICKET-003, DOM-001-TICKET-012`
 
@@ -132,3 +132,32 @@ Independent ticket audit may validate this ticket; completion makes lifecycle re
 ## 26. Ticket Local Closure
 
 `TICKET_LOCAL_CLOSURE = YES`. Foreign persistence and recovery proof is excluded from local acceptance.
+
+## 27. Implementation Evidence
+
+`IMPLEMENTATION_STATUS: IMPLEMENTED`
+`STATUS_TRANSITION: READY -> IN_PROGRESS -> IMPLEMENTED -> VALIDATION_REQUIRED`
+
+Implemented the approved bounded design in:
+
+- `src/domain/snapshot.ts`
+- `src/application/snapshot.ts`
+- `tests/dom-001-ticket-002.test.ts`
+
+The domain owns accepted-only eligibility, ADR/SPEC endpoint validation, exact
+authority-basis construction, immutable snapshot state, confirmation, drift
+rejection, and validated rehydration. The application handler accepts only an
+explicit manual command and coordinates identity resolution and persistence.
+The repository port exposes reserve/confirm/find only; physical persistence and
+recovery remain PLAT-owned.
+
+Local acceptance evidence:
+
+- five ticket-scoped tests passed;
+- rejected eligibility and missing-SPEC paths make zero repository calls;
+- confirmed snapshots and all contained authority values are immutable;
+- authority drift is rejected without mutating the draft;
+- rehydration reuses validated construction and rejects invalid endpoints or
+  empty ADR authority.
+
+`INDEPENDENT_VALIDATION: REQUIRED`
