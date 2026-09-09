@@ -2,10 +2,10 @@
 
 ## 1. Status
 
-`STATUS: BLOCKED`  
+`STATUS: VALIDATION_REQUIRED`  
 `ISSUE_DECOMPOSITION_READINESS: ISSUE_READY`  
 `INITIAL_DAG_STATE: BLOCKED`  
-`BLOCKED_BY: DOM-001-TICKET-001`  
+`BLOCKED_BY: NONE`  
 `DEPENDS_ON: DOM-001-TICKET-001`  
 `UNBLOCKS: DOM-001-TICKET-005, DOM-001-TICKET-006, DOM-001-TICKET-007, DOM-001-TICKET-012`
 
@@ -131,3 +131,32 @@ Independent ticket audit may validate this ticket; command, ticket, and publicat
 ## 26. Ticket Local Closure
 
 `TICKET_LOCAL_CLOSURE = YES`.
+
+## 27. Implementation Evidence
+
+`IMPLEMENTATION_STATUS: IMPLEMENTED`
+`STATUS_TRANSITION: READY -> IN_PROGRESS -> IMPLEMENTED -> VALIDATION_REQUIRED`
+
+Implemented the approved bounded design in:
+
+- `src/domain/pipeline.ts`
+- `src/application/pipeline.ts`
+- `tests/dom-001-ticket-004.test.ts`
+
+The domain owns the canonical ordered pipeline, immediate-successor
+validation, immutable pipeline revision, independent machine-state input
+boundary, and pure read-only derivation. The application handlers only
+orchestrate repository/state-reader calls. The repository port owns persistence
+and atomic compare-and-set using `expectedRevision`; stale results are mapped
+without rebase or last-write-wins.
+
+Local acceptance evidence:
+
+- five ticket-scoped tests passed;
+- later-stage bypasses are rejected without mutation;
+- all nine aggregate state inputs require their own machine owner and are
+  immutable;
+- derived state is read-only and missing inputs fail closed;
+- stale CAS preserves the persisted stage and revision.
+
+`INDEPENDENT_VALIDATION: REQUIRED`
