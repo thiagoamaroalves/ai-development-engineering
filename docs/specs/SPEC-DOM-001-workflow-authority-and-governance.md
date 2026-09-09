@@ -3,8 +3,8 @@ schema_version: "1.0.0"
 id: SPEC-DOM-001
 title: Workflow Authority and Governance
 status: PROPOSED
-revision: 2
-date: 2026-09-08
+revision: 3
+date: 2026-09-09
 spec_scope: domain
 portfolio: SPEC-PORTFOLIO-001
 portfolio_revision: 2
@@ -13,7 +13,7 @@ portfolio_audit: docs/specs/SPEC-PORTFOLIO-001-decomposition-audit.md
 remediation_source_audit: docs/specs/audits/SPEC-DOM-001-component-conformance-audit.md
 remediation_report: docs/specs/remediations/SPEC-DOM-001-component-spec-remediation.md
 authoritative_adrs: [ADR-0001, ADR-0002, ADR-0009]
-related_adrs: [ADR-0003, ADR-0007, ADR-0008, ADR-0010, ADR-0011, ADR-0013, ADR-0014]
+related_adrs: [ADR-0003, ADR-0006, ADR-0007, ADR-0008, ADR-0010, ADR-0011, ADR-0013, ADR-0014]
 upstream_dependencies: []
 ---
 
@@ -21,7 +21,9 @@ upstream_dependencies: []
 
 ## 1. Status
 
-`PROPOSED` — primeira revisão materializada a partir do portfolio aprovado.
+`PROPOSED` — revisão 3, materializada a partir do portfolio aprovado e
+remediada para fechar os gaps normativos de identidade e proveniência do
+`WorkflowPipeline`. A aceitação depende de auditoria independente da SPEC.
 
 Generation baseline:
 
@@ -123,6 +125,12 @@ Todas as ADRs primárias estão `decision_status: ACCEPTED` e
 `implementation_status: UNPROCESSED`. ADRs relacionadas não ampliam o
 ownership deste componente.
 
+### Related accepted ADRs
+
+| ADR | Revisão | Uso como contrato relacionado | Limite preservado |
+|---|---:|---|---|
+| `ADR-0006` | 3 | journal append-only, replay, checkpoint seguro e recovery físico | PLAT fornece/preserva material persistido; DOM decide identidade e validade semântica da progressão |
+
 ## 5. Problem Statement
 
 As ADRs exigem um domínio com identidades persistentes, snapshots imutáveis,
@@ -221,7 +229,7 @@ são referências não-autoritárias que os futuros consumidores devem respeitar
 | Owner SPEC | Contrato / requisito | Por que relacionado | Regra local |
 |---|---|---|---|
 | `SPEC-EXEC-001` | versões e capabilities (`O-016`, `O-018`, `O-020`) | snapshot registra versões sem possuir registry | armazenar referência; não validar ou redefinir semântica de capability |
-| `SPEC-PLAT-001` | journal, outbox, intenção, evidência e recovery (`O-032…O-038`) | lifecycle DOM precisa de durable evidence | exigir evidência/estado confirmado; não definir mecanismo de persistência |
+| `SPEC-PLAT-001` | journal, outbox, intenção, evidência e recovery (`O-032…O-038`) | lifecycle DOM precisa de durable evidence e material persistido de proveniência | persistir/recarregar a referência canônica e a proveniência exigida pelo DOM; não decidir validade semântica, estágio ou transição |
 | `SPEC-GIT-001` | integração e publicação (`O-039…O-048`) | DOM fornece vocabulário e gates | consumir estados canônicos; não executar Git nem redefinir confirmação |
 | `SPEC-BACKEND-001` | mapping application/transport (`O-060…O-068`) | expõe comandos e eventos a consumidores | preservar precondição, trigger, terminalidade e failure code |
 | `SPEC-OPS-001` | projeção operacional (`O-069…O-072`) | auditoria e operação precisam de correlação | tratar relatório como projeção/record hash-linked |
@@ -229,6 +237,13 @@ são referências não-autoritárias que os futuros consumidores devem respeitar
 
 Estas linhas não transferem ownership nem introduzem dependência DOM→consumer.
 `CONSUMED_CONTRACTS_REDEFINED = 0`.
+
+`DOWNSTREAM_SPEC_SYNC_REQUIRED: SPEC-PLAT-001`.
+
+A sincronização deverá refletir a referência canônica de `WorkflowPipeline` e o
+fornecimento/replay da cadeia de proveniência definida nesta SPEC. Ela não
+transfere para PLAT a decisão sobre identidade, validade semântica,
+predecessor, ordem ou estágio válido.
 
 ## 11. Target Behavioral Model
 
@@ -260,6 +275,7 @@ GIT executa publicação; BACKEND transporta; OPS e UI projetam.
 | `ArtifactId` | DOM | evidência/resultado | event correlation | item de ledger |
 | `ArtifactCycleId` | DOM | ciclo de auditoria | audit correlation | rodada exibida |
 | `StageId` | DOM | etapa do pipeline | activity correlation | estado superior |
+| `WorkflowPipeline` | DOM | `CanonicalIdentityReference` de `kind=STAGE`, em escopo de `ExecutionId`, com valor `StageId` e revisão da identidade | correlação estável `(RepositoryId, ExecutionId, StageId)`; request/event correlation permanece transitória | estágio atual e estados superiores derivados |
 | `ActivityId` / `AttemptId` | DOM | unidade e tentativa | session correlation | atividade operacional |
 | `TicketId` | DOM | unidade de implementação | branch/worktree correlation | estado funcional |
 | `WaveId` | DOM | conjunto de integração | integration correlation | progresso da onda |
@@ -274,15 +290,62 @@ DOM é o owner da identidade canônica dos agregados, inclusive agente atribuíd
 efeito externo e publicação; EXEC, PLAT e GIT continuam owners de assignment e
 sessão, persistência/reconciliação e execução/confirmação, respectivamente.
 
+### 12.1 — Identidade canônica de `WorkflowPipeline`
+
+`WorkflowPipeline` é o aggregate root DOM da máquina de estágio do pipeline
+para uma execução específica. Sua identidade de domínio é o `StageId`
+persistente da instância da máquina de estágio, e não o valor mutável de
+`PipelineStage` (o nome do estágio atual). Essa escolha usa a categoria de
+identidade já aceita para etapa e não cria uma categoria `PIPELINE` nova.
+
+A referência canônica do aggregate é obrigatoriamente um
+`CanonicalIdentityReference` com:
+
+- `kind = STAGE`;
+- `scope = ExecutionId` canônico da execução governada;
+- `value = StageId` persistente da instância de `WorkflowPipeline`;
+- `revision =` revisão da identidade no catálogo DOM, distinta da revisão de
+  concorrência do aggregate.
+
+Como cada execução pertence a um único repositório, a correlação estável do
+pipeline é `(RepositoryId, ExecutionId, StageId)`. `correlationId` de request,
+evento ou atividade é correlação operacional e não substitui essa identidade.
+
+`PipelineId`, se existir em uma implementação, é somente um Value Object local
+não canônico que encapsula ou referencia a mesma `CanonicalIdentityReference`.
+Ele não pode ser uma identidade paralela, um alias persistido independente ou
+uma chave alternativa de lookup. O contrato lógico persistido contém a
+referência canônica completa e o `PipelineRevision` do aggregate em campo
+separado.
+
+Commands transportam a `CanonicalIdentityReference` do pipeline, o
+`PipelineRevision` esperado, o alvo e a correlação operacional. O repository
+faz lookup pela referência canônica completa e executa CAS pelo
+`PipelineRevision` esperado; nenhum dos dois usa `PipelineId` independente.
+
+Na reidratação, o adapter/repository deve fornecer a referência canônica
+persistida. O domínio deve resolvê-la no catálogo DOM e rejeitar referência
+desconhecida, revisão de identidade inválida, `kind` diferente de `STAGE`,
+escopo que não corresponda ao `ExecutionId` ou `StageId` incompatível. A
+rehydration restaura o aggregate imutável; não altera nem substitui a
+identidade resolvida.
+
+Authority classification: `SUPPORTED_BY_EXISTING_ADR` —
+`ADR-0001` já exige identidade persistente para etapa, escopo, revisão,
+linhagem e resolução histórica; `ADR-0002` já exige máquina de etapa separada.
+Esta seção materializa o binding sem alterar o significado dessas categorias.
+
 ## 13. Normative Requirements
 
 ### DOM-ID-001 — Identidade persistente
 
-Para cada agregado normativo, incluindo agente atribuído, efeito externo e
-publicação, o sistema deve atribuir uma identidade persistente estável,
-registrar criação, unicidade, imutabilidade, escopo, revisão/lineage e
+Para cada agregado normativo, incluindo `WorkflowPipeline`, agente atribuído,
+efeito externo e publicação, o sistema deve atribuir uma identidade persistente
+estável, registrar criação, unicidade, imutabilidade, escopo, revisão/lineage e
 resolução histórica quando aplicável, e rejeitar referências que não resolvam
-para uma identidade e revisão válidas. `AgentId` deve permanecer distinto de
+para uma identidade e revisão válidas. Para `WorkflowPipeline`, o binding
+canônico é o definido em §12.1: `CanonicalIdentityReference` de `kind=STAGE`,
+`scope=ExecutionId` e `value=StageId`. `AgentId` deve permanecer distinto de
 assignment, atividade e sessão; `ExternalEffectId` e `PublicationId` devem
 permanecer distintos de seus mecanismos de persistência, execução ou
 confirmação. A identidade não pode ser inferida apenas pela existência ou pelo
@@ -361,7 +424,12 @@ O pipeline canônico deve respeitar, em ordem: ADRs aceitas → SPECs → audito
 da SPEC → Gap Matrix → Plano → tickets → implementação/auditoria → integração
 e conformance → atualização com a principal → aprovação/publicação. Uma etapa
 não pode declarar concluída uma etapa posterior, e um consumidor não pode
-reordenar fases por conveniência de transporte.
+reordenar fases por conveniência de transporte. A restauração de um pipeline em
+estágio posterior também é uma operação de estado canônico: ela só é aceita
+quando a evidência de proveniência persistida comprovar a cadeia completa de
+transições imediatas desde o estágio inicial até o estágio restaurado. Uma
+fotografia de estágio, status, `PipelineRevision` isolada ou projeção não prova
+essa progressão.
 
 Authority: `O-009`, `ADR-0002`, `Decisão`.
 
@@ -371,7 +439,22 @@ Execução, SPEC, etapa, atividade, ciclo auditável, onda, ticket, migração e
 publicação devem possuir máquinas de estado separadas. Estados superiores devem
 ser derivados dos inferiores quando essa derivação for possível; uma projeção
 ou transporte não pode criar uma segunda máquina canônica ou combinar estados
-de agregados diferentes em uma transição implícita.
+de agregados diferentes em uma transição implícita. A proveniência de um
+`WorkflowPipeline` deve ser uma cadeia imutável de registros de transição
+aceitos, vinculada à identidade canônica do pipeline. Essa cadeia não é uma
+segunda máquina de estado e não pode ser fabricada por uma projeção.
+
+Para cada estágio diferente do inicial, a cadeia deve conter, no mínimo, o
+registro de criação no estágio inicial e uma sequência completa de transições
+em que cada registro informa a identidade canônica do pipeline, o estágio
+predecessor, o estágio resultante, o `PipelineRevision` predecessor e o
+resultante, e a referência ordenada ao registro predecessor. Cada resultante
+deve ser o sucessor imediato permitido pela ordem canônica. A cadeia deve
+terminar exatamente no estágio e na revisão do snapshot restaurado.
+
+`PipelineRevision` participa da continuidade da cadeia, mas não é prova causal
+por si só. A cadeia, e não uma fórmula de `revision` para `stage`, é a
+evidência normativa de progressão.
 
 Authority: `O-010`, `ADR-0002`, `Decisão`.
 
@@ -384,6 +467,35 @@ canônica e não deve alterar estado ou produzir efeito. BACKEND e UI podem mape
 essa rejeição, mas não alterar seu significado.
 
 Authority: `O-011`, `ADR-0002`, `Regras`.
+
+### Proveniência de progressão do `WorkflowPipeline`
+
+A semântica de progressão é DOM-owned. Um snapshot persistido de
+`WorkflowPipeline` deve ser reidratado conceitualmente com sua referência
+canônica, estágio atual, `PipelineRevision` atual e a cadeia de proveniência
+append-only que sustenta esse estágio. `create(...)` produz somente a raiz
+canônica no primeiro estágio e revisão inicial; `rehydrate(...)` pode restaurar
+estágio posterior somente após validar essa evidência, sem setters ou mutação
+direta.
+
+O aggregate valida semanticamente: identidade resolvida e compatível,
+estágios conhecidos, criação inicial, predecessor continuity, sucessor
+imediato, ausência de saltos, continuidade de revisões, correspondência entre
+último registro e snapshot, e ausência de registros duplicados ou fora de
+ordem. Qualquer falha rejeita a materialização fail-closed e não produz
+transição nem efeito.
+
+PLAT é responsável por persistir e recuperar o material, preservar journal
+append-only, ordenar/reproduzir os registros, validar integridade física,
+detectar ausência, duplicação, corrupção ou inconsistência de armazenamento e
+fornecer a cadeia ao domínio. PLAT não decide se um estágio é semanticamente
+válido, não cria predecessor, não infere transição e não substitui a cadeia por
+status, checkpoint isolado ou `PipelineRevision`.
+
+Authority classification: `SUPPORTED_BY_EXISTING_ADR` — a regra materializa a
+ordem e a rejeição de transições de `ADR-0002` e usa o journal append-only,
+replay, checkpoint seguro e a insuficiência de status isolado definidos em
+`ADR-0006`, preservando PLAT como owner físico.
 
 ### DOM-TICKET-001 — Estados funcionais de ticket
 
@@ -519,6 +631,14 @@ eventos de snapshot, elegibilidade, transição funcional, veredito, invalidaç�
 downstream e mudança de estado canônico. BACKEND pode emitir evento de
 transporte e OPS/UI podem projetá-lo, sem torná-lo autoridade.
 
+Cada avanço aceito de `WorkflowPipeline` deve possuir um registro semântico de
+proveniência append-only, vinculado à `CanonicalIdentityReference` do pipeline.
+O registro contém o predecessor e o resultante `PipelineStage`, as revisões de
+concorrência anterior e posterior, e a referência ordenada ao registro
+predecessor. O registro de criação estabelece o estágio inicial. Esses
+registros são evidência de transição do aggregate; não constituem uma máquina
+de estado adicional nem podem ser emitidos por uma projeção.
+
 ### Queries
 
 Queries podem retornar snapshots, lineage, estado funcional, vereditos e
@@ -556,7 +676,12 @@ O DOM define somente a semântica de repetição de ciclos e comandos de domíni
 Idempotência de efeitos, retry de adapter, checkpoints físicos, replay de
 journal e reconciliação são contratos de `SPEC-PLAT-001`, `SPEC-EXEC-002` ou
 `SPEC-GIT-001`. Um retry local não pode criar nova transição canônica sem
-pré-condição válida nem duplicar efeito externo.
+pré-condição válida nem duplicar efeito externo. Para `WorkflowPipeline`, PLAT
+fornece o snapshot e a cadeia de proveniência recuperados do journal/checkpoint;
+DOM valida sua identidade, continuidade e significado. Ausência, corrupção,
+duplicação, ordem inconsistente ou divergência entre cadeia e snapshot causa
+rejeição fail-closed e não pode ser convertida em avanço por retry, replay ou
+reconciliação.
 
 ## 17. Compatibility / Cutover
 
@@ -661,11 +786,25 @@ silencioso no domínio (`C-23`).
 owner canônico, preservando as relações com assignment/sessão, persistência,
 execução, confirmação e histórico sem alias ou transferência de autoridade.
 
+`C-25` verifica que `WorkflowPipeline` resolve sua
+`CanonicalIdentityReference(kind=STAGE, scope=ExecutionId, value=StageId)` no
+catálogo DOM, que a correlação `(RepositoryId, ExecutionId, StageId)` é
+preservada e que command/repository não aceitam `PipelineId` como autoridade
+paralela.
+
+`C-26` verifica que um pipeline no estágio inicial pode ser criado sem cadeia
+de transições, enquanto qualquer reidratação posterior exige a cadeia
+append-only completa desde a criação; predecessor, resultante, ordem,
+revisões, identidade e snapshot devem coincidir. Ausência, salto, duplicação,
+corrupção ou fabricação é rejeitada sem transição ou efeito. A fixture também
+verifica que PLAT fornece e preserva o material, mas DOM decide sua validade
+semântica.
+
 ## 22. Acceptance Criteria
 
 | ID | Critério binário |
 |---|---|
-| AC-DOM-001 | Cada agregado testado, incluindo agente atribuído, efeito externo e publicação, recebe ID persistente resolvível; criação, unicidade, imutabilidade, lineage e resolução histórica são preservadas; nome de arquivo sozinho não satisfaz a verificação. |
+| AC-DOM-001 | Cada agregado testado, incluindo `WorkflowPipeline`, agente atribuído, efeito externo e publicação, recebe identidade persistente resolvível; `WorkflowPipeline` usa `CanonicalIdentityReference(kind=STAGE, scope=ExecutionId, value=StageId)` e não possui chave local canônica paralela; criação, unicidade, imutabilidade, lineage e resolução histórica são preservadas; nome de arquivo sozinho não satisfaz a verificação. |
 | AC-DOM-002 | Nenhum processamento começa por descoberta automática sem comando manual explícito. |
 | AC-DOM-003 | O snapshot conserva ADR hashes, base, configuração e versões e rejeita mutação posterior. |
 | AC-DOM-004 | ADR não `ACCEPTED` ou revisão inelegível é recusada sem transição ou fallback. |
@@ -673,8 +812,8 @@ execução, confirmação e histórico sem alias ou transferência de autoridade
 | AC-DOM-006 | Lifecycle decisório e de realização podem ser exercitados separadamente. |
 | AC-DOM-007 | Remediação de ADR aceita não implementada produz nova revisão e histórico preservado. |
 | AC-DOM-008 | Mutação de ADR implementada é bloqueada e sucessão exige nova ADR; hash operacional não é inserido no documento. |
-| AC-DOM-009 | Um cenário que tente pular fase do pipeline é rejeitado. |
-| AC-DOM-010 | Uma tentativa de combinar máquinas de agregados ou fabricar estado superior é rejeitada. |
+| AC-DOM-009 | Um cenário que tente pular fase do pipeline, inclusive por reidratação sem a cadeia completa de proveniência, é rejeitado sem alterar estado. |
+| AC-DOM-010 | Uma tentativa de combinar máquinas de agregados, fabricar estado superior ou reidratar estágio posterior com predecessor ausente, salto, duplicação, ordem inconsistente ou snapshot divergente é rejeitada. |
 | AC-DOM-011 | Comando com pré-condição inválida retorna rejeição registrada e estado inalterado. |
 | AC-DOM-012 | Somente os seis estados funcionais de ticket são aceitos e terminais não reabrem. |
 | AC-DOM-013 | As oito transições funcionais válidas são aceitas e qualquer outra é recusada. |
@@ -691,7 +830,7 @@ execução, confirmação e histórico sem alias ou transferência de autoridade
 
 | Requirement | Portfolio obligation | ADR | ADR section | Ownership role | Acceptance / test |
 |---|---|---|---|---|---|
-| DOM-ID-001 | O-001 | ADR-0001 | Decisão | canonical owner | AC-DOM-001; C-01; C-24 |
+| DOM-ID-001 | O-001 | ADR-0001 | Decisão | canonical owner | AC-DOM-001; C-01; C-24; C-25 |
 | DOM-INGEST-001 | O-002 | ADR-0001 | Invariantes | canonical owner | AC-DOM-002 |
 | DOM-SNAPSHOT-001 | O-003 | ADR-0001 | Decisão | canonical owner | AC-DOM-003; C-08 |
 | DOM-ELIG-001 | O-004 | ADR-0001 | Invariantes | canonical owner | AC-DOM-004; C-07 |
@@ -699,8 +838,8 @@ execução, confirmação e histórico sem alias ou transferência de autoridade
 | DOM-LIFE-001 | O-006 | ADR-0001 | Invariantes | canonical owner | AC-DOM-006 |
 | DOM-REV-001 | O-007 | ADR-0001 | Invariantes | canonical owner | AC-DOM-007; C-05 |
 | DOM-IMMUT-001 | O-008 | ADR-0001 | Decisão/Invariantes | canonical owner | AC-DOM-008 |
-| DOM-PIPE-001 | O-009 | ADR-0002 | Decisão | canonical owner | AC-DOM-009 |
-| DOM-STATE-001 | O-010 | ADR-0002 | Decisão | canonical owner | AC-DOM-010 |
+| DOM-PIPE-001 | O-009 | ADR-0002 | Decisão | canonical owner | AC-DOM-009; C-26 |
+| DOM-STATE-001 | O-010 | ADR-0002 | Decisão | canonical owner | AC-DOM-010; C-26 |
 | DOM-CMD-001 | O-011 | ADR-0002 | Regras | canonical owner | AC-DOM-011 |
 | DOM-TICKET-001 | O-012 | ADR-0002 | Transições | canonical owner | AC-DOM-012 |
 | DOM-TICKET-002 | O-013 | ADR-0002 | Transições funcionais normativas | canonical owner | AC-DOM-013; C-03; C-09 |
@@ -829,7 +968,7 @@ KNOWN_IMPLEMENTATION_GAPS = 4
 ARCHITECTURE_GAPS = 0
 PORTFOLIO_OWNERSHIP_GAPS = 0
 ACCEPTANCE_CRITERIA = 21
-CONFORMANCE_TESTS = 24
+CONFORMANCE_TESTS = 26
 ```
 
 Required invariants:
