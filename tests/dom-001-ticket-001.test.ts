@@ -18,6 +18,7 @@ import {
   AggregateKind,
   CanonicalIdentity,
   CanonicalIdentityCatalog,
+  CanonicalStageReference,
   CanonicalIdentityGenerator,
   CanonicalIdentityRecord,
   CanonicalIdentityReference,
@@ -51,6 +52,7 @@ class InMemoryIdentityRepository implements CanonicalIdentityRepository {
 
 class InMemoryLineageRepository implements AdrSpecLineageRepository {
   private readonly lineages = new Map<string, AdrSpecLineage>()
+  private readonly heldFinds = new Map<string, { lineage: AdrSpecLineage; remaining: number }>()
 
   constructor(private readonly beforeReserve: () => Promise<void> = async () => {}) {}
 
@@ -62,6 +64,13 @@ class InMemoryLineageRepository implements AdrSpecLineageRepository {
     return { status: 'ACCEPTED', lineage }
   }
 
+  holdNextFinds(adr: CanonicalIdentityReference, spec: CanonicalIdentityReference, count: number): void {
+    const key = `${adr.canonicalKey}->${spec.canonicalKey}`
+    const lineage = this.lineages.get(key)
+    if (!lineage) throw new Error(`Lineage ${key} must be seeded before its reads are held.`)
+    this.heldFinds.set(key, { lineage, remaining: count })
+  }
+
   advance(lineage: AdrSpecLineage, expectedProgress: LineageProgress): LineageAdvanceReservation {
     const existing = this.lineages.get(lineage.canonicalKey)
     if (!existing) return { status: 'NOT_FOUND' }
@@ -71,7 +80,14 @@ class InMemoryLineageRepository implements AdrSpecLineageRepository {
   }
 
   find(adr: CanonicalIdentityReference, spec: CanonicalIdentityReference): AdrSpecLineage | undefined {
-    return this.lineages.get(`${adr.canonicalKey}->${spec.canonicalKey}`)
+    const key = `${adr.canonicalKey}->${spec.canonicalKey}`
+    const held = this.heldFinds.get(key)
+    if (held && held.remaining > 0) {
+      held.remaining -= 1
+      if (held.remaining === 0) this.heldFinds.delete(key)
+      return held.lineage
+    }
+    return this.lineages.get(key)
   }
 
   listByAdr(adr: CanonicalIdentityReference): readonly AdrSpecLineage[] {
@@ -231,6 +247,26 @@ test('keeps revision continuity rules cohesive across kind, scope, and ordering'
   }
 })
 
+test('rejects skipped identity successors without reserving fabricated history', async () => {
+  const repository = new InMemoryIdentityRepository()
+  const catalog = identityCatalog(repository)
+  const create = new CreateCanonicalIdentityHandler(catalog)
+  const revisionOne = await createIdentity(create, 'ADR', 'ADR-SKIP')
+
+  await assert.rejects(
+    create.handle({
+      kind: 'ADR',
+      scope: 'workflow',
+      revision: 3,
+      existingReference: revisionOne.reference,
+    }),
+    (error: unknown) => error instanceof IdentityDomainError && error.code === 'IDENTITY_REFERENCE_MISMATCH',
+  )
+
+  assert.equal(repository.size, 1)
+  assert.equal(repository.find(revisionOne.reference), revisionOne)
+})
+
 test('preserves stable identity across historical ADR↔SPEC lineage revisions', async () => {
   const identities = identityCatalog()
   const create = new CreateCanonicalIdentityHandler(identities)
@@ -353,6 +389,53 @@ test('keeps created identity records and revisions immutable', async () => {
   assert.equal(record.revision.value, 1)
 })
 
+test('rehydrates canonical identity records through the validated immutable boundary', async () => {
+  const record = await createIdentity(new CreateCanonicalIdentityHandler(identityCatalog()), 'STAGE', 'STAGE-001')
+  const rehydrated = CanonicalIdentityRecord.rehydrate({
+    identity: record.identity,
+    revision: record.revision,
+    createdAt: record.createdAt,
+  })
+
+  assert.equal(rehydrated.canonicalKey, record.canonicalKey)
+  assert.equal(rehydrated.createdAt, record.createdAt)
+  assert.equal(Object.isFrozen(rehydrated), true)
+  assert.equal(Object.isFrozen(rehydrated.identity), true)
+  assert.equal(Object.isFrozen(rehydrated.revision), true)
+})
+
+test('narrows WorkflowPipeline identity to the canonical STAGE reference', () => {
+  const stage = CanonicalStageReference.create({
+    executionId: 'EXECUTION-001',
+    stageId: 'STAGE-001',
+    revision: 1,
+  })
+
+  assert.equal(stage.identity.kind, 'STAGE')
+  assert.equal(stage.identity.scope.value, 'EXECUTION-001')
+  assert.equal(stage.identity.value, 'STAGE-001')
+  assert.equal(stage.revision.value, 1)
+  assert.equal(stage.canonicalKey, 'STAGE|EXECUTION-001|STAGE-001|revision=1')
+  assert.equal(Object.isFrozen(stage), true)
+  assert.throws(
+    () => CanonicalStageReference.create({ executionId: '', stageId: 'STAGE-001', revision: 1 }),
+    (error: unknown) => error instanceof IdentityDomainError && error.code === 'INVALID_SCOPE',
+  )
+  assert.throws(
+    () => CanonicalStageReference.create({ executionId: 'EXECUTION-001', stageId: 'STAGE-001', revision: 0 }),
+    (error: unknown) => error instanceof IdentityDomainError && error.code === 'INVALID_REVISION',
+  )
+})
+
+test('does not accept PipelineId-shaped input as a canonical identity command', async () => {
+  const create = new CreateCanonicalIdentityHandler(identityCatalog())
+
+  await assert.rejects(
+    create.handle({ id: 'PIPELINE-001' } as never),
+    (error: unknown) => error instanceof IdentityDomainError && error.code === 'INVALID_AGGREGATE_KIND',
+  )
+})
+
 test('does not infer identity from a filename-only input', async () => {
   const create = new CreateCanonicalIdentityHandler(identityCatalog())
 
@@ -458,6 +541,35 @@ test('advances one lineage relation without mutating another relation', async ()
   const stale = repository.advance(progressed.advance(), relationA.progress)
   assert.equal(stale.status, 'STALE')
   assert.equal(repository.find(adr.reference, specA.reference)?.progress.value, 1)
+})
+
+test('proves one same-pair lineage advance wins and the conflicting advance is stale', async () => {
+  const identities = identityCatalog()
+  const create = new CreateCanonicalIdentityHandler(identities)
+  const adr = await createIdentity(create, 'ADR', 'ADR-CONFLICT')
+  const spec = await createIdentity(create, 'SPEC', 'SPEC-CONFLICT')
+  const repository = new InMemoryLineageRepository()
+  const register = new RegisterAdrSpecLineageHandler(repository, identities)
+  const advance = new AdvanceAdrSpecLineageHandler(repository)
+  await register.handle({ adr: adr.reference, spec: spec.reference })
+
+  repository.holdNextFinds(adr.reference, spec.reference, 2)
+  const input = { adr: adr.reference, spec: spec.reference }
+  const attempts = await Promise.allSettled([
+    Promise.resolve().then(() => advance.handle(input)),
+    Promise.resolve().then(() => advance.handle(input)),
+  ])
+  const advanced = attempts.filter((attempt) => attempt.status === 'fulfilled')
+  const stale = attempts.filter(
+    (attempt): attempt is PromiseRejectedResult =>
+      attempt.status === 'rejected'
+      && attempt.reason instanceof LineageDomainError
+      && attempt.reason.code === 'LINEAGE_CONCURRENT_MODIFICATION',
+  )
+
+  assert.equal(advanced.length, 1)
+  assert.equal(stale.length, 1)
+  assert.equal(repository.find(adr.reference, spec.reference)?.progress.value, 1)
 })
 
 test('rehydrates persisted lineage through a validated immutable boundary', async () => {

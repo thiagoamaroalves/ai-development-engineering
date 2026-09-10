@@ -2,11 +2,11 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
 import { resolve } from 'node:path'
+import { CanonicalIdentityReference, CanonicalStageReference } from '../src/domain/identity.js'
 import {
   PipelineAdvanceReservation,
   PipelineDomainError,
   DerivedWorkflowState,
-  PipelineId,
   PipelineRepository,
   PipelineRevision,
   PipelineStateInputSet,
@@ -24,19 +24,19 @@ class InMemoryPipelineRepository implements PipelineRepository {
   advanceCalls = 0
 
   seed(pipeline: WorkflowPipeline): void {
-    this.pipelines.set(pipeline.id.value, pipeline)
+    this.pipelines.set(pipeline.identity.canonicalKey, pipeline)
   }
 
-  find(id: PipelineId): WorkflowPipeline | undefined {
-    return this.pipelines.get(id.value)
+  find(identity: CanonicalIdentityReference): WorkflowPipeline | undefined {
+    return this.pipelines.get(identity.canonicalKey)
   }
 
   async advance(proposed: WorkflowPipeline, expectedRevision: PipelineRevision): Promise<PipelineAdvanceReservation> {
     this.advanceCalls += 1
-    const current = this.pipelines.get(proposed.id.value)
+    const current = this.pipelines.get(proposed.identity.canonicalKey)
     if (!current) return { status: 'NOT_FOUND' }
     if (!current.revision.equals(expectedRevision)) return { status: 'STALE', existing: current }
-    this.pipelines.set(proposed.id.value, proposed)
+    this.pipelines.set(proposed.identity.canonicalKey, proposed)
     return { status: 'ADVANCED', pipeline: proposed }
   }
 }
@@ -47,6 +47,14 @@ class InMemoryPipelineStateReader implements PipelineStateReader {
   read(): PipelineStateInputs {
     return this.inputs
   }
+}
+
+function pipelineIdentity(stageId = 'STAGE-001'): CanonicalStageReference {
+  return CanonicalStageReference.create({
+    executionId: 'EXECUTION-001',
+    stageId,
+    revision: 1,
+  })
 }
 
 function stateInputs(): PipelineStateInputs {
@@ -65,7 +73,7 @@ function stateInputs(): PipelineStateInputs {
 }
 
 test('pipeline accepts only the immediate canonical successor', () => {
-  const pipeline = WorkflowPipeline.create({ id: 'PIPELINE-001' })
+  const pipeline = WorkflowPipeline.create({ identity: pipelineIdentity() })
   const transition = pipeline.advanceTo('SPECS')
 
   assert.equal(transition.previous, pipeline)
@@ -82,7 +90,7 @@ test('pipeline accepts only the immediate canonical successor', () => {
 
 test('pipeline rehydration rejects unknown stages and invalid revisions', () => {
   const newlyCreated = WorkflowPipeline.create({
-    id: 'PIPELINE-NEW',
+    identity: pipelineIdentity('STAGE-NEW'),
     stage: 'TICKET_FINALIZATION',
     revision: 99,
   } as never)
@@ -90,20 +98,40 @@ test('pipeline rehydration rejects unknown stages and invalid revisions', () => 
   assert.equal(newlyCreated.revision.value, 0)
 
   assert.throws(
-    () => WorkflowPipeline.rehydrate({ id: 'PIPELINE-INVALID', stage: 'FORGED', revision: 4 } as never),
+    () => WorkflowPipeline.rehydrate({ identity: pipelineIdentity('STAGE-INVALID'), stage: 'FORGED', revision: 4 } as never),
     (error: unknown) => error instanceof PipelineDomainError && error.code === 'INVALID_PIPELINE_STAGE',
   )
   assert.throws(
-    () => WorkflowPipeline.rehydrate({ id: 'PIPELINE-INVALID', stage: 'SPECS', revision: -1 }),
+    () => WorkflowPipeline.rehydrate({ identity: pipelineIdentity('STAGE-INVALID'), stage: 'SPECS', revision: -1 }),
     (error: unknown) => error instanceof PipelineDomainError && error.code === 'INVALID_PIPELINE_REVISION',
   )
   assert.throws(
-    () => WorkflowPipeline.rehydrate({ id: 'PIPELINE-INVALID', revision: 1 } as never),
+    () => WorkflowPipeline.rehydrate({ identity: pipelineIdentity('STAGE-INVALID'), revision: 1 } as never),
     (error: unknown) => error instanceof PipelineDomainError && error.code === 'INVALID_PIPELINE_STAGE',
   )
   assert.throws(
-    () => WorkflowPipeline.rehydrate({ id: 'PIPELINE-INVALID', stage: 'SPECS' } as never),
+    () => WorkflowPipeline.rehydrate({ identity: pipelineIdentity('STAGE-INVALID'), stage: 'SPECS' } as never),
     (error: unknown) => error instanceof PipelineDomainError && error.code === 'INVALID_PIPELINE_REVISION',
+  )
+})
+
+test('pipeline identity is canonical STAGE reference and rejects local aliases', () => {
+  const stage = pipelineIdentity()
+  const pipeline = WorkflowPipeline.create({ identity: stage })
+
+  assert.equal(pipeline.identity, stage.reference)
+  assert.throws(
+    () => WorkflowPipeline.create({ identity: { id: 'PIPELINE-001' } as never }),
+    (error: unknown) => error instanceof PipelineDomainError && error.code === 'INVALID_PIPELINE_IDENTITY',
+  )
+  assert.throws(
+    () => WorkflowPipeline.create({
+      identity: {
+        identity: { kind: 'ADR', scope: 'workflow', value: 'ADR-0001' },
+        revision: 1,
+      },
+    }),
+    (error: unknown) => error instanceof PipelineDomainError && error.code === 'INVALID_PIPELINE_IDENTITY',
   )
 })
 
@@ -122,10 +150,10 @@ test('productive domain boundaries do not import prototype or infrastructure det
 
 test('independent aggregate state inputs are validated, frozen, and never combined into a transition', () => {
   const inputs = stateInputs()
-  const pipeline = WorkflowPipeline.create({ id: 'PIPELINE-001' })
+  const pipeline = WorkflowPipeline.create({ identity: pipelineIdentity() })
   const repository = new InMemoryPipelineRepository()
   repository.seed(pipeline)
-  const view = new GetPipelineStateHandler(repository, new InMemoryPipelineStateReader(inputs)).handle({ id: 'PIPELINE-001' })
+  const view = new GetPipelineStateHandler(repository, new InMemoryPipelineStateReader(inputs)).handle({ identity: pipelineIdentity() })
 
   assert.equal(view.pipelineStage.value, 'ACCEPTED_ADRS')
   assert.equal(view.stateFor('TICKET').state, 'READY')
@@ -157,23 +185,23 @@ test('independent aggregate state inputs are validated, frozen, and never combin
 
 test('advance handler uses expected revision as CAS token and rejects stale without last-write-wins', async () => {
   const repository = new InMemoryPipelineRepository()
-  repository.seed(WorkflowPipeline.create({ id: 'PIPELINE-001' }))
+  repository.seed(WorkflowPipeline.create({ identity: pipelineIdentity() }))
   const handler = new AdvancePipelineHandler(repository)
 
-  const advanced = await handler.handle({ id: 'PIPELINE-001', target: 'SPECS', expectedRevision: 0 })
+  const advanced = await handler.handle({ identity: pipelineIdentity(), target: 'SPECS', expectedRevision: 0 })
   assert.equal(advanced.stage.value, 'SPECS')
   assert.equal(advanced.revision.value, 1)
 
   await assert.rejects(
-    handler.handle({ id: 'PIPELINE-001', target: 'SPECS', expectedRevision: 0 }),
+    handler.handle({ identity: pipelineIdentity(), target: 'SPECS', expectedRevision: 0 }),
     (error: unknown) => error instanceof PipelineDomainError && error.code === 'INVALID_PIPELINE_TRANSITION',
   )
   assert.equal(repository.advanceCalls, 1)
   await assert.rejects(
-    handler.handle({ id: 'PIPELINE-001', target: 'SPEC_AUDIT_REMEDIATION', expectedRevision: 0 }),
+    handler.handle({ identity: pipelineIdentity(), target: 'SPEC_AUDIT_REMEDIATION', expectedRevision: 0 }),
     (error: unknown) => error instanceof PipelineDomainError && error.code === 'PIPELINE_STALE',
   )
-  const current = repository.find(PipelineId.create('PIPELINE-001'))!
+  const current = repository.find(pipelineIdentity().reference)!
   assert.equal(current.stage.value, 'SPECS')
   assert.equal(current.revision.value, 1)
   assert.equal(repository.advanceCalls, 2)
@@ -181,12 +209,12 @@ test('advance handler uses expected revision as CAS token and rejects stale with
 
 test('query handler is read-only and missing state fails closed', () => {
   const repository = new InMemoryPipelineRepository()
-  repository.seed(WorkflowPipeline.create({ id: 'PIPELINE-001' }))
+  repository.seed(WorkflowPipeline.create({ identity: pipelineIdentity() }))
   const handler = new GetPipelineStateHandler(repository, { read: () => undefined })
 
   assert.throws(
-    () => handler.handle({ id: 'PIPELINE-001' }),
+    () => handler.handle({ identity: pipelineIdentity() }),
     (error: unknown) => error instanceof PipelineDomainError && error.code === 'PIPELINE_NOT_FOUND',
   )
-  assert.equal(repository.find(PipelineId.create('PIPELINE-001'))?.stage.value, 'ACCEPTED_ADRS')
+  assert.equal(repository.find(pipelineIdentity().reference)?.stage.value, 'ACCEPTED_ADRS')
 })
