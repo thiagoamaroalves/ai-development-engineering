@@ -1,19 +1,20 @@
-# DOM-001-TICKET-004 — Pipeline and aggregate state machines
+# DOM-001-TICKET-004 — Pipeline state machines and provenance reconstruction
 
 ## 1. Status
 
-`STATUS: VALIDATION_REQUIRED`  
+`STATUS: BLOCKED`
 `ISSUE_DECOMPOSITION_READINESS: ISSUE_READY`  
 `INITIAL_DAG_STATE: BLOCKED`  
-`BLOCKED_BY: NONE`  
+`BLOCKED_BY: DOM-001-TICKET-001`
 `DEPENDS_ON: DOM-001-TICKET-001`  
 `UNBLOCKS: DOM-001-TICKET-005, DOM-001-TICKET-006, DOM-001-TICKET-007, DOM-001-TICKET-012`
 
 ## 2. Source Traceability
 
+- Accepted ADR authority: `ADR-0002` revision 3, SHA-256 `EF9289C6FCA4BBA73FCA53CA38C71DD19110EB1CFE948358A7CCA1FE14E177D9` — canonical pipeline order, separate state machines, and provenance reconstruction.
 - Portfolio: `docs/specs/SPEC-PORTFOLIO-001-organization.md` — O-009, O-010.
 - Component SPEC: `docs/specs/SPEC-DOM-001-workflow-authority-and-governance.md` — DOM-PIPE-001, DOM-STATE-001.
-- Gap Matrix: `docs/specs/gap-matrices/SPEC-DOM-001-implementation-gap-matrix.md` — GAP-009, GAP-010.
+- Gap Matrix: `docs/specs/gap-matrices/SPEC-DOM-001-implementation-gap-matrix.md` — GAP-010.
 - Gap Matrix Audit: `docs/specs/gap-matrices/audits/SPEC-DOM-001-implementation-gap-matrix-audit.md`.
 - Implementation Plan: `docs/specs/implementation-plans/SPEC-DOM-001-implementation-plan.md` — DOM-IMP-04.
 - Plan Audit: `docs/specs/implementation-plans/audits/SPEC-DOM-001-implementation-plan-audit.md`.
@@ -28,11 +29,11 @@ Approved owner: DOM `CANONICAL_OWNER`. Primary owning specification/domain: `SPE
 
 ## 5. Gap / Requirement / Acceptance Coverage
 
-Gaps: `GAP-009`, `GAP-010`. Requirements: `DOM-PIPE-001`, `DOM-STATE-001`. Local acceptance: `AC-DOM-009`, `AC-DOM-010`. Integrated contribution: `AC-DOM-052`; final owner TICKET-012.
+Gap: `GAP-010`. Requirements: `DOM-PIPE-001`, `DOM-STATE-001`. Local acceptance: `AC-DOM-009`, `AC-DOM-010`. Integrated contribution: `AC-DOM-052`; final owner TICKET-012.
 
 ## 6. Implementation Unit
 
-`DOM-IMP-04 — Pipeline and aggregate state machines`. Formation reason: `SHARED_INVARIANT`. No split or merge.
+`DOM-IMP-04 — Pipeline state machines and provenance reconstruction`. Formation reason: `SHARED_INVARIANT + SHARED_PERSISTENCE_BOUNDARY`. No split or merge.
 
 ## 7. Goal
 
@@ -54,7 +55,7 @@ Scheduler capacity/leases, Git integration, backend transport, OPS/UI projection
 
 ## 11. Repository Evidence
 
-`prototype/src/App.tsx:52-62`; `prototype/src/mockDomain.ts:15-23, :863-884`. Replace mock transition authority; extend bypass and derivation tests.
+`src/domain/pipeline.ts`, `src/application/pipeline.ts`, and `tests/dom-001-ticket-004.test.ts`. Reuse ordered pipeline/CAS semantics; replace scalar later-state rehydration.
 
 ## 12. Expected Repository Impact
 
@@ -73,15 +74,77 @@ Internal: `DOM-001-TICKET-001`. Cross-SPEC consumer state mappings are downstrea
 
 Blocked until TICKET-001 completes. No external blocker exists.
 
+## 14a. Authority Consumption Proof
+
+| Field | Proof |
+|---|---|
+| Proof ID / authority existence | `ACP-DOM-04`; `YES` — `ADR-0002` revision 3, SHA-256 `EF9289C6FCA4BBA73FCA53CA38C71DD19110EB1CFE948358A7CCA1FE14E177D9`. |
+| Scoped decision / truth owner | `ADR0002-D001`, `ADR0002-D002`; DOM owns phase order, state-machine separation, and reconstruction meaning. |
+| Semantic source | `DOM-PIPE-001`, `DOM-STATE-001`; `GAP-010`. |
+| Consumed interface / returned data | Ordered transition/replay port; returns canonical stage state and complete predecessor/revision provenance. |
+| Revision/version transport | Each transition carries predecessor identity, revision, order, and immutable provenance. |
+| Failure / stale semantics | Skip, duplicate/out-of-order, forged predecessor, revision divergence, missing predecessor, or snapshot mismatch rejects with no mutation. |
+| Productive availability / evidence | `YES` for local state-machine/reconstruction boundary and deterministic replay fixture; PLAT physical replay remains a non-blocking integration seam. Evidence: `T4-AC1`–`T4-AC3`. |
+| Result | `AUTHORITY_CONSUMABLE`. |
+
+## 14b. Producer / Consumer Contract Proof
+
+| Field | Proof |
+|---|---|
+| Contract / producer / consumer | `PCP-PLAT-04`; PLAT produces ordered append-only records and integrity/replay results; DOM consumes them and validates semantic continuity. |
+| Interface / input / returned data | Replay/provenance interface; input is ordered transition record plus expected predecessor/revision; output is reconstructed state or canonical rejection. |
+| Revision/version transport | Record order, predecessor identity, stage identity, and revision are carried unchanged through replay. |
+| Failure / not-found / stale | Missing record, skip, duplicate, out-of-order, forged predecessor, revision divergence, and final snapshot mismatch reject without mutation. |
+| Availability / local proof boundary | Local replay fixture and state-machine contract are available for execution; physical PLAT replay is an integration checkpoint. |
+| Evidence / result | `T4-AC1`–`T4-AC3` direct recovery, negative, isolation, and concurrency/recovery witnesses; PRODUCER_CONSUMER_CONTRACT: PROVEN_LOCAL_FIXTURE, RESULT: CONTRACT_DEFINED_LOCAL_WITNESS_ONLY. |
+
+### Capability Availability Reconciliation
+
+APPLICABLE_SHARED_CAPABILITY_RECORDS: CAP-PLAT-SNAPSHOT-PIPELINE-PROVENANCE.
+RECONCILIATION_SOURCE: README section 11.1 and current Plan section 12.1.
+AUTHORITY_STATUS = DEFINED; CONTRACT_STATUS = DEFINED; LOCAL_TESTABILITY = NO;
+PRODUCTIVE_AVAILABILITY = NO; DEPENDENCY_CLASS = REQUIRED_FOR_INTEGRATED_PROOF.
+BLOCKING_EFFECT: no local execution or local-closure block; integrated proof
+only. Local fixture evidence is contract-level only. Complete owner, producer,
+consumer, contract, failure semantics, version transport, and availability
+evidence are preserved in README section 11.1. For NONE, no shared capability
+record is required by the current Plan for this ticket's local closure.
+NO_DOWNSTREAM_CAPABILITY_PROMOTION_WITHOUT_NEW_EVIDENCE = TRUE.
+
+## 14c. ACCEPTANCE_WITNESS_MATRIX
+`PRODUCER_CONSUMER_CONTRACT_PROOF_FIELDS`: `PRODUCER = SPEC-PLAT-001`;
+`PRODUCED_CONTRACT = ordered append-only transition records and integrity/replay
+result`; `AUTHORITY_OWNER = SPEC-DOM-001`; `CONSUMER = TICKET-004`;
+`CONSUMED_CAPABILITY = replay/provenance input and integrity result`;
+`AVAILABILITY_CONDITION = local replay fixture available; physical PLAT replay
+is an integration checkpoint`; `DEPENDENCY_EDGE = PLAT provenance/replay →
+TICKET-004 reconstruction`; `PROOF_EVIDENCE =
+docs/tickets/SPEC-DOM-001/evidence/TICKET-004/AC-DOM-009-provenance.md`.
+
+## 14c. ACCEPTANCE_WITNESS_MATRIX
+
+| AC | Normative behavior / verb | Concrete operation | State/transition | Direct positive test | Direct negative/isolation test | Expected evidence | Acceptance owner |
+|---|---|---|---|---|---|---|---|
+| AC-DOM-009 | Enforce canonical phase order and initial creation | pipeline create/advance command | ordered pipeline stage | `T4-AC1-P` valid initial creation and next-stage advance | `T4-AC1-N` later-stage creation or phase skip rejects with unchanged state | `docs/tickets/SPEC-DOM-001/evidence/TICKET-004/AC-DOM-009-order.md` | TICKET-004 |
+| AC-DOM-009 | Rehydrate complete immediate-transition provenance | pipeline rehydrate command | ordered stage chain recovery | `T4-AC2-P` valid chain recovers exact later state | `T4-AC2-N` missing predecessor, skip, duplicate/order, forged predecessor, revision or snapshot mismatch rejects | `docs/tickets/SPEC-DOM-001/evidence/TICKET-004/AC-DOM-009-rehydration.md` | TICKET-004 |
+| AC-DOM-010 | Keep aggregate state machines separate | state transition/query command | independent aggregate states | `T4-AC3-P` independent derivation and concurrent queries | `T4-AC3-N` combined-state or cross-aggregate mutation rejects; restart preserves separation | `docs/tickets/SPEC-DOM-001/evidence/TICKET-004/AC-DOM-010-isolation.md` | TICKET-004 |
+
+`TEMPORAL_AUTHORITY_PROOF: NOT_APPLICABLE` — Plan `DOM-IMP-04` classifies the
+rehydration input as a single immutable candidate. The ticket independently
+validates the complete chain and final snapshot before materialization and
+fails closed on inconsistency; no mutable external authority is committed.
+
 ## 15. Implementation Constraints
 
 No stage may declare a later stage complete; projections/transports cannot create canonical transitions; aggregate states remain separate.
 
 ## 16. Acceptance Criteria
 
-- [ ] Every prohibited bypass is rejected.
-- [ ] Combining aggregate machines or fabricating a higher state is rejected.
-- [ ] `LOCAL_PROVABILITY = YES` with only TICKET-001 completed as prerequisite.
+1. Valid chain rehydrates the exact later state.
+2. Missing predecessor, skip, duplicate/out-of-order, revision divergence,
+   identity mismatch, and forged later state are rejected with no mutation.
+3. Separate aggregate state machines cannot be combined into an implicit
+   transition. `LOCAL_PROVABILITY = YES`.
 
 All criteria are `TESTABLE: YES` and `LOCALLY_PROVABLE: YES` after prerequisite.
 
@@ -91,11 +154,11 @@ All criteria are `TESTABLE: YES` and `LOCALLY_PROVABLE: YES` after prerequisite.
 
 ## 18. Required Tests
 
-Unit, state-machine, application, projection-boundary, and regression tests for stage boundaries, prohibited bypass, independent transitions, derivation, and stale projection commands.
+`LOCAL_TEST_EVIDENCE`: unit/state-machine/application tests for stage boundaries, prohibited bypass, independent transitions, derivation, and stale projection commands. `CONCURRENCY_EVIDENCE`: concurrent independent aggregate queries/transitions prove no combined state. `RECOVERY_EVIDENCE`: valid-chain restart plus missing/forged/divergent provenance rejection.
 
 ## 19. Completion Evidence
 
-Executable ordered pipeline/state authority and negative tests for bypass and implicit combined states.
+Executable ordered pipeline/state authority and negative tests for bypass and implicit combined states. `EXPECTED_EVIDENCE_FILES`: `docs/tickets/SPEC-DOM-001/evidence/TICKET-004/AC-DOM-009-order.md`, `AC-DOM-009-rehydration.md`, `AC-DOM-010-isolation.md`.
 
 ## 20. Completion Gate
 
@@ -131,32 +194,3 @@ Independent ticket audit may validate this ticket; command, ticket, and publicat
 ## 26. Ticket Local Closure
 
 `TICKET_LOCAL_CLOSURE = YES`.
-
-## 27. Implementation Evidence
-
-`IMPLEMENTATION_STATUS: IMPLEMENTED`
-`STATUS_TRANSITION: READY -> IN_PROGRESS -> IMPLEMENTED -> VALIDATION_REQUIRED`
-
-Implemented the approved bounded design in:
-
-- `src/domain/pipeline.ts`
-- `src/application/pipeline.ts`
-- `tests/dom-001-ticket-004.test.ts`
-
-The domain owns the canonical ordered pipeline, immediate-successor
-validation, immutable pipeline revision, independent machine-state input
-boundary, and pure read-only derivation. The application handlers only
-orchestrate repository/state-reader calls. The repository port owns persistence
-and atomic compare-and-set using `expectedRevision`; stale results are mapped
-without rebase or last-write-wins.
-
-Local acceptance evidence:
-
-- five ticket-scoped tests passed;
-- later-stage bypasses are rejected without mutation;
-- all nine aggregate state inputs require their own machine owner and are
-  immutable;
-- derived state is read-only and missing inputs fail closed;
-- stale CAS preserves the persisted stage and revision.
-
-`INDEPENDENT_VALIDATION: REQUIRED`

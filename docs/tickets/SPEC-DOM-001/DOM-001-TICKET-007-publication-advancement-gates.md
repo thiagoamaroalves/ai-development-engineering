@@ -7,13 +7,14 @@
 `INITIAL_DAG_STATE: BLOCKED`  
 `BLOCKED_BY: DOM-001-TICKET-004, DOM-001-TICKET-005`  
 `DEPENDS_ON: DOM-001-TICKET-004, DOM-001-TICKET-005`  
-`UNBLOCKS: DOM-001-TICKET-011, DOM-001-TICKET-012`
+`UNBLOCKS: DOM-001-TICKET-010, DOM-001-TICKET-011, DOM-001-TICKET-012`
 
 ## 2. Source Traceability
 
+- Accepted ADR authority: `ADR-0002` revision 3, SHA-256 `EF9289C6FCA4BBA73FCA53CA38C71DD19110EB1CFE948358A7CCA1FE14E177D9` — publication vocabulary, advancement gates, and cooperative cancellation.
 - Portfolio: `docs/specs/SPEC-PORTFOLIO-001-organization.md` — O-014, O-015.
 - Component SPEC: `docs/specs/SPEC-DOM-001-workflow-authority-and-governance.md` — DOM-PUB-001, DOM-ADV-001.
-- Gap Matrix: `docs/specs/gap-matrices/SPEC-DOM-001-implementation-gap-matrix.md` — GAP-014, GAP-015.
+- Gap Matrix: `docs/specs/gap-matrices/SPEC-DOM-001-implementation-gap-matrix.md` — GAP-013, GAP-016.
 - Gap Matrix Audit: `docs/specs/gap-matrices/audits/SPEC-DOM-001-implementation-gap-matrix-audit.md`.
 - Implementation Plan: `docs/specs/implementation-plans/SPEC-DOM-001-implementation-plan.md` — DOM-IMP-07.
 - Plan Audit: `docs/specs/implementation-plans/audits/SPEC-DOM-001-implementation-plan-audit.md`.
@@ -28,11 +29,11 @@ Approved owner: DOM `CANONICAL_OWNER`. Primary owning specification/domain: `SPE
 
 ## 5. Gap / Requirement / Acceptance Coverage
 
-Gaps: `GAP-014`, `GAP-015`. Requirements: `DOM-PUB-001`, `DOM-ADV-001`. Local acceptance: `AC-DOM-014`, `AC-DOM-015`. Integrated contribution: `AC-DOM-052`; final owner TICKET-012.
+Gaps: `GAP-013`, `GAP-016`. Requirements: `DOM-ADV-001`, `DOM-PUB-001`. Local acceptance: `AC-DOM-014`, `AC-DOM-015`. Integrated contribution: `AC-DOM-052`; final owner TICKET-012.
 
 ## 6. Implementation Unit
 
-`DOM-IMP-07 — Publication vocabulary and advancement gates`. Formation reason: `SHARED_COMMAND_BOUNDARY`. No split or merge.
+`DOM-IMP-07 — Publication vocabulary and advancement gates`. Formation reason: `SHARED_AUTHORITY + SHARED_INTEGRATION_SEAM`. No split or merge.
 
 ## 7. Goal
 
@@ -54,7 +55,7 @@ Git/GitHub execution, push/PR/merge, remote confirmation evidence, scheduler cap
 
 ## 11. Repository Evidence
 
-`prototype/src/mockDomain.ts:22, :720, :910-917`; publication, drift, and PR tests. Replace mock effects; extend vocabulary and gate tests.
+No productive publication/advancement authority was found; prototype publication states are scenario evidence only. Add the DOM vocabulary/gate boundary and direct gate tests.
 
 ## 12. Expected Repository Impact
 
@@ -73,15 +74,81 @@ Internal: `DOM-001-TICKET-004`, `DOM-001-TICKET-005`. Cross-SPEC: `SPEC-GIT-001`
 
 Blocked until state and command boundaries complete. No foreign blocker exists.
 
+## 14a. Authority Consumption Proof
+
+| Field | Proof |
+|---|---|
+| Proof ID / authority existence | `ACP-DOM-07`; `YES` — `ADR-0002` revision 3, SHA-256 `EF9289C6FCA4BBA73FCA53CA38C71DD19110EB1CFE948358A7CCA1FE14E177D9`. |
+| Scoped decision / truth owner | `ADR0002-D005`, `ADR0002-D006`; DOM owns publication states, verdict gates, independence, and cancellation meaning. |
+| Semantic source | `DOM-PUB-001`, `DOM-ADV-001`; `GAP-013`, `GAP-016`. |
+| Consumed interface / returned data | Publication/advancement command port; returns distinct state or canonical rejection with verdict/dependency reason. |
+| Revision/version transport | Candidate, verdict, dependency closure, and publication evidence carry exact artifact/revision correlation. |
+| Failure / stale semantics | Missing verdict/closure, state conflation, non-cooperative cancellation, stale candidate, or remote rollback attempt rejects without local advance. |
+| Productive availability / evidence | `YES` for local publication vocabulary/gate boundary and GIT evidence fixture; remote Git execution remains foreign. Evidence: `T7-AC1`–`T7-AC2`. |
+| Result | `AUTHORITY_CONSUMABLE`. |
+
+## 14b. Producer / Consumer Contract Proof
+
+| Field | Proof |
+|---|---|
+| Contract / producer / consumer | `PCP-GIT-01`; GIT produces candidate/PR/merge/remote-confirmation evidence; DOM consumes it and gates advancement. |
+| Interface / input / returned data | Evidence mapping interface; input is exact publication evidence and verdict/closure; output is canonical publication state or rejection. |
+| Revision/version transport | Candidate base/head/tree and artifact/revision correlation are carried unchanged. |
+| Failure / not-found / stale | Missing evidence, stale candidate, conflated merge/remote confirmation, or invalid closure rejects with no local transition. |
+| Availability / local proof boundary | Deterministic GIT evidence fixture and local gate are available; DOM never claims Git execution or remote confirmation. |
+| Evidence / result | `T7-AC1`–`T7-AC2` vocabulary, gate, cancellation, and idempotency witnesses; PRODUCER_CONSUMER_CONTRACT: PROVEN_LOCAL_FIXTURE, RESULT: CONTRACT_DEFINED_LOCAL_WITNESS_ONLY. |
+
+### Capability Availability Reconciliation
+
+APPLICABLE_SHARED_CAPABILITY_RECORDS: CAP-EXEC-EXACT-VERSION-BASIS, CAP-PLAT-SNAPSHOT-PIPELINE-PROVENANCE, CAP-GIT-CANDIDATE-REMOTE-CONFIRMATION.
+RECONCILIATION_SOURCE: README section 11.1 and current Plan section 12.1.
+AUTHORITY_STATUS = DEFINED; CONTRACT_STATUS = DEFINED; LOCAL_TESTABILITY = NO;
+PRODUCTIVE_AVAILABILITY = NO; DEPENDENCY_CLASS = REQUIRED_FOR_INTEGRATED_PROOF.
+BLOCKING_EFFECT: no local execution or local-closure block; integrated proof
+only. Local fixture evidence is contract-level only. Complete owner, producer,
+consumer, contract, failure semantics, version transport, and availability
+evidence are preserved in README section 11.1. For NONE, no shared capability
+record is required by the current Plan for this ticket's local closure.
+NO_DOWNSTREAM_CAPABILITY_PROMOTION_WITHOUT_NEW_EVIDENCE = TRUE.
+
+## 14c. ACCEPTANCE_WITNESS_MATRIX
+`PRODUCER_CONSUMER_CONTRACT_PROOF_FIELDS`: `PRODUCER = SPEC-GIT-001`;
+`PRODUCED_CONTRACT = candidate, PR, merge, and remote-confirmation evidence`;
+`AUTHORITY_OWNER = SPEC-DOM-001`; `CONSUMER = TICKET-007`;
+`CONSUMED_CAPABILITY = publication evidence mapping and advancement gate`;
+`AVAILABILITY_CONDITION = deterministic GIT evidence fixture and local gate
+available; remote execution remains foreign`; `DEPENDENCY_EDGE = GIT evidence
+→ TICKET-007 publication gate`; `PROOF_EVIDENCE =
+docs/tickets/SPEC-DOM-001/evidence/TICKET-007/AC-DOM-014-publication.md`.
+
+## 14c. ACCEPTANCE_WITNESS_MATRIX
+
+| AC | Normative behavior / verb | Concrete operation | State/transition | Direct positive test | Direct negative/isolation test | Expected evidence | Acceptance owner |
+|---|---|---|---|---|---|---|---|
+| AC-DOM-014 | Represent distinct publication states | publication state command | candidate/approval/integration/PR/merge/remote confirmation | `T7-AC1-P` seven-state vocabulary test | `T7-AC1-N` `PR_MERGED` is not remote confirmation | `docs/tickets/SPEC-DOM-001/evidence/TICKET-007/AC-DOM-014-publication.md` | TICKET-007 |
+| AC-DOM-015 | Advance only with verdict and dependency closure | advancement command | workflow progression | `T7-AC2-P` closed-verdict advancement | `T7-AC2-N` missing verdict/dependency, stale basis, or cancelled unit rejects without transition | `docs/tickets/SPEC-DOM-001/evidence/TICKET-007/AC-DOM-015-advance.md` | TICKET-007 |
+| AC-DOM-015 | Pause/cancel cooperatively without reverting effects | pause/cancel command | independent progress | `T7-AC3-P` affected-unit pause/cancel request | `T7-AC3-N` global pause or remote-effect rollback is rejected; unrelated unit progresses | `docs/tickets/SPEC-DOM-001/evidence/TICKET-007/AC-DOM-015-cancellation.md` | TICKET-007 |
+
+### Temporal Authority Proof
+
+`TEMPORAL_AUTHORITY_PROOF: PRESERVED_FROM_PLAN`; source: Plan `DOM-IMP-07`
+Temporal Authority Preconditions. Initial observation is
+verdict, dependency closure, revision, and exact evidence references; the
+mutation window ends at advance authorization; an independent commit-point
+revalidation detects drift and fails closed without local advance. GIT/PLAT own
+physical effect integrity and DOM owns semantic gate validity. Evidence:
+`docs/tickets/SPEC-DOM-001/evidence/TICKET-007/temporal-authority.md`.
+
 ## 15. Implementation Constraints
 
 Preserve requested/accepted/rejected/confirmed distinction, formal verdict gating, independent progress, cooperative cancellation, and foreign execution ownership.
 
 ## 16. Acceptance Criteria
 
-- [ ] Publication states distinguish PR merge from remote confirmation.
-- [ ] No-verdict, closed-dependency, and non-cooperative cancellation paths are rejected; remote effects are not reverted.
-- [ ] `LOCAL_PROVABILITY = YES` after TICKET-004/005.
+1. All publication states are distinct, especially `PR_MERGED` and
+   `REMOTE_PUBLICATION_CONFIRMED`.
+2. Advance without verdict/closure or with non-cooperative cancellation rejects
+   with no local transition. `LOCAL_PROVABILITY = YES`.
 
 All criteria are `TESTABLE: YES` and `LOCALLY_PROVABLE: YES` after prerequisites.
 
@@ -91,11 +158,11 @@ All criteria are `TESTABLE: YES` and `LOCALLY_PROVABLE: YES` after prerequisites
 
 ## 18. Required Tests
 
-Unit, state-machine, application, compatibility, idempotency, and regression tests for publication vocabulary, verdict gates, independent progress, pause/cancel requests, and remote-effect preservation.
+`LOCAL_TEST_EVIDENCE`: unit/state-machine/application tests for publication vocabulary, verdict gates, independent progress, pause/cancel requests, and remote-effect preservation. `CONCURRENCY_EVIDENCE`: independent progress and idempotent gate retries. `INTEGRATION_TEST_EVIDENCE`: GIT mapping is verified separately and cannot claim execution locally.
 
 ## 19. Completion Evidence
 
-Canonical publication state model; gate/rejection evidence; and mapping tests proving no Git execution or confirmation is locally claimed.
+Canonical publication state model; gate/rejection evidence; and mapping tests proving no Git execution or confirmation is locally claimed. `EXPECTED_EVIDENCE_FILES`: `docs/tickets/SPEC-DOM-001/evidence/TICKET-007/AC-DOM-014-publication.md`, `AC-DOM-015-advance.md`, `AC-DOM-015-cancellation.md`, `temporal-authority.md`.
 
 ## 20. Completion Gate
 
@@ -122,7 +189,7 @@ Equating merge with confirmation or cancellation with rollback. Mitigation: expl
 
 ## 24. Parallelization
 
-`SAFE_WITH_COORDINATION`; blocked by TICKET-004/005 and unblocks TICKET-011/012.
+`SAFE_WITH_COORDINATION`; blocked by TICKET-004/005 and unblocks TICKET-010/011/012.
 
 ## 25. Handoff After Completion
 
