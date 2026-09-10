@@ -3,8 +3,8 @@ schema_version: "1.0.0"
 id: SPEC-DOM-001
 title: Workflow Authority and Governance
 status: PROPOSED
-revision: 3
-date: 2026-09-09
+revision: 4
+date: 2026-09-10
 spec_scope: domain
 portfolio: SPEC-PORTFOLIO-001
 portfolio_revision: 2
@@ -21,9 +21,9 @@ upstream_dependencies: []
 
 ## 1. Status
 
-`PROPOSED` — revisão 3, materializada a partir do portfolio aprovado e
-remediada para fechar os gaps normativos de identidade e proveniência do
-`WorkflowPipeline`. A aceitação depende de auditoria independente da SPEC.
+`PROPOSED` — revisão 4, remediada contra a auditoria independente de
+conformidade da revisão 3. A aceitação continua dependendo de nova auditoria
+independente da SPEC; esta remediação não emite conformidade.
 
 Generation baseline:
 
@@ -37,6 +37,8 @@ Generation baseline:
 | Repository HEAD | `d42a2dbe4d9e40dc7f139df920eb0a134c085aaf` |
 | Existing target draft | não presente no filesystem atual; referências históricas tratadas como evidência |
 | Gate | `READY_FOR_INDEPENDENT_COMPONENT_SPEC_REAUDIT` after this remediation |
+| Remediation source audit | `docs/specs/audits/SPEC-DOM-001-component-conformance-audit.md`, verdict `FAIL — COMPONENT_SPEC_NON_CONFORMANT` |
+| Remediation revision | `4`, materialized without changing ADR, portfolio or dependency ownership |
 
 Esta especificação não é aceita ainda. A aceitação depende de auditoria
 independente da SPEC. A decomposição do portfolio não é redefinida aqui.
@@ -184,7 +186,7 @@ identidade, transição, veredito, terminalidade e invalidação.
 | Domínio produtivo | nenhum runtime de domínio/persistência canônica está presente | agregados, comandos, transições e veredictos observáveis | `IMPLEMENTATION_GAP` |
 | `prototype/src/mockDomain.ts` | simula IDs, snapshots, comandos, estados, journal, publicação e cenários | comportamento produtivo independente do mock | `PROTOTYPE_ONLY` |
 | `prototype/tests/*` | cobre probes do mock e da UI | conformance independente contra implementação real | `PROTOTYPE_ONLY` |
-| SPEC componente | este arquivo é a primeira materialização atual | SPEC auditável e rastreável; reauditoria independente pendente | `SPECIFICATION_GAP` |
+| SPEC componente | revisão 4 com provas de autoridade-completude materializadas | SPEC auditável e rastreável; reauditoria independente pendente | `SPECIFICATION_GAP` até o novo audit |
 | Persistência/recovery | simulação em memória; nenhuma prova de durabilidade | consumo de contratos PLAT sem redefinição | `IMPLEMENTATION_GAP` |
 | API/UI/integrações | não há implementação produtiva neste repository | consumidores mapeiam semânticas DOM | `IMPLEMENTATION_GAP` |
 
@@ -244,6 +246,27 @@ A sincronização deverá refletir a referência canônica de `WorkflowPipeline`
 fornecimento/replay da cadeia de proveniência definida nesta SPEC. Ela não
 transfere para PLAT a decisão sobre identidade, validade semântica,
 predecessor, ordem ou estágio válido.
+
+### 10.1 — Authority Consumption and Producer/Consumer Contracts
+
+The following are explicit boundary contracts, not new normative dependencies
+of DOM. They preserve the approved owner and record the four independent
+capability dimensions. Productive availability is intentionally `NO` until a
+later implementation/integration evidence record proves a real producer; local
+testability is not promoted to productive availability.
+
+| Capability | Truth owner / semantic source | Consumer operation and producer | Returned authoritative data and version transport | Failure/not-found/stale semantics | Authority status | Contract status | Local testability | Productive availability | Summary (derived) | Dependency class |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Exact skill/capability version basis | `SPEC-EXEC-001`, ADR-0003/O-018 | DOM snapshot resolution query consumes the EXEC registry | exact skill/capability identity, supported contract version and compatibility basis, bound to the execution snapshot | unknown capability, incompatible version or stale registry basis fails closed; no fallback | `DEFINED` | `DEFINED` | `NO` | `NO` | `CONTRACT_DEFINED` | `REQUIRED_FOR_INTEGRATED_PROOF` |
+| Snapshot and pipeline provenance material | `SPEC-PLAT-001`, ADR-0006/O-032/O-037 | DOM rehydration requests material by canonical identity; PLAT journal/checkpoint reader produces it | canonical identity reference, identity revision, snapshot basis, current state, aggregate revision and ordered append-only provenance records | not found, detached identity, stale basis, corruption, duplication, omission or inconsistent order fails closed; no mutation | `DEFINED` | `DEFINED` | `NO` | `NO` | `CONTRACT_DEFINED` | `REQUIRED_FOR_INTEGRATED_PROOF` |
+| Candidate-bound remote publication confirmation | `SPEC-GIT-001`, ADR-0007/0008/O-047/O-048 | DOM confirmation command consumes GIT's confirmation evidence | `PublicationId`, candidate base/head/tree basis, remote result, confirmation revision and the independent observation used by GIT | merge-only, stale, drifted, mismatched or missing confirmation is rejected; DOM does not infer success | `DEFINED` | `DEFINED` | `NO` | `NO` | `CONTRACT_DEFINED` | `REQUIRED_FOR_INTEGRATED_PROOF` |
+
+The contract producer remains the owner SPEC/adapter named in the table; DOM
+is the semantic consumer and validates the returned relation before any local
+canonical transition. The three capabilities are defined but not yet
+productively consumable. No downstream artifact may promote their productive
+availability without a new evidence record containing the capability ID,
+previous/new availability, evidence owner and baseline/commit.
 
 ## 11. Target Behavioral Model
 
@@ -334,6 +357,36 @@ Authority classification: `SUPPORTED_BY_EXISTING_ADR` —
 `ADR-0001` já exige identidade persistente para etapa, escopo, revisão,
 linhagem e resolução histórica; `ADR-0002` já exige máquina de etapa separada.
 Esta seção materializa o binding sem alterar o significado dessas categorias.
+
+### 12.2 — Aggregate Identity Authority Matrix
+
+The following matrix is the normative identity proof for every aggregate root
+or entity introduced, required or referenced by this SPEC. `DOM` owns the
+canonical identity relation; `EXEC-002`, `PLAT` and `GIT` may own lifecycle,
+physical persistence or external execution respectively, but cannot replace the
+identity. A persistence revision is never silently treated as a domain or
+identity revision.
+
+| Aggregate/entity | Canonical identity and owner | Kind/type, scope and stable correlation | Create and command representation | Lookup, persistence and rehydration | Equality/continuity, revision and forbidden aliases |
+|---|---|---|---|---|---|
+| Repository | `RepositoryId`, DOM | `REPOSITORY`; repository scope; `(RepositoryId)` | explicit onboarding/configuration target; commands carry `RepositoryId` | repository configuration/references persist `RepositoryId`; adapter resolves it before domain use | same `RepositoryId` is the same repository; config path, name, branch or URL is not a canonical alias |
+| Execution | `ExecutionId`, DOM | `EXECUTION`; `RepositoryId` scope; `(RepositoryId, ExecutionId)` | manual execution command creates one execution for one repository and carries canonical reference | snapshot and execution state persist the full reference; rehydration resolves repository/execution continuity before materialization | execution identity is immutable; request/event correlation, timestamp or ordinal is not an alias; domain revision remains distinct from persistence revision |
+| ADR/revision | `ADRId` plus revision, DOM | `ADR`; repository scope; `(RepositoryId, ADRId, revision)` | explicit submitted ADR revision; eligibility command carries the reference and content basis | front matter identity, revision and content hash are persisted; rehydration resolves the referenced revision and rejects unknown or mismatched content | same ADR revision is immutable; filename, title, hash alone or implementation metadata is not canonical identity |
+| SPEC/revision | `SPECId` plus revision, DOM | `SPEC`; repository scope; `(RepositoryId, SPECId, revision)` | generation or revision command carries the explicit ADR lineage and SPEC reference | artifact metadata, revision and lineage persist; rehydration rejects detached, unknown or hash-divergent revisions | revision is part of identity continuity; path, title, report status or commit alone is not a SPEC identity |
+| Artifact | `ArtifactId`, DOM | `ARTIFACT`; execution scope; `(ExecutionId, ArtifactId)` | accepted output/artifact submission creates the identity from the canonical execution context | artifact reference, revision/content basis and lineage persist; rehydration resolves the owner execution/cycle | content digest proves content relation, not navigation identity; filename and report label are aliases only |
+| Artifact cycle | `ArtifactCycleId`, DOM identity; `EXEC-002` owns session/assignment lifecycle | `ARTIFACT_CYCLE`; `ArtifactId`/execution scope; `(ArtifactId, ArtifactCycleId)` | first auditable activity creates the cycle for the exact artifact revision | cycle identity, artifact revision and round records persist; rehydration rejects a cycle attached to another artifact/revision | cycle identity remains stable across rounds; round ordinal, agent session or assignment is not an alias |
+| Stage / WorkflowPipeline | `CanonicalIdentityReference(kind=STAGE, scope=ExecutionId, value=StageId)`, DOM | `STAGE`; `ExecutionId` scope; `(RepositoryId, ExecutionId, StageId)` | §12.1 `create` establishes the initial stage identity; commands carry canonical ref and expected `PipelineRevision` | full reference, identity revision, aggregate revision and provenance persist; rehydration resolves and validates the reference | `PipelineRevision` is concurrency basis only; `PipelineId`, stage label, filename, status and request correlation cannot become authority |
+| Activity / attempt | `ActivityId` / `AttemptId`, DOM identity; `EXEC-002` owns activity/session lifecycle | `ACTIVITY` / `ATTEMPT`; execution/cycle scope; `(ExecutionId, ActivityId, AttemptId)` | activity command carries the canonical artifact/cycle and activity identity; each attempt remains distinct | manifest/result/checkpoint references persist; rehydration resolves activity and attempt lineage before use | attempt is not activity, session or agent identity; process id, round or log file is not an alias |
+| Ticket | `TicketId`, DOM | `TICKET`; SPEC/execution scope; `(ExecutionId, SPECId, TicketId)` | ticket creation/transition commands carry `TicketId` and expected functional revision | state, transition provenance and ticket reference persist; rehydration validates state against the accepted transition history | same ticket identity continues through valid transitions; branch, worktree, commit or status label is not an alias |
+| Wave | `WaveId`, DOM identity; `GIT-001` owns integration lifecycle | `WAVE`; SPEC/integration scope; `(SPECId, WaveId)` | wave command carries the exact approved ticket set and wave identity | wave membership, integration basis and result references persist; rehydration validates the approved set | wave is not a queue, merge commit or progress percentage; commit hash alone is not wave identity |
+| Agent assigned | `AgentId`, DOM identity; `EXEC-002` owns assignment/session | `AGENT`; execution scope; `(ExecutionId, AgentId)` | assignment references the canonical logical agent and separate `AgentAssignmentId`/session | agent reference and assignment lineage persist; rehydration preserves logical agent versus assignment/session | `AgentId` is not assignment, session, process or display name |
+| External effect | `ExternalEffectId`, DOM identity; `PLAT` owns intent/evidence/reconciliation | `EXTERNAL_EFFECT`; execution scope; `(ExecutionId, ExternalEffectId)` | effect request carries the canonical effect reference and operation correlation | intent, evidence and confirmation attach to the effect identity; rehydration rejects unattached evidence | deterministic idempotency key is an effect alias/basis, not the identity; provider receipt is evidence, not identity |
+| Publication candidate | `PublicationId`, DOM identity; `GIT-001` owns execution/confirmation | `PUBLICATION`; SPEC/candidate scope; `(SPECId, PublicationId)` | candidate command carries exact base/head/tree basis and publication identity | candidate, approval, integration and remote confirmation evidence persist against the identity | PR number, branch name, merge commit or remote URL is not a publication identity |
+
+For every row, an adapter may provide persisted material, but only the domain
+resolver validates canonical attachment, scope, revision continuity and
+historical resolution. A caller-supplied shape, a mapper, a CAS result or an
+existing file never closes this identity proof by itself.
 
 ## 13. Normative Requirements
 
@@ -496,6 +549,63 @@ Authority classification: `SUPPORTED_BY_EXISTING_ADR` — a regra materializa a
 ordem e a rejeição de transições de `ADR-0002` e usa o journal append-only,
 replay, checkpoint seguro e a insuficiência de status isolado definidos em
 `ADR-0006`, preservando PLAT como owner físico.
+
+### Authority-completeness proofs for persisted aggregates
+
+Create and rehydrate are distinct operations for every persistible aggregate or
+entity. The domain never materializes untrusted or detached persisted material
+directly as valid state:
+`CAN_UNTRUSTED_OR_DETACHED_PERSISTED_MATERIAL_BE_MATERIALIZED_DIRECTLY_AS_VALID_DOMAIN_STATE? = NO`.
+PLAT owns physical serialization, ordering, integrity and recovery mechanics;
+DOM owns canonical identity attachment, semantic validation, lifecycle meaning
+and the fail-closed decision.
+
+| Aggregate/entity | Accepted persisted material | Create semantics | Rehydrate semantics and current-state evidence | Continuity/rejection rules | Validation owner and fail-closed result |
+|---|---|---|---|---|---|
+| `WorkflowPipeline` | canonical reference, identity revision, initial/current stage, `PipelineRevision`, snapshot basis and ordered append-only chain | only initial stage and initial aggregate revision; no history is fabricated | later state requires a complete chain ending at the exact snapshot state/revision | unknown reference, wrong kind/scope, missing/duplicate/out-of-order/corrupt/skipped/forged records reject | DOM validates meaning; PLAT validates physical material; no mutation/effect |
+| Execution and immutable execution snapshot | `ExecutionId`, `RepositoryId`, eligible ADR revisions/hashes, base, configuration and exact skill/contract versions | manual command creates one execution and one immutable snapshot for one repository | rehydrate resolves execution identity and verifies the snapshot basis has not incorporated later ADRs or a divergent base/configuration | unknown repository/execution, changed hash, later ADR, divergent base/configuration or detached snapshot rejects | DOM validates eligibility/continuity; PLAT supplies durable material; no execution transition |
+| ADR/SPEC revision and lineage artifact | canonical artifact/revision reference, content basis, lineage and lifecycle states | explicit submission/generation creates the referenced revision; remediation of an accepted unimplemented ADR creates a successor revision | rehydrate resolves the exact revision and verifies relation/hash/lineage before using it | unknown/ineligible revision, silent mutation, broken `supersedes` relation or detached artifact rejects | DOM validates lifecycle/lineage; physical adapter preserves evidence; no fallback |
+| Ticket | `TicketId`, functional state, expected functional revision and accepted transition provenance | create begins at `DRAFT`; only the table in DOM-TICKET-002 may change it | rehydrate requires a persisted identity, state and complete accepted transition history; terminal state remains terminal | invalid transition, missing predecessor, stale revision, fabricated state or terminal reopen rejects | DOM validates transition/invariants; PLAT stores/replays; no mutation on failure |
+| Audit cycle / round | `ArtifactCycleId`, artifact/revision reference, round records, findings/remediation and structured verdict | first auditable activity creates the cycle; each round is explicit and bounded | rehydrate requires cycle identity, artifact/revision attachment and ordered round/verdict history | cycle reuse, wrong artifact, skipped/duplicate round, verdict without required evidence or continuation without authorization rejects | DOM validates cycle/verdict meaning; `EXEC-002` preserves session/assignment segregation; no implicit approval |
+| Publication / external effect evidence | `PublicationId` or `ExternalEffectId`, candidate/intent identity, exact basis, evidence and confirmation | creation records request/intent relation without treating invocation as completion | rehydrate attaches evidence to the exact candidate/effect and validates confirmation state | PR merge without remote confirmation, stale/drifted basis, conflicting evidence or unattached receipt rejects | DOM validates canonical state; GIT/PLAT own execution/evidence/reconciliation; no completion mutation |
+
+For every row, missing, stale, detached, corrupted, duplicated, skipped or
+inconsistent material fails closed, preserves the last valid state and produces
+no transition or external effect. A persistence revision protects storage
+concurrency; it is not a domain progression proof unless the row explicitly
+assigns that meaning.
+
+### Lifecycle Authority Matrix
+
+| State machine | Initial/valid behavior | Forbidden behavior | Terminal/recovery/replay behavior | Owner relationship |
+|---|---|---|---|---|
+| WorkflowPipeline stage | initial stage then only the immediate successor in canonical order | skip, combined machine, fabricated state or status-only restore | later state rehydrates only from complete chain; malformed replay fails closed | DOM owns semantics; PLAT supplies/replays material |
+| Ticket | exactly six functional states and eight listed transitions | any unlisted transition or reopen of `COMPLETED`/`CANCELLED` | cancellation requires a new linked ticket; stale/duplicate command leaves state unchanged | DOM owns functional lifecycle |
+| Audit cycle | explicit artifact/cycle/round; each round requires an independent audit/remediation result | remediation, no findings or process termination cannot approve; round limit cannot be bypassed | structured verdict closes; tenth round pauses only the affected unit and continuation requires authorization; replay uses ordered cycle evidence | DOM owns verdict/cycle meaning; EXEC-002 owns session/assignment segregation |
+| Publication | candidate, approval, local integration/PR and remote confirmation remain distinct | `PR_MERGED` cannot become remote confirmation; drift cannot be ignored | GIT/PLAT reconcile evidence; DOM accepts only candidate-bound confirmation and never infers completion | DOM owns vocabulary/gate; GIT owns execution/confirmation |
+| Decision/realization lifecycle | decision states remain separate from realization states | acceptance cannot imply implementation; execution cannot silently mutate decision lifecycle | revision/successor preserves historical lineage and rehydration rejects silent mutation | DOM owns semantic relation; adapter persists evidence |
+
+### Persistence Semantics Matrix
+
+| Persisted class | Snapshot semantics | History/provenance | Persistence revision versus domain revision | Semantic owner | Storage/recovery owner | Recovery without authority transfer |
+|---|---|---|---|---|---|---|
+| Canonical aggregate state | current state plus canonical identity, never a projection | accepted transition/evidence history where progression matters | storage revision/CAS is distinct from aggregate/domain revision | DOM | PLAT | replay must return material to DOM validation |
+| Immutable execution snapshot | fixed ADR hashes, base, configuration and exact versions | snapshot lineage and hash basis are retained | snapshot identity/revision is distinct from persistence revision | DOM | PLAT | later ADR/configuration cannot be merged into the snapshot |
+| Pipeline provenance | immutable chain of accepted transitions | predecessor/result/revision/order references are causal evidence | `PipelineRevision` is concurrency basis, not causal proof | DOM | PLAT | missing/corrupt chain cannot be replaced by status/checkpoint |
+| Ticket/cycle history | current functional state plus accepted transition/round records | lineage is append-only for reconstruction and audit | functional/domain revision is distinct from storage revision | DOM | PLAT | recovery cannot reopen terminal state or synthesize a verdict |
+| Publication/effect evidence | candidate/intent/evidence/confirmation material is bound to identity | exact basis and external evidence remain historical | effect/candidate revision is distinct from storage revision and idempotency key | DOM/GIT/PLAT according to semantic stage | GIT/PLAT | reconciliation preserves source ownership and fails on divergence |
+
+### Temporal Authority Proof
+
+Before DOM commits `REMOTE_PUBLICATION_CONFIRMED`, GIT must independently
+re-observe the remote state after the candidate basis was fixed and return a
+candidate-bound confirmation containing the exact base/head/tree relation and
+the observation revision/correlation. DOM validates that relation against the
+canonical `PublicationId` and candidate basis. Drift, stale confirmation,
+missing evidence or conflicting evidence is rejected with no state mutation;
+GIT owns remote observation and DOM owns the semantic acceptance decision. CAS
+or physical integrity is only a storage safeguard and is not semantic
+revalidation.
 
 ### DOM-TICKET-001 — Estados funcionais de ticket
 
@@ -800,11 +910,42 @@ corrupção ou fabricação é rejeitada sem transição ou efeito. A fixture ta
 verifica que PLAT fornece e preserva o material, mas DOM decide sua validade
 semântica.
 
+### Acceptance Witness Matrix
+
+Every normative requirement has a direct positive and negative/isolation
+witness. Contract-level fixtures may prove the semantic contract locally, but
+they do not promote durable persistence, restart recovery, remote execution or
+productive availability.
+
+| Requirement | Concrete operation/state | Direct positive witness | Direct negative/isolation witness | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at local closure |
+|---|---|---|---|---|---|---|---|---|---|
+| DOM-ID-001 | create/resolve every canonical identity | C-01, C-24, C-25 | unknown/file-only/alias identity rejected | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_LOCAL_CLOSURE` | `YES` |
+| DOM-INGEST-001 | explicit submit starts processing | C-02 | discovery-only start rejected | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_LOCAL_CLOSURE` | `YES` |
+| DOM-SNAPSHOT-001 | freeze execution snapshot | C-01 | later ADR/base/configuration mutation rejected | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_INTEGRATED_PROOF` | `YES` contract-level |
+| DOM-ELIG-001 | resolve eligible ADR | C-01 | proposed/rejected/unknown revision rejected | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_LOCAL_CLOSURE` | `YES` |
+| DOM-LINEAGE-001 | attach ADR↔SPEC relation | C-02 | silent cross-SPEC mutation rejected | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_LOCAL_CLOSURE` | `YES` |
+| DOM-LIFE-001 | advance decision and realization independently | C-06 | acceptance cannot imply implementation | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_LOCAL_CLOSURE` | `YES` |
+| DOM-REV-001 | create revision after remediation | C-05 | prior eligibility is not reused | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_LOCAL_CLOSURE` | `YES` |
+| DOM-IMMUT-001 | preserve implemented ADR and succession | C-05 | silent mutation/reprocessing rejected | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_LOCAL_CLOSURE` | `YES` |
+| DOM-PIPE-001 | create/advance/rehydrate pipeline | C-09, C-26 | skip, missing chain or fabricated later state rejected | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_INTEGRATED_PROOF` | `YES` contract-level |
+| DOM-STATE-001 | keep aggregate machines separate | C-26 | combined/fabricated state rejected | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_INTEGRATED_PROOF` | `YES` contract-level |
+| DOM-CMD-001 | execute command with basis | C-03 | stale/invalid basis leaves state unchanged | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_LOCAL_CLOSURE` | `YES` |
+| DOM-TICKET-001 | transition ticket state | C-03 | terminal reopen rejected | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_LOCAL_CLOSURE` | `YES` |
+| DOM-TICKET-002 | execute every listed ticket transition | C-03 | C-09 arbitrary transition rejected | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_LOCAL_CLOSURE` | `YES` |
+| DOM-PUB-001 | accept publication vocabulary | C-06 | PR merge is not remote confirmation | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_INTEGRATED_PROOF` | `YES` contract-level |
+| DOM-ADV-001 | advance only after formal verdict | C-10 | no-verdict/dependency/cancel bypass rejected | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_LOCAL_CLOSURE` | `YES` |
+| DOM-AUDIT-001 | create independent artifact cycle/round | C-11 | cycle reuse or skipped round rejected | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_INTEGRATED_PROOF` | `YES` contract-level |
+| DOM-AUDIT-002 | close cycle by structured verdict | C-11 | remediation/no findings cannot approve | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_LOCAL_CLOSURE` | `YES` |
+| DOM-AUDIT-003 | authorize continuation after tenth round | C-12 | unauthorized eleventh round pauses | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_LOCAL_CLOSURE` | `YES` |
+| DOM-AUDIT-004 | run final conformance | C-13 | omissions/extrapolations cannot be skipped | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_INTEGRATED_PROOF` | `YES` contract-level |
+| DOM-AUDIT-005 | invalidate affected downstream approval | C-13 | completed ticket is not reopened | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_INTEGRATED_PROOF` | `YES` contract-level |
+| DOM-AUDIT-006 | authorize exact candidate basis | C-14 | base/head/tree drift rejects authorization | `DEFINED` | `DEFINED` | `YES` | `NO` | `REQUIRED_FOR_INTEGRATED_PROOF` | `YES` contract-level |
+
 ## 22. Acceptance Criteria
 
 | ID | Critério binário |
 |---|---|
-| AC-DOM-001 | Cada agregado testado, incluindo `WorkflowPipeline`, agente atribuído, efeito externo e publicação, recebe identidade persistente resolvível; `WorkflowPipeline` usa `CanonicalIdentityReference(kind=STAGE, scope=ExecutionId, value=StageId)` e não possui chave local canônica paralela; criação, unicidade, imutabilidade, lineage e resolução histórica são preservadas; nome de arquivo sozinho não satisfaz a verificação. |
+| AC-DOM-001 | Cada agregado/entidade aplicável recebe a prova de identidade da seção 12.2, com owner, kind, scope, correlação, criação, comando, lookup, persistência, reidratação, igualdade, revisão e aliases proibidos; `WorkflowPipeline` usa `CanonicalIdentityReference(kind=STAGE, scope=ExecutionId, value=StageId)` e não possui chave local canônica paralela; nome de arquivo sozinho não satisfaz a verificação. |
 | AC-DOM-002 | Nenhum processamento começa por descoberta automática sem comando manual explícito. |
 | AC-DOM-003 | O snapshot conserva ADR hashes, base, configuração e versões e rejeita mutação posterior. |
 | AC-DOM-004 | ADR não `ACCEPTED` ou revisão inelegível é recusada sem transição ou fallback. |
@@ -812,25 +953,25 @@ semântica.
 | AC-DOM-006 | Lifecycle decisório e de realização podem ser exercitados separadamente. |
 | AC-DOM-007 | Remediação de ADR aceita não implementada produz nova revisão e histórico preservado. |
 | AC-DOM-008 | Mutação de ADR implementada é bloqueada e sucessão exige nova ADR; hash operacional não é inserido no documento. |
-| AC-DOM-009 | Um cenário que tente pular fase do pipeline, inclusive por reidratação sem a cadeia completa de proveniência, é rejeitado sem alterar estado. |
-| AC-DOM-010 | Uma tentativa de combinar máquinas de agregados, fabricar estado superior ou reidratar estágio posterior com predecessor ausente, salto, duplicação, ordem inconsistente ou snapshot divergente é rejeitada. |
+| AC-DOM-009 | Um cenário que tente pular fase do pipeline, inclusive por reidratação sem a cadeia completa de proveniência, é rejeitado sem alterar estado; a prova de reconstrução deve distinguir `create` de `rehydrate` e rejeitar material detached/untrusted. |
+| AC-DOM-010 | Uma tentativa de combinar máquinas de agregados, fabricar estado superior ou reidratar qualquer estado persistível com predecessor ausente, salto, duplicação, ordem inconsistente, identidade detached ou snapshot divergente é rejeitada. |
 | AC-DOM-011 | Comando com pré-condição inválida retorna rejeição registrada e estado inalterado. |
 | AC-DOM-012 | Somente os seis estados funcionais de ticket são aceitos e terminais não reabrem. |
 | AC-DOM-013 | As oito transições funcionais válidas são aceitas e qualquer outra é recusada. |
-| AC-DOM-014 | `PR_MERGED` e `REMOTE_PUBLICATION_CONFIRMED` são observados como estados distintos. |
+| AC-DOM-014 | `PR_MERGED` e `REMOTE_PUBLICATION_CONFIRMED` são observados como estados distintos; a confirmação é ligada ao `PublicationId`/candidato exato e depende da observação independente do owner GIT. |
 | AC-DOM-015 | Avanço sem veredito, dependência fechada ou cancelamento não cooperativo é recusado. |
-| AC-DOM-049 | Cada artefato governado possui ciclo e rodada identificáveis. |
+| AC-DOM-049 | Cada artefato governado possui ciclo e rodada identificáveis, com criação, attachment à revisão do artefato, ordem, replay, terminalidade e rejeição de reutilização ou salto. |
 | AC-DOM-050 | Somente veredito estruturado encerra ciclo; remediação isolada não aprova. |
 | AC-DOM-051 | A 10ª rodada pausa a unidade e exige autorização explícita para a seguinte. |
 | AC-DOM-052 | Conformance final verifica cobertura, integração, regressão, testes, omissões e extrapolações. |
 | AC-DOM-053 | Mudança normativa torna downstream afetado obsoleto e cria ajuste sem reabrir ticket concluído. |
-| AC-DOM-054 | Qualquer drift de base/head/tree invalida autorização antes da publicação e a evidência permanece hash-linked. |
+| AC-DOM-054 | Qualquer drift de base/head/tree invalida autorização antes da publicação; GIT reobserva independentemente o estado remoto, DOM valida a evidência ligada ao candidato e nenhuma falha muta estado; a evidência permanece hash-linked. |
 
 ## 23. ADR / Obligation / Requirement Traceability
 
 | Requirement | Portfolio obligation | ADR | ADR section | Ownership role | Acceptance / test |
 |---|---|---|---|---|---|
-| DOM-ID-001 | O-001 | ADR-0001 | Decisão | canonical owner | AC-DOM-001; C-01; C-24; C-25 |
+| DOM-ID-001 | O-001 | ADR-0001 | Decisão | canonical owner | §12.2; AC-DOM-001; C-01; C-24; C-25 |
 | DOM-INGEST-001 | O-002 | ADR-0001 | Invariantes | canonical owner | AC-DOM-002 |
 | DOM-SNAPSHOT-001 | O-003 | ADR-0001 | Decisão | canonical owner | AC-DOM-003; C-08 |
 | DOM-ELIG-001 | O-004 | ADR-0001 | Invariantes | canonical owner | AC-DOM-004; C-07 |
@@ -838,19 +979,19 @@ semântica.
 | DOM-LIFE-001 | O-006 | ADR-0001 | Invariantes | canonical owner | AC-DOM-006 |
 | DOM-REV-001 | O-007 | ADR-0001 | Invariantes | canonical owner | AC-DOM-007; C-05 |
 | DOM-IMMUT-001 | O-008 | ADR-0001 | Decisão/Invariantes | canonical owner | AC-DOM-008 |
-| DOM-PIPE-001 | O-009 | ADR-0002 | Decisão | canonical owner | AC-DOM-009; C-26 |
-| DOM-STATE-001 | O-010 | ADR-0002 | Decisão | canonical owner | AC-DOM-010; C-26 |
+| DOM-PIPE-001 | O-009 | ADR-0002 | Decisão | canonical owner | reconstruction proof; AC-DOM-009; C-26 |
+| DOM-STATE-001 | O-010 | ADR-0002 | Decisão | canonical owner | lifecycle/persistence matrices; AC-DOM-010; C-26 |
 | DOM-CMD-001 | O-011 | ADR-0002 | Regras | canonical owner | AC-DOM-011 |
 | DOM-TICKET-001 | O-012 | ADR-0002 | Transições | canonical owner | AC-DOM-012 |
 | DOM-TICKET-002 | O-013 | ADR-0002 | Transições funcionais normativas | canonical owner | AC-DOM-013; C-03; C-09 |
-| DOM-PUB-001 | O-014 | ADR-0002 | Vocabulário normativo de publicação | canonical owner | AC-DOM-014; C-14 |
+| DOM-PUB-001 | O-014 | ADR-0002 | Vocabulário normativo de publicação | canonical owner | producer/consumer and temporal proof; AC-DOM-014; C-14 |
 | DOM-ADV-001 | O-015 | ADR-0002 | Regras de avanço | canonical owner | AC-DOM-015; C-10 |
-| DOM-AUDIT-001 | O-049 | ADR-0009 | Decisão | canonical owner | AC-DOM-049 |
+| DOM-AUDIT-001 | O-049 | ADR-0009 | Decisão | canonical owner | cycle identity/lifecycle/reconstruction matrices; AC-DOM-049 |
 | DOM-AUDIT-002 | O-050 | ADR-0009 | Decisão | canonical owner | AC-DOM-050; C-11 |
 | DOM-AUDIT-003 | O-051 | ADR-0009 | Decisão | canonical owner | AC-DOM-051; C-12 |
 | DOM-AUDIT-004 | O-052 | ADR-0009 | Decisão | canonical owner | AC-DOM-052 |
 | DOM-AUDIT-005 | O-053 | ADR-0009 | Decisão | canonical owner | AC-DOM-053; C-13 |
-| DOM-AUDIT-006 | O-054 | ADR-0009 | Decisão | canonical owner | AC-DOM-054 |
+| DOM-AUDIT-006 | O-054 | ADR-0009 | Decisão | canonical owner | exact-basis and temporal proof; AC-DOM-054 |
 
 `REQUIREMENTS_WITHOUT_PORTFOLIO_OBLIGATION = 0` e
 `OWNED_OBLIGATIONS_WITHOUT_REQUIREMENT = 0`.
@@ -866,7 +1007,8 @@ Este resumo registra divergência observada; não é a Gap Matrix formal.
 | API/adapters/integração produtiva ausentes | `IMPLEMENTATION_GAP` | DOM-CMD-001, DOM-PUB-001, DOM-AUDIT-006 | repository contém protótipo, não backend produtivo |
 | Provas independentes de conformance produtiva ausentes | `IMPLEMENTATION_GAP` | seção 21 | testes atuais exercitam mock/UI |
 | Protótipo React e relatórios de cenário | `PROTOTYPE_ONLY` | todos os requisitos observáveis | `prototype/README.md`, `prototype/src/*`, `prototype/tests/*` |
-| Architecture gap | `NON_GAP` | todos | audit independente aprovou decomposição e ADRs aceitas são suficientes; reauditoria da SPEC permanece pendente |
+| Gaps normativos de identidade, reconstrução, lifecycle, persistência, consumo e temporalidade da auditoria-fonte | `SPECIFICATION_GAP` | seções 10.1, 12.2, 13, 21 e 23 | remediados nesta revisão; somente a nova auditoria independente pode validar a materialização |
+| Architecture gap de ADR/portfolio | `NON_GAP` | todos | ADRs aceitas e decomposição aprovada permanecem suficientes; não foi inventada decisão nova |
 
 A reconciliação formal desses itens permanece downstream, na geração da Gap
 Matrix.
@@ -954,8 +1096,12 @@ uma nova decisão/portfolio auditado deverá preceder a revisão.
 PORTFOLIO_OBLIGATIONS_OWNED = 21
 PORTFOLIO_OBLIGATIONS_COVERED = 21
 OWNED_OBLIGATIONS_UNCOVERED = 0
+OWNED_OBLIGATIONS_PARTIAL = 0
 NORMATIVE_REQUIREMENTS = 21
 REQUIREMENTS_WITHOUT_AUTHORITY = 0
+IMPLEMENTER_DECISION_CHECK_FAILURES = 0
+CAPABILITY_AVAILABILITY_CLASSIFICATION_ERRORS = 0
+DOWNSTREAM_PROMOTION_WITHOUT_NEW_EVIDENCE = 0
 CONSUMED_CONTRACTS = 6 non-authoritative references; 0 upstream normative dependencies
 CONSUMED_CONTRACTS_REDEFINED = 0
 FAILURES_OWNED = 3 semantic families / 5 canonical codes
@@ -967,8 +1113,18 @@ KNOWN_SPECIFICATION_GAPS = 0
 KNOWN_IMPLEMENTATION_GAPS = 4
 ARCHITECTURE_GAPS = 0
 PORTFOLIO_OWNERSHIP_GAPS = 0
+UPSTREAM_CONTRACT_GAPS = 0
+ACCEPTANCE_GAPS = 0
+IDENTITY_AUTHORITY_GAPS = 0
+RECONSTRUCTION_AUTHORITY_GAPS = 0
+LIFECYCLE_AUTHORITY_GAPS = 0
+PERSISTENCE_SEMANTICS_GAPS = 0
+CROSS_SPEC_AUTHORITY_GAPS = 0
+TEMPORAL_AUTHORITY_GAPS = 0
 ACCEPTANCE_CRITERIA = 21
+ACCEPTANCE_WITNESS_MATRIX = 21/21
 CONFORMANCE_TESTS = 26
+CAPABILITY_PRODUCTIVE_AVAILABILITY = 0; contract-defined capabilities remain NO until productive evidence
 ```
 
 Required invariants:

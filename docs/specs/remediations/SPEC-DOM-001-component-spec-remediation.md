@@ -23,19 +23,21 @@ NO_SELF_APPROVAL
 | Field | Value |
 |---|---|
 | Component SPEC | `SPEC-DOM-001` |
-| Revision before | `1` |
-| Revision after | `2` |
+| Revision before | `3` |
+| Revision after | `4` |
 | Status | `PROPOSED` |
 | Portfolio | `SPEC-PORTFOLIO-001`, revision `2` |
 | Portfolio verdict | `PORTFOLIO_DECOMPOSITION_APPROVED` |
-| Repository HEAD | `b1c2c4ab81ba716ccd079f80f187f6b773e0655f` |
-| Working tree | Existing untracked target SPEC and audit directory preserved; no unrelated files modified |
+| Repository HEAD | `baa2a189bd71b85ba9fcc62840e52f091fc2e77e` |
+| Target SPEC SHA before | `E0CF434C97C67019536D8376EA0960E8224FE42DE8E0CB6F1091EB243126F4C6` |
+| Working tree | 63 pre-existing changed/untracked paths preserved; only target SPEC and this remediation report changed by this run |
 | Upstream normative SPECs | none; DOM is the approved DAG root |
 
 The source SPEC declared generation HEAD
-`d42a2dbe4d9e40dc7f139df920eb0a134c085aaf`; the source audit records the
-current repository HEAD above. This documentary baseline drift does not alter
-the accepted ADR or portfolio authority used here.
+`d42a2dbe4d9e40dc7f139df920eb0a134c085aaf`; the source audit was rerun against
+the current repository HEAD above. No accepted ADR, portfolio registry or
+upstream contract drift was found. The target SPEC hash matched the audited
+revision before this remediation.
 
 ## 3. Source audit
 
@@ -43,13 +45,14 @@ the accepted ADR or portfolio authority used here.
 |---|---|
 | Source audit | `docs/specs/audits/SPEC-DOM-001-component-conformance-audit.md` |
 | Source verdict | `FAIL — COMPONENT_SPEC_NON_CONFORMANT` |
-| Audit findings | `CSC-CRITICAL-001`, `CSC-MAJOR-001`, `CSC-MINOR-001` |
-| Audit date | `2026-09-08` |
+| Audit findings | `CSC-MAJOR-001` through `CSC-MAJOR-007` |
+| Audit date | `2026-09-10` |
 | Required next gate | independent component SPEC re-audit |
 
-The source audit explicitly confirms the portfolio approval, sufficient ADR
-authority, zero upstream normative dependencies, and three locally remediable
-findings.
+The source audit explicitly confirms the portfolio approval, eligible ADR
+authority and zero approved upstream normative edges. All seven findings are
+local SPEC completeness/composition findings; none requires ADR, portfolio or
+upstream remediation.
 
 ## 4. Authority used
 
@@ -83,21 +86,31 @@ ticket, production code or test was modified.
 
 ## 5. Findings ledger
 
-| Finding | Severity | Category | Authority | Root cause | Target section | Planned correction | Validation |
-|---|---|---|---|---|---|---|---|
-| `CSC-CRITICAL-001` | CRITICAL | portfolio ownership / identity authority | ADR-0001; O-001 | `PORTFOLIO_CONFORMANCE_DEFECT` | Identity and Authority Rules | Restore DOM as canonical owner of `ExternalEffectId` and `PublicationId`; retain PLAT/GIT execution responsibilities | identity table has DOM owner and explicit owner split |
-| `CSC-MAJOR-001` | MAJOR | identity completeness / lineage | ADR-0001; O-001 | `SPEC_COMPLETENESS_DEFECT` | Identity and Authority Rules; DOM-ID-001; AC-DOM-001 | Add explicit `AgentId` identity and its assignment/session lineage constraints | `AgentId` row, acceptance and C-24 |
-| `CSC-MINOR-001` | MINOR | traceability / acceptance auditability | ADR-0001/0002/0009; O-002/O-009/O-010/O-011/O-012/O-013/O-049/O-052 | `TRACEABILITY_DEFECT` | Traceability; Conformance Suite | Align requirement-to-proof cells with directly relevant AC/C evidence | every declared proof directly describes the mapped requirement |
+| Finding | Before | Remediation | Authority | Local proof | Status |
+|---|---|---|---|---|---|
+| `CSC-MAJOR-001` | Identity proof was complete only for `WorkflowPipeline`; the remaining roots/entities lacked a uniform proof of owner, scope, correlation, persistence and rehydration. Root cause: `SPEC_COMPLETENESS_DEFECT`. | Added the complete §12.2 `Aggregate Identity Authority Matrix`, covering all DOM roots/entities and explicitly separating DOM identity from EXEC/PLAT/GIT lifecycle, persistence and external execution ownership. | ADR-0001; O-001; approved portfolio O-001 | `DOM-ID-001`, AC-DOM-001, C-01/C-24/C-25 and 21-row acceptance witness matrix. | `REMEDIATED` |
+| `CSC-MAJOR-002` | Reconstruction authority was materially specified only for `WorkflowPipeline`; other persistible aggregates had no explicit create/rehydrate contract. Root cause: `SPEC_COMPLETENESS_DEFECT`. | Added §13 authority-completeness proofs for execution/snapshot, lineage artifacts, tickets, audit cycles and publication/effect evidence, including detached/untrusted rejection and owner split. | ADR-0001; ADR-0002; ADR-0006; ADR-0009; O-003/O-009/O-010/O-049/O-054 | AC-DOM-009, AC-DOM-010, AC-DOM-049, AC-DOM-054 and the reconstruction matrix. | `REMEDIATED` |
+| `CSC-MAJOR-003` | Publication, audit-cycle/round and realization lifecycle semantics were not closed as explicit state-machine contracts. Root cause: `SPEC_COMPLETENESS_DEFECT`. | Added the §13 `Lifecycle Authority Matrix`, preserving separate decision/realization, pipeline, ticket, audit and publication machines with terminal, replay and recovery rules. | ADR-0001; ADR-0002; ADR-0009; O-006/O-010/O-014/O-049/O-050/O-051/O-052 | `DOM-LIFE-001`, `DOM-STATE-001`, `DOM-PUB-001`, `DOM-AUDIT-001…006`, AC-DOM-006/010/014/049…054. | `REMEDIATED` |
+| `CSC-MAJOR-004` | Persistence semantics were incomplete beyond the pipeline journal: canonical state, snapshots, history, revisions and recovery ownership were not uniformly stated. Root cause: `UPSTREAM_COMPOSITION_DEFECT`. | Added the §13 `Persistence Semantics Matrix`, distinguishing domain identity/revision from persistence revision and assigning physical serialization/recovery to PLAT while retaining DOM semantic validation. | ADR-0001; ADR-0006; O-003/O-007/O-009/O-010/O-049/O-054 | AC-DOM-003, AC-DOM-009, AC-DOM-010, AC-DOM-049 and AC-DOM-054; persistence matrix. | `REMEDIATED` |
+| `CSC-MAJOR-005` | Consumption of EXEC, PLAT and GIT authority was named but not concretely closed as producer/consumer contracts. Root cause: `UPSTREAM_COMPOSITION_DEFECT`. | Added §10.1 contracts for exact EXEC version basis, PLAT snapshot/provenance material and GIT candidate-bound remote confirmation, including version/result/failure semantics and productive-availability classification. | ADR-0001; ADR-0002; ADR-0006; ADR-0008; ADR-0009; approved portfolio dependency registry | `CONTRACT_DEFINED` rows, no contract redefinition, no new DAG edge, and integrated witness rows for snapshot, pipeline, publication and audit behavior. | `REMEDIATED` |
+| `CSC-MAJOR-006` | Material operations could not all be decided from the SPEC alone; the source audit recorded five implementer decision-check failures. Root cause: `SPEC_TESTABILITY_DEFECT`. | Added direct positive/negative witnesses for all 21 requirements and made every missing decision explicit through identity, reconstruction, lifecycle, persistence and temporal matrices. | ADR-0001; ADR-0002; ADR-0006; ADR-0008; ADR-0009; O-001…O-015/O-049…O-054 | `ACCEPTANCE_WITNESS_MATRIX = 21/21`; `IMPLEMENTER_DECISION_CHECK_FAILURES = 0`; no implementation technology or plan was introduced. | `REMEDIATED` |
+| `CSC-MAJOR-007` | `REMOTE_PUBLICATION_CONFIRMED` lacked a temporal proof requiring fresh, candidate-bound independent observation. Root cause: `UPSTREAM_COMPOSITION_DEFECT`. | Added §13 `Temporal Authority Proof` and aligned DOM-PUB-001, AC-DOM-014 and AC-DOM-054 so GIT re-observes after basis fixation and DOM rejects stale/drifted/conflicting evidence without mutation. | ADR-0002; ADR-0008; O-014/O-054 | Candidate-bound base/head/tree relation, observation revision/correlation, negative drift witness and no-promotion-without-new-evidence rule. | `REMEDIATED` |
 
-All three findings were revalidated as still present before editing. None
-required ADR, portfolio or upstream remediation.
+Each source finding was classified as a local specification correction and
+revalidated against the edited target. No finding was classified as requiring
+ADR, portfolio or upstream remediation. The statuses above are remediation
+statuses only; the independent component audit remains authoritative for the
+final conformance verdict.
 
 ## 6. Files changed
 
-Changed:
+Changed in this remediation run:
 
 - `docs/specs/SPEC-DOM-001-workflow-authority-and-governance.md`
 - `docs/specs/remediations/SPEC-DOM-001-component-spec-remediation.md`
+
+The source audit was read-only evidence and remains unchanged. No new file was
+created; the existing remediation report was overwritten in place.
 
 Explicit no-change flags:
 
@@ -115,54 +128,67 @@ Explicit no-change flags:
 
 ## 7. Owned obligation remediation
 
-O-001 remains owned by `SPEC-DOM-001` and is now fully represented. The
-identity catalog explicitly includes `AgentId`, `ExternalEffectId` and
-`PublicationId` under DOM canonical identity authority. The catalog separately
-states that assignment/session, persistence/reconciliation and
-execution/confirmation remain the responsibilities of EXEC, PLAT and GIT.
+All 21 obligations owned by `SPEC-DOM-001` remain present and covered. The
+previously partial obligations O-001, O-009, O-010, O-014, O-049 and O-054 now
+have direct normative materialization through the identity, reconstruction,
+lifecycle, persistence, producer/consumer and temporal proofs. The other
+owned obligations were preserved without semantic ownership changes.
 
-The other 20 owned obligations were preserved without semantic changes.
+No obligation was moved to another component, and no downstream obligation was
+made normative in DOM.
 
 ## 8. Upstream contract remediation
 
 There are no upstream normative component SPECs for the DOM root. No upstream
-contract was changed or copied. Downstream relationships remain mappings or
-projections and do not create DOM normative dependencies.
+contract was changed or copied. The EXEC, PLAT and GIT boundaries are now
+explicitly consumed as producer/consumer contracts in §10.1, but they remain
+cross-component authority references rather than new DOM dependencies. Their
+productive availability is intentionally `NO` until independently evidenced;
+this does not weaken the local semantic contract or claim productive
+implementation.
 
 ## 9. Requirement authority remediation
 
-`DOM-ID-001` was extended only to materialize the O-001 identity consequences
-already required by ADR-0001: creation, uniqueness, immutability, scope,
-revision/lineage and historical resolution. The requirement now distinguishes
-`AgentId` from assignment/activity/session and distinguishes effect/publication
-identity from persistence/execution/confirmation mechanisms.
-
-No new architectural decision or unbacked normative requirement was added.
+All 21 requirement IDs remain tied to their existing portfolio obligations and
+accepted ADR authority. The edited requirements materialize existing decisions
+about identity, transition order, audit cycles, exact candidate basis and
+evidence freshness; they do not introduce a new owner, state machine or
+architectural decision. No requirement is left without ADR or portfolio
+authority.
 
 ## 10. Lifecycle/identity remediation
 
-The identity table now contains an explicit `AgentId` row with DOM canonical
-ownership and assignment/session correlation. `ExternalEffectId` and
-`PublicationId` now have DOM canonical ownership while preserving PLAT and GIT
-execution boundaries. The correction preserves distinct logical, execution,
-assignment, session, persistence, provider and presentation identities.
+The §12.2 identity matrix closes identity proof for every listed root/entity,
+including `AgentId`, `ExternalEffectId`, `PublicationId`, audit cycle, ticket,
+wave and activity/attempt. The §13 reconstruction matrix separates `create`
+from `rehydrate`; the lifecycle matrix preserves independent machines and
+terminal/replay semantics; the persistence matrix distinguishes domain and
+storage revisions; and the temporal proof binds remote confirmation to a fresh
+candidate observation. DOM retains semantic authority while EXEC, PLAT and GIT
+retain their approved operational boundaries.
 
 ## 11. Failure/recovery remediation
 
-No failure or recovery ownership defect was reported. Existing DOM failure
-families and the delegation of physical retry, journal replay, effect
-reconciliation and publication recovery remain unchanged.
+The corrected contracts fail closed for unknown, stale, detached, corrupt,
+duplicated, omitted, skipped, out-of-order or conflicting material. The last
+valid state is preserved and no transition or external effect is produced on
+failure. PLAT remains owner of physical persistence, journal replay and
+recovery mechanics; GIT remains owner of remote observation and effect
+execution; DOM remains owner of semantic acceptance. No failure owner changed.
 
 ## 12. Compatibility/cutover remediation
 
-No compatibility or cutover ownership defect was reported. Legacy behavior
-remains a consumer/adapter path, historical replay remains DOM-owned where
-approved, and no second canonical path was introduced.
+No compatibility or cutover ownership changed. Legacy behavior remains an
+adapter/consumer path, historical replay remains governed by the canonical
+identity and lineage rules, and no second canonical path or silent migration
+was introduced. Existing downstream invalidation and terminal-state rules
+remain applicable.
 
 ## 13. Dependency remediation
 
 No dependency correction was required. `SPEC-DOM-001` remains the approved DAG
-root with:
+root. The new §10.1 producer/consumer rows clarify consumed authority without
+creating a normative edge to a downstream component SPEC:
 
 ```text
 NORMATIVE_DEPENDENCIES = 0
@@ -173,35 +199,30 @@ DEPENDENCY_DIRECTION_VIOLATIONS = 0
 
 ## 14. Projection boundary remediation
 
-The owner split is explicit: DOM owns canonical identity, PLAT owns effect
-persistence/reconciliation, and GIT owns publication execution/confirmation.
-Backend, OPS and UI remain transport or projection surfaces. No projection or
-transport surface became canonical authority.
+The owner split is explicit and unchanged: DOM owns canonical identity and
+semantic acceptance; PLAT owns effect persistence/reconciliation and physical
+recovery; GIT owns publication execution and remote observation. Backend, OPS
+and UI remain transport or projection surfaces. None became canonical
+authority, and no projection is accepted as evidence of causal progress.
 
 ## 15. Acceptance/conformance remediation
 
-`AC-DOM-001` now covers the complete identity catalog, including assigned agent,
-external effect and publication identity. A dedicated `C-24` adversarial probe
-verifies owner preservation, lineage relations and the separation from
-assignment/session, persistence, execution and confirmation.
-
-The existing requirement-to-proof mappings were corrected:
-
-| Requirement group | Correction |
-|---|---|
-| Snapshot | `DOM-SNAPSHOT-001` now points to `AC-DOM-003` and `C-08`, which cover snapshot integrity and divergence |
-| Manual entry | `DOM-INGEST-001` now points to `AC-DOM-002` only |
-| Lifecycle/immutability | `DOM-LIFE-001` and `DOM-IMMUT-001` point to their direct AC rows |
-| Pipeline/state/command | `DOM-PIPE-001`, `DOM-STATE-001` and `DOM-CMD-001` point to their direct AC rows |
-| Ticket states/transitions | `DOM-TICKET-001` points to `AC-DOM-012`; `DOM-TICKET-002` points to `AC-DOM-013`, `C-03`, `C-09` |
-| Audit cycles/final conformance/evidence | `DOM-AUDIT-001`, `DOM-AUDIT-004` and `DOM-AUDIT-006` point to their direct AC rows |
+The 21-row `Acceptance Witness Matrix` provides one direct positive and one
+negative/isolation witness per normative requirement. `AC-DOM-001`,
+`AC-DOM-009`, `AC-DOM-010`, `AC-DOM-014`, `AC-DOM-049` and `AC-DOM-054` now
+state the corrected identity, reconstruction, lifecycle, publication, cycle
+and temporal obligations. Local contract fixtures are explicitly separated
+from productive availability; no unavailable capability was represented as
+implemented.
 
 ## 16. Traceability remediation
 
-The ADR → obligation → requirement mappings remain one-to-one for the 21 DOM
-obligations. The requirement-to-proof cells now reference evidence whose stated
-behavior directly tests the mapped requirement. O-001 maps to
-`DOM-ID-001`, `AC-DOM-001`, `C-01` and `C-24`.
+The ADR → obligation → requirement mappings remain complete for all 21 DOM
+obligations. The requirement-to-proof cells now reference the identity,
+reconstruction, lifecycle, persistence, producer/consumer and temporal
+evidence that directly tests each mapped requirement. The six formerly partial
+obligation mappings are explicitly represented in the revised traceability
+matrix and acceptance witnesses.
 
 ```text
 OWNED_OBLIGATIONS_WITHOUT_REQUIREMENT = 0
@@ -211,18 +232,19 @@ REQUIREMENTS_WITHOUT_ADR_AUTHORITY = 0
 
 ## 17. Gap classification remediation
 
-The SPEC no longer describes the specification materialization as closed by the
-artifact. It records the component materialization as a `SPECIFICATION_GAP`
-with independent re-audit pending. Runtime, persistence, API/integration and
-productive conformance gaps remain `IMPLEMENTATION_GAP`; prototype evidence
-remains `PROTOTYPE_ONLY`. No downstream formal Gap Matrix was generated.
+The seven source-audit normative gaps are recorded as remediated materialization
+in this revision, subject to independent re-audit. Runtime, persistence,
+API/integration and productive conformance gaps remain `IMPLEMENTATION_GAP`;
+prototype evidence remains `PROTOTYPE_ONLY`. No downstream formal Gap Matrix
+was generated and no implementation gap was reclassified as closed.
 
 ## 18. Implementation-plan leakage remediation
 
 No implementation-plan leakage was found or introduced. Classes, files,
 schemas, routes, libraries, implementation phases, commit groups, tickets and
 development sequencing remain unfrozen. The normative pipeline order remains
-only because accepted ADR-0002 requires it.
+only because accepted ADR-0002 requires it. The added matrices specify
+semantic evidence and ownership, not implementation structure.
 
 ## 19. Mechanical validation
 
@@ -234,6 +256,9 @@ OWNED_OBLIGATIONS_PARTIAL = 0
 
 NORMATIVE_REQUIREMENTS = 21
 REQUIREMENTS_WITHOUT_AUTHORITY = 0
+IMPLEMENTER_DECISION_CHECK_FAILURES = 0
+CAPABILITY_AVAILABILITY_CLASSIFICATION_ERRORS = 0
+DOWNSTREAM_PROMOTION_WITHOUT_NEW_EVIDENCE = 0
 UNTESTABLE_REQUIREMENTS = 0
 ACCEPTANCE_GAPS = 0
 
@@ -251,13 +276,22 @@ PORTFOLIO_GAPS = 0
 UPSTREAM_CONTRACT_GAPS = 0
 IMPLEMENTATION_PLAN_LEAKS = 0
 
-REMEDIATED_FINDINGS = 3
+REMEDIATED_FINDINGS = 7
 PARTIAL_FINDINGS = 0
 BLOCKED_FINDINGS = 0
+
+IDENTITY_AUTHORITY_GAPS = 0
+RECONSTRUCTION_AUTHORITY_GAPS = 0
+LIFECYCLE_AUTHORITY_GAPS = 0
+PERSISTENCE_SEMANTICS_GAPS = 0
+CROSS_SPEC_AUTHORITY_GAPS = 0
+TEMPORAL_AUTHORITY_GAPS = 0
 ```
 
-All required local invariants pass. These are remediation checks, not an
-independent conformance verdict.
+All required local remediation invariants pass. The `NO` productive-
+availability values in the target SPEC remain intentional for contract-level
+capabilities and are not implementation claims. These are remediation checks,
+not an independent conformance verdict.
 
 ## 20. Remaining blockers
 
@@ -269,6 +303,10 @@ UPSTREAM = 0
 
 No blocker remains for independent component SPEC re-audit.
 
+The independent audit itself is a mandatory gate, not a blocker or a
+self-issued approval. No architecture, portfolio or upstream change is
+required before that gate.
+
 ## 21. Reaudit readiness
 
 ```text
@@ -277,5 +315,5 @@ GATE: READY_FOR_INDEPENDENT_COMPONENT_SPEC_REAUDIT
 ```
 
 The independent `audit-component-spec-conformance` skill is the mandatory next
-step. This report does not emit `PASS — COMPONENT_SPEC_CONFORMANT` and does not
-self-approve the component SPEC.
+step. This report does not emit `PASS — COMPONENT_SPEC_CONFORMANT`, does not
+self-approve the component SPEC and does not alter the source audit.
