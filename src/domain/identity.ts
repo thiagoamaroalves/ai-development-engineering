@@ -168,6 +168,52 @@ export class CanonicalIdentityReference {
   }
 }
 
+export interface CanonicalStageReferenceInput {
+  readonly executionId: IdentityScope | string
+  readonly stageId: string
+  readonly revision: Revision | number
+}
+
+/**
+ * Narrows the generic identity reference to the canonical WorkflowPipeline
+ * identity without introducing a second identity representation.
+ */
+export class CanonicalStageReference {
+  readonly reference: CanonicalIdentityReference
+
+  private constructor(reference: CanonicalIdentityReference) {
+    this.reference = reference
+    Object.freeze(this)
+  }
+
+  static create(input: CanonicalStageReferenceInput): CanonicalStageReference {
+    return new CanonicalStageReference(CanonicalIdentityReference.create({
+      identity: {
+        kind: 'STAGE',
+        scope: input.executionId,
+        value: input.stageId,
+      },
+      revision: input.revision,
+    }))
+  }
+
+  get identity(): CanonicalIdentity {
+    return this.reference.identity
+  }
+
+  get revision(): Revision {
+    return this.reference.revision
+  }
+
+  get canonicalKey(): string {
+    return this.reference.canonicalKey
+  }
+
+  equals(other: CanonicalStageReference): boolean {
+    return this.reference.equals(other.reference)
+  }
+}
+
 export interface CanonicalIdentityRecordInput extends CanonicalIdentityReferenceInput {
   readonly createdAt: string
 }
@@ -188,6 +234,11 @@ export class CanonicalIdentityRecord {
     }
 
     return new CanonicalIdentityRecord(CanonicalIdentityReference.create(input), input.createdAt)
+  }
+
+  /** Rebuild a persisted record through the same invariant-checked boundary. */
+  static rehydrate(input: CanonicalIdentityRecordInput): CanonicalIdentityRecord {
+    return CanonicalIdentityRecord.create(input)
   }
 
   get identity(): CanonicalIdentity {
@@ -244,12 +295,12 @@ function assertRevisionReferenceCompatible(
   scope: IdentityScope,
   revision: Revision,
 ): void {
-  if (reference.revision.value >= revision.value
+  if (reference.revision.value + 1 !== revision.value
     || reference.identity.kind !== kind
     || !reference.identity.scope.equals(scope)) {
     throw new IdentityDomainError(
       'IDENTITY_REFERENCE_MISMATCH',
-      'The existing canonical identity reference must be an earlier revision of the requested kind and scope.',
+      'The existing canonical identity reference must be the immediate predecessor of the requested kind and scope.',
     )
   }
 }

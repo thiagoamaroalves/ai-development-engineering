@@ -1,6 +1,5 @@
 import {
   PipelineDomainError,
-  PipelineId,
   PipelineRepository,
   PipelineRevision,
   PipelineStage,
@@ -8,11 +7,13 @@ import {
   PipelineStateInputs,
   PipelineStateReader,
   DerivedWorkflowState,
+  WorkflowPipelineIdentityInput,
   WorkflowPipeline,
 } from '../domain/pipeline.js'
+import type { CanonicalIdentityReference } from '../domain/identity.js'
 
 export interface AdvancePipelineCommand {
-  readonly id: string
+  readonly identity: WorkflowPipelineIdentityInput
   readonly target: string
   readonly expectedRevision: number
 }
@@ -21,10 +22,10 @@ export class AdvancePipelineHandler {
   constructor(private readonly pipelines: PipelineRepository) {}
 
   async handle(command: AdvancePipelineCommand): Promise<WorkflowPipeline> {
-    const id = PipelineId.create(command.id)
-    const current = this.pipelines.find(id)
+    const identity = WorkflowPipeline.create({ identity: command.identity }).identity
+    const current = this.pipelines.find(identity)
     if (!current) {
-      throw new PipelineDomainError('PIPELINE_NOT_FOUND', `Pipeline ${id.value} could not be resolved.`)
+      throw new PipelineDomainError('PIPELINE_NOT_FOUND', `Pipeline ${identity.canonicalKey} could not be resolved.`)
     }
 
     const transition = current.advanceTo(PipelineStage.create(command.target))
@@ -33,10 +34,10 @@ export class AdvancePipelineHandler {
       PipelineRevision.create(command.expectedRevision),
     )
     if (result.status === 'STALE') {
-      throw new PipelineDomainError('PIPELINE_STALE', `Pipeline ${id.value} has a stale revision.`)
+      throw new PipelineDomainError('PIPELINE_STALE', `Pipeline ${identity.canonicalKey} has a stale revision.`)
     }
     if (result.status === 'NOT_FOUND') {
-      throw new PipelineDomainError('PIPELINE_NOT_FOUND', `Pipeline ${id.value} could not be persisted.`)
+      throw new PipelineDomainError('PIPELINE_NOT_FOUND', `Pipeline ${identity.canonicalKey} could not be persisted.`)
     }
 
     return result.pipeline
@@ -44,7 +45,7 @@ export class AdvancePipelineHandler {
 }
 
 export interface GetPipelineStateQuery {
-  readonly id: string
+  readonly identity: WorkflowPipelineIdentityInput
 }
 
 export class GetPipelineStateHandler {
@@ -54,11 +55,11 @@ export class GetPipelineStateHandler {
   ) {}
 
   handle(query: GetPipelineStateQuery): DerivedWorkflowState {
-    const id = PipelineId.create(query.id)
-    const pipeline = this.pipelines.find(id)
-    const inputs: PipelineStateInputs | undefined = this.states.read(id)
+    const identity: CanonicalIdentityReference = WorkflowPipeline.create({ identity: query.identity }).identity
+    const pipeline = this.pipelines.find(identity)
+    const inputs: PipelineStateInputs | undefined = this.states.read(identity)
     if (!pipeline || !inputs) {
-      throw new PipelineDomainError('PIPELINE_NOT_FOUND', `Pipeline ${id.value} state could not be resolved.`)
+      throw new PipelineDomainError('PIPELINE_NOT_FOUND', `Pipeline ${identity.canonicalKey} state could not be resolved.`)
     }
 
     return PipelineStateDerivationPolicy.derive(pipeline, inputs)

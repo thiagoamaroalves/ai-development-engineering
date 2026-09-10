@@ -1,3 +1,10 @@
+import {
+  CanonicalIdentityReference,
+  CanonicalIdentityReferenceInput,
+  CanonicalStageReference,
+  CanonicalStageReferenceInput,
+} from './identity.js'
+
 export const PIPELINE_STAGES = Object.freeze([
   'ACCEPTED_ADRS',
   'SPECS',
@@ -29,7 +36,7 @@ export type PipelineStageName = (typeof PIPELINE_STAGES)[number]
 export type PipelineMachine = (typeof PIPELINE_MACHINES)[number]
 
 export type PipelineErrorCode =
-  | 'INVALID_PIPELINE_ID'
+  | 'INVALID_PIPELINE_IDENTITY'
   | 'INVALID_PIPELINE_STAGE'
   | 'INVALID_PIPELINE_REVISION'
   | 'INVALID_PIPELINE_STATE'
@@ -58,28 +65,6 @@ function requiredToken(value: unknown, label: string, errorCode: PipelineErrorCo
   }
 
   return normalized
-}
-
-export class PipelineId {
-  readonly value: string
-
-  private constructor(value: string) {
-    this.value = value
-    Object.freeze(this)
-  }
-
-  static create(value: unknown): PipelineId {
-    const normalized = requiredToken(value, 'Pipeline identity', 'INVALID_PIPELINE_ID')
-    if (!/^[A-Za-z0-9][A-Za-z0-9._:-]*$/.test(normalized)) {
-      throw new PipelineDomainError('INVALID_PIPELINE_ID', 'Pipeline identity must be an explicit stable token.')
-    }
-
-    return new PipelineId(normalized)
-  }
-
-  equals(other: PipelineId): boolean {
-    return this.value === other.value
-  }
 }
 
 export class PipelineStage {
@@ -296,23 +281,28 @@ export interface PipelineTransition {
   readonly expectedRevision: PipelineRevision
 }
 
+export type WorkflowPipelineIdentityInput =
+  | CanonicalIdentityReferenceInput
+  | CanonicalStageReferenceInput
+  | CanonicalStageReference
+
 export interface WorkflowPipelineCreationInput {
-  readonly id: PipelineId | string
+  readonly identity: WorkflowPipelineIdentityInput
 }
 
 export interface WorkflowPipelineRehydrationInput {
-  readonly id: PipelineId | string
+  readonly identity: WorkflowPipelineIdentityInput
   readonly stage: PipelineStage | PipelineStageName
   readonly revision: PipelineRevision | number
 }
 
 export class WorkflowPipeline {
-  readonly id: PipelineId
+  readonly identity: CanonicalIdentityReference
   readonly stage: PipelineStage
   readonly revision: PipelineRevision
 
-  private constructor(id: PipelineId, stage: PipelineStage, revision: PipelineRevision) {
-    this.id = id
+  private constructor(identity: CanonicalIdentityReference, stage: PipelineStage, revision: PipelineRevision) {
+    this.identity = identity
     this.stage = stage
     this.revision = revision
     Object.freeze(this)
@@ -320,7 +310,7 @@ export class WorkflowPipeline {
 
   static create(input: WorkflowPipelineCreationInput): WorkflowPipeline {
     return WorkflowPipeline.construct({
-      id: input.id,
+      identity: input.identity,
       stage: PipelineOrder.first(),
       revision: PipelineRevision.create(0),
     })
@@ -331,14 +321,47 @@ export class WorkflowPipeline {
   }
 
   private static construct(input: WorkflowPipelineRehydrationInput): WorkflowPipeline {
-    const id = input.id instanceof PipelineId ? input.id : PipelineId.create(input.id)
+    const identity = WorkflowPipeline.canonicalIdentity(input.identity)
     const stage = input.stage instanceof PipelineStage
       ? input.stage
       : PipelineStage.create(input.stage)
     const revision = input.revision instanceof PipelineRevision
       ? input.revision
       : PipelineRevision.create(input.revision)
-    return new WorkflowPipeline(id, stage, revision)
+    return new WorkflowPipeline(identity, stage, revision)
+  }
+
+  private static canonicalIdentity(input: WorkflowPipelineIdentityInput): CanonicalIdentityReference {
+    if (!input || typeof input !== 'object') {
+      throw new PipelineDomainError(
+        'INVALID_PIPELINE_IDENTITY',
+        'WorkflowPipeline identity must be a canonical STAGE reference.',
+      )
+    }
+
+    const reference = input instanceof CanonicalStageReference
+      ? input.reference
+      : 'executionId' in input
+      ? CanonicalStageReference.create(input).reference
+      : 'identity' in input
+        ? CanonicalIdentityReference.create(input)
+        : undefined
+
+    if (!reference) {
+      throw new PipelineDomainError(
+        'INVALID_PIPELINE_IDENTITY',
+        'WorkflowPipeline identity must be a canonical STAGE reference.',
+      )
+    }
+
+    if (reference.identity.kind !== 'STAGE') {
+      throw new PipelineDomainError(
+        'INVALID_PIPELINE_IDENTITY',
+        'WorkflowPipeline identity must be a canonical STAGE reference.',
+      )
+    }
+
+    return reference
   }
 
   advanceTo(requested: PipelineStage | PipelineStageName): PipelineTransition {
@@ -350,7 +373,7 @@ export class WorkflowPipeline {
       )
     }
 
-    const proposed = new WorkflowPipeline(this.id, target, this.revision.next())
+    const proposed = new WorkflowPipeline(this.identity, target, this.revision.next())
     return Object.freeze({ previous: this, proposed, expectedRevision: this.revision })
   }
 }
@@ -375,10 +398,10 @@ export type PipelineAdvanceReservation =
   | PipelineAdvanceNotFound
 
 export interface PipelineRepository {
-  find(id: PipelineId): WorkflowPipeline | undefined
+  find(identity: CanonicalIdentityReference): WorkflowPipeline | undefined
   advance(proposed: WorkflowPipeline, expectedRevision: PipelineRevision): Promise<PipelineAdvanceReservation>
 }
 
 export interface PipelineStateReader {
-  read(id: PipelineId): PipelineStateInputs | undefined
+  read(identity: CanonicalIdentityReference): PipelineStateInputs | undefined
 }
