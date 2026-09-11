@@ -5,7 +5,8 @@
 `STATUS: BLOCKED`  
 `ISSUE_DECOMPOSITION_READINESS: ISSUE_READY`  
 `INITIAL_DAG_STATE: BLOCKED`  
-`BLOCKED_BY: DOM-001-TICKET-001, DOM-001-TICKET-007`  
+`BLOCKED_BY: DOM-001-TICKET-007`
+`CURRENT_DAG_STATE: BLOCKED`
 `DEPENDS_ON: DOM-001-TICKET-001, DOM-001-TICKET-007`  
 `UNBLOCKS: DOM-001-TICKET-012`
 
@@ -72,7 +73,7 @@ Internal: `DOM-001-TICKET-001`, `DOM-001-TICKET-007`. Cross-SPEC: GIT evidence a
 
 ## 14. Blocking Conditions
 
-Blocked until identity and publication gate contracts complete. No external blocker exists.
+Blocked until the publication gate contract completes. No external blocker exists.
 
 ## 14a. Authority Consumption Proof
 

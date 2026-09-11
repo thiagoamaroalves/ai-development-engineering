@@ -2,10 +2,11 @@
 
 ## 1. Status
 
-`STATUS: BLOCKED`
+`STATUS: READY`
 `ISSUE_DECOMPOSITION_READINESS: ISSUE_READY`  
 `INITIAL_DAG_STATE: BLOCKED`  
-`BLOCKED_BY: DOM-001-TICKET-001`
+`BLOCKED_BY: NONE`
+`CURRENT_DAG_STATE: READY`
 `DEPENDS_ON: DOM-001-TICKET-001`  
 `UNBLOCKS: DOM-001-TICKET-003, DOM-001-TICKET-012`
 
@@ -72,7 +73,7 @@ Internal: `DOM-001-TICKET-001`. Cross-SPEC: `SPEC-EXEC-001` exact version metada
 
 ## 14. Blocking Conditions
 
-Blocked until `DOM-001-TICKET-001` is completed and its identity contract is available. No unresolved foreign blocker exists.
+`DOM-001-TICKET-001` is completed and its identity contract is available. No unresolved blocker exists.
 
 ## 14a. Authority Consumption Proof
 

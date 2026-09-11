@@ -5,7 +5,8 @@
 `STATUS: BLOCKED`  
 `ISSUE_DECOMPOSITION_READINESS: ISSUE_READY`  
 `INITIAL_DAG_STATE: BLOCKED`  
-`BLOCKED_BY: DOM-001-TICKET-001, DOM-001-TICKET-005`  
+`BLOCKED_BY: DOM-001-TICKET-005`
+`CURRENT_DAG_STATE: BLOCKED`
 `DEPENDS_ON: DOM-001-TICKET-001, DOM-001-TICKET-005`  
 `UNBLOCKS: DOM-001-TICKET-009, DOM-001-TICKET-012`
 
@@ -72,7 +73,7 @@ Internal: `DOM-001-TICKET-001`, `DOM-001-TICKET-005`. Cross-SPEC assignment/sess
 
 ## 14. Blocking Conditions
 
-Blocked until identity and command validation complete. No external blocker exists.
+Blocked until command validation completes. No external blocker exists.
 
 ## 14a. Authority Consumption Proof
 

@@ -2,10 +2,11 @@
 
 ## 1. Status
 
-`STATUS: BLOCKED`
+`STATUS: READY`
 `ISSUE_DECOMPOSITION_READINESS: ISSUE_READY`  
 `INITIAL_DAG_STATE: BLOCKED`  
-`BLOCKED_BY: DOM-001-TICKET-001`
+`BLOCKED_BY: NONE`
+`CURRENT_DAG_STATE: READY`
 `DEPENDS_ON: DOM-001-TICKET-001`  
 `UNBLOCKS: DOM-001-TICKET-005, DOM-001-TICKET-006, DOM-001-TICKET-007, DOM-001-TICKET-012`
 
@@ -72,7 +73,7 @@ Internal: `DOM-001-TICKET-001`. Cross-SPEC consumer state mappings are downstrea
 
 ## 14. Blocking Conditions
 
-Blocked until TICKET-001 completes. No external blocker exists.
+`DOM-001-TICKET-001` is completed and the canonical identity contract is available. No external blocker exists.
 
 ## 14a. Authority Consumption Proof
 

@@ -5,7 +5,8 @@
 `STATUS: BLOCKED`  
 `ISSUE_DECOMPOSITION_READINESS: ISSUE_READY`  
 `INITIAL_DAG_STATE: BLOCKED`  
-`BLOCKED_BY: DOM-001-TICKET-001, DOM-001-TICKET-004`
+`BLOCKED_BY: DOM-001-TICKET-004`
+`CURRENT_DAG_STATE: BLOCKED`
 `DEPENDS_ON: DOM-001-TICKET-001, DOM-001-TICKET-004`  
 `UNBLOCKS: DOM-001-TICKET-006, DOM-001-TICKET-007, DOM-001-TICKET-008, DOM-001-TICKET-012`
 
@@ -72,7 +73,7 @@ Internal: `DOM-001-TICKET-001`, `DOM-001-TICKET-004`. Cross-SPEC: PLAT-001 and B
 
 ## 14. Blocking Conditions
 
-Blocked until identity and state-machine tickets complete. No foreign blocker exists.
+Blocked until the state-machine ticket completes. No foreign blocker exists.
 
 ## 14a. Authority Consumption Proof
 
