@@ -13,6 +13,7 @@ import {
 } from '../src/domain/lineage.js'
 import { CreateCanonicalIdentityHandler, ResolveCanonicalIdentityHandler } from '../src/application/identity.js'
 import { AdvanceAdrSpecLineageHandler, RegisterAdrSpecLineageHandler } from '../src/application/lineage.js'
+import { AdvancePipelineHandler, GetPipelineStateHandler } from '../src/application/pipeline.js'
 import {
   AGGREGATE_KINDS,
   AggregateKind,
@@ -27,9 +28,14 @@ import {
   IdentityScope,
   Revision,
 } from '../src/domain/identity.js'
+import { PipelineRepository } from '../src/domain/pipeline.js'
 
 class InMemoryIdentityRepository implements CanonicalIdentityRepository {
   private readonly records = new Map<string, CanonicalIdentityRecord>()
+
+  seed(record: CanonicalIdentityRecord): void {
+    this.records.set(record.canonicalKey, record)
+  }
 
   constructor(private readonly beforeReserve: () => Promise<void> = async () => {}) {}
 
@@ -47,6 +53,24 @@ class InMemoryIdentityRepository implements CanonicalIdentityRepository {
 
   find(reference: CanonicalIdentityReference): CanonicalIdentityRecord | undefined {
     return this.records.get(reference.canonicalKey)
+  }
+}
+
+class CorruptPredecessorIdentityRepository implements CanonicalIdentityRepository {
+  reserveCalls = 0
+
+  constructor(
+    private readonly requested: CanonicalIdentityReference,
+    private readonly corruptResponse: CanonicalIdentityRecord,
+  ) {}
+
+  async reserve(record: CanonicalIdentityRecord) {
+    this.reserveCalls += 1
+    return { status: 'ACCEPTED' as const, record }
+  }
+
+  find(reference: CanonicalIdentityReference): CanonicalIdentityRecord | undefined {
+    return reference.equals(this.requested) ? this.corruptResponse : undefined
   }
 }
 
@@ -88,6 +112,10 @@ class InMemoryLineageRepository implements AdrSpecLineageRepository {
       return held.lineage
     }
     return this.lineages.get(key)
+  }
+
+  resolveForRehydration(adr: CanonicalIdentityReference, spec: CanonicalIdentityReference): AdrSpecLineage | undefined {
+    return this.find(adr, spec)
   }
 
   listByAdr(adr: CanonicalIdentityReference): readonly AdrSpecLineage[] {
@@ -247,6 +275,32 @@ test('keeps revision continuity rules cohesive across kind, scope, and ordering'
   }
 })
 
+test('rejects a corrupt predecessor response before reserving a forged successor', async () => {
+  const requested = CanonicalIdentityReference.create({
+    identity: { kind: 'ADR', scope: 'workflow', value: 'ADR-CANONICAL' },
+    revision: 1,
+  })
+  const corruptResponse = CanonicalIdentityRecord.create({
+    identity: { kind: 'ADR', scope: 'workflow', value: 'ADR-CORRUPT' },
+    revision: 1,
+    createdAt: '2026-09-09T12:00:00.000Z',
+  })
+  const repository = new CorruptPredecessorIdentityRepository(requested, corruptResponse)
+  const catalog = identityCatalog(repository)
+  const create = new CreateCanonicalIdentityHandler(catalog)
+
+  await assert.rejects(
+    create.handle({
+      kind: 'ADR',
+      scope: 'workflow',
+      revision: 2,
+      existingReference: requested,
+    }),
+    (error: unknown) => error instanceof IdentityDomainError && error.code === 'IDENTITY_REFERENCE_MISMATCH',
+  )
+  assert.equal(repository.reserveCalls, 0)
+})
+
 test('rejects skipped identity successors without reserving fabricated history', async () => {
   const repository = new InMemoryIdentityRepository()
   const catalog = identityCatalog(repository)
@@ -390,12 +444,14 @@ test('keeps created identity records and revisions immutable', async () => {
 })
 
 test('rehydrates canonical identity records through the validated immutable boundary', async () => {
-  const record = await createIdentity(new CreateCanonicalIdentityHandler(identityCatalog()), 'STAGE', 'STAGE-001')
+  const repository = new InMemoryIdentityRepository()
+  const catalog = identityCatalog(repository)
+  const record = await createIdentity(new CreateCanonicalIdentityHandler(catalog), 'STAGE', 'STAGE-001')
   const rehydrated = CanonicalIdentityRecord.rehydrate({
     identity: record.identity,
     revision: record.revision,
     createdAt: record.createdAt,
-  })
+  }, catalog)
 
   assert.equal(rehydrated.canonicalKey, record.canonicalKey)
   assert.equal(rehydrated.createdAt, record.createdAt)
@@ -522,7 +578,7 @@ test('advances one lineage relation without mutating another relation', async ()
   const specB = await createIdentity(create, 'SPEC', 'SPEC-B')
   const repository = new InMemoryLineageRepository()
   const register = new RegisterAdrSpecLineageHandler(repository, identities)
-  const advance = new AdvanceAdrSpecLineageHandler(repository)
+  const advance = new AdvanceAdrSpecLineageHandler(repository, identities)
   const relationA = await register.handle({ adr: { identity: adr.identity, revision: 1 }, spec: { identity: specA.identity, revision: 1 } })
   const relationB = await register.handle({ adr: { identity: adr.identity, revision: 1 }, spec: { identity: specB.identity, revision: 1 } })
 
@@ -550,7 +606,7 @@ test('proves one same-pair lineage advance wins and the conflicting advance is s
   const spec = await createIdentity(create, 'SPEC', 'SPEC-CONFLICT')
   const repository = new InMemoryLineageRepository()
   const register = new RegisterAdrSpecLineageHandler(repository, identities)
-  const advance = new AdvanceAdrSpecLineageHandler(repository)
+  const advance = new AdvanceAdrSpecLineageHandler(repository, identities)
   await register.handle({ adr: adr.reference, spec: spec.reference })
 
   repository.holdNextFinds(adr.reference, spec.reference, 2)
@@ -578,11 +634,16 @@ test('rehydrates persisted lineage through a validated immutable boundary', asyn
   const adr = await createIdentity(create, 'ADR', 'ADR-0001')
   const spec = await createIdentity(create, 'SPEC', 'SPEC-DOM-001')
 
+  const lineageAuthority = new InMemoryLineageRepository()
+  let accepted = AdrSpecLineage.create({ adr: adr.reference, spec: spec.reference })
+  for (let step = 0; step < 4; step += 1) accepted = accepted.advance()
+  await lineageAuthority.reserve(accepted)
+
   const rehydrated = AdrSpecLineage.rehydrate({
     adr: adr.reference,
     spec: spec.reference,
     progress: 4,
-  })
+  }, identities, lineageAuthority)
 
   assert.equal(rehydrated.progress.value, 4)
   assert.equal(rehydrated.canonicalKey, `${adr.reference.canonicalKey}->${spec.reference.canonicalKey}`)
@@ -593,13 +654,29 @@ test('rehydrates persisted lineage through a validated immutable boundary', asyn
   assert.equal(rehydrated.advance().spec, rehydrated.spec)
 
   assert.throws(
-    () => AdrSpecLineage.rehydrate({ adr: spec.reference, spec: adr.reference, progress: 4 }),
+    () => AdrSpecLineage.rehydrate({ adr: spec.reference, spec: adr.reference, progress: 4 }, identities, lineageAuthority),
     (error: unknown) => error instanceof LineageDomainError && error.code === 'INVALID_LINEAGE_ENDPOINT',
   )
   assert.throws(
-    () => AdrSpecLineage.rehydrate({ adr: adr.reference, spec: spec.reference, progress: -1 }),
+    () => AdrSpecLineage.rehydrate({ adr: adr.reference, spec: spec.reference, progress: -1 }, identities, lineageAuthority),
     (error: unknown) => error instanceof LineageDomainError && error.code === 'INVALID_LINEAGE_PROGRESS',
   )
+})
+
+test('rejects fabricated attached lineage progress without mutating accepted history', async () => {
+  const identities = identityCatalog()
+  const create = new CreateCanonicalIdentityHandler(identities)
+  const adr = await createIdentity(create, 'ADR', 'ADR-AUTHORITY')
+  const spec = await createIdentity(create, 'SPEC', 'SPEC-AUTHORITY')
+  const lineageAuthority = new InMemoryLineageRepository()
+  const accepted = AdrSpecLineage.create({ adr: adr.reference, spec: spec.reference })
+  await lineageAuthority.reserve(accepted)
+
+  assert.throws(
+    () => AdrSpecLineage.rehydrate({ adr: adr.reference, spec: spec.reference, progress: 999 }, identities, lineageAuthority),
+    (error: unknown) => error instanceof LineageDomainError && error.code === 'LINEAGE_REFERENCE_MISMATCH',
+  )
+  assert.equal(lineageAuthority.find(adr.reference, spec.reference)?.progress.value, 0)
 })
 
 test('enforces the productive architecture and identity-kind boundaries', () => {
@@ -623,4 +700,106 @@ test('enforces the productive architecture and identity-kind boundaries', () => 
   assert.equal(new Set(AGGREGATE_KINDS).size, AGGREGATE_KINDS.length)
   assert.notEqual(CanonicalIdentity.create({ kind: 'ADR', scope: 'workflow', value: 'same' }).canonicalKey,
     CanonicalIdentity.create({ kind: 'SPEC', scope: 'workflow', value: 'same' }).canonicalKey)
+})
+
+test('rejects detached, corrupt, and noninitial identity recovery before materialization', async () => {
+  const repository = new InMemoryIdentityRepository()
+  const catalog = identityCatalog(repository)
+  const create = new CreateCanonicalIdentityHandler(catalog)
+  const revisionOne = await createIdentity(create, 'STAGE', 'STAGE-RECOVERY', 1, 'EXECUTION-RECOVERY')
+  const revisionTwo = await create.handle({
+    kind: 'STAGE',
+    scope: 'EXECUTION-RECOVERY',
+    revision: 2,
+    existingReference: revisionOne.reference,
+  })
+
+  assert.equal(CanonicalIdentityRecord.rehydrate({
+    identity: revisionTwo.identity,
+    revision: revisionTwo.revision,
+    createdAt: revisionTwo.createdAt,
+  }, catalog).canonicalKey, revisionTwo.canonicalKey)
+
+  assert.throws(
+    () => CanonicalIdentityRecord.rehydrate({
+      identity: { kind: 'STAGE', scope: 'DETACHED', value: 'STAGE-FORGED' },
+      revision: 1,
+      createdAt: revisionOne.createdAt,
+    }, catalog),
+    (error: unknown) => error instanceof IdentityDomainError && error.code === 'IDENTITY_NOT_FOUND',
+  )
+  assert.throws(
+    () => CanonicalIdentityRecord.rehydrate({
+      identity: revisionTwo.identity,
+      revision: revisionTwo.revision,
+      createdAt: 'corrupt-created-at',
+    }, catalog),
+    (error: unknown) => error instanceof IdentityDomainError && error.code === 'IDENTITY_REFERENCE_MISMATCH',
+  )
+
+  const missingPredecessor = new InMemoryIdentityRepository()
+  missingPredecessor.seed(revisionTwo)
+  const incompleteCatalog = identityCatalog(missingPredecessor)
+  assert.throws(
+    () => CanonicalIdentityRecord.rehydrate({
+      identity: revisionTwo.identity,
+      revision: revisionTwo.revision,
+      createdAt: revisionTwo.createdAt,
+    }, incompleteCatalog),
+    (error: unknown) => error instanceof IdentityDomainError && error.code === 'IDENTITY_NOT_FOUND',
+  )
+})
+
+test('rejects detached lineage endpoints during public recovery', async () => {
+  const identities = identityCatalog()
+  const create = new CreateCanonicalIdentityHandler(identities)
+  const adr = await createIdentity(create, 'ADR', 'ADR-ATTACHED')
+  const spec = await createIdentity(create, 'SPEC', 'SPEC-ATTACHED')
+  const lineageAuthority = new InMemoryLineageRepository()
+
+  assert.throws(
+    () => AdrSpecLineage.rehydrate({
+      adr: adr.reference,
+      spec: { identity: { kind: 'SPEC', scope: 'DETACHED', value: 'SPEC-FORGED' }, revision: 1 },
+      progress: 7,
+    }, identities, lineageAuthority),
+    (error: unknown) => error instanceof IdentityDomainError && error.code === 'IDENTITY_NOT_FOUND',
+  )
+  assert.equal(spec.identity.kind, 'SPEC')
+})
+
+test('effective pipeline consumption guard resolves catalog authority before repository access', async () => {
+  const identities = identityCatalog()
+  let findCalls = 0
+  const pipelines: PipelineRepository = {
+    find() {
+      findCalls += 1
+      return undefined
+    },
+    async advance() {
+      return { status: 'NOT_FOUND' as const }
+    },
+  }
+  const detached = CanonicalStageReference.create({
+    executionId: 'EXECUTION-DETACHED',
+    stageId: 'STAGE-FORGED',
+    revision: 1,
+  })
+
+  await assert.rejects(
+    new AdvancePipelineHandler(pipelines, identities).handle({
+      identity: detached,
+      target: 'SPECS',
+      expectedRevision: 0,
+    }),
+    (error: unknown) => error instanceof IdentityDomainError && error.code === 'IDENTITY_NOT_FOUND',
+  )
+  assert.equal(findCalls, 0)
+
+  assert.throws(
+    () => new GetPipelineStateHandler(pipelines, { read: () => {
+      throw new Error('must not read detached pipeline state')
+    } }, identities).handle({ identity: detached }),
+    (error: unknown) => error instanceof IdentityDomainError && error.code === 'IDENTITY_NOT_FOUND',
+  )
 })

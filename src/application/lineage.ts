@@ -4,7 +4,10 @@ import {
   AdrSpecLineageRepository,
   LineageDomainError,
 } from '../domain/lineage.js'
-import { CanonicalIdentityCatalog } from '../domain/identity.js'
+import {
+  CanonicalIdentityCatalog,
+  CanonicalIdentityReconstructionAuthority,
+} from '../domain/identity.js'
 
 export class RegisterAdrSpecLineageHandler {
   constructor(
@@ -34,10 +37,15 @@ export interface AdvanceAdrSpecLineageRequest {
 }
 
 export class AdvanceAdrSpecLineageHandler {
-  constructor(private readonly repository: AdrSpecLineageRepository) {}
+  constructor(
+    private readonly repository: AdrSpecLineageRepository,
+    private readonly identityAuthority: CanonicalIdentityReconstructionAuthority,
+  ) {}
 
   handle(input: AdvanceAdrSpecLineageRequest): AdrSpecLineage {
-    const relation = AdrSpecLineage.create(input)
+    const adr = this.identityAuthority.resolveForRehydration(input.adr).reference
+    const spec = this.identityAuthority.resolveForRehydration(input.spec).reference
+    const relation = AdrSpecLineage.create({ adr, spec })
     const existing = this.repository.find(relation.adr, relation.spec)
     if (!existing) {
       throw new LineageDomainError('LINEAGE_NOT_FOUND', 'ADR↔SPEC lineage could not be resolved for progress.')

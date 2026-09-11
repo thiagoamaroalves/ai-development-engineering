@@ -24,6 +24,7 @@ export type IdentityErrorCode =
   | 'INVALID_REVISION'
   | 'IDENTITY_REFERENCE_REQUIRED'
   | 'IDENTITY_REFERENCE_MISMATCH'
+  | 'IDENTITY_RECONSTRUCTION_AUTHORITY_REQUIRED'
   | 'IDENTITY_ALREADY_EXISTS'
   | 'IDENTITY_NOT_FOUND'
 
@@ -218,6 +219,16 @@ export interface CanonicalIdentityRecordInput extends CanonicalIdentityReference
   readonly createdAt: string
 }
 
+/**
+ * The semantic authority used when persisted identity material re-enters the
+ * domain. Physical persistence remains outside DOM; this contract only proves
+ * canonical attachment and historical continuity before materialization.
+ */
+export interface CanonicalIdentityReconstructionAuthority {
+  resolve(reference: CanonicalIdentityReferenceInput): CanonicalIdentityRecord
+  resolveForRehydration(reference: CanonicalIdentityReferenceInput): CanonicalIdentityRecord
+}
+
 export class CanonicalIdentityRecord {
   readonly reference: CanonicalIdentityReference
   readonly createdAt: string
@@ -237,8 +248,31 @@ export class CanonicalIdentityRecord {
   }
 
   /** Rebuild a persisted record through the same invariant-checked boundary. */
-  static rehydrate(input: CanonicalIdentityRecordInput): CanonicalIdentityRecord {
-    return CanonicalIdentityRecord.create(input)
+  static rehydrate(
+    input: CanonicalIdentityRecordInput,
+    authority: CanonicalIdentityReconstructionAuthority,
+  ): CanonicalIdentityRecord {
+    if (!authority || typeof authority.resolveForRehydration !== 'function') {
+      throw new IdentityDomainError(
+        'IDENTITY_RECONSTRUCTION_AUTHORITY_REQUIRED',
+        'Canonical identity rehydration requires the DOM reconstruction authority.',
+      )
+    }
+
+    const candidate = CanonicalIdentityReference.create(input)
+    const resolved = authority.resolveForRehydration(candidate)
+    if (!resolved.reference.equals(candidate) || resolved.createdAt !== input.createdAt) {
+      throw new IdentityDomainError(
+        'IDENTITY_REFERENCE_MISMATCH',
+        `Canonical identity ${candidate.canonicalKey} does not match its authoritative record.`,
+      )
+    }
+
+    return CanonicalIdentityRecord.create({
+      identity: resolved.identity,
+      revision: resolved.revision,
+      createdAt: resolved.createdAt,
+    })
   }
 
   get identity(): CanonicalIdentity {
@@ -359,7 +393,7 @@ export interface CreateCanonicalIdentityRequest {
   readonly existingReference?: CanonicalIdentityReferenceInput
 }
 
-export class CanonicalIdentityCatalog {
+export class CanonicalIdentityCatalog implements CanonicalIdentityReconstructionAuthority {
   constructor(
     private readonly repository: CanonicalIdentityRepository,
     private readonly generator: CanonicalIdentityGenerator,
@@ -381,6 +415,13 @@ export class CanonicalIdentityCatalog {
         throw new IdentityDomainError(
           'IDENTITY_NOT_FOUND',
           `Canonical identity ${existingReference.canonicalKey} could not be resolved for revision registration.`,
+        )
+      }
+
+      if (!existingRecord.reference.equals(existingReference)) {
+        throw new IdentityDomainError(
+          'IDENTITY_REFERENCE_MISMATCH',
+          `Canonical identity ${existingReference.canonicalKey} does not match the repository predecessor response.`,
         )
       }
 
@@ -416,6 +457,37 @@ export class CanonicalIdentityCatalog {
     const record = this.repository.find(canonicalReference)
     if (!record) {
       throw new IdentityDomainError('IDENTITY_NOT_FOUND', `Canonical identity ${canonicalReference.canonicalKey} could not be resolved.`)
+    }
+    if (!record.reference.equals(canonicalReference)) {
+      throw new IdentityDomainError(
+        'IDENTITY_REFERENCE_MISMATCH',
+        `Canonical identity ${canonicalReference.canonicalKey} does not match the resolved record.`,
+      )
+    }
+
+    return record
+  }
+
+  /**
+   * Resolves persisted material only after proving every predecessor in the
+   * immutable identity stream is attached and preserves the same identity.
+   */
+  resolveForRehydration(reference: CanonicalIdentityReferenceInput): CanonicalIdentityRecord {
+    const canonicalReference = CanonicalIdentityReference.create(reference)
+    const record = this.resolve(canonicalReference)
+
+    for (let revision = record.revision.value - 1; revision >= 1; revision -= 1) {
+      const predecessorReference = CanonicalIdentityReference.create({
+        identity: record.identity,
+        revision,
+      })
+      const predecessor = this.resolve(predecessorReference)
+      if (!predecessor.identity.equals(record.identity)) {
+        throw new IdentityDomainError(
+          'IDENTITY_REFERENCE_MISMATCH',
+          `Canonical identity ${canonicalReference.canonicalKey} has an incompatible predecessor chain.`,
+        )
+      }
     }
 
     return record

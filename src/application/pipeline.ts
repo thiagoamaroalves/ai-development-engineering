@@ -10,7 +10,10 @@ import {
   WorkflowPipelineIdentityInput,
   WorkflowPipeline,
 } from '../domain/pipeline.js'
-import type { CanonicalIdentityReference } from '../domain/identity.js'
+import {
+  CanonicalIdentityReference,
+  CanonicalIdentityReconstructionAuthority,
+} from '../domain/identity.js'
 
 export interface AdvancePipelineCommand {
   readonly identity: WorkflowPipelineIdentityInput
@@ -19,10 +22,13 @@ export interface AdvancePipelineCommand {
 }
 
 export class AdvancePipelineHandler {
-  constructor(private readonly pipelines: PipelineRepository) {}
+  constructor(
+    private readonly pipelines: PipelineRepository,
+    private readonly identities: CanonicalIdentityReconstructionAuthority,
+  ) {}
 
   async handle(command: AdvancePipelineCommand): Promise<WorkflowPipeline> {
-    const identity = WorkflowPipeline.create({ identity: command.identity }).identity
+    const identity = resolvePipelineIdentity(command.identity, this.identities)
     const current = this.pipelines.find(identity)
     if (!current) {
       throw new PipelineDomainError('PIPELINE_NOT_FOUND', `Pipeline ${identity.canonicalKey} could not be resolved.`)
@@ -52,10 +58,11 @@ export class GetPipelineStateHandler {
   constructor(
     private readonly pipelines: PipelineRepository,
     private readonly states: PipelineStateReader,
+    private readonly identities: CanonicalIdentityReconstructionAuthority,
   ) {}
 
   handle(query: GetPipelineStateQuery): DerivedWorkflowState {
-    const identity: CanonicalIdentityReference = WorkflowPipeline.create({ identity: query.identity }).identity
+    const identity = resolvePipelineIdentity(query.identity, this.identities)
     const pipeline = this.pipelines.find(identity)
     const inputs: PipelineStateInputs | undefined = this.states.read(identity)
     if (!pipeline || !inputs) {
@@ -64,4 +71,20 @@ export class GetPipelineStateHandler {
 
     return PipelineStateDerivationPolicy.derive(pipeline, inputs)
   }
+}
+
+function resolvePipelineIdentity(
+  input: WorkflowPipelineIdentityInput,
+  identities: CanonicalIdentityReconstructionAuthority,
+): CanonicalIdentityReference {
+  const candidate = WorkflowPipeline.create({ identity: input }, identities).identity
+  const resolved = identities.resolveForRehydration(candidate)
+  if (!resolved.reference.equals(candidate) || resolved.identity.kind !== 'STAGE') {
+    throw new PipelineDomainError(
+      'INVALID_PIPELINE_IDENTITY',
+      'WorkflowPipeline identity must resolve to its canonical STAGE record.',
+    )
+  }
+
+  return resolved.reference
 }

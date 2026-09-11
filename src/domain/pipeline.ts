@@ -1,6 +1,7 @@
 import {
   CanonicalIdentityReference,
   CanonicalIdentityReferenceInput,
+  CanonicalIdentityReconstructionAuthority,
   CanonicalStageReference,
   CanonicalStageReferenceInput,
 } from './identity.js'
@@ -41,6 +42,7 @@ export type PipelineErrorCode =
   | 'INVALID_PIPELINE_REVISION'
   | 'INVALID_PIPELINE_STATE'
   | 'INVALID_PIPELINE_TRANSITION'
+  | 'PIPELINE_RECONSTRUCTION_AUTHORITY_REQUIRED'
   | 'PIPELINE_NOT_FOUND'
   | 'PIPELINE_STALE'
 
@@ -290,10 +292,34 @@ export interface WorkflowPipelineCreationInput {
   readonly identity: WorkflowPipelineIdentityInput
 }
 
+export interface PipelineProvenanceRecordInput {
+  readonly identity: CanonicalIdentityReferenceInput
+  /** Resulting stage in this append-only record. */
+  readonly stage: PipelineStage | PipelineStageName
+  /** Aggregate revision of the resulting stage. */
+  readonly revision: PipelineRevision | number
+  /** Omitted only for the initial creation record. */
+  readonly previousStage?: PipelineStage | PipelineStageName
+  readonly previousRevision?: PipelineRevision | number
+}
+
+/**
+ * Supplies the accepted transition history for pipeline reconstruction.
+ * The pipeline aggregate validates progression semantics; this port establishes
+ * that the supplied history was accepted by the canonical producer.
+ */
+export interface PipelineProvenanceReconstructionAuthority {
+  resolveForRehydration(
+    identity: CanonicalIdentityReference,
+  ): readonly PipelineProvenanceRecordInput[] | undefined
+}
+
 export interface WorkflowPipelineRehydrationInput {
   readonly identity: WorkflowPipelineIdentityInput
   readonly stage: PipelineStage | PipelineStageName
   readonly revision: PipelineRevision | number
+  /** Required for every non-initial restored pipeline state. */
+  readonly provenance?: readonly PipelineProvenanceRecordInput[]
 }
 
 export class WorkflowPipeline {
@@ -308,16 +334,84 @@ export class WorkflowPipeline {
     Object.freeze(this)
   }
 
-  static create(input: WorkflowPipelineCreationInput): WorkflowPipeline {
+  static create(
+    input: WorkflowPipelineCreationInput,
+    authority: CanonicalIdentityReconstructionAuthority,
+  ): WorkflowPipeline {
+    if (!authority || typeof authority.resolveForRehydration !== 'function') {
+      throw new PipelineDomainError(
+        'PIPELINE_RECONSTRUCTION_AUTHORITY_REQUIRED',
+        'WorkflowPipeline creation requires the DOM identity reconstruction authority.',
+      )
+    }
+
+    const candidate = WorkflowPipeline.canonicalIdentity(input.identity)
+    const resolved = authority.resolveForRehydration(candidate)
+    if (!resolved
+      || !resolved.reference.equals(candidate)
+      || resolved.identity.kind !== 'STAGE') {
+      throw new PipelineDomainError(
+        'INVALID_PIPELINE_IDENTITY',
+        'WorkflowPipeline identity must resolve to its canonical STAGE record.',
+      )
+    }
+
     return WorkflowPipeline.construct({
-      identity: input.identity,
+      identity: resolved.reference,
       stage: PipelineOrder.first(),
       revision: PipelineRevision.create(0),
     })
   }
 
-  static rehydrate(input: WorkflowPipelineRehydrationInput): WorkflowPipeline {
-    return WorkflowPipeline.construct(input)
+  static rehydrate(
+    input: WorkflowPipelineRehydrationInput,
+    identityAuthority: CanonicalIdentityReconstructionAuthority,
+    provenanceAuthority: PipelineProvenanceReconstructionAuthority,
+  ): WorkflowPipeline {
+    if (!identityAuthority || typeof identityAuthority.resolveForRehydration !== 'function') {
+      throw new PipelineDomainError(
+        'PIPELINE_RECONSTRUCTION_AUTHORITY_REQUIRED',
+        'WorkflowPipeline rehydration requires the DOM reconstruction authority.',
+      )
+    }
+    if (!provenanceAuthority || typeof provenanceAuthority.resolveForRehydration !== 'function') {
+      throw new PipelineDomainError(
+        'PIPELINE_RECONSTRUCTION_AUTHORITY_REQUIRED',
+        'WorkflowPipeline rehydration requires the accepted provenance authority.',
+      )
+    }
+
+    const candidate = WorkflowPipeline.canonicalIdentity(input.identity)
+    const resolved = identityAuthority.resolveForRehydration(candidate)
+    if (!resolved || !resolved.reference.equals(candidate) || resolved.identity.kind !== 'STAGE') {
+      throw new PipelineDomainError(
+        'INVALID_PIPELINE_IDENTITY',
+        'WorkflowPipeline identity does not match its authoritative record.',
+      )
+    }
+
+    const pipeline = WorkflowPipeline.construct({ ...input, identity: resolved.reference })
+    const acceptedProvenance = provenanceAuthority.resolveForRehydration(resolved.reference)
+    if (!acceptedProvenance || acceptedProvenance.length === 0) {
+      throw new PipelineDomainError(
+        'INVALID_PIPELINE_TRANSITION',
+        'WorkflowPipeline rehydration requires accepted transition provenance.',
+      )
+    }
+
+    WorkflowPipeline.assertRehydrationProvenance(pipeline, acceptedProvenance)
+    if (input.provenance === undefined
+      && (pipeline.stage.value !== PIPELINE_STAGES[0] || pipeline.revision.value !== 0)) {
+      throw new PipelineDomainError(
+        'INVALID_PIPELINE_TRANSITION',
+        'A non-initial pipeline state requires complete transition provenance.',
+      )
+    }
+    if (input.provenance !== undefined) {
+      WorkflowPipeline.assertRehydrationProvenance(pipeline, input.provenance)
+      WorkflowPipeline.assertProvenanceMatchesAuthority(input.provenance, acceptedProvenance)
+    }
+    return pipeline
   }
 
   private static construct(input: WorkflowPipelineRehydrationInput): WorkflowPipeline {
@@ -362,6 +456,163 @@ export class WorkflowPipeline {
     }
 
     return reference
+  }
+
+  private static assertRehydrationProvenance(
+    pipeline: WorkflowPipeline,
+    provenance: readonly PipelineProvenanceRecordInput[] | undefined,
+  ): void {
+    if (pipeline.stage.value === PIPELINE_STAGES[0] && pipeline.revision.value === 0) {
+      if (provenance !== undefined) {
+        WorkflowPipeline.assertProvenanceChain(pipeline, provenance)
+      }
+      return
+    }
+
+    if (!provenance || provenance.length === 0) {
+      throw new PipelineDomainError(
+        'INVALID_PIPELINE_TRANSITION',
+        'A non-initial pipeline state requires complete transition provenance.',
+      )
+    }
+
+    WorkflowPipeline.assertProvenanceChain(pipeline, provenance)
+  }
+
+  private static assertProvenanceChain(
+    pipeline: WorkflowPipeline,
+    provenance: readonly PipelineProvenanceRecordInput[],
+  ): void {
+    if (provenance.length === 0) {
+      throw new PipelineDomainError('INVALID_PIPELINE_TRANSITION', 'Pipeline provenance cannot be empty.')
+    }
+
+    let previousStage: PipelineStage | undefined
+    let previousRevision: PipelineRevision | undefined
+    const seen = new Set<string>()
+
+    provenance.forEach((entry, index) => {
+      const identity = CanonicalIdentityReference.create(entry.identity)
+      const stage = entry.stage instanceof PipelineStage ? entry.stage : PipelineStage.create(entry.stage)
+      const revision = entry.revision instanceof PipelineRevision
+        ? entry.revision
+        : PipelineRevision.create(entry.revision)
+      const key = `${identity.canonicalKey}|stage=${stage.value}|revision=${revision.value}`
+
+      if (!identity.equals(pipeline.identity) || seen.has(key)) {
+        throw new PipelineDomainError(
+          'INVALID_PIPELINE_TRANSITION',
+          'Pipeline provenance must remain attached to one canonical identity without duplicates.',
+        )
+      }
+      seen.add(key)
+
+      if (index === 0) {
+        if (stage.value !== PIPELINE_STAGES[0]
+          || revision.value !== 0
+          || entry.previousStage !== undefined
+          || entry.previousRevision !== undefined) {
+          throw new PipelineDomainError(
+            'INVALID_PIPELINE_TRANSITION',
+            'Pipeline provenance must begin with the initial stage at revision zero.',
+          )
+        }
+      } else {
+        const declaredPreviousStage = entry.previousStage instanceof PipelineStage
+          ? entry.previousStage
+          : PipelineStage.create(entry.previousStage)
+        const declaredPreviousRevision = entry.previousRevision instanceof PipelineRevision
+          ? entry.previousRevision
+          : PipelineRevision.create(entry.previousRevision)
+
+        if (!previousStage || !previousRevision
+          || !declaredPreviousStage.equals(previousStage)
+          || !declaredPreviousRevision.equals(previousRevision)
+          || !PipelineOrder.isImmediateSuccessor(previousStage, stage)
+          || revision.value !== previousRevision.value + 1) {
+          throw new PipelineDomainError(
+            'INVALID_PIPELINE_TRANSITION',
+            'Pipeline provenance must contain ordered immediate successors with continuous revisions.',
+          )
+        }
+      }
+
+      previousStage = stage
+      previousRevision = revision
+    })
+
+    if (!previousStage || !previousRevision
+      || !previousStage.equals(pipeline.stage)
+      || !previousRevision.equals(pipeline.revision)) {
+      throw new PipelineDomainError(
+        'INVALID_PIPELINE_TRANSITION',
+        'Pipeline provenance must terminate at the restored stage and revision.',
+      )
+    }
+  }
+
+  private static assertProvenanceMatchesAuthority(
+    supplied: readonly PipelineProvenanceRecordInput[],
+    accepted: readonly PipelineProvenanceRecordInput[],
+  ): void {
+    if (supplied.length !== accepted.length) {
+      throw new PipelineDomainError(
+        'INVALID_PIPELINE_TRANSITION',
+        'Pipeline provenance does not match the accepted transition authority.',
+      )
+    }
+
+    supplied.forEach((entry, index) => {
+      const expected = accepted[index]
+      const suppliedIdentity = CanonicalIdentityReference.create(entry.identity)
+      const acceptedIdentity = CanonicalIdentityReference.create(expected.identity)
+      const suppliedStage = entry.stage instanceof PipelineStage ? entry.stage : PipelineStage.create(entry.stage)
+      const acceptedStage = expected.stage instanceof PipelineStage ? expected.stage : PipelineStage.create(expected.stage)
+      const suppliedRevision = entry.revision instanceof PipelineRevision
+        ? entry.revision
+        : PipelineRevision.create(entry.revision)
+      const acceptedRevision = expected.revision instanceof PipelineRevision
+        ? expected.revision
+        : PipelineRevision.create(expected.revision)
+
+      const suppliedPreviousStage = entry.previousStage === undefined
+        ? undefined
+        : entry.previousStage instanceof PipelineStage
+          ? entry.previousStage
+          : PipelineStage.create(entry.previousStage)
+      const acceptedPreviousStage = expected.previousStage === undefined
+        ? undefined
+        : expected.previousStage instanceof PipelineStage
+          ? expected.previousStage
+          : PipelineStage.create(expected.previousStage)
+      const suppliedPreviousRevision = entry.previousRevision === undefined
+        ? undefined
+        : entry.previousRevision instanceof PipelineRevision
+          ? entry.previousRevision
+          : PipelineRevision.create(entry.previousRevision)
+      const acceptedPreviousRevision = expected.previousRevision === undefined
+        ? undefined
+        : expected.previousRevision instanceof PipelineRevision
+          ? expected.previousRevision
+          : PipelineRevision.create(expected.previousRevision)
+
+      if (!suppliedIdentity.equals(acceptedIdentity)
+        || !suppliedStage.equals(acceptedStage)
+        || !suppliedRevision.equals(acceptedRevision)
+        || (suppliedPreviousStage === undefined) !== (acceptedPreviousStage === undefined)
+        || (suppliedPreviousStage !== undefined
+          && acceptedPreviousStage !== undefined
+          && !suppliedPreviousStage.equals(acceptedPreviousStage))
+        || (suppliedPreviousRevision === undefined) !== (acceptedPreviousRevision === undefined)
+        || (suppliedPreviousRevision !== undefined
+          && acceptedPreviousRevision !== undefined
+          && !suppliedPreviousRevision.equals(acceptedPreviousRevision))) {
+        throw new PipelineDomainError(
+          'INVALID_PIPELINE_TRANSITION',
+          'Pipeline provenance does not match the accepted transition authority.',
+        )
+      }
+    })
   }
 
   advanceTo(requested: PipelineStage | PipelineStageName): PipelineTransition {

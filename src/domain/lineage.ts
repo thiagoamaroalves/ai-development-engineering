@@ -1,11 +1,14 @@
 import {
   CanonicalIdentityReference,
   CanonicalIdentityReferenceInput,
+  CanonicalIdentityReconstructionAuthority,
 } from './identity.js'
 
 export type LineageErrorCode =
   | 'INVALID_LINEAGE_ENDPOINT'
   | 'INVALID_LINEAGE_PROGRESS'
+  | 'LINEAGE_RECONSTRUCTION_AUTHORITY_REQUIRED'
+  | 'LINEAGE_REFERENCE_MISMATCH'
   | 'LINEAGE_ALREADY_EXISTS'
   | 'LINEAGE_NOT_FOUND'
   | 'LINEAGE_CONCURRENT_MODIFICATION'
@@ -54,6 +57,18 @@ export interface AdrSpecLineageRehydrationInput extends AdrSpecLineageInput {
   readonly progress: LineageProgress | number
 }
 
+/**
+ * Supplies the accepted relation state used to validate persisted progress.
+ * The relation aggregate remains the semantic owner; this is only the
+ * authority-backed read boundary for reconstruction.
+ */
+export interface AdrSpecLineageReconstructionAuthority {
+  resolveForRehydration(
+    adr: CanonicalIdentityReference,
+    spec: CanonicalIdentityReference,
+  ): AdrSpecLineage | undefined
+}
+
 export class AdrSpecLineage {
   readonly adr: CanonicalIdentityReference
   readonly spec: CanonicalIdentityReference
@@ -73,12 +88,69 @@ export class AdrSpecLineage {
   }
 
   /** Rebuilds a persisted relation through the same invariant-checked seam. */
-  static rehydrate(input: AdrSpecLineageRehydrationInput): AdrSpecLineage {
-    const adr = CanonicalIdentityReference.create(input.adr)
-    const spec = CanonicalIdentityReference.create(input.spec)
+  static rehydrate(
+    input: AdrSpecLineageRehydrationInput,
+    identityAuthority: CanonicalIdentityReconstructionAuthority,
+    lineageAuthority: AdrSpecLineageReconstructionAuthority,
+  ): AdrSpecLineage {
+    if (!identityAuthority || typeof identityAuthority.resolveForRehydration !== 'function') {
+      throw new LineageDomainError(
+        'LINEAGE_RECONSTRUCTION_AUTHORITY_REQUIRED',
+        'Lineage rehydration requires the DOM identity reconstruction authority.',
+      )
+    }
+    if (!lineageAuthority || typeof lineageAuthority.resolveForRehydration !== 'function') {
+      throw new LineageDomainError(
+        'LINEAGE_RECONSTRUCTION_AUTHORITY_REQUIRED',
+        'Lineage rehydration requires the accepted relation reconstruction authority.',
+      )
+    }
+
+    const adrCandidate = CanonicalIdentityReference.create(input.adr)
+    const specCandidate = CanonicalIdentityReference.create(input.spec)
+    const adrRecord = identityAuthority.resolveForRehydration(adrCandidate)
+    const specRecord = identityAuthority.resolveForRehydration(specCandidate)
+    if (!adrRecord || !specRecord) {
+      throw new LineageDomainError(
+        'LINEAGE_REFERENCE_MISMATCH',
+        'Lineage endpoints could not be resolved by the authoritative identity records.',
+      )
+    }
+
+    const adr = adrRecord.reference
+    const spec = specRecord.reference
+    if (!adr.equals(adrCandidate) || !spec.equals(specCandidate)) {
+      throw new LineageDomainError(
+        'LINEAGE_REFERENCE_MISMATCH',
+        'Lineage endpoints do not match the authoritative identity records.',
+      )
+    }
+
+    if (adr.identity.kind !== 'ADR' || spec.identity.kind !== 'SPEC') {
+      throw new LineageDomainError(
+        'INVALID_LINEAGE_ENDPOINT',
+        'ADR↔SPEC lineage requires one ADR endpoint and one SPEC endpoint.',
+      )
+    }
+
+    const accepted = lineageAuthority.resolveForRehydration(adr, spec)
+    if (!(accepted instanceof AdrSpecLineage)) {
+      throw new LineageDomainError(
+        'LINEAGE_NOT_FOUND',
+        `ADR↔SPEC lineage ${adr.canonicalKey}->${spec.canonicalKey} could not be resolved for rehydration.`,
+      )
+    }
+
     const progress = input.progress instanceof LineageProgress
       ? input.progress
       : LineageProgress.create(input.progress)
+
+    if (!accepted.adr.equals(adr) || !accepted.spec.equals(spec) || !accepted.progress.equals(progress)) {
+      throw new LineageDomainError(
+        'LINEAGE_REFERENCE_MISMATCH',
+        'Lineage progress or endpoints do not match the accepted reconstruction authority.',
+      )
+    }
 
     return AdrSpecLineage.createFromReferences(adr, spec, progress)
   }
