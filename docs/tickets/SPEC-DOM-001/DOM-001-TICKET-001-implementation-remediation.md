@@ -1,251 +1,263 @@
-# DOM-001-TICKET-001 — Implementation remediation
+# DOM-001-TICKET-001 — Implementation Remediation
 
 ## 1. Remediation Verdict
 
 ```text
-REMEDIATION_VERDICT: TICKET_IMPLEMENTATION_REMEDIATION_COMPLETE
+TICKET_IMPLEMENTATION_REMEDIATION_COMPLETE
 TICKET_GATE: READY_FOR_REAUDIT
-STATUS: VALIDATION_REQUIRED
+FINAL_STATUS: VALIDATION_REQUIRED
+NEXT_ACTION: audit-implemented-ticket
+SELF_CERTIFICATION: NO
 ```
 
-This artifact is local remediation evidence only. The independent
-`audit-implemented-ticket` workflow remains mandatory and owns the final
-conformance verdict. The ticket is not marked `DONE`.
+Only the local-ticket completion scope was remediated. `IMA-MAJOR-002` remains
+open as an integrated-only finding.
 
 ## 2. Ticket
 
-| Field | Value |
-|---|---|
-| Ticket | `DOM-001-TICKET-001` |
-| Ticket path | `docs/tickets/SPEC-DOM-001/DOM-001-TICKET-001-canonical-identity-lineage.md` |
-| Implementation unit | `DOM-IMP-01 — Canonical identity and lineage authority` |
-| Canonical audit | `docs/tickets/SPEC-DOM-001/DOM-001-TICKET-001-implementation-audit.md` |
-| Audit round | `RE_AUDIT` |
-| Audit HEAD | `a58ce959f9b34f3c1c83ed41c01b058d31bf3366` |
-| Repository root | `C:\Users\taalves\OneDrive - Octave\Documents 1\pessoal\ai-engineering-development` |
-| Ticket status preserved | `VALIDATION_REQUIRED` |
-
-Authority consulted, without modification: `ADR-0001`, the approved SPEC
-portfolio, `SPEC-DOM-001`, its audited Gap Matrix and Implementation Plan,
-the ticket audit, and the approved Implementation Design.
+```text
+TICKET_ID: DOM-001-TICKET-001
+IMPLEMENTATION_UNIT: DOM-IMP-01 — Canonical identity and lineage authority
+TICKET_PATH: docs/tickets/SPEC-DOM-001/DOM-001-TICKET-001-canonical-identity-lineage.md
+IMPLEMENTATION_DESIGN_PATH: docs/tickets/SPEC-DOM-001/DOM-001-TICKET-001-implementation-design.md
+CANONICAL_AUDIT_PATH: docs/tickets/SPEC-DOM-001/DOM-001-TICKET-001-implementation-audit.md
+AUDIT_ROUND: RE_AUDIT / ROUND_NUMBER 4
+```
 
 ## 3. Baseline Validation
 
 ```text
-AUDIT_HEAD: a58ce959f9b34f3c1c83ed41c01b058d31bf3366
-REMEDIATION_START_HEAD: a58ce959f9b34f3c1c83ed41c01b058d31bf3366
-CURRENT_HEAD: a58ce959f9b34f3c1c83ed41c01b058d31bf3366
-BASELINE_CLASSIFICATION: NO_RELEVANT_DRIFT
-UPSTREAM_AUTHORITY_CHANGED: NO
-IMPLEMENTATION_REAUDIT_REQUIRED: NO
+REMEDIATION_START_HEAD: cbd5fb94a5eb27f059944e19bc479b3f7587de27
+CURRENT_HEAD: cbd5fb94a5eb27f059944e19bc479b3f7587de27
+BASELINE_DRIFT_STATUS: DRIFT_ASSESSED
+BASELINE_REMEDIATION_READINESS: READY
+REASSESSMENT_COMPLETE: YES
+FINDINGS_ARE_ACTIONABLE: YES
+AUDIT_BASIS_STALE_AT_ENTRY: NO
+AUDIT_BASIS_FINGERPRINT_AT_ENTRY: 343D1C07BBF834E4E528B9E4D07AA628CC52F7F645D973BE1B9E72796E29171C
 ```
 
-The five audited semantic files were inspected directly at remediation start.
-They matched the current-round audit state; the implementation was an
-uncommitted working-tree snapshot and the commit HEAD remained unchanged.
-Existing unrelated user changes in `.gitignore`, documentation, prototype
-artifacts, and other untracked specifications were not modified.
-
-Both supplied findings were revalidated against source and tests and classified
-`VALIDATED_AND_STILL_PRESENT` before editing.
+The canonical audit preserved the accepted ADR, SPEC, Gap Matrix, Plan, and
+Implementation Design authority baselines. The working-tree delta after entry
+is the local remediation recorded below; no upstream authority or foreign PLAT
+implementation was changed.
 
 ## 4. Canonical Findings Received
 
-The canonical implementation audit is the sole defect authority. It reports
-`TICKET_IMPLEMENTATION_REMEDIATION_REQUIRED` and
-`TICKET_GATE: NOT_READY_FOR_DONE` for exactly these two blocking findings.
+| Finding | Dependency / local gate | Remediation result |
+|---|---|---|
+| IMA-CRITICAL-001 | REQUIRED_FOR_LOCAL_CLOSURE / BLOCKS_TICKET_DONE=YES | VALIDATED_AND_REMEDIATED |
+| IMA-MAJOR-002 | REQUIRED_FOR_INTEGRATED_PROOF / BLOCKS_TICKET_DONE=NO | PRESERVED_OPEN_INTEGRATED_ONLY |
+| IMA-MAJOR-004 | REQUIRED_FOR_LOCAL_CLOSURE / BLOCKS_TICKET_DONE=YES | VALIDATED_AND_REMEDIATED |
+| IMA-INFO-001 | INFORMATIONAL / non-blocking | SYNCHRONIZED_NON_BLOCKING |
 
-### IMA-CRITICAL-001
-
-| Field | Value |
-|---|---|
-| Title | DOM canonical catalog exposes EXEC-owned assignment/session identities |
-| Source specialist | Architecture boundaries: `ARCH-CRITICAL-001` |
-| Gaps / requirements | `GAP-001`; `DOM-ID-001` |
-| Acceptance | `AC-DOM-001`; contributor `AC-DOM-052` |
-| Classification | `CONFIRMED`; `MUST_REMEDIATE` |
-| Repository evidence | `src/domain/identity.ts` included `ASSIGNMENT` and `SESSION` in the closed catalog and `CanonicalIdentityCatalog` could create and resolve them. |
-| Test evidence | The prior productive test asserted both foreign kinds were catalog kinds. |
-| Root cause | The DOM vocabulary boundary was defined by label distinction rather than normative cross-SPEC ownership. |
-| Minimum correction | Remove both kinds from DOM catalog creation/resolution; provide only typed opaque EXEC-owned references at the integration boundary; add a negative architecture test. |
-| Ownership authority | EXEC owns assignment identity and session lifecycle; DOM may correlate but may not mint or resolve those identities. |
-
-### IMA-CRITICAL-002
-
-| Field | Value |
-|---|---|
-| Title | Revision creation does not enforce stable logical identity |
-| Source specialist | Architecture boundaries: `ARCH-CRITICAL-002` |
-| Gaps / requirements | `GAP-001`; `DOM-ID-001` |
-| Acceptance | `AC-DOM-001`; contributor `AC-DOM-052` |
-| Classification | `CONFIRMED`; `MUST_REMEDIATE` |
-| Repository evidence | Revision creation accepted no existing identity reference, invoked a revision-aware generator on each create, and reserved a fresh identity value. |
-| Test evidence | Existing tests repeated a supplied value for revisions 1 and 2 but did not cover the unsupplied-value path or generator independence from revision. |
-| Root cause | No enforced prior-reference/revision-registration boundary existed above the initial revision. |
-| Minimum correction | Require a repository-resolved earlier identity reference for revisions above 1, reuse its identity, make the generator revision-independent, and prove historical resolution/lineage for unsupplied values. |
-| Identity authority | `CanonicalIdentityCatalog` owns stable identity and exact revision-qualified historical resolution. |
-
-```text
-CANONICAL_FINDINGS_RECEIVED: 2
-BLOCKING_FINDINGS_RECEIVED: 2
-NON_BLOCKING_FINDINGS_RECEIVED: 0
-SOURCE_FINDINGS_USED_AS_AUTHORITY: 0
-```
-
-No finding was rejected, downgraded, or silently added.
+`IMA-MAJOR-002` preserves `PRODUCTIVE_AVAILABILITY=NO`,
+`LOCAL_CLOSURE_BLOCKING=NO`, `BLOCKS_TICKET_DONE=NO`,
+`BLOCKS_INTEGRATED_PROOF=YES`, `PRIMARY_ROUTE=IMPLEMENTATION_PLAN_REVALIDATION`,
+and `OPEN_INTEGRATED_FINDING_TRACEABILITY=COMPLETE`.
 
 ## 5. Root Cause Analysis
 
-### RC-001 — Foreign identity authority exposed by the DOM catalog
+### RC-001 — Reconstruction authority gap
 
 ```text
 ROOT_CAUSE_ID: RC-001
-ROOT_CAUSE_CATEGORY: OWNERSHIP / COMPONENT_BOUNDARY / CROSS_SPEC_BOUNDARY
 CANONICAL_FINDINGS: IMA-CRITICAL-001
-AFFECTED_COMPONENTS: AggregateKind vocabulary; CanonicalIdentityCatalog; application identity boundary
-AFFECTED_PATHS: create and resolve requests for assignment/session kinds
-AFFECTED_TESTS: identity-kind assertions; architecture boundary test
-DESIGN_BOUNDARIES_AFFECTED: DOM canonical identity authority versus EXEC-owned contracts
-INVARIANTS_AFFECTED: foreign identity kinds remain distinct; no second authority
-DEPENDENCY_BOUNDARIES_AFFECTED: application integration typing only; no foreign lifecycle dependency
-SYSTEMIC: YES
+CATEGORY: RECONSTRUCTION_AUTHORITY / IDENTITY_LINEAGE
+SCOPE: WorkflowPipeline creation and rehydration; AdrSpecLineage rehydration;
+       identity revision predecessor registration
+ROOT_CAUSE_REMOVED: YES
 ```
 
-The production domain catalog treated every label in its closed vocabulary as
-DOM-creatable and DOM-resolvable. That made the catalog a competing authority
-for EXEC-owned assignment/session identities even though no EXEC lifecycle was
-duplicated.
+Shape-valid caller/dependency material could become canonical-looking state
+without an accepted authority check at every public seam.
 
-### RC-002 — Revision creation lacked stable-identity registration
+### RC-002 — Incomplete direct authority-negative witnesses
 
 ```text
 ROOT_CAUSE_ID: RC-002
-ROOT_CAUSE_CATEGORY: IDENTITY_LINEAGE / CANONICAL_AUTHORITY / INVARIANT_PLACEMENT
-CANONICAL_FINDINGS: IMA-CRITICAL-002
-AFFECTED_COMPONENTS: CanonicalIdentityGenerator port; CreateCanonicalIdentityRequest; CanonicalIdentityCatalog
-AFFECTED_PATHS: initial creation; revision > 1 creation; historical resolution and ADR↔SPEC references
-AFFECTED_TESTS: revision creation; exact historical resolution; historical lineage
-DESIGN_BOUNDARIES_AFFECTED: identity catalog aggregate and repository reservation port
-INVARIANTS_AFFECTED: one logical identity across revisions; exact historical references
-DEPENDENCY_BOUNDARIES_AFFECTED: generator remains a narrow candidate-value port; repository remains persistence authority
-SYSTEMIC: YES
+CANONICAL_FINDINGS: IMA-MAJOR-004
+CATEGORY: TESTABILITY / COMPLETION_EVIDENCE
+SCOPE: T001/T004 direct recovery and productive boundary witnesses
+ROOT_CAUSE_REMOVED: YES
 ```
 
-The creation boundary allowed a revision greater than one to generate and
-reserve a new value without proving an earlier record. A generator that used
-revision as an input could therefore fork logical identity. The correction
-uses an explicit existing reference and repository lookup; it does not add a
-new aggregate, persistence mechanism, or foreign lifecycle.
+The required negative cases were not executable at the effective public
+boundary and were supplemented only by shape tests or source inspection.
+
+### RC-003 — PLAT productive capability unavailable
+
+```text
+ROOT_CAUSE_ID: RC-003
+CANONICAL_FINDINGS: IMA-MAJOR-002
+CATEGORY: CAPABILITY_AVAILABILITY / DURABILITY
+SCOPE: SPEC-PLAT-001 integrated producer and durable checkpoint
+ROOT_CAUSE_REMOVED: NO — PRESERVED FOR INTEGRATED OWNER
+```
+
+No database, journal, serializer, durable store, restart/replay engine,
+physical CAS, or productive PLAT adapter was introduced.
+
+### RC-004 — Documentary totals synchronized
+
+```text
+ROOT_CAUSE_ID: RC-004
+CANONICAL_FINDINGS: IMA-INFO-001
+CATEGORY: COMPLETION_EVIDENCE
+ROOT_CAUSE_REMOVED: YES — NON-BLOCKING EVIDENCE SYNCHRONIZATION
+```
 
 ## 6. Affected Radius
 
-The radius review covered all productive identity and lineage writers,
-application handlers, repository ports and fixtures, generator contracts,
-historical resolution, lineage registration, architecture guards, prototype
-imports, migrations/adapters, and legacy routes.
-
-| Manifestation inspected | Classification | Result |
-|---|---|---|
-| `CanonicalIdentityCatalog.create` for assignment/session | `ALREADY_COVERED_BY_CANONICAL_FINDING` | Closed by `RU-001`. |
-| `CanonicalIdentityCatalog.resolve` for assignment/session | `ALREADY_COVERED_BY_CANONICAL_FINDING` | Closed by `RU-001`. |
-| Application boundary for foreign correlation | `SAME_ROOT_CAUSE_ADDITIONAL_MANIFESTATION` | Type-only branded EXEC reference added; no writer or resolver added. |
-| Generator contract receiving revision | `ALREADY_COVERED_BY_CANONICAL_FINDING` | Closed by `RU-002`; revision removed from the generator input. |
-| Revision creation without value/reference | `ALREADY_COVERED_BY_CANONICAL_FINDING` | Closed by `RU-002`; fails closed or reuses a resolved identity. |
-| ADR↔SPEC revision-qualified lineage | `SAME_ROOT_CAUSE_ADDITIONAL_MANIFESTATION` | Historical lineage proof added; identity remains stable while revision-qualified relation keys remain distinct. |
-| Domain/application additional writers | `ALREADY_COVERED_BY_CANONICAL_FINDING` | None found. |
-| Repository/infrastructure adapters | `OUTSIDE_TICKET_SCOPE` | No physical adapter exists; PLAT authority preserved. |
-| Prototype, migration, projection, worker, API, UI, GIT, and foreign lifecycle paths | `OUTSIDE_TICKET_SCOPE` | None imports or writes the productive DOM authority. |
+The local radius was checked across identity registration, pipeline creation,
+lineage recovery, pipeline recovery, application consumers, repository ports,
+legacy alias paths, and the T001/T004 witness surfaces.
 
 ```text
-ADDITIONAL_SAME_ROOT_MANIFESTATIONS_FIXED: 0
-NEW_INDEPENDENT_DEFECTS: 0
-OUTSIDE_SCOPE_CHANGES: 0
-FOREIGN_LIFECYCLE_IMPLEMENTATION_INTRODUCED: 0
+AFFECTED_RADIUS_CHECKED: YES
+INDEPENDENT_NEW_DEFECTS_FOUND: 0
+OUTSIDE_SCOPE_MANIFESTATIONS_FIXED: 0
 ```
 
-The application type is a same-boundary contract, not a new runtime authority.
-No authority decision or design revalidation was required: the approved design
-already requires explicit identity distinctions, consumer correlation without
-authority, and a narrow generator port.
+Foreign physical persistence/recovery remains outside the radius and remains
+owned by PLAT.
 
 ## 7. Remediation Units
 
-### RU-001 — Close the DOM/EXEC identity authority boundary
+### RU-001 — Authority-backed creation and historical reconstruction
 
 ```text
 REMEDIATION_UNIT_ID: RU-001
-ROOT_CAUSE_IDS: RC-001
+ROOT_CAUSES: RC-001
 CANONICAL_FINDINGS: IMA-CRITICAL-001
-BEHAVIOR_TO_CORRECT: DOM creation and resolution reject EXEC-owned assignment/session kinds.
-STRUCTURE_TO_CORRECT: DOM catalog vocabulary contains only DOM-owned creatable/resolvable kinds; application boundary exposes only a branded type-only EXEC reference.
-FILES_EXPECTED: src/domain/identity.ts; src/application/identity.ts; tests/dom-001-ticket-001.test.ts
-TESTS_REQUIRED: negative create/resolve authority test; closed-vocabulary and structural boundary assertions; existing ticket suite
-DESIGN_BOUNDARIES_TO_PRESERVE: CanonicalIdentityCatalog remains the DOM identity aggregate; handlers remain thin; no ACL/lifecycle implementation is added.
-OWNERSHIP_CONSTRAINTS: EXEC remains owner of assignment/session identity and lifecycle; DOM only consumes opaque typed references.
-DEPENDENCY_CONSTRAINTS: no foreign domain/lifecycle imports; no infrastructure dependency in domain.
-REGRESSION_RISKS: breaking valid DOM kinds; accidentally adding an EXEC writer; weakening identity distinction checks.
-COMPLETION_PROOF: catalog rejects both foreign kinds for creation and resolution; application source contains only the branded opaque EXEC reference contract; architecture checks pass.
 ```
 
-### RU-002 — Enforce stable logical identity across revisions
+Corrections:
+
+- `WorkflowPipeline.create` requires and consumes the DOM identity
+  reconstruction authority before materializing the initial pipeline.
+- `CanonicalIdentityCatalog.create` compares the repository predecessor's
+  complete reference with the expected predecessor before any reservation.
+- `AdrSpecLineage.rehydrate` requires endpoint identity authority and accepted
+  relation-history authority, then compares exact endpoints and progress.
+- `WorkflowPipeline.rehydrate` requires identity and accepted provenance
+  authorities, validates the accepted chain, and compares supplied material
+  entry-by-entry before materialization.
+- Unknown, detached, forged, stale, mismatched, corrupt, unsupported, or
+  unregistered material fails closed without mutation.
+
+```text
+DESIGN_BOUNDARIES_PRESERVED: YES
+DOM_SEMANTIC_OWNER_PRESERVED: YES
+PLAT_PHYSICAL_OWNER_PRESERVED: YES
+PHYSICAL_PERSISTENCE_INTRODUCED: NO
+```
+
+### RU-002 — Direct authority-negative witnesses
 
 ```text
 REMEDIATION_UNIT_ID: RU-002
-ROOT_CAUSE_IDS: RC-002
-CANONICAL_FINDINGS: IMA-CRITICAL-002
-BEHAVIOR_TO_CORRECT: revision > 1 requires an existing earlier reference resolved from the repository and reuses that identity.
-STRUCTURE_TO_CORRECT: generator no longer receives revision; revision registration is explicit in the creation request; mismatch and missing-reference paths fail closed.
-FILES_EXPECTED: src/domain/identity.ts; tests/dom-001-ticket-001.test.ts
-TESTS_REQUIRED: missing reference; unknown prior reference; generator call count; identity preservation; exact historical resolution; revision-qualified ADR↔SPEC lineage.
-DESIGN_BOUNDARIES_TO_PRESERVE: same identity catalog aggregate, repository reservation port, immutable records, and per-relation lineage aggregate.
-OWNERSHIP_CONSTRAINTS: DOM owns stable DOM identity; no foreign identity or persistence authority is introduced.
-DEPENDENCY_CONSTRAINTS: catalog depends on the existing narrow repository port; generator remains candidate-value input for initial creation only.
-REGRESSION_RISKS: preventing valid initial creation; silently accepting a forked supplied value; collapsing distinct revision-qualified history.
-COMPLETION_PROOF: unsupplied revision creation without a reference is rejected; with a repository-resolved reference it reuses the identity and does not call the generator; both historical identities and lineage endpoints resolve.
+ROOT_CAUSES: RC-002
+CANONICAL_FINDINGS: IMA-CRITICAL-001; IMA-MAJOR-004
 ```
+
+Direct executable witnesses were added for fabricated attached lineage
+progress, shape-valid pipeline provenance without accepted authority, corrupt
+predecessor response, unregistered Stage creation, missing creation authority,
+and no-mutation behavior. The effective application guard remains executable
+before repository/state-reader access.
 
 ## 8. Finding Closure
 
-| Finding | Root cause | Unit | Fixed files | Tests added/changed | Behavioral correction | Structural correction | Closure evidence | Status |
-|---|---|---|---|---|---|---|---|---|
-| `IMA-CRITICAL-001` | `RC-001` | `RU-001` | `src/domain/identity.ts`; `src/application/identity.ts`; `tests/dom-001-ticket-001.test.ts` | Foreign-kind assertions changed; negative create/resolve architecture test added; opaque-boundary source guard added | Assignment/session create and resolve now fail with `INVALID_AGGREGATE_KIND` | Foreign kinds removed from DOM runtime catalog; branded EXEC-owned reference is type-only at the application boundary | 14/14 ticket tests; structural architecture self-check; no foreign domain writer/import | `VALIDATED_AND_REMEDIATED` |
-| `IMA-CRITICAL-002` | `RC-002` | `RU-002` | `src/domain/identity.ts`; `tests/dom-001-ticket-001.test.ts` | Revision guard, unknown-reference, generator-independence, historical resolution, and historical lineage tests added/updated | Revisions above 1 require an earlier resolved reference and reuse its identity; generator is initial-only | Stable identity is enforced at the catalog creation boundary; revision-dependent generator path removed | 14/14 ticket tests; strict production typecheck; historical lineage assertions | `VALIDATED_AND_REMEDIATED` |
+### IMA-CRITICAL-001
 
 ```text
-FINDINGS_REMEDIATED: 2
-FINDINGS_ALREADY_RESOLVED: 0
-FINDINGS_REJECTED_BY_NEW_EVIDENCE: 0
-FINDINGS_PARTIALLY_REMEDIATED: 0
-FINDINGS_BLOCKED: 0
+FINDING_ID: IMA-CRITICAL-001
+STATUS: VALIDATED_AND_REMEDIATED
+ROOT_CAUSE_ID: RC-001
+REMEDIATION_UNIT_ID: RU-001
+FIXED_FILES: src/domain/identity.ts; src/domain/lineage.ts; src/domain/pipeline.ts; src/application/pipeline.ts
+BEHAVIORAL_CORRECTION: authority is required at Stage creation and recovery;
+  exact predecessor, lineage progress, endpoint, and provenance history checks
+  precede materialization/reservation
+NO_MUTATION_PROOF: reserveCalls=0 for corrupt predecessor; accepted lineage
+  progress remains unchanged; provenance authority has no accepted entry;
+  unregistered Stage leaves identity repository size unchanged
+```
+
+```text
+IMA_CRITICAL_001_REMEDIATION: REMEDIATED
+```
+
+### IMA-MAJOR-004
+
+```text
+FINDING_ID: IMA-MAJOR-004
+STATUS: VALIDATED_AND_REMEDIATED
+ROOT_CAUSE_ID: RC-002
+REMEDIATION_UNIT_ID: RU-002
+DIRECT_NEGATIVE_WITNESSES_ADDED: 5
+SOURCE_INSPECTION_USED_AS_SUBSTITUTE: NO
+EFFECTIVE_PROVENANCE_AUTHORITY_GUARD: YES
+```
+
+```text
+IMA_MAJOR_004_REMEDIATION: REMEDIATED
+```
+
+### IMA-INFO-001
+
+```text
+FINDING_ID: IMA-INFO-001
+STATUS: SYNCHRONIZED_NON_BLOCKING
+SCOPE: ticket-local execution/evidence totals only
+BLOCKS_TICKET_DONE: NO
+IMA_INFO_001_SYNC: COMPLETE_NON_BLOCKING
+```
+
+### IMA-MAJOR-002
+
+```text
+FINDING_ID: IMA-MAJOR-002
+STATUS: OPEN
+LOCAL_REMEDIATION: NOT_AUTHORIZED
+DEPENDENCY_CLASS: REQUIRED_FOR_INTEGRATED_PROOF
+BLOCKS_TICKET_DONE: NO
+BLOCKS_INTEGRATED_PROOF: YES
+PRIMARY_ROUTE: IMPLEMENTATION_PLAN_REVALIDATION
+OPEN_INTEGRATED_FINDING_TRACEABILITY: COMPLETE
+```
+
+```text
+IMA_MAJOR_002_PRESERVED_AS_INTEGRATED_OPEN: YES
 ```
 
 ## 9. Root Cause Closure
 
-| Root cause | Removed | Radius checked | Known manifestations closed | Systemic test evidence | Structural boundary restored |
-|---|---|---|---|---|---|
-| `RC-001` | `YES` | `YES` | `YES` | `PRESENT` — negative create/resolve tests and source boundary guard | `YES` |
-| `RC-002` | `YES` | `YES` | `YES` | `PRESENT` — unsupplied revision, repository lookup, generator call-count, historical resolution, and lineage tests | `YES` |
+| Root cause | Removed | Radius checked | Known manifestations closed | Structural boundary |
+|---|---:|---:|---:|---:|
+| RC-001 | YES | YES | YES | YES |
+| RC-002 | YES | YES | YES | YES |
+| RC-003 | NO — integrated owner | YES | PRESERVED OPEN | NOT_APPLICABLE_LOCALLY |
+| RC-004 | YES, informational | YES | YES | NOT_APPLICABLE |
 
-Both root causes are systemic within the ticket’s identity authority radius and
-are closed without expanding into EXEC lifecycle, PLAT persistence, or other
-specification ownership.
+```text
+ALL_LOCAL_TICKET_BLOCKING_ROOT_CAUSES_CLOSED: YES
+OPEN_INTEGRATED_ROOT_CAUSE_PRESERVED: YES
+```
 
 ## 10. Design Conformance Reconciliation
 
-The remediation preserves the approved Implementation Design:
-
-| Design constraint | Reconciliation |
-|---|---|
-| Domain model | `CanonicalIdentity`, `IdentityScope`, `Revision`, immutable records, and `AdrSpecLineage` remain unchanged in responsibility. |
-| Aggregate boundaries | `CanonicalIdentityCatalog` remains the creation/uniqueness root; `AdrSpecLineage` remains one relation per root. No global graph or foreign aggregate is added. |
-| Invariant placement | Kind ownership and stable revision identity are enforced at the identity aggregate boundary; repository lookup remains persistence coordination, not semantic ownership. |
-| Application responsibility | Existing handlers remain thin coordinators. The branded EXEC reference is a type-only application boundary contract, with no runtime lifecycle behavior. |
-| SOLID / dependency direction | The repository and generator remain narrow ports; the generator contract is narrowed to its actual initial-creation responsibility. No ceremonial abstraction or infrastructure import was added. |
-| Persistence / lifecycle | Atomic reservation, immutable history, and PLAT physical persistence responsibilities remain as designed. No update, delete, migration, or recovery path was introduced. |
-| Cross-SPEC boundary | EXEC owns assignment/session identity and lifecycle. DOM exposes no competing authority and only models typed opaque correlation references. |
-| Testability / clean code | Tests prove negative authority paths and stable historical behavior; no generic service, utility bucket, or duplicated rule was introduced. |
+The approved design's responsibility decomposition remains intact. A minimal
+design clarification was made because the audited public creation/rehydration
+contract was proven insufficient: it did not require authority resolution for
+Stage creation or accepted history for lineage/provenance. This did not change
+ownership, aggregate boundaries, dependency direction, persistence ownership,
+or recovery model.
 
 ```text
+IMPLEMENTATION_DESIGN_CHANGED: YES — authority-contract clarification only
+DESIGN_CHANGE_JUSTIFIED_BY: IMA-CRITICAL-001 public contract insufficiency
 DOMAIN_MODEL_CONFORMANT: YES
 AGGREGATE_BOUNDARIES_CONFORMANT: YES
 INVARIANT_PLACEMENT_CONFORMANT: YES
@@ -254,90 +266,83 @@ SOLID_CONFORMANT: YES
 DEPENDENCY_DIRECTION_CONFORMANT: YES
 CLEAN_CODE_STRUCTURALLY_ACCEPTABLE: YES
 CROSS_SPEC_BOUNDARY_CONFORMANT: YES
+AGGREGATE_BOUNDARY_VIOLATIONS: 0
+DOMAIN_INVARIANT_BYPASSES: 0
+UNENFORCED_INVARIANTS: 0
+DOMAIN_RULE_DUPLICATION: 0
+ANEMIC_DOMAIN_MODEL_INTRODUCED: NO
+FAT_APPLICATION_SERVICE_INTRODUCED: NO
+GOD_COMPONENTS_INTRODUCED: 0
+UNJUSTIFIED_SOLID_VIOLATIONS: 0
+DEPENDENCY_DIRECTION_VIOLATIONS: 0
+INFRASTRUCTURE_LEAKAGE_POINTS: 0
 ```
 
 ## 11. Files Changed
 
-### Production
-
-- `src/domain/identity.ts` — removed foreign catalog kinds; added explicit revision-registration guard; narrowed generator input; preserved identity on later revisions.
-- `src/application/identity.ts` — added the branded, type-only `ExecOwnedIdentityReference` / `ExecOwnedIdentityKind` integration contract; no runtime writer or resolver.
-
-### Tests
-
-- `tests/dom-001-ticket-001.test.ts` — updated generator and revision fixtures; added negative EXEC authority, missing/unknown-reference, generator-independence, stable identity, exact historical resolution, and revision-qualified lineage proofs.
-
-### Evidence
-
-- `docs/tickets/SPEC-DOM-001/DOM-001-TICKET-001-implementation-remediation.md` — this active remediation artifact.
-
-The ticket, ADRs, specs, portfolio, Gap Matrix, Plan, audits, specialist
-artifacts, and `.history/` files were not modified. Prototype files were not
-modified.
-
 ```text
-CHANGED_PRODUCTION_FILES: 2
-CHANGED_TEST_FILES: 1
-CHANGED_EVIDENCE_FILES: 1
-UNRELATED_CHANGE: 0
+CHANGED_PRODUCTION_FILES: 4
+CHANGED_TEST_FILES: 2
+CHANGED_DESIGN_FILES: 1 — justified public-contract clarification
+CHANGED_EVIDENCE_FILES: 4
+CHANGED_TICKET_LOCAL_EVIDENCE_RECORDS: 1 — IMA-INFO-001 synchronization only
+CHANGED_REMEDIATION_ARTIFACTS: 1
+FOREIGN_PLAT_FILES_CHANGED: 0
+UPSTREAM_AUTHORITY_FILES_CHANGED: 0
+OTHER_TICKET_FILES_CHANGED: 0
 ```
+
+Production: `src/domain/identity.ts`, `src/domain/lineage.ts`,
+`src/domain/pipeline.ts`, `src/application/pipeline.ts`.
+
+Tests: `tests/dom-001-ticket-001.test.ts`,
+`tests/dom-001-ticket-004.test.ts`.
 
 ## 12. Gap / Requirement / Acceptance Impact
 
-| Item | Result | Evidence |
-|---|---|---|
-| `GAP-001` | Closed locally for the remediated identity authority obligations | DOM catalog excludes EXEC-owned kinds; stable identity is enforced across revisions. |
-| `GAP-005` | Preserved and revalidated | Existing lineage suite remains green; revision-qualified historical lineage is explicitly tested. |
-| `DOM-ID-001` | `SATISFIED` for this ticket’s local implementation boundary | Identity/scope/revision validation, stable logical identity, exact history, immutable records, and foreign-kind separation pass. |
-| `DOM-LINEAGE-001` | `SATISFIED` for this ticket’s local implementation boundary | Many-to-many and independent progress tests remain green; historical revision endpoints preserve logical identity. |
-| `AC-DOM-001` | `SATISFIED` | Identity creation/resolution, ownership boundary, stable revisions, and negative paths pass. |
-| `AC-DOM-005` | `SATISFIED` | Independent ADR↔SPEC relation behavior remains green and historical relation proof is added. |
-| `AC-DOM-052` | `CONTRIBUTOR_EVIDENCE_PRESENT` | This ticket contributes identity/lineage evidence; final proof ownership remains downstream as specified. |
-
 ```text
-ACCEPTANCE_CRITERIA_AFFECTED: AC-DOM-001, AC-DOM-005, AC-DOM-052
-ACCEPTANCE_CRITERIA_SATISFIED: 3
-ACCEPTANCE_CRITERIA_NOT_SATISFIED: 0
-ACCEPTANCE_CRITERIA_BLOCKED: 0
+GAPS_IN_SCOPE: GAP-001, GAP-006
+REQUIREMENTS_IN_SCOPE: DOM-ID-001, DOM-LINEAGE-001
+ACCEPTANCE_CRITERIA_AFFECTED: AC-DOM-001, AC-DOM-005
+ACCEPTANCE_CRITERIA_SATISFIED: 2/2 local
+ACCEPTANCE_CRITERIA_NOT_SATISFIED: 0 local
+ACCEPTANCE_CRITERIA_BLOCKED: 0 local
+INTEGRATED_CONTRIBUTION: AC-DOM-052 remains dependent on PLAT integrated proof
 ```
-
-No upstream authority, requirement, acceptance definition, or ticket scope was
-changed.
 
 ## 13. Tests
 
-### Executed proof
-
-| Check | Result |
-|---|---|
-| `prototype/node_modules/.bin/tsx.cmd --test tests/dom-001-ticket-001.test.ts` | 14 passed, 0 failed |
-| `npm test` in `prototype/` | 92 passed, 0 failed |
-| Strict production TypeScript check for the four productive modules | Passed |
-| `npm run lint` in `prototype/` | Passed |
-| `npm run build` in `prototype/` | Passed |
-| `node_modules/.bin/tsx.cmd fresh-adversarial-probe.ts` in `prototype/` | `FRESH_ADVERSARIAL_PROBE_PASS` |
-| Dedicated structural/architecture self-check | `STRUCTURAL_ARCHITECTURE_SELF_CHECK_PASS` |
-| `git diff --check` for affected implementation/test paths | Passed |
-
-The productive suite proves both negative authority paths and positive valid
-DOM kinds. The revision tests prove missing and unknown prior references fail
-closed, an accepted later revision reuses the original identity, the generator
-is not called for a later revision, both historical records resolve, and
-revision-qualified ADR↔SPEC lineage remains independent.
-
 ```text
-TESTS_RUN: 106 automated test cases
-TESTS_PASSED: 106
+TEST_RESULTS: AFFECTED_PRODUCTIVE_SUITE=41/41 PASS; PROTOTYPE_REGRESSION_SUITE=92/92 PASS
+TARGETED_T001: 26/26 PASS
+TARGETED_T004: 10/10 PASS
+AFFECTED_PRODUCTIVE_SUITE: 41/41 PASS
+PROTOTYPE_REGRESSION_SUITE: 92/92 PASS
+LINT_RESULT: PASS
+BUILD_RESULT: PASS
+TYPECHECK_RESULT: PASS
 TESTS_FAILED: 0
 TESTS_SKIPPED: 0
-ENVIRONMENTAL_FAILURES: 0
-STRUCTURAL_CHECKS: 4 passed
+ENVIRONMENTAL_FAILURES: 0 required suites
 ```
+
+Commands:
+
+- `npx --prefix prototype tsx --test tests/dom-001-ticket-001.test.ts tests/dom-001-ticket-004.test.ts`
+- `npx --prefix prototype tsx --test tests/dom-001-ticket-001.test.ts tests/dom-001-ticket-002.test.ts tests/dom-001-ticket-004.test.ts`
+- `npm --prefix prototype test`
+- `npm --prefix prototype run lint`
+- `npm --prefix prototype run build`
+- strict source `tsc --noEmit` over `src/domain` and `src/application`
+
+The first strict-typecheck attempt used an incorrect `--prefix` working path;
+the corrected root-pinned command passed and is the authoritative result.
 
 ## 14. Behavioral Regression Self-Check
 
 ```text
-REGRESSION_RESULT: NO_REMEDIATION_REGRESSION
+REGRESSION_HUNT: COMPLETE
+BEHAVIORAL_REGRESSION_RESULT: NO_REMEDIATION_REGRESSION
 ANEMIC_DOMAIN_REGRESSION: NO
 GOD_COMPONENT_REGRESSION: NO
 FAT_SERVICE_REGRESSION: NO
@@ -350,14 +355,13 @@ CROSS_SPEC_BOUNDARY_REGRESSION: NO
 KNOWN_BEHAVIORAL_REMEDIATION_REGRESSIONS: 0
 ```
 
-Valid DOM creation, scoped uniqueness, immutability, exact lookup, lineage
-registration, independent progress, asynchronous one-winner reservation, and
-prototype behavior remain green. No legacy writer, downstream projection, or
-foreign lifecycle behavior was touched.
-
 ## 15. Structural Regression Self-Check
 
 ```text
+STRUCTURAL_SELF_CHECK: PASS
+KNOWN_STRUCTURAL_REMEDIATION_REGRESSIONS: 0
+UNJUSTIFIED_COMPONENT_COLLAPSES: 0
+MISSING_REQUIRED_COMPONENTS: 0
 AGGREGATE_BOUNDARY_VIOLATIONS: 0
 DOMAIN_INVARIANT_BYPASSES: 0
 UNENFORCED_INVARIANTS: 0
@@ -365,106 +369,109 @@ DOMAIN_RULE_DUPLICATION: 0
 ANEMIC_DOMAIN_MODEL_INTRODUCED: NO
 FAT_APPLICATION_SERVICE_INTRODUCED: NO
 GOD_COMPONENTS_INTRODUCED: 0
-UNJUSTIFIED_COMPONENT_COLLAPSES: 0
-MISSING_REQUIRED_COMPONENTS: 0
 UNJUSTIFIED_SOLID_VIOLATIONS: 0
 DEPENDENCY_DIRECTION_VIOLATIONS: 0
 INFRASTRUCTURE_LEAKAGE_POINTS: 0
-KNOWN_STRUCTURAL_REMEDIATION_REGRESSIONS: 0
-STRUCTURAL_REMEDIATION_REGRESSIONS: 0
 ```
-
-The architecture guard confirms no infrastructure/foreign lifecycle imports,
-no foreign runtime catalog kinds, and the presence of the opaque EXEC
-application boundary. Self-check evidence is not treated as independent
-final conformance.
 
 ## 16. Ownership / Authority
 
 ```text
-OWNERSHIP_ERRORS: 0
+AUTHORITY_RESOLUTION_PATH:
+  WorkflowPipeline.create -> DOM identity authority.resolveForRehydration -> exact STAGE reference
+  WorkflowPipeline.rehydrate -> DOM identity authority -> accepted provenance authority -> exact chain comparison
+  AdrSpecLineage.rehydrate -> DOM identity authority -> accepted lineage authority -> exact endpoint/progress comparison
+  CanonicalIdentityCatalog.create -> repository.find(expected predecessor) -> exact reference match -> reserve
+PROVENANCE_VALIDATION_PATH: accepted authority chain is shape/continuity validated and compared entry-by-entry before materialization
+LINEAGE_PROGRESS_VALIDATION_PATH: accepted relation is resolved by exact endpoint pair and progress must equal supplied material
+PREDECESSOR_EXACT_MATCH_VALIDATION: YES
+NO_MUTATION_ON_FAILURE_PROOF: YES
+NORMATIVE_OWNERSHIP_CHANGED: NO
 FOREIGN_CAPABILITY_DUPLICATION: 0
+OWNERSHIP_ERRORS: 0
 NEW_ALTERNATE_AUTHORITY: 0
-LEGACY_DUAL_WRITER: 0
-IDENTITY_DRIFT: 0
-HISTORY_REWRITE: 0
+PRODUCTIVE_AVAILABILITY_PROMOTED: NO
 ```
-
-DOM remains canonical owner for its identity catalog and ADR↔SPEC lineage.
-EXEC remains canonical owner for assignment/session identity and lifecycle.
-The new `ExecOwnedIdentityReference` is branded and type-only; it has no
-constructor, reservation method, resolver, persistence path, or lifecycle
-behavior. PLAT persistence and recovery remain outside the ticket.
 
 ## 17. Completion Evidence
 
-The implementation and tests provide current local evidence for the two
-blocking findings and the affected acceptance criteria. The active ticket
-status remains `VALIDATION_REQUIRED`; independent re-audit is still required.
-
 ```text
-PRODUCTION_CODE_EVIDENCE: PRESENT
-AUTOMATED_TEST_EVIDENCE: PRESENT
-NEGATIVE_ARCHITECTURE_EVIDENCE: PRESENT
-STABLE_REVISION_LINEAGE_EVIDENCE: PRESENT
-PERSISTENCE_SCHEMA_EVIDENCE: NOT_APPLICABLE — PLAT-owned physical mechanics
-FOREIGN_INTEGRATION_EVIDENCE: NOT_APPLICABLE — no foreign runtime consumer required locally
-LEGACY_TRANSITION_EVIDENCE: PRESENT — prototype unchanged and not imported
-CONFORMANCE_EVIDENCE: PRESENT
+DIRECT_NEGATIVE_WITNESSES_ADDED: 5
+FABRICATED_ATTACHED_LINEAGE_PROGRESS: PASS
+FABRICATED_SHAPE_VALID_PIPELINE_PROVENANCE_WITHOUT_AUTHORITY: PASS
+CORRUPT_MISMATCHED_PREDECESSOR_RESPONSE: PASS
+UNREGISTERED_STAGE_CREATION: PASS
+NO_MUTATION_AFTER_REJECTION: PASS
+EFFECTIVE_PROVENANCE_AUTHORITY_GUARD: PASS
+DOWNSTREAM_PROMOTION_WITHOUT_NEW_EVIDENCE: 0
 COMPLETION_EVIDENCE_MISSING: 0
 ```
 
 ## 18. Remaining Blockers
 
 ```text
-REMEDIATION_BLOCKERS: NONE
-UPSTREAM_AUTHORITY_ACTION_REQUIRED: NO
-IMPLEMENTATION_DESIGN_REVALIDATION_REQUIRED: NO
-IMPLEMENTATION_REAUDIT_REQUIRED_FOR_LOCAL_GATES: NO
+INTEGRATED_ONLY_FINDING_TRACEABILITY: COMPLETE
+LOCAL_TICKET_DONE_BLOCKERS: 0
+IMA-MAJOR-002: OPEN
+IMA-MAJOR-002_BLOCKS_TICKET_DONE: NO
+IMA-MAJOR-002_BLOCKS_INTEGRATED_PROOF: YES
+IMA-MAJOR-002_PRIMARY_ROUTE: IMPLEMENTATION_PLAN_REVALIDATION
+IMA-MAJOR-002_DOWNSTREAM_OWNER: SPEC-PLAT-001 producer and integrated plan owner
+IMA-MAJOR-002_TRACEABILITY: COMPLETE
 ```
 
-The mandatory next workflow is an independent re-audit, not a claim of final
-conformance or a status transition to `DONE`.
+No local change resolves, reclassifies, or promotes the integrated PLAT
+capability.
 
 ## 19. Pre-Reaudit Self-Check
 
 ```text
-ALL_BLOCKING_FINDINGS_CLOSED: YES
-ALL_ROOT_CAUSES_CLOSED: YES
+LOCAL_CLOSURE_SELF_CHECK: PASS
+ALL_LOCAL_TICKET_BLOCKING_FINDINGS_CLOSED: YES
+ALL_LOCAL_ROOT_CAUSES_CLOSED: YES
 AFFECTED_RADIUS_CHECKED: YES
 REQUIRED_TESTS_PASS: YES
 AFFECTED_ACCEPTANCE_CRITERIA_PASS: YES
 NO_KNOWN_MATERIAL_BEHAVIOR_REGRESSION: YES
 BEHAVIORAL_SELF_CHECK: PASS
 STRUCTURAL_SELF_CHECK: PASS
-OWNERSHIP_ERRORS: 0
-FOREIGN_CAPABILITY_DUPLICATION: 0
-UNRELATED_CHANGE: 0
 STATUS: VALIDATION_REQUIRED
 ```
 
 ## 20. Remediation Gate
 
 ```text
-AUDIT_ROUND: RE_AUDIT
-CANONICAL_FINDINGS_RECEIVED: 2
+IMPLEMENTATION_REMEDIATION_COMPLETE
+READY_FOR_INDEPENDENT_IMPLEMENTATION_REAUDIT
+TICKET_IMPLEMENTATION_REMEDIATION_COMPLETE
+TICKET_GATE: READY_FOR_REAUDIT
+FINAL_STATUS: VALIDATION_REQUIRED
+NEXT_ACTION: audit-implemented-ticket
+DO_NOT_MARK_DONE: YES
+```
+
+### Remediation Metrics
+
+```text
+AUDIT_ROUND: RE_AUDIT / 4
+CANONICAL_FINDINGS_RECEIVED: 4
 BLOCKING_FINDINGS_RECEIVED: 2
 FINDINGS_REMEDIATED: 2
 FINDINGS_ALREADY_RESOLVED: 0
 FINDINGS_REJECTED_BY_NEW_EVIDENCE: 0
 FINDINGS_PARTIALLY_REMEDIATED: 0
-FINDINGS_BLOCKED: 0
-ROOT_CAUSES_IDENTIFIED: 2
-ROOT_CAUSES_CLOSED: 2
+FINDINGS_BLOCKED: 0 local; 1 integrated-only preserved
+ROOT_CAUSES_IDENTIFIED: 4
+ROOT_CAUSES_CLOSED_LOCAL: 3
 SYSTEMIC_ROOT_CAUSES: 2
 REMEDIATION_UNITS: 2
-ADDITIONAL_SAME_ROOT_MANIFESTATIONS_FIXED: 0
-CHANGED_PRODUCTION_FILES: 2
-CHANGED_TEST_FILES: 1
-TESTS_RUN: 106
-TESTS_PASSED: 106
+ADDITIONAL_SAME_ROOT_MANIFESTATIONS_FIXED: 4
+CHANGED_PRODUCTION_FILES: 4
+CHANGED_TEST_FILES: 2
+TESTS_RUN: 133 final executable cases (41 affected + 92 prototype)
+TESTS_PASSED: 133
 TESTS_FAILED: 0
-STRUCTURAL_FINDINGS_REMEDIATED: 2
+STRUCTURAL_FINDINGS_REMEDIATED: 1
 AGGREGATE_BOUNDARY_VIOLATIONS: 0
 DOMAIN_INVARIANT_BYPASSES: 0
 UNENFORCED_INVARIANTS: 0
@@ -481,13 +488,3 @@ OWNERSHIP_ERRORS: 0
 FOREIGN_CAPABILITY_DUPLICATION: 0
 COMPLETION_EVIDENCE_MISSING: 0
 ```
-
-```text
-TICKET_IMPLEMENTATION_REMEDIATION_COMPLETE
-TICKET_GATE: READY_FOR_REAUDIT
-```
-
-The required next action is `audit-implemented-ticket`, which must rerun the
-complete applicable specialist profile, including ticket conformance,
-implementation behavior, implementation-design conformance, and architecture
-boundaries.

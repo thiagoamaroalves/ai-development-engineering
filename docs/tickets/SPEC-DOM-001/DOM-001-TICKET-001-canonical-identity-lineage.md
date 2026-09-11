@@ -2,18 +2,18 @@
 
 ## 1. Status
 
-`STATUS: VALIDATION_REQUIRED`
+`STATUS: COMPLETED`
 `ISSUE_DECOMPOSITION_READINESS: ISSUE_READY`  
 `INITIAL_DAG_STATE: READY`  
 `BLOCKED_BY: NONE`  
 `DEPENDS_ON: NONE`  
-`UNBLOCKS: DOM-001-TICKET-002, DOM-001-TICKET-003, DOM-001-TICKET-004, DOM-001-TICKET-005, DOM-001-TICKET-008, DOM-001-TICKET-011, DOM-001-TICKET-012`
+`UNBLOCKS: DOM-001-TICKET-002, DOM-001-TICKET-004`
 
 `IMPLEMENTATION_DESIGN: docs/tickets/SPEC-DOM-001/DOM-001-TICKET-001-implementation-design.md`
 `IMPLEMENTATION_DESIGN_VERDICT: IMPLEMENTATION_DESIGN_READY`
 `IMPLEMENTATION_DESIGN_GATE: READY_FOR_IMPLEMENTATION`
-`IMPLEMENTATION_BASELINE: baa2a189bd71b85ba9fcc62840e52f091fc2e77e`
-`IMPLEMENTATION_HEAD: baa2a189bd71b85ba9fcc62840e52f091fc2e77e (uncommitted working-tree snapshot)`
+`IMPLEMENTATION_BASELINE: cbd5fb94a5eb27f059944e19bc479b3f7587de27`
+`IMPLEMENTATION_HEAD: cbd5fb94a5eb27f059944e19bc479b3f7587de27 (audited target HEAD plus current working-tree snapshot)`
 
 ## 2. Source Traceability
 
@@ -174,7 +174,7 @@ Canonical identity/lineage commands and ports, no parallel authority path, direc
 
 ```text
 INITIAL_STATUS: READY
-FINAL_STATUS: VALIDATION_REQUIRED
+FINAL_STATUS: COMPLETED
 AC-DOM-001: SATISFIED
 AC-DOM-005: SATISFIED
 AC-DOM-052: CONTRIBUTOR_EVIDENCE_PRESENT; FINAL_PROOF_OWNER = TICKET-012
@@ -185,11 +185,13 @@ Evidence status:
 - `production_code: PRESENT` — `src/domain/identity.ts` adds the canonical
   `STAGE` reference boundary and validated identity-record rehydration.
 - `automated_tests: PRESENT` — `tests/dom-001-ticket-001.test.ts` directly
-  covers Stage identity shape, `PipelineId`-shaped input rejection, identity
-  rehydration, immutable state, identity/lineage uniqueness, isolation,
+  covers Stage identity shape, `PipelineId`-shaped input rejection, exact
+  predecessor matching, identity/lineage rehydration, fabricated progress
+  rejection, immutable state, identity/lineage uniqueness, isolation,
   concurrency, stale progress, and recovery. The affected pipeline contract
-  tests also verify that `WorkflowPipeline`, repository lookup, and application
-  commands use only the canonical Stage reference.
+  tests also verify authority-required Stage creation, rejected unregistered
+  Stage material, accepted provenance comparison, and resolve-before-consumer
+  access.
 - `persistence_schema: NOT_APPLICABLE` — physical persistence remains
   PLAT-owned; existing repository ports and deterministic fixtures preserve the
   contract.
@@ -199,12 +201,12 @@ Evidence status:
   PipelineId-shaped identity commands, and the productive WorkflowPipeline
   seam no longer exposes PipelineId as an identity or lookup authority; the
   prototype remains untouched.
-- `conformance_evidence: PRESENT` — 31 relevant productive tests, 92 prototype
+- `conformance_evidence: PRESENT` — 41 relevant productive tests, 92 prototype
   regression tests, prototype lint, and prototype build passed.
 
 ```text
-TESTS_RUN: 123
-TESTS_PASSED: 123
+TESTS_RUN: 133
+TESTS_PASSED: 133
 TESTS_FAILED: 0
 TESTS_SKIPPED: 0
 ENVIRONMENTAL_FAILURES: 0
@@ -242,7 +244,7 @@ Identity collapse with assignment/session or presentation IDs. Mitigation: expli
 
 ## 24. Parallelization
 
-`SERIAL_REQUIRED`. `UNBLOCKS: DOM-001-TICKET-002, DOM-001-TICKET-003, DOM-001-TICKET-004, DOM-001-TICKET-005, DOM-001-TICKET-008, DOM-001-TICKET-011, DOM-001-TICKET-012`.
+`SERIAL_REQUIRED`. `UNBLOCKS: DOM-001-TICKET-002, DOM-001-TICKET-004`.
 
 ## 25. Handoff After Completion
 
@@ -251,3 +253,58 @@ Independent ticket audit may validate this ticket. Completion unblocks its liste
 ## 26. Ticket Local Closure
 
 `TICKET_LOCAL_CLOSURE = YES`. Local acceptance, tests, and completion evidence are executable without future downstream behavior.
+
+## 27. Local Finalization
+
+```text
+FINALIZATION_VERDICT: TICKET_FINALIZED_LOCALLY
+FINALIZATION_AUTHORITY: docs/tickets/SPEC-DOM-001/DOM-001-TICKET-001-implementation-audit.md
+AUDIT_ROUND: RE_AUDIT
+AUDIT_ROUND_NUMBER: 5
+AUDIT_BASIS_FINGERPRINT: 16997CFA45EAEA250696BCF0C601070FA28FA3CC3CA0D96FADBB3AB31135A726
+LOCAL_TICKET_DONE_ALLOWED: YES
+TICKET_GATE: READY_FOR_DONE
+LOCAL_TICKET_DONE_BLOCKERS: 0
+LOCAL_CLOSURE_PERSISTED: YES
+FINAL_TICKET_STATUS: COMPLETED
+OPEN_INTEGRATED_FINDINGS: 1
+OPEN_INTEGRATED_FINDING_STATE: IMA-MAJOR-002 = OPEN_INTEGRATED_ONLY
+INTEGRATED_HANDOFFS_COMPLETE: YES
+INTEGRATED_ONLY_AVAILABILITY_BLOCKING_LOCAL_DONE: 0
+LOCAL_CLOSURE_FINDINGS_NOT_BLOCKING_DONE: 0
+FINDING_SEVERITY_USED_AS_SOLE_COMPLETION_GATE: 0
+OPEN_INTEGRATED_FINDING_LOST_FROM_TRACEABILITY: 0
+SPECIALIST_CANNOT_SILENTLY_PROMOTE_INTEGRATED_DEPENDENCY_TO_LOCAL_BLOCKER: TRUE
+CONSOLIDATOR_CANNOT_DERIVE_LOCAL_BLOCKING_FROM_SEVERITY_ALONE: TRUE
+LOCAL_DONE_GATE_USES_LOCAL_CLOSURE_SCOPE: TRUE
+INTEGRATED_PROOF_GATE_USES_INTEGRATED_DEPENDENCY_SCOPE: TRUE
+DAG_EDGES_RELEASED: 7
+DEPENDENCY_SATISFIED_FOR: DOM-001-TICKET-002, DOM-001-TICKET-003, DOM-001-TICKET-004, DOM-001-TICKET-005, DOM-001-TICKET-008, DOM-001-TICKET-011, DOM-001-TICKET-012
+TICKETS_NEWLY_UNBLOCKED: DOM-001-TICKET-002, DOM-001-TICKET-004
+DOWNSTREAM_CHECKPOINTS_PRESERVED: YES
+SPEC_FINAL_CONFORMANCE_STATE: NOT_FINAL_CONFORMANT_YET
+PLAT_IMPLEMENTED: NO
+PRODUCTIVE_AVAILABILITY_PROMOTED: NO
+INTEGRATED_PROOF_AUTO_APPROVED: NO
+SPEC_FINALIZED: NO
+```
+
+`IMA-MAJOR-002` remains `OPEN` with `DEPENDENCY_CLASS = REQUIRED_FOR_INTEGRATED_PROOF`,
+`BLOCKS_TICKET_DONE = NO`, `BLOCKS_INTEGRATED_PROOF = YES`,
+`BLOCKS_SPEC_FINAL_CONFORMANCE = YES`, `PRIMARY_ROUTE = IMPLEMENTATION_PLAN_REVALIDATION`,
+and `OPEN_INTEGRATED_FINDING_TRACEABILITY = COMPLETE`. Its downstream checkpoint
+and PLAT ownership are unchanged. The finding is not resolved, and no productive
+availability is promoted by this local finalization.
+
+The resolved findings `IMA-CRITICAL-001`, `IMA-MAJOR-004`, and the prior local
+design/authority witnesses remain preserved through the canonical audit's finding
+reconciliation and lineage; no finding is deleted or reclassified as integrated-only
+to obtain local completion.
+
+Finalization releases only TICKET-001's satisfied blocker edges. TICKET-002 and
+TICKET-004 become newly unblocked; TICKET-003, TICKET-005, TICKET-008,
+TICKET-011, and TICKET-012 retain their independent remaining blockers.
+
+The completed dependency remains in `DEPENDS_ON` for TICKET-003, TICKET-005,
+TICKET-008, TICKET-011, and TICKET-012; their TICKET-001 blocker projections
+are released but their remaining blockers are not.
