@@ -1,0 +1,242 @@
+# DOM-001-TICKET-004 — Canonical implementation audit (re-audit)
+
+## Audit subject and baseline
+
+```text
+AUDIT_ROUND: RE_AUDIT
+TICKET_ID: DOM-001-TICKET-004
+TICKET_PATH: docs/tickets/SPEC-DOM-001/DOM-001-TICKET-004-pipeline-state-machines.md
+TICKET_STATUS: VALIDATION_REQUIRED
+IMPLEMENTATION_UNIT: DOM-IMP-04
+IMPLEMENTATION_BASELINE: 646f5c67ffe0cdd9e0abeb9df0489ecb4f4a3b24
+CURRENT_HEAD: 646f5c67ffe0cdd9e0abeb9df0489ecb4f4a3b24
+AUDIT_TARGET_HEAD: 646f5c67ffe0cdd9e0abeb9df0489ecb4f4a3b24 + semantic worktree state
+IMPLEMENTATION_DESIGN: docs/tickets/SPEC-DOM-001/DOM-001-TICKET-004-implementation-design.md
+PREVIOUS_CANONICAL_AUDIT: .history/tickets/SPEC-DOM-001-2026-09-09/DOM-001-TICKET-004-implementation-audit.md
+AUDIT_BASIS_FINGERPRINT:
+  src/domain/pipeline.ts=E02D4765A9FE4B38C6DF873220FC2F1DEA34FC0F2ED10C9B5A9639D3D6EB605F
+  src/application/pipeline.ts=9B31182CB338C5B7E1904792E7748E84E5779F80D3CE05EE54F5B35AA5951E47
+  tests/dom-001-ticket-004.test.ts=645DAC93DF4DB4912B3BCF09137F13FFA771A1B634C90CB9DCB3A822E2AE0E38
+  ticket=C3748D74394525DF9DA57426897DA8623029569A6359761DAC5C42356E00CCCE
+  design=DBEFC66E32DCBE78559142892AB092A36CC1842E113831BCC0EBF29F79F32628
+BASELINE_DRIFT_STATUS: DRIFT_ASSESSED
+REASSESSMENT_COMPLETE: YES
+FINDINGS_ARE_ACTIONABLE: YES
+BASELINE_REMEDIATION_READINESS: READY
+AUDIT_BASIS_STALE: NO
+```
+
+## Baseline reassessment proof
+
+```text
+OLD_REPOSITORY_BASELINE: a58ce959f9b34f3c1c83ed41c01b058d31bf3366
+CURRENT_REPOSITORY_BASELINE: 646f5c67ffe0cdd9e0abeb9df0489ecb4f4a3b24 + fingerprint above
+OLD_AUTHORITY_BASELINE: ADR-0002 rev3 / SPEC-DOM-001 rev4 / Plan audit conformant
+CURRENT_AUTHORITY_BASELINE: same revisions and digests
+AUTHORITY_DRIFT_CLASSIFICATION: NO_RELEVANT_DRIFT
+REPOSITORY_DRIFT_CLASSIFICATION: DRIFT_ASSESSED; historical implementation fixes are present
+REQUIREMENTS_PRESERVED: YES
+REQUIREMENTS_ADDED: NONE
+REQUIREMENTS_REMOVED: NONE
+GAPS_PRESERVED: YES
+GAPS_RECLASSIFIED: NONE
+GAPS_OBSOLETE: NONE
+GAPS_NEWLY_REQUIRED: NONE
+DEPENDENCY_RECORDS_PRESERVED: YES
+DEPENDENCY_RECORDS_ADDED: NONE
+DEPENDENCY_RECORDS_RECLASSIFIED: NONE
+EVIDENCE_STALE: prior PASS artifacts and pre-implementation ticket-set snapshot
+EVIDENCE_CURRENT: direct current test execution and current source fingerprint
+REMEDIATION_SCOPE: none; audit only
+REVALIDATION_CRITERIA: direct witness completeness, exact evidence paths, and specialist target agreement
+REASSESSMENT_COMPLETE: YES
+```
+
+The current ticket-set audit remains conformant as the pre-implementation
+readiness audit, but its inventory snapshot records T004 as `READY`; that is
+historical state and was not treated as current implementation evidence. The
+current ticket and index record `VALIDATION_REQUIRED`.
+
+## Audit profile and specialist completion
+
+```text
+AUDIT_PROFILE:
+  TICKET_CONFORMANCE: REQUIRED
+  IMPLEMENTATION_BEHAVIOR: REQUIRED
+  IMPLEMENTATION_DESIGN_CONFORMANCE: REQUIRED
+  ARCHITECTURE_BOUNDARIES: REQUIRED
+ARCHITECTURE_PROFILE_REASON: T004 owns canonical identity consumption,
+provenance reconstruction, immutable lineage, state derivation, cross-SPEC
+PLAT consumption, and persistence/CAS boundaries.
+
+SPECIALISTS_REQUIRED: 4
+SPECIALISTS_COMPLETED: 4
+SPECIALISTS_PASS: 1
+SPECIALISTS_FINDINGS: 3
+SPECIALISTS_BLOCKED: 0
+SPECIALISTS_OPERATIONAL_FAILURES: 0
+SPECIALISTS_RETRIED: 0
+ALL_REQUIRED_SPECIALISTS_RETURNED: YES
+ALL_REQUIRED_ARTIFACTS_EXIST: YES
+ALL_REQUIRED_SPECIALISTS_TARGET_SAME_HEAD: YES
+TARGET_MISMATCHES: 0
+CONFORMANCE_DOMAIN_COMPLETE: YES
+BEHAVIOR_DOMAIN_COMPLETE: YES
+DESIGN_DOMAIN_COMPLETE: YES
+ARCHITECTURE_DOMAIN_COMPLETE: YES
+```
+
+Specialist artifacts:
+
+- `DOM-001-TICKET-004-ticket-conformance-audit.md`
+- `DOM-001-TICKET-004-implementation-behavior-audit.md`
+- `DOM-001-TICKET-004-implementation-design-conformance-audit.md`
+- `DOM-001-TICKET-004-architecture-boundaries-audit.md`
+
+## Independent execution evidence
+
+```text
+FOCUSED_T004: 11 passed, 0 failed
+T001_T002_REGRESSION: 31 passed, 0 failed
+STRICT_DOMAIN_APPLICATION_TYPECHECK: PASS
+PRODUCTION_OR_TEST_CHANGES_DURING_AUDIT: NONE
+```
+
+The current source resolves the historical identity, public-derived-state,
+scalar-rehydration, and missing-input exception defects found in the preserved
+initial audit. The re-audit does not incorrectly carry those resolved findings
+forward. It does, however, detect incomplete direct acceptance evidence and a
+missing explicit evidence path.
+
+## Canonical finding consolidation
+
+### IMA-MAJOR-003 — Required acceptance witness matrix is incomplete
+
+| Field | Value |
+|---|---|
+| FINDING_STATUS | OPEN |
+| FINDING_CATEGORY | MISSING_REQUIRED_ACCEPTANCE_EVIDENCE |
+| CAPABILITY | local T004 provenance/state-machine behavior |
+| SOURCE_FINDINGS | CONF-MAJOR-001, BEH-MAJOR-001, IDC-MAJOR-001 |
+| DEPENDENCY_CLASS | REQUIRED_FOR_LOCAL_CLOSURE |
+| LOCAL_CLOSURE_BLOCKING | YES |
+| LOCAL_ACCEPTANCE_REQUIRES_PRODUCTIVE_CAPABILITY | NO |
+| DEPENDENCY_CLASS_RECLASSIFICATION_REQUIRED | NO |
+| UPSTREAM_DEPENDENCY_CLASSIFICATION_PRESERVED | YES |
+| BLOCKS_LOCAL_EXECUTION | NO |
+| BLOCKS_LOCAL_CLOSURE | YES |
+| BLOCKS_TICKET_DONE | YES |
+| BLOCKS_INTEGRATED_PROOF | NO |
+| BLOCKS_SPEC_FINAL_CONFORMANCE | YES |
+| PRIMARY_ROUTE | IMPLEMENTATION_REMEDIATION |
+| DOWNSTREAM_CHECKPOINT | TICKET-004 local closure |
+| DOWNSTREAM_OWNER | TICKET-004 |
+
+The code has relevant validation branches, but direct executable witnesses are
+absent for duplicate and reordered provenance, detached identity, supplied
+provenance divergence from the accepted authority, and independent-machine
+concurrency/restart separation. A green suite cannot be used as proof of these
+unexecuted behaviors.
+
+### IMA-MINOR-002 — Canonical evidence reference points to a missing file
+
+| Field | Value |
+|---|---|
+| FINDING_STATUS | OPEN |
+| FINDING_CATEGORY | COMPLETION_EVIDENCE_TRACEABILITY |
+| CAPABILITY | AC-DOM-009 provenance evidence |
+| SOURCE_FINDINGS | CONF-MINOR-001, IDC-MINOR-001 |
+| DEPENDENCY_CLASS | REQUIRED_FOR_LOCAL_CLOSURE |
+| LOCAL_CLOSURE_BLOCKING | YES |
+| LOCAL_ACCEPTANCE_REQUIRES_PRODUCTIVE_CAPABILITY | NO |
+| DEPENDENCY_CLASS_RECLASSIFICATION_REQUIRED | NO |
+| UPSTREAM_DEPENDENCY_CLASSIFICATION_PRESERVED | YES |
+| BLOCKS_LOCAL_EXECUTION | NO |
+| BLOCKS_LOCAL_CLOSURE | YES |
+| BLOCKS_TICKET_DONE | YES |
+| BLOCKS_INTEGRATED_PROOF | NO |
+| BLOCKS_SPEC_FINAL_CONFORMANCE | YES |
+| PRIMARY_ROUTE | TICKET_LOCAL_DOCUMENTATION_REMEDIATION |
+| DOWNSTREAM_CHECKPOINT | TICKET-004 completion evidence |
+| DOWNSTREAM_OWNER | TICKET-004 |
+
+The ticket explicitly references `AC-DOM-009-provenance.md`, but that exact
+artifact is absent. `AC-DOM-009-rehydration.md` exists and is not silently
+substituted for the missing declared path.
+
+### IMA-INFO-001 — Exact replay lacks a direct executable witness
+
+This historical finding remains open: stale/CAS behavior is tested, but the
+exact same command is not replayed with a direct no-second-effect assertion.
+
+| Field | Value |
+|---|---|
+| FINDING_STATUS | OPEN |
+| FINDING_CATEGORY | EVIDENCE_GAP |
+| CAPABILITY | T004 exact replay/idempotency boundary |
+| SOURCE_FINDINGS | BEH-INFO-001; historical IMA-INFO-001 |
+| DEPENDENCY_CLASS | INFORMATIONAL |
+| LOCAL_CLOSURE_BLOCKING | NO |
+| LOCAL_ACCEPTANCE_REQUIRES_PRODUCTIVE_CAPABILITY | NO |
+| DEPENDENCY_CLASS_RECLASSIFICATION_REQUIRED | NO |
+| UPSTREAM_DEPENDENCY_CLASSIFICATION_PRESERVED | YES |
+| BLOCKS_LOCAL_EXECUTION | NO |
+| BLOCKS_LOCAL_CLOSURE | NO |
+| BLOCKS_TICKET_DONE | NO |
+| BLOCKS_INTEGRATED_PROOF | NO |
+| BLOCKS_SPEC_FINAL_CONFORMANCE | NO |
+| PRIMARY_ROUTE | IMPLEMENTATION_REMEDIATION |
+| DOWNSTREAM_CHECKPOINT | TICKET-004 evidence quality |
+| DOWNSTREAM_OWNER | TICKET-004 |
+
+## Finding lineage and metrics
+
+```text
+PREVIOUS_CANONICAL_FINDINGS_TOTAL: 5 historical findings
+PREVIOUS_FINDINGS_RESOLVED: 4 (alternate identity, public derived construction,
+  scalar rehydration, native missing-input error)
+PREVIOUS_FINDINGS_STILL_PRESENT: 1 (exact replay evidence gap)
+PREVIOUS_FINDINGS_REGRESSED: 0
+NEW_PREEXISTING_FINDINGS: 2 (acceptance matrix coverage and explicit evidence path)
+NEW_REMEDIATION_INTRODUCED_FINDINGS: 0
+NEWLY_APPLICABLE_FINDINGS: 2
+AUDIT_ESCAPE_COUNT: 0
+
+CONFORMANCE_SOURCE_FINDINGS: 2
+BEHAVIOR_SOURCE_FINDINGS: 2
+DESIGN_SOURCE_FINDINGS: 2
+ARCHITECTURE_SOURCE_FINDINGS: 0
+SOURCE_FINDINGS_TOTAL: 6
+CANONICAL_FINDINGS_TOTAL: 3
+CRITICAL_FINDINGS: 0
+MAJOR_FINDINGS: 1
+MINOR_FINDINGS: 1
+INFO_FINDINGS: 1
+
+REQUIRED_BEHAVIORS_TOTAL: 13
+DIRECT_BEHAVIOR_WITNESSES: 8
+PROXY_ONLY_BEHAVIORS: 0
+UNTESTED_STATE_TRANSITIONS: 5
+UNPROVEN_CONCURRENCY_CONTRACTS: 1
+MISSING_ARCHITECTURE_GUARDS: 0
+DESIGN_FINDINGS_PREVIOUS: 2
+DESIGN_FINDINGS_RESOLVED: 2 historical structural defects
+DESIGN_FINDINGS_STILL_PRESENT: 2 evidence/design-gate findings
+STRUCTURAL_REGRESSIONS: 0
+DESIGN_DEVIATION_ESCAPES: 0
+```
+
+## Canonical result
+
+```text
+VERDICT: TICKET_IMPLEMENTATION_REMEDIATION_REQUIRED
+TICKET_GATE: NOT_READY_FOR_DONE
+NEXT_ACTION: REMEDIATE_CANONICAL_FINDINGS
+LOCAL_TICKET_DONE_ALLOWED: NO
+INTEGRATED_FOLLOWUP_REQUIRED: YES for PLAT productive replay/durability
+DONE_TRANSITION_PERFORMED: NO
+IMPLEMENTATION_OR_TEST_REMEDIATION_PERFORMED: NO
+```
+
+This audit only reports the canonical findings. It does not remediate them,
+change the ticket state, or execute finalization.
