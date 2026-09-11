@@ -43,6 +43,7 @@ class InMemoryPipelineRepository implements PipelineRepository {
 
   async advance(proposed: WorkflowPipeline, expectedRevision: PipelineRevision): Promise<PipelineAdvanceReservation> {
     this.advanceCalls += 1
+    await new Promise<void>((resolve) => setImmediate(resolve))
     const current = this.pipelines.get(proposed.identity.canonicalKey)
     if (!current) return { status: 'NOT_FOUND' }
     if (!current.revision.equals(expectedRevision)) return { status: 'STALE', existing: current }
@@ -397,4 +398,24 @@ test('query handler is read-only and missing state fails closed', () => {
     (error: unknown) => error instanceof PipelineDomainError && error.code === 'PIPELINE_NOT_FOUND',
   )
   assert.equal(repository.find(pipelineIdentity().reference)?.stage.value, 'ACCEPTED_ADRS')
+})
+
+test('concurrent advances on one pipeline have one winner and preserve the accepted chain', async () => {
+  const repository = new InMemoryPipelineRepository()
+  repository.seed(createPipeline())
+  const handler = new AdvancePipelineHandler(repository, identityAuthorityFor(pipelineIdentity()))
+
+  const outcomes = await Promise.allSettled([
+    handler.handle({ identity: pipelineIdentity(), target: 'SPECS', expectedRevision: 0 }),
+    handler.handle({ identity: pipelineIdentity(), target: 'SPECS', expectedRevision: 0 }),
+  ])
+
+  assert.equal(outcomes.filter((outcome) => outcome.status === 'fulfilled').length, 1)
+  assert.equal(outcomes.filter((outcome) => outcome.status === 'rejected').length, 1)
+  const rejected = outcomes.find((outcome) => outcome.status === 'rejected')
+  assert.ok(rejected && rejected.reason instanceof PipelineDomainError)
+  assert.equal((rejected as PromiseRejectedResult).reason.code, 'PIPELINE_STALE')
+  assert.equal(repository.advanceCalls, 2)
+  assert.equal(repository.find(pipelineIdentity().reference)?.stage.value, 'SPECS')
+  assert.equal(repository.find(pipelineIdentity().reference)?.revision.value, 1)
 })
