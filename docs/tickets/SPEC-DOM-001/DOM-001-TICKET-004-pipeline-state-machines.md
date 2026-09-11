@@ -2,7 +2,7 @@
 
 ## 1. Status
 
-`STATUS: READY`
+`STATUS: VALIDATION_REQUIRED`
 `ISSUE_DECOMPOSITION_READINESS: ISSUE_READY`  
 `INITIAL_DAG_STATE: BLOCKED`  
 `BLOCKED_BY: NONE`
@@ -195,3 +195,38 @@ Independent ticket audit may validate this ticket; command, ticket, and publicat
 ## 26. Ticket Local Closure
 
 `TICKET_LOCAL_CLOSURE = YES`.
+
+## 27. Implementation Execution
+
+```text
+INITIAL_STATUS: READY
+FINAL_STATUS: VALIDATION_REQUIRED
+IMPLEMENTATION_VERDICT: IMPLEMENTATION_BATCH_COMPLETE
+IMPLEMENTATION_BASELINE: 646f5c67ffe0cdd9e0abeb9df0489ecb4f4a3b24
+PRODUCTION_IMPLEMENTATION_PRESENT_AT_BASELINE: YES
+PRODUCTION_FILES_MODIFIED_THIS_BATCH: 0
+TEST_FILES_MODIFIED_THIS_BATCH: 1
+EVIDENCE_FILES_ADDED_THIS_BATCH: 3
+```
+
+The production implementation was present in the authorized repository
+baseline. This execution completed the local implementation evidence for
+T004, including direct concurrency coverage in the repository fixture and
+the three acceptance-evidence records:
+
+- `evidence/TICKET-004/AC-DOM-009-order.md`
+- `evidence/TICKET-004/AC-DOM-009-rehydration.md`
+- `evidence/TICKET-004/AC-DOM-010-isolation.md`
+
+Validation commands and results:
+
+```text
+prototype/node_modules/.bin/tsx.cmd --test tests/dom-001-ticket-004.test.ts
+11 passed, 0 failed
+
+prototype/node_modules/.bin/tsx.cmd --test tests/dom-001-ticket-001.test.ts tests/dom-001-ticket-002.test.ts
+31 passed, 0 failed
+```
+
+The next gate is the independent structural review followed by the
+independent implementation audit. No `DONE` transition is asserted here.
