@@ -1,6 +1,6 @@
 # SPEC-DOM-001 — Implementation Plan
 
-Status: REMEDIATED_PENDING_INDEPENDENT_REAUDIT  
+Status: REMEDIATION_PENDING_INDEPENDENT_REAUDIT
 Planning source: validated component Implementation Gap Matrix
 
 This plan defines implementation decomposition only. It does not redefine
@@ -20,8 +20,9 @@ READY_FOR_IMPLEMENTATION_PLAN
 SPEC_IMPLEMENTABILITY_CHECK = PASS
 ```
 
-The plan has consumed the latest actionable plan-audit reassessment and awaits
-independent `audit-component-implementation-plan`. Future ticket decomposition
+The plan has a newly confirmed structural blocker from the T002 implementation
+design (`T002-AUTHORITY-READER-001`) and is remediated below. It awaits a fresh
+independent `audit-component-implementation-plan`; future ticket decomposition
 is downstream and is not performed here.
 
 ## 2. Planning Authority
@@ -71,7 +72,8 @@ physical recovery semantics; it does not change DOM ownership.
 | Gap Matrix audit | SHA-256 `445755D48204567770A663A58D23EBCD61C3029653CD3463BD4E34860C517510` |
 | Matrix repository baseline | HEAD `baa2a189bd71b85ba9fcc62840e52f091fc2e77e`; src/tests fingerprint `F4F18AB5AD103DC0D1C4B2E7077E69EA081EF5FC3258A4735E2E2A767269BB01` |
 | Test execution baseline | `node prototype/node_modules/tsx/dist/cli.mjs --test tests/*.test.ts`; 33 tests, 0 failures |
-| Current HEAD | `baa2a189bd71b85ba9fcc62840e52f091fc2e77e` |
+| Current HEAD at prior plan audit | `baa2a189bd71b85ba9fcc62840e52f091fc2e77e` |
+| Current HEAD for this remediation | `cc4aa3b0ed31e03e0c0ef644944564d9d5f644b7`; plan edits uncommitted |
 | Working tree | dirty; current relevant `src/` and `tests/` content is the assessed evidence |
 
 No normative upstream component SPEC is required by DOM: DOM is the approved
@@ -91,11 +93,20 @@ BASELINE_REMEDIATION_READINESS = READY
 AUDIT_BASIS_FINGERPRINT = A58E38A1153084122AA291763BABA40159D35671CE001487B5182B4BD55514DD
 ```
 
-The plan adopted the current revision-4 SPEC, current conformant Gap Matrix,
-current repository/test evidence, and the complete baseline reassessment from
-the latest independent plan audit. The Gap Matrix was not regenerated or
-modified during this remediation. GAP-002 remains historical only; GAP-001 and
+The plan preserves the revision-4 SPEC, current conformant Gap Matrix, and all
+validated Gap identities. The current T002 design evidence exposed a planning
+defect that was not represented by the archived conformant plan audit: T002
+was declared locally closable before its DOM-owned authority producer. This
+remediation corrects only the plan's unit contract and DAG; the Gap Matrix was
+not regenerated or modified. GAP-002 remains historical only; GAP-001 and
 DOM-ID-001 retain the current `PARTIAL` classification.
+
+```text
+NEW_CONFIRMED_PLAN_FINDING = T002-AUTHORITY-READER-001
+BASELINE_REASSESSMENT_INPUT = current T002 implementation-design evidence
+PLAN_CHANGE_SCOPE = DOM-IMP-02/03 contracts, closure, capability availability,
+                     acceptance witnesses, DAG, waves, checkpoints, metrics
+```
 
 ## 5. Validated Gap Intake
 
@@ -338,11 +349,11 @@ immutable snapshot from independently resolved canonical ADR authority.
 
 - Primary SPEC: `SPEC-DOM-001` §§13 (`DOM-INGEST-001`, `DOM-SNAPSHOT-001`, `DOM-ELIG-001`).
 - Obligations: `O-002`, `O-003`, `O-004`; role `CANONICAL_OWNER`.
-- Local ownership: trigger, eligibility, snapshot meaning, exact version/hash binding.
+- Local ownership: trigger, eligibility, snapshot meaning, exact version/hash binding, and consumption of the DOM-owned ADR authority contract.
 - Foreign capabilities: EXEC contract versions, PLAT durable storage, REPO legacy input.
-- Authority Consumption Proof: `ACP-DOM-02`; ADR lifecycle/revision authority is consumed through the DOM catalog, not caller fields.
-- Producer / Consumer Contract Proof: `PCP-EXEC-01` for exact skill/contract metadata; `PCP-PLAT-02` for durable snapshot material.
-- Authority consumption result: `AUTHORITY_CONSUMABLE`; availability is a known integration prerequisite, not a missing authority decision.
+- Authority Consumption Proof: `ACP-DOM-02`; ADR lifecycle/revision/hash authority is consumed through the DOM-owned reader produced by DOM-IMP-03, never from caller fields.
+- Producer / Consumer Contract Proof: `PCP-DOM-03→02` for the canonical ADR authority reader; `PCP-EXEC-01` for exact skill/contract metadata; `PCP-PLAT-02` for durable snapshot material.
+- Authority consumption result: `AUTHORITY_CONSUMABLE` only after the DOM-IMP-03 producer contract is complete. It is a required internal prerequisite, not a foreign integrated-proof capability.
 
 ### Gap Matrix Coverage
 
@@ -395,7 +406,11 @@ immutable; caller values are never promoted to truth; no automatic discovery.
 
 ### Internal Prerequisites
 
-`DOM-IMP-01`.
+`DOM-IMP-01`, `DOM-IMP-03`.
+
+`DOM-IMP-03` is the required authority producer. T002 consumes its canonical
+ADR reference, lifecycle/status, revision, content hash, and independently
+re-observable basis; T002 does not implement lifecycle authority.
 
 ### Cross-Spec Prerequisites
 
@@ -407,17 +422,27 @@ immutable; caller values are never promoted to truth; no automatic discovery.
 
 ### Producer / Consumer Contract Proof
 
+`PCP-DOM-03→02`: DOM-IMP-03 produces the canonical ADR authority read contract
+with `ADRId`/canonical reference, lifecycle/status, revision, content hash, and
+an independent second observation operation. DOM-IMP-02 consumes the returned
+basis and performs eligibility, snapshot freezing, and drift rejection. The
+producer owns lifecycle meaning; the consumer cannot supply or overwrite it.
+`CAPABILITY_RECORD = CAP-DOM-ADR-AUTHORITY-READ-OBSERVATION`; dependency class
+is `REQUIRED_FOR_LOCAL_EXECUTION`; availability before IMP-03 is `NO`, and
+post-producer availability is conditional on
+`EV-DOM-IMP-03-AUTHORITY-READER-COMPLETE`.
 `PCP-EXEC-01`: EXEC-001 produces exact version/capability values; DOM consumes
 and stores them in the snapshot. `PCP-PLAT-02`: PLAT produces durable snapshot
-and recovery material; DOM validates semantic immutability. Both are known
-contracts with downstream implementation pending.
+and recovery material; DOM validates semantic immutability. Foreign contracts
+remain integration contracts and do not provide ADR authority.
 
 ### Temporal Authority Preconditions
 
-`TEMPORAL_AUTHORITY_PROOF = TAP-02`: initial ADR status/hash/revision
-observation; mutation window before snapshot commit; independent second
-observation; drift detection; fail-closed rejection; state preservation; DOM
-owns semantic validation and PLAT owns physical atomicity.
+`TEMPORAL_AUTHORITY_PROOF = TAP-02`: DOM-IMP-03 supplies the initial and
+independent second ADR status/revision/content-hash observations; the mutation
+window ends before snapshot confirmation; T002 compares the two producer
+observations and rejects drift fail-closed. DOM owns semantic validation and
+PLAT owns physical atomicity. `SECOND_INDEPENDENT_OBSERVATION_SUPPORTED = YES`.
 
 ### Acceptance Criteria
 
@@ -430,16 +455,19 @@ owns semantic validation and PLAT owns physical atomicity.
 
 ### Acceptance Witness Matrix
 
-| Normative behavior | Operation | Positive witness | Negative/isolation witness | Evidence | Owner |
-| --- | --- | --- | --- | --- | --- |
-| Manual trigger | submit command | explicit submission test | discovery/session-start attempt | application test report | DOM-IMP-02 |
-| Canonical eligibility | resolve/freeze snapshot | accepted revision snapshot | proposed, superseded, false caller status/hash | snapshot test report | DOM-IMP-02 |
-| Immutable basis | rehydrate/mutate | exact field round-trip | mutation, drift, corrupt/missing record | persistence contract fixture | DOM-IMP-02 |
+| Normative behavior | Operation | Positive witness | Negative/isolation witness | Evidence | Owner | Dependency class | WITNESS_EXECUTABLE_AT_LOCAL_CLOSURE |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Manual trigger | submit command | explicit submission test | discovery/session-start attempt | application test report | DOM-IMP-02 | INFORMATIONAL | YES |
+| Canonical authority observation | reader initial/second observation | canonical ADR reference, status, revision, and content hash | caller-supplied authority, fallback, or self-comparison | `EV-DOM-IMP-03-AUTHORITY-READER-COMPLETE`; `PCP-DOM-03→02`; `TAP-03` | DOM-IMP-03 → DOM-IMP-02 | REQUIRED_FOR_LOCAL_EXECUTION | YES only after DOM-IMP-03 closure |
+| Canonical eligibility | resolve/freeze snapshot | accepted revision snapshot | proposed, superseded, false caller status/hash | snapshot test report | DOM-IMP-02 | REQUIRED_FOR_LOCAL_EXECUTION | YES after producer |
+| Immutable basis | rehydrate/mutate | exact field round-trip | mutation, drift, corrupt/missing record | persistence contract fixture | DOM-IMP-02 | REQUIRED_FOR_LOCAL_CLOSURE | YES after producer |
 
 ### Local Closure
 
-`LOCAL_CLOSURE = YES`; local semantics and rejection behavior are proven with
+`LOCAL_CLOSURE = YES` only after DOM-IMP-03 completes; local semantics and
+rejection behavior are proven with the completed authority-reader contract and
 approved port fixtures; physical PLAT proof is an integration checkpoint.
+`T002_LOCAL_CLOSURE_WITHOUT_AUTHORITY_PRODUCER = NO`.
 
 ### Required Tests
 
@@ -455,7 +483,9 @@ caller-supplied status/hash as authority. Legacy reads remain explicit.
 ### Completion Evidence
 
 Canonical snapshot command, authority reader/port, direct positive/negative
-tests, and a contract fixture proving exact persisted fields.
+tests, `EV-DOM-IMP-02-AUTHORITY-CONSUMPTION`, and a contract fixture proving
+exact persisted fields. The authority-reader producer evidence must already be
+available at T002 closure.
 
 ### Risks
 
@@ -468,11 +498,11 @@ with ADR lifecycle authority.
 
 ### Initial DAG State
 
-`BLOCKED`; `BLOCKED_BY = DOM-IMP-01`.
+`BLOCKED`; `BLOCKED_BY = DOM-IMP-01, DOM-IMP-03`.
 
 ## DOM-IMP-03 — Decision lifecycle, revision, and immutability
 
-`UNIT_FORMATION_REASON = SHARED_CUTOVER + SHARED_INVARIANT`.
+`UNIT_FORMATION_REASON = SHARED_AUTHORITY + SHARED_CUTOVER + SHARED_INVARIANT`.
 
 ### Goal
 
@@ -484,11 +514,11 @@ cutover.
 
 - Primary SPEC: `SPEC-DOM-001` §§13 (`DOM-LIFE-001`, `DOM-REV-001`, `DOM-IMMUT-001`).
 - Obligations: `O-006`, `O-007`, `O-008`; role `CANONICAL_OWNER`.
-- Local ownership: decision lifecycle, revision, succession, and invalidation meaning.
+- Local ownership: decision lifecycle, revision, succession, invalidation meaning, and the canonical ADR authority read/observation contract required by snapshot consumers.
 - Foreign capabilities: PLAT operational records; REPO legacy adaptation; downstream approval mappings.
 - Authority Consumption Proof: `ACP-DOM-03`; authority is fully defined by ADR-0001/SPEC §§12–13.
-- Producer / Consumer Contract Proof: `PCP-PLAT-03` for operational evidence; no foreign lifecycle is consumed as DOM authority.
-- Authority consumption result: `AUTHORITY_CONSUMABLE`.
+- Producer / Consumer Contract Proof: `PCP-DOM-03→02` for the DOM-owned canonical ADR authority reader; `PCP-PLAT-03` remains the operational-evidence mapping and is not lifecycle authority.
+- Authority consumption result: `AUTHORITY_CONSUMABLE`; this unit is the producer for T002 and must complete before T002 can start or close.
 
 ### Gap Matrix Coverage
 
@@ -502,25 +532,32 @@ cutover.
 ### Validated Delta
 
 ```text
-OBSERVED: no productive ADR lifecycle, remediation revision, succession, or
-          implemented immutability boundary exists.
+OBSERVED: no productive ADR lifecycle, remediation revision, succession,
+          implemented immutability boundary, or canonical authority reader exists.
 REQUIRED: decision and realization lifecycles stay separate; changed accepted
-          ADRs receive new revision/history; implemented ADRs cannot be rewritten.
-DELTA:    add the DOM lifecycle/cutover authority and connect operational
-          evidence without putting that evidence in the ADR document.
+          ADRs receive new revision/history; implemented ADRs cannot be rewritten;
+          consumers can obtain canonical ADR reference, lifecycle/status, revision,
+          content hash, and an independent second observation.
+DELTA:    add the DOM lifecycle/cutover authority and its read/observation
+          contract, then connect operational evidence without putting that
+          evidence in the ADR document. This is supporting producer work for
+          GAP-005, not a new Gap or a transfer of GAP-005 ownership from T002.
 ```
 
 ### Required Behavior
 
 `LOCAL_BEHAVIOR`: authorized lifecycle transitions, revision/successor linkage,
+canonical ADR authority observations, independent temporal re-observation,
 derived eligibility invalidation, and mutation rejection are enforced.
 `END_TO_END_CONTRIBUTION`: consumers observe linked history and obsolete
 derived decisions without reopening completed work.
 
 ### Does Not Implement
 
-Physical evidence storage, REPO migration mechanics, downstream approval
-registries, execution lifecycle, Git publication, or ticket reopening.
+Snapshot trigger/eligibility decisions, snapshot construction, physical
+evidence storage, REPO migration mechanics, downstream approval registries,
+execution lifecycle, Git publication, or ticket reopening. T002 consumes this
+unit's authority observations; it does not become a lifecycle authority.
 
 ### Repository Evidence
 
@@ -540,7 +577,11 @@ derived eligibility invalidated, operational metadata stays outside ADR text.
 
 ### Internal Prerequisites
 
-`DOM-IMP-01`, `DOM-IMP-02`.
+`DOM-IMP-01`.
+
+The former `DOM-IMP-02` prerequisite was a consumer-before-producer inversion
+and is removed. DOM-IMP-03 is independently closable after canonical identity
+and does not require snapshot implementation.
 
 ### Cross-Spec Prerequisites
 
@@ -551,15 +592,25 @@ derived eligibility invalidated, operational metadata stays outside ADR text.
 
 ### Producer / Consumer Contract Proof
 
+`PCP-DOM-03→02`: this unit produces the DOM-owned canonical ADR authority
+reader/read contract. Each observation returns the canonical ADR reference,
+lifecycle/status, revision, and content hash; the reader supports a second
+independent temporal observation rather than self-comparing a caller draft.
+`CAPABILITY_RECORD = CAP-DOM-ADR-AUTHORITY-READ-OBSERVATION`; authority and
+contract status are defined, semantic status is DOM-owned, and productive
+availability is promoted only by `EV-DOM-IMP-03-AUTHORITY-READER-COMPLETE`.
 `PCP-PLAT-03`: PLAT produces persistent operational evidence keyed by DOM
 identity/revision; DOM consumes only the record reference. `PCP-REPO-01`:
-REPO produces legacy mapping; DOM consumes mapped canonical references.
+REPO produces legacy mapping; DOM consumes mapped canonical references. Neither
+foreign contract supplies lifecycle authority.
 
 ### Temporal Authority Preconditions
 
-`TAP-03`: observe accepted ADR revision/content before remediation, reobserve
-at commit, reject if revision/content changed, preserve prior state, and let
-DOM own semantic invalidation while PLAT owns atomic record storage.
+`TAP-03`: observe accepted ADR reference/status/revision/content hash before
+remediation, independently reobserve at commit, reject if revision/content
+changed, preserve prior state, and let DOM own semantic invalidation while PLAT
+owns atomic record storage. This producer capability is consumed by `TAP-02`
+in DOM-IMP-02.
 
 ### Acceptance Criteria
 
@@ -572,16 +623,18 @@ DOM own semantic invalidation while PLAT owns atomic record storage.
 
 ### Acceptance Witness Matrix
 
-| Normative behavior | Operation | Positive witness | Negative/isolation witness | Evidence | Owner |
-| --- | --- | --- | --- | --- | --- |
-| Separate lifecycles | decision/realization commands | independent transitions | execution attempting decision mutation | lifecycle test report | DOM-IMP-03 |
-| Revision/cutover | remediate accepted ADR | successor/history result | stale eligibility and missing reciprocal link | revision test report | DOM-IMP-03 |
-| Immutability | update implemented ADR | rejection record | document metadata mutation attempt | immutability test report | DOM-IMP-03 |
+| Normative behavior | Operation | Positive witness | Negative/isolation witness | Evidence | Owner | Dependency class | WITNESS_EXECUTABLE_AT_LOCAL_CLOSURE |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Separate lifecycles | decision/realization commands | independent transitions | execution attempting decision mutation | lifecycle test report | DOM-IMP-03 | INFORMATIONAL | YES |
+| Canonical ADR authority producer | authority reader initial/second observation | canonical reference/status/revision/hash and independent re-observation | caller authority, fallback, or self-comparison | `EV-DOM-IMP-03-AUTHORITY-READER-COMPLETE`; `TAP-03` | DOM-IMP-03 | REQUIRED_FOR_LOCAL_EXECUTION | YES at IMP-03 closure |
+| Revision/cutover | remediate accepted ADR | successor/history result | stale eligibility and missing reciprocal link | revision test report | DOM-IMP-03 | INFORMATIONAL | YES |
+| Immutability | update implemented ADR | rejection record | document metadata mutation attempt | immutability test report | DOM-IMP-03 | INFORMATIONAL | YES |
 
 ### Local Closure
 
-`LOCAL_CLOSURE = YES`; all local transitions and invalidation semantics are
-testable without a physical store or downstream approval implementation.
+`LOCAL_CLOSURE = YES`; all local transitions, authority observations, and
+invalidation semantics are testable without a physical store or downstream
+approval implementation. T002 is not required for this unit's closure.
 
 ### Required Tests
 
@@ -596,7 +649,8 @@ REPO-owned legacy adaptation remains external.
 
 ### Completion Evidence
 
-Lifecycle/revision aggregate and commands, history-safe records, direct
+Lifecycle/revision aggregate and commands, history-safe records, the canonical
+authority-reader contract, `EV-DOM-IMP-03-AUTHORITY-READER-COMPLETE`, direct
 positive/negative tests, and cutover mapping contract.
 
 ### Risks
@@ -610,7 +664,7 @@ normative ADR document content.
 
 ### Initial DAG State
 
-`BLOCKED`; `BLOCKED_BY = DOM-IMP-01, DOM-IMP-02`.
+`BLOCKED`; `BLOCKED_BY = DOM-IMP-01`.
 
 ## DOM-IMP-04 — Pipeline state machines and provenance reconstruction
 
@@ -1840,14 +1894,18 @@ or a projection/report becoming conformance authority.
 
 `GAPS_WITHOUT_PLAN_COVERAGE = 0`.
 
+`GAP-005` remains owned and covered by DOM-IMP-02. DOM-IMP-03 provides only
+the required supporting authority producer contract; no Gap identity,
+classification, severity, or ownership is moved.
+
 ## 11. Acceptance → Plan Traceability
 
 | Acceptance ID | Requirement(s) | Contributing units | Final proof owner | Local evidence | Final evidence |
 | --- | --- | --- | --- | --- | --- |
 | AC-DOM-001 | DOM-ID-001 | DOM-IMP-01 | DOM-IMP-01 | identity catalog/continuity tests | canonical identity report |
 | AC-DOM-002 | DOM-INGEST-001 | DOM-IMP-02 | DOM-IMP-02 | manual-trigger negative test | command trace |
-| AC-DOM-003 | DOM-SNAPSHOT-001 | DOM-IMP-02 | DOM-IMP-02 | snapshot mutation/drift tests | immutable snapshot evidence |
-| AC-DOM-004 | DOM-ELIG-001 | DOM-IMP-02 | DOM-IMP-02 | eligibility matrix | fail-closed evidence |
+| AC-DOM-003 | DOM-SNAPSHOT-001 | DOM-IMP-03 (producer), DOM-IMP-02 | DOM-IMP-02 | authority-reader, snapshot mutation/drift tests | immutable snapshot evidence |
+| AC-DOM-004 | DOM-ELIG-001 | DOM-IMP-03 (producer), DOM-IMP-02 | DOM-IMP-02 | authority-reader, eligibility matrix | fail-closed evidence |
 | AC-DOM-005 | DOM-LINEAGE-001 | DOM-IMP-01 | DOM-IMP-01 | independent lineage tests | durable lineage evidence |
 | AC-DOM-006 | DOM-LIFE-001 | DOM-IMP-03 | DOM-IMP-03 | lifecycle isolation | lifecycle trace |
 | AC-DOM-007 | DOM-REV-001 | DOM-IMP-03 | DOM-IMP-03 | revision/succession tests | history/cutover evidence |
@@ -1904,13 +1962,35 @@ AUTHORITY_NOT_DEFINED = 0
 NO_DOWNSTREAM_CAPABILITY_PROMOTION_WITHOUT_NEW_EVIDENCE = TRUE
 ```
 
+### 12.2 DOM-internal authority capability
+
+The following is an implementation capability produced inside the DOM owner;
+it is not a new portfolio dependency, foreign capability, or second authority.
+It is the plan-level producer/consumer contract required to make the validated
+GAP-005 correction implementable without caller-supplied authority.
+
+| CAPABILITY_ID | AUTHORITY_OWNER | PRODUCER | CONSUMER | CONTRACT | AUTHORITY_STATUS | CONTRACT_STATUS | SEMANTIC_STATUS | LOCAL_TESTABILITY | PRODUCTIVE_AVAILABILITY | AVAILABILITY_BEFORE_PRODUCER | AVAILABILITY_AFTER_PRODUCER | AVAILABILITY_EVIDENCE | VERSION_REVISION_TRANSPORT | FAILURE_NOT_FOUND_STALE_SEMANTICS | DEPENDENCY_CLASS | BLOCKING_EFFECT | PROOF_EVIDENCE |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| CAP-DOM-ADR-AUTHORITY-READ-OBSERVATION | SPEC-DOM-001 | DOM-IMP-03 | DOM-IMP-02 | canonical ADR reference, lifecycle/status, revision, content hash, and independent second observation | DEFINED — ADR-0001 / SPEC §§12–13 | DEFINED — PCP-DOM-03→02 | DEFINED_AND_DOM_OWNED | YES — direct producer/consumer contract tests; fixtures prove testability only | NO at current baseline; YES only after DOM-IMP-03 completion evidence | NO | CONDITIONAL_YES only after DOM-IMP-03 local closure | BEFORE: no productive reader; AFTER: `EV-DOM-IMP-03-AUTHORITY-READER-COMPLETE` plus `PCP-DOM-03→02` and `TAP-03` evidence; no fixture/mock promotion | canonical ADR reference, lifecycle/status, revision, and content hash are returned unchanged; second observation is independently re-read and compared | unknown, missing, non-accepted, stale, mismatched, caller-supplied, fallback, self-compared, or corrupt authority fails closed without snapshot mutation | REQUIRED_FOR_LOCAL_EXECUTION | T002 cannot start correctly or close before this capability is productively available; caller, snapshot, PLAT, REPO, fixture, mock, and prototype are forbidden as authority | `EV-DOM-IMP-03-AUTHORITY-READER-COMPLETE` at IMP-03 closure; `EV-DOM-IMP-02-AUTHORITY-CONSUMPTION` at T002 closure; `TAP-02`, `TAP-03`, and CP-DOM-01 producer-before-consumer evidence |
+
+```text
+PRODUCER_BEFORE_CONSUMER = YES
+CALLER_SUPPLIED_AUTHORITY = FORBIDDEN
+SECOND_INDEPENDENT_OBSERVATION_SUPPORTED = YES
+PRODUCTIVE_AVAILABILITY_BEFORE_PRODUCER = NO
+PRODUCTIVE_AVAILABILITY_AFTER_PRODUCER = CONDITIONAL_YES_WITH_EXPLICIT_EVIDENCE
+T002_EXECUTION_BLOCKED_BEFORE_PRODUCER = YES
+T002_LOCAL_CLOSURE_WITHOUT_AUTHORITY_PRODUCER = NO
+CAPABILITY_PROOF_EVIDENCE = EV-DOM-IMP-03-AUTHORITY-READER-COMPLETE; EV-DOM-IMP-02-AUTHORITY-CONSUMPTION; TAP-02; TAP-03; CP-DOM-01
+```
+
 Unit closure reconciliation:
 
 | Unit | CAPABILITY_AVAILABILITY_RECORDS | WORK_CAN_START | LOCAL_CLOSURE | SHARED_CLOSURE_BOUNDARY |
 | --- | --- | --- | --- | --- |
 | DOM-IMP-01 | none required for local closure | YES; initial READY | YES | N/A |
-| DOM-IMP-02 | CAP-EXEC-EXACT-VERSION-BASIS; CAP-PLAT-SNAPSHOT-PIPELINE-PROVENANCE | after IMP-01; integrated capabilities not start blockers | YES | YES — local snapshot semantics vs integrated evidence |
-| DOM-IMP-03 | none required for local closure | after IMP-01/02 | YES | N/A |
+| DOM-IMP-02 | CAP-DOM-ADR-AUTHORITY-READ-OBSERVATION; CAP-EXEC-EXACT-VERSION-BASIS; CAP-PLAT-SNAPSHOT-PIPELINE-PROVENANCE | NO before IMP-03; after IMP-01 and IMP-03; foreign integrated capabilities are not start blockers | YES only after `EV-DOM-IMP-03-AUTHORITY-READER-COMPLETE`; no closure without producer | YES — local snapshot semantics vs integrated evidence |
+| DOM-IMP-03 | produces CAP-DOM-ADR-AUTHORITY-READ-OBSERVATION; no upstream capability required for local closure | after IMP-01 | YES | N/A |
 | DOM-IMP-04 | CAP-PLAT-SNAPSHOT-PIPELINE-PROVENANCE | after IMP-01; integrated capability not a local blocker | YES | YES — reconstruction contract vs integrated recovery |
 | DOM-IMP-05 | none required for local closure | after IMP-01/04 | YES | N/A |
 | DOM-IMP-06 | none required for local closure | after IMP-04/05 | YES | N/A |
@@ -1931,7 +2011,7 @@ persistence implementation is assigned to a DOM unit.
 
 ```text
 DOM-IMP-01
-├── DOM-IMP-02 ── DOM-IMP-03 ──┐
+├── DOM-IMP-03 ── DOM-IMP-02 ──┐
 ├── DOM-IMP-04 ── DOM-IMP-05 ──┼── DOM-IMP-06 ──┐
 │                              ├── DOM-IMP-07 ──┼── DOM-IMP-10 ──┐
 │                              └── DOM-IMP-08 ──┘                │
@@ -1940,7 +2020,7 @@ DOM-IMP-01
                                                                └── DOM-IMP-12
 ```
 
-Explicit edges: `IMP-01→02,04,05,08,11`; `IMP-02→03`; `IMP-03→10`;
+Explicit edges: `IMP-01→03,04,05,08,11`; `IMP-03→02,10`;
 `IMP-04→05,06,07`; `IMP-05→06,07,08`; `IMP-06→10`; `IMP-07→10,11`;
 `IMP-08→09`; and `IMP-01..11→IMP-12` where required by acceptance evidence.
 All edges are implementation dependencies, not new normative portfolio edges.
@@ -1952,8 +2032,8 @@ All edges are implementation dependencies, not new normative portfolio edges.
 | Wave | Units | Prerequisites | Shared collision risk | Execution mode |
 | ---: | --- | --- | --- | --- |
 | 1 | DOM-IMP-01 | none | canonical identity/lineage vocabulary | `SERIAL_REQUIRED` |
-| 2 | DOM-IMP-02, DOM-IMP-04 | IMP-01 | snapshot/pipeline ports and identity references | `SAFE_WITH_COORDINATION` |
-| 3 | DOM-IMP-03, DOM-IMP-05 | IMP-02/04 | lifecycle, command, failure, and revision seams | `SAFE_WITH_COORDINATION` |
+| 2 | DOM-IMP-03, DOM-IMP-04 | IMP-01 | lifecycle/authority-reader, pipeline ports, and identity references | `SAFE_WITH_COORDINATION` |
+| 3 | DOM-IMP-02, DOM-IMP-05 | IMP-03 for IMP-02; IMP-04 for IMP-05 | snapshot authority consumption, command, failure, and revision seams | `SAFE_WITH_COORDINATION` |
 | 4 | DOM-IMP-06, DOM-IMP-07, DOM-IMP-08 | IMP-04/05; IMP-01/05 | state/command/event vocabulary | `SAFE_WITH_COORDINATION` |
 | 5 | DOM-IMP-09, DOM-IMP-10, DOM-IMP-11 | IMP-08; IMP-03/06; IMP-01/07 | cutover, round, evidence fixtures | `SAFE_WITH_COORDINATION` |
 | 6 | DOM-IMP-12 | IMP-01–11 | final evaluator consumes all evidence | `SERIAL_REQUIRED` |
@@ -1962,7 +2042,7 @@ All edges are implementation dependencies, not new normative portfolio edges.
 
 | Checkpoint | Required units | Integrated behavior | Required evidence | Unlocks |
 | --- | --- | --- | --- | --- |
-| CP-DOM-01 | IMP-01, IMP-02, IMP-03 | canonical identity, snapshot, eligibility, lifecycle, revision | identity/revision/recovery contract evidence | IMP-10 and consumer mappings |
+| CP-DOM-01 | IMP-01, IMP-03, IMP-02 | canonical identity, lifecycle authority reader, snapshot, eligibility, revision | producer/consumer authority, identity/revision/recovery contract evidence | IMP-10 and consumer mappings |
 | CP-DOM-02 | IMP-04, IMP-05, IMP-06, IMP-07 | state, command, ticket, publication, advancement convergence | full state/command/no-effect matrix | IMP-10, IMP-11 |
 | CP-DOM-03 | IMP-08, IMP-09, IMP-10, IMP-11 | audit cycle, round, cutover, exact evidence | structured verdict, selective invalidation, temporal drift | IMP-12 |
 | CP-DOM-04 | IMP-01–IMP-11 | final DOM conformance boundary | all six dimensions, integration, regressions, omissions, extrapolations | downstream conformance/publication flow |
@@ -1975,7 +2055,7 @@ acceptance criteria.
 | Current path | Target authority | Read behavior | Write behavior | Migration/mapping | Owning unit |
 | --- | --- | --- | --- | --- | --- |
 | Historical `PipelineId` path | canonical `STAGE` identity | resolve historical aliases explicitly | no independent writes/lookups | preserve historical mapping; no productive parallel authority | IMP-01 |
-| Caller-supplied ADR status/hash | canonical ADR catalog | preserve old records as evidence | reject caller authority | canonical reader before snapshot | IMP-02 |
+| Caller-supplied ADR status/hash | canonical ADR catalog | preserve old records as evidence | reject caller authority | DOM-IMP-03 produces canonical reader; DOM-IMP-02 consumes before snapshot | IMP-03 (producer); IMP-02 (consumer) |
 | Scalar pipeline rehydration | provenance chain | historical state only with complete chain | reject direct later-state writes | PLAT supplies records | IMP-04 |
 | Prototype lifecycle/ticket/publication state | productive DOM models | prototype remains historical evidence | no productive writes | scenario vocabulary only | IMP-03, IMP-06, IMP-07 |
 | Silent ADR mutation | revision/succession | preserve old revision | reject rewrite; create successor | cutover linkage | IMP-03 |
@@ -1989,6 +2069,12 @@ acceptance criteria.
 negative, isolation, no-effect, stale, idempotency, and reconstruction tests
 where applicable. Existing 33 productive tests are retained and extended;
 prototype 92/92 tests remain scenario evidence only.
+
+DOM-IMP-03 owns the local authority-reader producer witnesses, including
+canonical reference/status/revision/content-hash completeness and an
+independent second observation. DOM-IMP-02 owns consumer rejection, eligibility,
+snapshot freeze, and drift witnesses; no caller, fixture, mock, or prototype
+supplies authority.
 
 `INTEGRATION_TEST_EVIDENCE` is owned by CP-DOM-01 through CP-DOM-04 and covers
 PLAT persistence/recovery, EXEC contracts, GIT publication evidence, REPO
@@ -2023,8 +2109,8 @@ execute under their approved owner SPECs; DOM tests verify semantic contracts.
 | Unit | Independently implementable | Local closure | Issue decomposition readiness | Initial DAG state | Blocked by |
 | --- | --- | --- | --- | --- | --- |
 | DOM-IMP-01 | YES | YES | ISSUE_READY | READY | — |
-| DOM-IMP-02 | YES | YES | ISSUE_READY | BLOCKED | IMP-01 |
-| DOM-IMP-03 | YES | YES | ISSUE_READY | BLOCKED | IMP-01, IMP-02 |
+| DOM-IMP-02 | YES | YES after producer | ISSUE_READY | BLOCKED | IMP-01, IMP-03 |
+| DOM-IMP-03 | YES | YES | ISSUE_READY | BLOCKED | IMP-01 |
 | DOM-IMP-04 | YES | YES | ISSUE_READY | BLOCKED | IMP-01 |
 | DOM-IMP-05 | YES | YES | ISSUE_READY | BLOCKED | IMP-01, IMP-04 |
 | DOM-IMP-06 | YES | YES | ISSUE_READY | BLOCKED | IMP-04, IMP-05 |
@@ -2034,6 +2120,22 @@ execute under their approved owner SPECs; DOM tests verify semantic contracts.
 | DOM-IMP-10 | YES | YES | ISSUE_READY | BLOCKED | IMP-03, IMP-06 |
 | DOM-IMP-11 | YES | YES | ISSUE_READY | BLOCKED | IMP-01, IMP-07 |
 | DOM-IMP-12 | YES | YES | ISSUE_READY | BLOCKED | IMP-01–IMP-11 |
+
+Readiness reconciliation:
+
+```text
+DOM-IMP-02_ISSUE_DECOMPOSITION_READINESS = ISSUE_READY
+DOM-IMP-02_INITIAL_DAG_STATE = BLOCKED
+DOM-IMP-02_T002_EXECUTION_BLOCKED_BEFORE_PRODUCER = YES
+DOM-IMP-02_LOCAL_CLOSURE = YES only after EV-DOM-IMP-03-AUTHORITY-READER-COMPLETE
+IMPLEMENTATION_PLAN_GATE = READY_FOR_IMPLEMENTATION_PLAN_AUDIT
+READY_FOR_ISSUE_DECOMPOSITION = NOT_EMITTED
+```
+
+Downstream ticket handoff remains plan-derived only: T002 must be born
+`BLOCKED` by the `REQUIRED_FOR_LOCAL_EXECUTION` capability produced by T003;
+T003 must be the producer and must not depend on T002. Ticket artifacts and
+their indexes are not modified by this Plan remediation.
 
 ## 20. Plan Metrics
 
@@ -2054,6 +2156,8 @@ INTERNAL_ONLY_UNITS = 0
 PLAN_BLOCKED_UNITS = 0
 INITIAL_READY_UNITS = 1
 INITIAL_BLOCKED_UNITS = 11
+INTERNAL_AUTHORITY_PRODUCER_CAPABILITIES = 1
+INTERNAL_AUTHORITY_PRODUCER_BLOCKERS = 1 at initial DAG state; 0 after IMP-03 closure
 
 GAPS_WITH_PLAN_COVERAGE = 21
 GAPS_WITHOUT_PLAN_COVERAGE = 0
@@ -2081,11 +2185,23 @@ IMPLEMENTATION_UNIT_AUTHORITY_CHECK = PASS
 AUTHORITY_CONSUMPTION_GAPS = 3
 AUTHORITY_CONSUMPTION_GAP_EFFECT = integrated-proof only
 CAPABILITY_AVAILABILITY_RECORDS = 3
+INTERNAL_CAPABILITY_CONTRACTS = 1
+REQUIRED_FOR_LOCAL_EXECUTION_CAPABILITIES = 1
+PRODUCTIVE_AVAILABILITY_BEFORE_PRODUCER = 0
+PRODUCTIVE_AVAILABILITY_AFTER_PRODUCER = 1 conditional on explicit completion evidence
 CAPABILITY_AVAILABILITY_CLASSIFICATION_ERRORS = 0
 NO_DOWNSTREAM_CAPABILITY_PROMOTION_WITHOUT_NEW_EVIDENCE = TRUE
+PRODUCER_BEFORE_CONSUMER = YES
+CALLER_SUPPLIED_AUTHORITY = FORBIDDEN
+SECOND_INDEPENDENT_OBSERVATION_SUPPORTED = YES
+T002_LOCAL_CLOSURE_WITHOUT_AUTHORITY_PRODUCER = NO
+LOCAL_CLOSURE_WITH_UNAVAILABLE_REQUIRED_CAPABILITY = 0
+WITNESSES_NOT_EXECUTABLE_AT_LOCAL_CLOSURE = 0
 TEMPORAL_AUTHORITY_GAPS = 0
 UNREPRESENTED_UPSTREAM_CONTRACT_BLOCKERS = 0
 READY_UNITS_WITH_UNAVAILABLE_CONTRACT = 0
+T002_EXECUTION_BLOCKED_BEFORE_PRODUCER = YES
+T002_LOCAL_CLOSURE_REQUIRES_PRODUCER_EVIDENCE = YES
 UNITS_INVENTING_IDENTITY = 0
 UNITS_INVENTING_LIFECYCLE = 0
 UNITS_INVENTING_PROVENANCE = 0
@@ -2112,7 +2228,8 @@ and cross-SPEC boundaries. No implementation unit invents a normative decision.
 | `PERSISTENCE_SEMANTICS_GAP` | 0 | Component SPEC audit §§20, 38; PLAT boundary explicit |
 | `CROSS_SPEC_AUTHORITY_GAP` | 0 | Component SPEC audit §§14, 21, 38 |
 | `AUTHORITY_NOT_DEFINED` | 0 | accepted ADR/portfolio/SPEC chain |
-| `AUTHORITY_DEFINED_BUT_NOT_CONSUMABLE` | 3 | Gap Matrix §13 capability records; integrated-proof availability only; no local-closure blocker |
+| `AUTHORITY_DEFINED_BUT_NOT_CONSUMABLE` | 3 external records | Gap Matrix §13 capability records; integrated-proof availability only; no local-closure blocker |
+| `CAP-DOM-ADR-AUTHORITY-READ-OBSERVATION` | consumable after DOM-IMP-03 | Internal producer/consumer contract; T002 is not locally closable before its producer |
 | `TEMPORAL_AUTHORITY_GAP` | 0 | SPEC §13 and Gap Matrix audit §27 |
 
 For every unit, the answer to “Todas as decisões normativas necessárias para
@@ -2133,8 +2250,8 @@ remain subordinate to the portfolio ownership registry.
 | Unit | Identity | Lifecycle | Provenance | Ownership | Persistence/recovery | Result | Readiness classification |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | DOM-IMP-01 | SPEC §12.1 / ADR-0001 | ADR-0001 | lineage contract | O-001/O-005 | PLAT seam | YES | READY |
-| DOM-IMP-02 | ADR-0001 / IMP-01 | ADR-0001 | snapshot basis | O-002–O-004 | PLAT seam | YES | READY |
-| DOM-IMP-03 | ADR-0001 | ADR-0001 | revision lineage | O-006–O-008 | PLAT evidence seam | YES | READY |
+| DOM-IMP-02 | ADR-0001 / IMP-03 | ADR-0001 | snapshot basis; consumes canonical authority observations | O-002–O-004 | PLAT seam | YES after IMP-03 | READY |
+| DOM-IMP-03 | ADR-0001 | ADR-0001 | lifecycle/revision lineage; produces canonical authority observations | O-006–O-008 | PLAT evidence seam | YES | READY |
 | DOM-IMP-04 | SPEC §12.1 / ADR-0002 | ADR-0002 | audit chain contract | PLAT replay seam | YES | READY |
 | DOM-IMP-05 | ADR-0002 | ADR-0002 | command revision | O-011 | PLAT journal seam | YES | READY |
 | DOM-IMP-06 | ADR-0002 | ticket transitions | command revision | O-012/O-013 | no new persistence meaning | YES | READY |
@@ -2159,8 +2276,8 @@ UNITS_INVENTING_PERSISTENCE_SEMANTICS = 0
 ## 24. Implementation Plan Gate
 
 ```text
-IMPLEMENTATION_PLAN_GATE: READY_FOR_INDEPENDENT_IMPLEMENTATION_PLAN_REAUDIT
+IMPLEMENTATION_PLAN_GATE: READY_FOR_IMPLEMENTATION_PLAN_AUDIT
 ```
 
-The plan is not self-approved. The mandatory next step is independent
-`audit-component-implementation-plan`.
+The plan is not self-approved and is not yet ready for issue decomposition.
+The mandatory next step is independent `audit-component-implementation-plan`.
