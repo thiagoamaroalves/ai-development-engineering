@@ -1,7 +1,13 @@
 import {
   CanonicalIdentityReference,
   CanonicalIdentityReferenceInput,
+  CanonicalIdentityReconstructionAuthority,
 } from './identity.js'
+import type {
+  AdrAuthorityObservation,
+  AdrAuthorityReader,
+  AdrRecordReconstructionAuthority,
+} from './adr.js'
 
 export type AdrDecisionStatus = 'ACCEPTED' | 'PROPOSED' | 'REJECTED' | 'SUPERSEDED'
 export type SnapshotStatus = 'DRAFT' | 'CONFIRMED'
@@ -17,6 +23,7 @@ export type SnapshotErrorCode =
   | 'SNAPSHOT_ALREADY_EXISTS'
   | 'SNAPSHOT_NOT_FOUND'
   | 'SNAPSHOT_STALE'
+  | 'SNAPSHOT_RECONSTRUCTION_AUTHORITY_REQUIRED'
 
 export class SnapshotDomainError extends Error {
   readonly code: SnapshotErrorCode
@@ -171,6 +178,15 @@ export class AdrSnapshotEntry {
       input.contentHash instanceof AdrContentHash ? input.contentHash : AdrContentHash.create(input.contentHash),
     )
   }
+
+  static fromAuthority(observation: AdrAuthorityObservation): AdrSnapshotEntry {
+    AdrEligibilityPolicy.assertObservationEligible(observation)
+    return AdrSnapshotEntry.create({
+      reference: observation.reference,
+      decisionStatus: observation.decisionStatus,
+      contentHash: observation.contentHash.value,
+    })
+  }
 }
 
 interface ExecutionSnapshotBasisInput {
@@ -182,10 +198,38 @@ interface ExecutionSnapshotBasisInput {
   readonly versions: ExactVersionSet
 }
 
-export interface ExecutionSnapshotCreationInput extends ExecutionSnapshotBasisInput {}
+export interface SnapshotAdmissionEntryInput {
+  readonly reference: CanonicalIdentityReference | CanonicalIdentityReferenceInput
+  readonly decisionStatus?: AdrDecisionStatus
+  readonly contentHash?: AdrContentHash | string
+}
+
+export interface ExecutionSnapshotCreationInput {
+  readonly id: SnapshotId | string
+  readonly spec: CanonicalIdentityReference | CanonicalIdentityReferenceInput
+  readonly adrs: readonly SnapshotAdmissionEntryInput[]
+  readonly base: SnapshotBase | string
+  readonly configuration: ConfigurationVersion | string
+  readonly versions: ExactVersionSet
+}
 
 export interface ExecutionSnapshotRehydrationInput extends ExecutionSnapshotBasisInput {
   readonly status: SnapshotStatus
+}
+
+export interface ExecutionSnapshotCreationAuthorities {
+  readonly identities: CanonicalIdentityReconstructionAuthority
+  readonly adrs: AdrAuthorityReader
+}
+
+export interface SnapshotProgressionRecordInput extends ExecutionSnapshotBasisInput {
+  readonly status: SnapshotStatus
+}
+
+export interface SnapshotProgressionReconstructionAuthority {
+  resolveForRehydration(
+    id: SnapshotId,
+  ): readonly SnapshotProgressionRecordInput[] | undefined
 }
 
 export class AdrEligibilityPolicy {
@@ -198,6 +242,20 @@ export class AdrEligibilityPolicy {
     }
   }
 
+  static assertObservationEligible(observation: AdrAuthorityObservation): void {
+    if (!observation || !(observation.reference instanceof CanonicalIdentityReference)) {
+      throw new SnapshotDomainError('INVALID_SNAPSHOT_ENTRY', 'An ADR authority observation is required.')
+    }
+
+    AdrEligibilityPolicy.assertEligible(observation.reference, observation.decisionStatus)
+  }
+
+}
+
+export interface ExecutionSnapshotReconstructionAuthorities {
+  readonly identities: CanonicalIdentityReconstructionAuthority
+  readonly adrs: AdrRecordReconstructionAuthority
+  readonly progression: SnapshotProgressionReconstructionAuthority
 }
 
 interface SnapshotAuthorityBasis {
@@ -228,12 +286,148 @@ export class ExecutionSnapshot {
     Object.freeze(this)
   }
 
-  static create(input: ExecutionSnapshotCreationInput): ExecutionSnapshot {
-    return ExecutionSnapshot.construct(input, 'DRAFT')
+  static create(
+    input: ExecutionSnapshotCreationInput,
+    authorities: ExecutionSnapshotCreationAuthorities,
+  ): ExecutionSnapshot {
+    if (!authorities
+      || !authorities.identities
+      || typeof authorities.identities.resolve !== 'function'
+      || !authorities.adrs
+      || typeof authorities.adrs.observe !== 'function') {
+      throw new SnapshotDomainError(
+        'SNAPSHOT_RECONSTRUCTION_AUTHORITY_REQUIRED',
+        'Execution snapshot creation requires canonical SPEC and ADR authority.',
+      )
+    }
+
+    const requestedSpec = input.spec instanceof CanonicalIdentityReference
+      ? input.spec
+      : CanonicalIdentityReference.create(input.spec)
+    if (requestedSpec.identity.kind !== 'SPEC') {
+      throw new SnapshotDomainError('INVALID_SNAPSHOT_ENTRY', 'An execution snapshot requires a SPEC endpoint.')
+    }
+    const resolvedSpec = authorities.identities.resolve(requestedSpec)
+    if (!resolvedSpec.reference.equals(requestedSpec) || resolvedSpec.identity.kind !== 'SPEC') {
+      throw new SnapshotDomainError('SNAPSHOT_AUTHORITY_DRIFT', 'Snapshot SPEC does not match canonical authority.')
+    }
+
+    const adrs = input.adrs.map((entry) => {
+      if (!entry || typeof entry !== 'object') {
+        throw new SnapshotDomainError('INVALID_SNAPSHOT_ENTRY', 'Snapshot ADR entry is required.')
+      }
+      const requestedReference = entry.reference instanceof CanonicalIdentityReference
+        ? entry.reference
+        : CanonicalIdentityReference.create(entry.reference)
+      const observation = authorities.adrs.observe(requestedReference)
+      if (!observation || !observation.reference.equals(requestedReference)) {
+        throw new SnapshotDomainError(
+          'SNAPSHOT_NOT_FOUND',
+          `ADR ${requestedReference.canonicalKey} could not be resolved by canonical authority.`,
+        )
+      }
+      if ((entry.decisionStatus !== undefined && entry.decisionStatus !== observation.decisionStatus)
+        || (entry.contentHash !== undefined
+          && (entry.contentHash instanceof AdrContentHash
+            ? entry.contentHash.value
+            : entry.contentHash) !== observation.contentHash.value)) {
+        throw new SnapshotDomainError(
+          'SNAPSHOT_AUTHORITY_DRIFT',
+          `ADR ${requestedReference.canonicalKey} caller fields do not match canonical authority.`,
+        )
+      }
+      return AdrSnapshotEntry.fromAuthority(observation)
+    })
+
+    return ExecutionSnapshot.construct({ ...input, spec: resolvedSpec.reference, adrs }, 'DRAFT')
   }
 
-  static rehydrate(input: ExecutionSnapshotRehydrationInput): ExecutionSnapshot {
-    return ExecutionSnapshot.construct(input, input.status)
+  static rehydrate(
+    input: ExecutionSnapshotRehydrationInput,
+    authorities: ExecutionSnapshotReconstructionAuthorities,
+  ): ExecutionSnapshot {
+    if (!authorities
+      || !authorities.identities
+      || typeof authorities.identities.resolveForRehydration !== 'function'
+      || !authorities.adrs
+      || typeof authorities.adrs.resolveAdrForRehydration !== 'function'
+      || !authorities.progression
+      || typeof authorities.progression.resolveForRehydration !== 'function') {
+      throw new SnapshotDomainError(
+        'SNAPSHOT_RECONSTRUCTION_AUTHORITY_REQUIRED',
+        'Execution snapshot rehydration requires canonical SPEC and ADR reconstruction authorities.',
+      )
+    }
+
+    const snapshot = ExecutionSnapshot.construct(input, input.status)
+    try {
+      ExecutionSnapshot.assertCanonicalAuthority(snapshot, authorities)
+      const progression = authorities.progression.resolveForRehydration(snapshot.id)
+      ExecutionSnapshot.assertProgression(snapshot, progression, authorities)
+    } catch (error) {
+      if (error instanceof SnapshotDomainError) throw error
+      throw new SnapshotDomainError(
+        'SNAPSHOT_NOT_FOUND',
+        `Snapshot ${snapshot.id.value} could not resolve its canonical authority material.`,
+      )
+    }
+
+    return snapshot
+  }
+
+  private static assertCanonicalAuthority(
+    snapshot: ExecutionSnapshot,
+    authorities: ExecutionSnapshotReconstructionAuthorities,
+  ): void {
+    const resolvedSpec = authorities.identities.resolveForRehydration(snapshot.spec)
+    if (!resolvedSpec.reference.equals(snapshot.spec) || resolvedSpec.identity.kind !== 'SPEC') {
+      throw new SnapshotDomainError('SNAPSHOT_AUTHORITY_DRIFT', `Snapshot ${snapshot.id.value} has a detached SPEC reference.`)
+    }
+
+    snapshot.adrs.forEach((entry) => {
+      const resolvedAdr = authorities.adrs.resolveAdrForRehydration(entry.reference)
+      if (!resolvedAdr.reference.equals(entry.reference)
+        || resolvedAdr.reference.identity.kind !== 'ADR'
+        || resolvedAdr.decisionStatus.value !== entry.decisionStatus
+        || !resolvedAdr.contentHash.equals(entry.contentHash)) {
+        throw new SnapshotDomainError(
+          'SNAPSHOT_AUTHORITY_DRIFT',
+          `Snapshot ${snapshot.id.value} contains an ADR basis that differs from canonical authority.`,
+        )
+      }
+    })
+  }
+
+  private static assertProgression(
+    snapshot: ExecutionSnapshot,
+    progression: readonly SnapshotProgressionRecordInput[] | undefined,
+    authorities: ExecutionSnapshotReconstructionAuthorities,
+  ): void {
+    const expectedLength = snapshot.status === 'DRAFT' ? 1 : 2
+    if (!progression || progression.length !== expectedLength) {
+      throw new SnapshotDomainError(
+        'SNAPSHOT_AUTHORITY_DRIFT',
+        `Snapshot ${snapshot.id.value} does not have authoritative progression material.`,
+      )
+    }
+
+    progression.forEach((record, index) => {
+      const expectedStatus = index === 0 ? 'DRAFT' : 'CONFIRMED'
+      if (record.status !== expectedStatus) {
+        throw new SnapshotDomainError(
+          'SNAPSHOT_AUTHORITY_DRIFT',
+          `Snapshot ${snapshot.id.value} has an invalid progression state sequence.`,
+        )
+      }
+      const step = ExecutionSnapshot.construct(record, record.status)
+      if (!step.id.equals(snapshot.id) || !step.hasSameAuthorityBasis(snapshot)) {
+        throw new SnapshotDomainError(
+          'SNAPSHOT_AUTHORITY_DRIFT',
+          `Snapshot ${snapshot.id.value} progression basis does not match canonical authority.`,
+        )
+      }
+      ExecutionSnapshot.assertCanonicalAuthority(step, authorities)
+    })
   }
 
   private static construct(input: ExecutionSnapshotBasisInput, status: SnapshotStatus): ExecutionSnapshot {
