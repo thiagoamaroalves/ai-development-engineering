@@ -2,11 +2,13 @@
 
 ## 1. Status
 
-`STATUS: BLOCKED`  
-`ISSUE_DECOMPOSITION_READINESS: ISSUE_READY`  
-`INITIAL_DAG_STATE: BLOCKED`  
-`BLOCKED_BY: DOM-001-TICKET-003, DOM-001-TICKET-006`  
-`DEPENDS_ON: DOM-001-TICKET-003, DOM-001-TICKET-006`  
+`STATUS: DONE`
+`ISSUE_DECOMPOSITION_READINESS: ISSUE_READY`
+`INITIAL_DAG_STATE: BLOCKED`
+`BLOCKED_BY: NONE`
+`CURRENT_DAG_STATE: DONE`
+`RELEASE_WAVE: WAVE-6 / 2026-09-16`
+`DEPENDS_ON: DOM-001-TICKET-003, DOM-001-TICKET-006, DOM-001-TICKET-007`
 `UNBLOCKS: DOM-001-TICKET-012`
 
 ## 2. Source Traceability
@@ -16,8 +18,8 @@
 - Component SPEC: `docs/specs/SPEC-DOM-001-workflow-authority-and-governance.md` — DOM-AUDIT-005.
 - Gap Matrix: `docs/specs/gap-matrices/SPEC-DOM-001-implementation-gap-matrix.md` — GAP-021.
 - Gap Matrix Audit: `docs/specs/gap-matrices/audits/SPEC-DOM-001-implementation-gap-matrix-audit.md`.
-- Implementation Plan: `docs/specs/implementation-plans/SPEC-DOM-001-implementation-plan.md` — DOM-IMP-10.
-- Plan Audit: `docs/specs/implementation-plans/audits/SPEC-DOM-001-implementation-plan-audit.md`.
+- Implementation Plan: `docs/specs/implementation-plans/SPEC-DOM-001-implementation-plan.md` — SHA-256 `C57D24FEC7CF69BED3EC354C4334DE698AFC54722FD7EDA6F2D3D6353FF35C33`; DOM-IMP-10.
+- Plan Audit: `docs/specs/implementation-plans/audits/SPEC-DOM-001-implementation-plan-audit-2026-09-11-reaudit-002.md` — SHA-256 `474E33C3FD17F8790FBB2CD2A39C9670A33D0830FF851C8D06DE31CA6BFB9695`; `READY_FOR_ISSUE_DECOMPOSITION`.
 
 ## 3. Authority / Scope
 
@@ -68,11 +70,11 @@ Generated contracts: invalidation/adjustment result contract.
 
 ## 13. Dependencies
 
-Internal: `DOM-001-TICKET-003`, `DOM-001-TICKET-006`. Cross-SPEC downstream projections consume the result and are non-blocking.
+Internal: `DOM-001-TICKET-003`, `DOM-001-TICKET-006`, `DOM-001-TICKET-007`. Cross-SPEC downstream projections consume the result and are non-blocking.
 
 ## 14. Blocking Conditions
 
-Blocked until lifecycle/succession and ticket aggregate contracts complete. No external blocker exists.
+Blocked until the ticket aggregate contract and publication/advancement gate complete. TICKET-003 is complete and remains only in `DEPENDS_ON` for lineage. TICKET-007 remains an unresolved internal prerequisite. No external blocker exists.
 
 ## 14a. Authority Consumption Proof
 
@@ -85,7 +87,7 @@ Blocked until lifecycle/succession and ticket aggregate contracts complete. No e
 | Revision/version transport | Normative revision, affected approval IDs, adjustment ID, and historical lineage are hash/correlation linked. |
 | Failure / not-found / stale semantics | Unrelated approval, missing adjustment, stale revision, or completed-ticket reopen rejects without destructive mutation. |
 | Productive availability / evidence | `YES` for local registry/adjustment boundary and deterministic foreign-record fixtures; PLAT/GIT/EXEC projections are non-blocking consumers. Evidence: `T10-AC1`–`T10-AC2`. |
-| Result | `AUTHORITY_CONSUMABLE`. |
+| Result | `AUTHORITY_DEFINED_BUT_NOT_CONSUMABLE` for integrated-only PLAT/GIT/EXEC capabilities; local contract witness only. |
 
 ## 14b. Producer / Consumer Contract Proof
 
@@ -111,7 +113,7 @@ evidence are preserved in README section 11.1. For NONE, no shared capability
 record is required by the current Plan for this ticket's local closure.
 NO_DOWNSTREAM_CAPABILITY_PROMOTION_WITHOUT_NEW_EVIDENCE = TRUE.
 
-## 14c. ACCEPTANCE_WITNESS_MATRIX
+### Acceptance witness context
 `PRODUCER_CONSUMER_CONTRACT_PROOF_FIELDS`: `PRODUCER = SPEC-PLAT-001,
 SPEC-GIT-001, SPEC-EXEC-002`; `PRODUCED_CONTRACT = records keyed by canonical
 adjustment/revision`; `AUTHORITY_OWNER = SPEC-DOM-001`; `CONSUMER = TICKET-010`;
@@ -123,10 +125,10 @@ record mappings`; `PROOF_EVIDENCE = docs/tickets/SPEC-DOM-001/evidence/TICKET-01
 
 ## 14c. ACCEPTANCE_WITNESS_MATRIX
 
-| AC | Normative behavior / verb | Concrete operation | State/transition | Direct positive test | Direct negative/isolation test | Expected evidence | Acceptance owner |
-|---|---|---|---|---|---|---|---|
-| AC-DOM-053 | Invalidate only affected approvals | apply normative revision command | approval obsolete state | `T10-AC1-P` selective affected-approval invalidation | `T10-AC1-N` unrelated approval remains valid; stale revision rejects; retry is idempotent | `docs/tickets/SPEC-DOM-001/evidence/TICKET-010/AC-DOM-053-invalidation.md` | TICKET-010 |
-| AC-DOM-053 | Preserve terminal tickets and link adjustment | create adjustment command | linked adjustment/terminal ticket | `T10-AC2-P` adjustment links exact revision and history | `T10-AC2-N` `COMPLETED` ticket reopen or missing link rejects; recovery preserves terminality | `docs/tickets/SPEC-DOM-001/evidence/TICKET-010/AC-DOM-053-adjustment.md` | TICKET-010 |
+| NORMATIVE_BEHAVIOR | NORMATIVE_VERB | CONCRETE_OPERATION_COMMAND_OR_QUERY | STATE_OR_TRANSITION_AFFECTED | DIRECT_POSITIVE_TEST | DIRECT_NEGATIVE_OR_ISOLATION_TEST | EXPECTED_EVIDENCE_FILE | EVIDENCE_TYPE | ACCEPTANCE_OWNER | REQUIRED_PRODUCER_OR_CAPABILITY | AUTHORITY_STATUS | CONTRACT_STATUS | LOCAL_TESTABILITY | PRODUCTIVE_AVAILABILITY | CAPABILITY_SUMMARY_STATUS | DEPENDENCY_CLASS | WITNESS_EXECUTABLE_AT_LOCAL_CLOSURE |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Selective invalidation | invalidates only affected approvals | apply normative revision command | approval obsolete state | `T10-AC1-P` selective affected-approval invalidation | `T10-AC1-N` unrelated approval remains valid; stale revision rejects; retry idempotent | `docs/tickets/SPEC-DOM-001/evidence/TICKET-010/AC-DOM-053-invalidation.md` | LOCAL_TEST_EVIDENCE | TICKET-010 | none — local invalidation registry | DEFINED | DEFINED | YES | YES | CONTRACT_PRODUCTIVELY_AVAILABLE | LOCAL_IMPLEMENTATION | YES |
+| Terminality and adjustment lineage | preserves and links | create adjustment command | linked adjustment/terminal ticket | `T10-AC2-P` adjustment links exact revision and history | `T10-AC2-N` COMPLETED reopen or missing link rejects; recovery preserves terminality | `docs/tickets/SPEC-DOM-001/evidence/TICKET-010/AC-DOM-053-adjustment.md` | LOCAL_TEST_EVIDENCE | TICKET-010 | none — local adjustment lineage | DEFINED | DEFINED | YES | YES | CONTRACT_PRODUCTIVELY_AVAILABLE | LOCAL_IMPLEMENTATION | YES |
 
 ### Temporal Authority Proof
 
@@ -167,9 +169,11 @@ Approval registry; selective invalidation trace; unchanged completed-ticket reco
 COMPLETION_GATE:
   production_code: REQUIRED
   automated_tests: REQUIRED
-  integration_evidence: REQUIRED
-  legacy_transition_evidence: REQUIRED
-  conformance_evidence: REQUIRED
+  local_completion_evidence: REQUIRED
+  integration_evidence: REQUIRED_AS_LOCAL_CONTRACT_CONTRIBUTION; FOREIGN_PRODUCTIVE_CHECKPOINT_DEFERRED
+  legacy_transition_evidence: REQUIRED_FOR_LOCAL_SCOPE; FOREIGN_RETIREMENT_DEFERRED
+  conformance_evidence: REQUIRED_FOR_LOCAL_CONTRIBUTION; FINAL_CONFORMANCE_DEFERRED_TO_TICKET-012
+  local_closure_boundary: local invalidation/lineage evidence is required; foreign persistence and projection are integrated-only
 ```
 
 ## 21. Legacy / Cutover Impact
@@ -182,11 +186,11 @@ Over-invalidation or reopening terminal work. Mitigation: selective fixtures and
 
 ## 23. Implementation Wave
 
-`WAVE: 5`.
+`WAVE: 6`.
 
 ## 24. Parallelization
 
-`SAFE_WITH_COORDINATION`; blocked by TICKET-003/006 and unblocks TICKET-012.
+`SAFE_WITH_COORDINATION`; blocked by TICKET-006 and TICKET-007 and unblocks TICKET-012.
 
 ## 25. Handoff After Completion
 
@@ -195,3 +199,71 @@ Independent ticket audit may validate this ticket; its invalidation evidence is 
 ## 26. Ticket Local Closure
 
 `TICKET_LOCAL_CLOSURE = YES`.
+
+## 27. Implementation Execution Record
+
+```text
+INITIAL_STATUS: READY
+FINAL_STATUS: DONE
+IMPLEMENTATION_DESIGN: docs/tickets/SPEC-DOM-001/DOM-001-TICKET-010-implementation-design.md
+IMPLEMENTATION_DESIGN_GATE: READY_FOR_IMPLEMENTATION
+IMPLEMENTATION_STRUCTURAL_SELF_CHECK: PASS
+ACCEPTANCE_CRITERIA: 2/2 SATISFIED
+COMPLETION_EVIDENCE: PRESENT
+CHANGED_PRODUCTION_FILES: src/domain/normative-change.ts; src/application/normative-change.ts
+CHANGED_TEST_FILES: tests/dom-001-ticket-010.test.ts
+CHANGED_EVIDENCE_FILES: docs/tickets/SPEC-DOM-001/evidence/TICKET-010/
+FOCUSED_TESTS: 5 passed, 0 failed
+FULL_PRODUCTIVE_SUITE_AFTER_BATCH: 132 passed, 0 failed
+PROTOTYPE_SUITE_AFTER_BATCH: 92 passed, 0 failed
+SOURCE_TYPECHECK: PASS
+IMPLEMENTATION_TIME_REMAINING_BLOCKERS: NONE locally; independent structural review and implementation audit required
+IMPLEMENTATION_TIME_UNBLOCKS: TICKET-012 remained gated until T009/T010/T011 were finalized
+```
+
+## 29. Finalization Record
+
+```text
+CURRENT_REMAINING_BLOCKERS: NONE locally; structural review, independent implementation audit, and finalization are complete; TICKET-012 is DONE
+CURRENT_UNBLOCKS: TICKET-012; finalization releases this prerequisite edge
+
+
+FINALIZATION_VERDICT: TICKET_FINALIZED_LOCALLY
+FINALIZATION_DATE: 2026-09-16
+TICKET_STATUS_BEFORE: VALIDATION_REQUIRED
+TICKET_STATUS_AFTER: DONE
+LOCAL_TICKET_DONE_ALLOWED: YES
+TICKET_GATE: READY_FOR_DONE
+OPEN_INTEGRATED_FINDINGS: 0
+INTEGRATED_HANDOFFS_COMPLETE: YES
+AUDIT_ARTIFACT_IMMUTABILITY: REQUIRED
+FINALIZATION_ARTIFACT: docs/tickets/SPEC-DOM-001/evidence/TICKET-010/finalization-2026-09-16.md
+```
+
+## 28. Structural Review Record
+
+```text
+STRUCTURAL_REVIEW_STATUS: PASS
+STRUCTURAL_REVIEW_FINDINGS: 0
+DOMAIN_MODEL_CONFORMANT: YES
+AGGREGATE_BOUNDARIES_CONFORMANT: YES
+INVARIANT_PLACEMENT_CONFORMANT: YES
+COMPONENT_BOUNDARIES_CONFORMANT: YES
+SOLID_CONFORMANT: YES
+DEPENDENCY_DIRECTION_CONFORMANT: YES
+CLEAN_CODE_STRUCTURALLY_ACCEPTABLE: YES
+CROSS_SPEC_BOUNDARY_CONFORMANT: YES
+CRITICAL_INVARIANTS_WITH_TESTS: ALL
+REQUIRED_TEST_SURFACES_IMPLEMENTED: YES
+TESTABILITY_REGRESSIONS: 0
+UNJUSTIFIED_COMPONENT_COLLAPSES: 0
+UNPLANNED_STRUCTURAL_COMPONENTS: 0
+MISSING_REQUIRED_COMPONENTS: 0
+UNJUSTIFIED_SOLID_VIOLATIONS: 0
+DEPENDENCY_DIRECTION_VIOLATIONS: 0
+INFRASTRUCTURE_LEAKAGE_POINTS: 0
+DOMAIN_RULE_DUPLICATION: 0
+IMPLEMENTATION_STRUCTURAL_SELF_CHECK: PASS
+FOCUSED_STRUCTURAL_REVIEW_TESTS: 5 passed, 0 failed
+REVIEW_CORRECTIONS: source-revision matching for affected approvals; typed NormativeChangeId; semantic snapshot reconciliation
+```

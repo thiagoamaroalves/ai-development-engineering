@@ -2,12 +2,12 @@
 
 ## 1. Status
 
-`STATUS: COMPLETED`
+`STATUS: DONE`
 `ISSUE_DECOMPOSITION_READINESS: ISSUE_READY`  
 `INITIAL_DAG_STATE: READY`  
 `BLOCKED_BY: NONE`  
 `DEPENDS_ON: NONE`  
-`UNBLOCKS: DOM-001-TICKET-002, DOM-001-TICKET-004`
+`UNBLOCKS: DOM-001-TICKET-002, DOM-001-TICKET-003, DOM-001-TICKET-004`
 
 `IMPLEMENTATION_DESIGN: docs/tickets/SPEC-DOM-001/DOM-001-TICKET-001-implementation-design.md`
 `IMPLEMENTATION_DESIGN_VERDICT: IMPLEMENTATION_DESIGN_READY`
@@ -22,8 +22,8 @@
 - Component SPEC: `docs/specs/SPEC-DOM-001-workflow-authority-and-governance.md` — DOM-ID-001, DOM-LINEAGE-001.
 - Gap Matrix: `docs/specs/gap-matrices/SPEC-DOM-001-implementation-gap-matrix.md` — GAP-001, GAP-006.
 - Gap Matrix Audit: `docs/specs/gap-matrices/audits/SPEC-DOM-001-implementation-gap-matrix-audit.md` — conformant validation.
-- Implementation Plan: `docs/specs/implementation-plans/SPEC-DOM-001-implementation-plan.md` — DOM-IMP-01.
-- Plan Audit: `docs/specs/implementation-plans/audits/SPEC-DOM-001-implementation-plan-audit.md` — `IMPLEMENTATION_PLAN_CONFORMANT`.
+- Implementation Plan: `docs/specs/implementation-plans/SPEC-DOM-001-implementation-plan.md` — SHA-256 `C57D24FEC7CF69BED3EC354C4334DE698AFC54722FD7EDA6F2D3D6353FF35C33`; DOM-IMP-01.
+- Plan Audit: `docs/specs/implementation-plans/audits/SPEC-DOM-001-implementation-plan-audit-2026-09-11-reaudit-002.md` — SHA-256 `474E33C3FD17F8790FBB2CD2A39C9670A33D0830FF851C8D06DE31CA6BFB9695`; `IMPLEMENTATION_PLAN_CONFORMANT` / `READY_FOR_ISSUE_DECOMPOSITION`.
 
 ## 3. Authority / Scope
 
@@ -82,8 +82,8 @@ Internal ticket dependencies: none. Cross-SPEC dependencies: none blocking; Agen
 ## 14. Blocking Conditions
 
 The ticket began with INITIAL_STATUS READY and INITIAL_DAG_STATE READY. Its
-current status is VALIDATION_REQUIRED after implementation evidence; it is not
-a new current READY claim.
+current status is DONE after local finalization; it is not a new current
+READY claim.
 
 ## 14a. Authority Consumption Proof
 
@@ -132,12 +132,12 @@ NO_DOWNSTREAM_CAPABILITY_PROMOTION_WITHOUT_NEW_EVIDENCE = TRUE.
 
 ## 14c. ACCEPTANCE_WITNESS_MATRIX
 
-| AC | Normative behavior / verb | Concrete operation | State/transition | Direct positive test | Direct negative/isolation test | Expected evidence | Acceptance owner |
-|---|---|---|---|---|---|---|---|
-| AC-DOM-001 | Create, lookup, persist, rehydrate, compare identity | identity create/lookup/rehydrate command | canonical identity continuity | `T1-AC1-P` identity round-trip and historical lookup | `T1-AC1-N` unknown kind/scope/revision; no filename-only identity | `docs/tickets/SPEC-DOM-001/evidence/TICKET-001/AC-DOM-001-identity.md` | TICKET-001 |
-| AC-DOM-001 | Reject alternate `PipelineId` authority | identity lookup/persist command | canonical reference remains authoritative | `T1-AC1-P2` canonical reference lookup | `T1-AC1-N2` `PipelineId` substitution cannot create or retrieve identity | `docs/tickets/SPEC-DOM-001/evidence/TICKET-001/AC-DOM-001-alternate-authority.md` | TICKET-001 |
-| AC-DOM-005 | Add, progress, and query lineage independently | lineage add/progress/query command | ADR↔SPEC relation progress | `T1-AC2-P` two independent relation transitions | `T1-AC2-N` duplicate and cross-relation mutation rejected | `docs/tickets/SPEC-DOM-001/evidence/TICKET-001/AC-DOM-005-lineage.md` | TICKET-001 |
-| AC-DOM-001 / AC-DOM-005 | Rehydrate immutable identity and lineage | aggregate rehydration command | persisted canonical state restored | `T1-AC3-P` rehydration recovery | `T1-AC3-N` missing, stale, or corrupted record rejected without mutation | `docs/tickets/SPEC-DOM-001/evidence/TICKET-001/AC-DOM-001-rehydration.md` | TICKET-001 |
+| NORMATIVE_BEHAVIOR | NORMATIVE_VERB | CONCRETE_OPERATION_COMMAND_OR_QUERY | STATE_OR_TRANSITION_AFFECTED | DIRECT_POSITIVE_TEST | DIRECT_NEGATIVE_OR_ISOLATION_TEST | EXPECTED_EVIDENCE_FILE | EVIDENCE_TYPE | ACCEPTANCE_OWNER | REQUIRED_PRODUCER_OR_CAPABILITY | AUTHORITY_STATUS | CONTRACT_STATUS | LOCAL_TESTABILITY | PRODUCTIVE_AVAILABILITY | CAPABILITY_SUMMARY_STATUS | DEPENDENCY_CLASS | WITNESS_EXECUTABLE_AT_LOCAL_CLOSURE |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Canonical identity | creates, looks up, persists, rehydrates, compares | identity create/lookup/rehydrate command | canonical identity continuity | `T1-AC1-P` identity round-trip and historical lookup | `T1-AC1-N` unknown kind/scope/revision; no filename-only identity | `docs/tickets/SPEC-DOM-001/evidence/TICKET-001/AC-DOM-001-identity.md` | LOCAL_TEST_EVIDENCE | TICKET-001 | none — local DOM identity boundary | DEFINED | DEFINED | YES | YES | CONTRACT_PRODUCTIVELY_AVAILABLE | LOCAL_IMPLEMENTATION | YES |
+| Canonical reference authority | rejects alternate | identity lookup/persist command | canonical reference remains authoritative | `T1-AC1-P2` canonical reference lookup | `T1-AC1-N2` `PipelineId` substitution cannot create or retrieve identity | `docs/tickets/SPEC-DOM-001/evidence/TICKET-001/AC-DOM-001-alternate-authority.md` | LOCAL_TEST_EVIDENCE | TICKET-001 | none — local DOM identity boundary | DEFINED | DEFINED | YES | YES | CONTRACT_PRODUCTIVELY_AVAILABLE | LOCAL_IMPLEMENTATION | YES |
+| ADR↔SPEC lineage | adds, progresses, and queries independently | lineage add/progress/query command | ADR↔SPEC relation progress | `T1-AC2-P` two independent relation transitions | `T1-AC2-N` duplicate and cross-relation mutation rejected | `docs/tickets/SPEC-DOM-001/evidence/TICKET-001/AC-DOM-005-lineage.md` | LOCAL_TEST_EVIDENCE | TICKET-001 | none — local DOM lineage boundary | DEFINED | DEFINED | YES | YES | CONTRACT_PRODUCTIVELY_AVAILABLE | LOCAL_IMPLEMENTATION | YES |
+| Identity and lineage recovery | rehydrates immutably | aggregate rehydration command | persisted canonical state restored | `T1-AC3-P` rehydration recovery | `T1-AC3-N` missing, stale, or corrupted record rejected without mutation | `docs/tickets/SPEC-DOM-001/evidence/TICKET-001/AC-DOM-001-rehydration.md` | LOCAL_TEST_EVIDENCE | TICKET-001 | none — local DOM identity/lineage boundary | DEFINED | DEFINED | YES | YES | CONTRACT_PRODUCTIVELY_AVAILABLE | LOCAL_IMPLEMENTATION | YES |
 
 `TEMPORAL_AUTHORITY_PROOF: NOT_APPLICABLE` — Plan `DOM-IMP-01` explicitly
 classifies this as no external effect. Identity and lineage revisions are
@@ -174,7 +174,7 @@ Canonical identity/lineage commands and ports, no parallel authority path, direc
 
 ```text
 INITIAL_STATUS: READY
-FINAL_STATUS: COMPLETED
+FINAL_STATUS: DONE
 AC-DOM-001: SATISFIED
 AC-DOM-005: SATISFIED
 AC-DOM-052: CONTRIBUTOR_EVIDENCE_PRESENT; FINAL_PROOF_OWNER = TICKET-012
@@ -244,7 +244,7 @@ Identity collapse with assignment/session or presentation IDs. Mitigation: expli
 
 ## 24. Parallelization
 
-`SERIAL_REQUIRED`. `UNBLOCKS: DOM-001-TICKET-002, DOM-001-TICKET-004`.
+`SERIAL_REQUIRED`. `UNBLOCKS: DOM-001-TICKET-002, DOM-001-TICKET-003, DOM-001-TICKET-004`.
 
 ## 25. Handoff After Completion
 
@@ -266,7 +266,7 @@ LOCAL_TICKET_DONE_ALLOWED: YES
 TICKET_GATE: READY_FOR_DONE
 LOCAL_TICKET_DONE_BLOCKERS: 0
 LOCAL_CLOSURE_PERSISTED: YES
-FINAL_TICKET_STATUS: COMPLETED
+FINAL_TICKET_STATUS: DONE
 OPEN_INTEGRATED_FINDINGS: 1
 OPEN_INTEGRATED_FINDING_STATE: IMA-MAJOR-002 = OPEN_INTEGRATED_ONLY
 INTEGRATED_HANDOFFS_COMPLETE: YES

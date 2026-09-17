@@ -2,13 +2,52 @@
 
 ## 1. Status
 
-`STATUS: BLOCKED`  
+`STATUS: DONE`
 `ISSUE_DECOMPOSITION_READINESS: ISSUE_READY`  
 `INITIAL_DAG_STATE: BLOCKED`  
-`BLOCKED_BY: DOM-001-TICKET-005`
-`CURRENT_DAG_STATE: BLOCKED`
+`BLOCKED_BY: NONE`
+`CURRENT_DAG_STATE: DONE`
 `DEPENDS_ON: DOM-001-TICKET-001, DOM-001-TICKET-005`  
 `UNBLOCKS: DOM-001-TICKET-009, DOM-001-TICKET-012`
+
+### Implementation execution record
+
+```text
+INITIAL_STATUS: READY
+FINAL_STATUS: DONE
+IMPLEMENTATION_STATUS: IMPLEMENTED
+IMPLEMENTATION_BASELINE: 6b31bcee1591c8b2e6499a434950664077b2be01 plus assessed dirty worktree
+CURRENT_HEAD: 6b31bcee1591c8b2e6499a434950664077b2be01
+TICKET_AUDIT_HEAD: 6b31bcee1591c8b2e6499a434950664077b2be01 plus remediated T008 worktree
+DESIGN_ARTIFACT: docs/tickets/SPEC-DOM-001/DOM-001-TICKET-008-implementation-design.md
+DESIGN_GATE: IMPLEMENTATION_DESIGN_READY / READY_FOR_IMPLEMENTATION
+CHANGED_FILES: src/domain/audit-cycle.ts; src/application/audit-cycle.ts; tests/dom-001-ticket-008.test.ts; docs/tickets/SPEC-DOM-001/evidence/TICKET-008/*
+TESTS_RUN: T008 focused (5); combined root ticket suite (10); full root productive suite (116); strict source typecheck
+TESTS_PASSED: 5 focused; 10 combined; 116 full; typecheck PASS
+TESTS_FAILED: 0
+TESTS_SKIPPED: 0
+ENVIRONMENTAL_FAILURES: 0
+ACCEPTANCE_CRITERIA: AC-DOM-049 SATISFIED; AC-DOM-050 SATISFIED
+COMPLETION_EVIDENCE: PRESENT and current locally; foreign EXEC/PLAT activity and persistence remain integrated-only
+REMAINING_BLOCKERS: NONE for local ticket closure; post-finalization idempotency correction reaudited and closed
+REMEDIATION_ARTIFACT: docs/tickets/SPEC-DOM-001/DOM-001-TICKET-008-implementation-remediation.md
+REMEDIATION_STATUS: COMPLETE; independent re-audit round 2 passed
+FINALIZATION_ARTIFACT: docs/tickets/SPEC-DOM-001/evidence/TICKET-008/finalization-2026-09-16-reaudit-002.md
+IMPLEMENTATION_STRUCTURAL_SELF_CHECK: PASS
+STRUCTURAL_REVIEW_STATUS: PASS
+STRUCTURAL_REVIEW_FINDINGS: 0
+DOMAIN_MODEL_CONFORMANT: YES
+AGGREGATE_BOUNDARIES_CONFORMANT: YES
+INVARIANT_PLACEMENT_CONFORMANT: YES
+COMPONENT_BOUNDARIES_CONFORMANT: YES
+SOLID_CONFORMANT: YES
+DEPENDENCY_DIRECTION_CONFORMANT: YES
+CLEAN_CODE_STRUCTURALLY_ACCEPTABLE: YES
+CROSS_SPEC_BOUNDARY_CONFORMANT: YES
+CRITICAL_INVARIANTS_WITH_TESTS: ALL
+REQUIRED_TEST_SURFACES_IMPLEMENTED: YES
+TESTABILITY_REGRESSIONS: 0
+```
 
 ## 2. Source Traceability
 
@@ -17,8 +56,8 @@
 - Component SPEC: `docs/specs/SPEC-DOM-001-workflow-authority-and-governance.md` — DOM-AUDIT-001, DOM-AUDIT-002.
 - Gap Matrix: `docs/specs/gap-matrices/SPEC-DOM-001-implementation-gap-matrix.md` — GAP-017, GAP-018.
 - Gap Matrix Audit: `docs/specs/gap-matrices/audits/SPEC-DOM-001-implementation-gap-matrix-audit.md`.
-- Implementation Plan: `docs/specs/implementation-plans/SPEC-DOM-001-implementation-plan.md` — DOM-IMP-08.
-- Plan Audit: `docs/specs/implementation-plans/audits/SPEC-DOM-001-implementation-plan-audit.md`.
+- Implementation Plan: `docs/specs/implementation-plans/SPEC-DOM-001-implementation-plan.md` — SHA-256 `C57D24FEC7CF69BED3EC354C4334DE698AFC54722FD7EDA6F2D3D6353FF35C33`; DOM-IMP-08.
+- Plan Audit: `docs/specs/implementation-plans/audits/SPEC-DOM-001-implementation-plan-audit-2026-09-11-reaudit-002.md` — SHA-256 `474E33C3FD17F8790FBB2CD2A39C9670A33D0830FF851C8D06DE31CA6BFB9695`; `READY_FOR_ISSUE_DECOMPOSITION`.
 
 ## 3. Authority / Scope
 
@@ -56,14 +95,14 @@ Agent/session assignment, auditor/remediator execution, physical persistence, OP
 
 ## 11. Repository Evidence
 
-No productive cycle registry or structured verdict closure was found; prototype audit/remediation scenarios are non-authoritative. Add explicit cycle identity and verdict closure commands.
+Productive artifact-cycle aggregate, independent revision, ordered round policy, structured verdict policy, EXEC evidence mapper, and application identity boundary are implemented in `src/domain/audit-cycle.ts` and `src/application/audit-cycle.ts`; direct evidence is recorded under `evidence/TICKET-008/`.
 
 ## 12. Expected Repository Impact
 
 Production code: audit-cycle aggregate and verdict command/event boundary.  
 Persistence/schema: identity/evidence persistence seam only.  
 Integration: round and final-conformance consumers.  
-Tests: cycle identity, verdict structure, prohibited reuse, remediation rejection, replay, and regression tests.  
+Tests: cycle identity, independent revision, verdict structure/attachment, prohibited reuse, remediation rejection, replay, EXEC mapping, wrong identity, concurrency and regression tests.
 Legacy/cutover: new canonical path preserving historical cycles.  
 Generated contracts: structured verdict contract.
 
@@ -73,7 +112,7 @@ Internal: `DOM-001-TICKET-001`, `DOM-001-TICKET-005`. Cross-SPEC assignment/sess
 
 ## 14. Blocking Conditions
 
-Blocked until command validation completes. No external blocker exists.
+TICKET-005 is complete and its dependency edge is satisfied. No current internal or external blocker exists.
 
 ## 14a. Authority Consumption Proof
 
@@ -86,7 +125,7 @@ Blocked until command validation completes. No external blocker exists.
 | Revision/version transport | Artifact ID, revision, cycle ID, round ID, and verdict schema version are bound in the closure record. |
 | Failure / not-found / stale semantics | Reused identity, wrong artifact/revision, empty/remediation-only verdict, or process termination rejects closure. |
 | Productive availability / evidence | `YES` for local cycle/verdict aggregate and EXEC evidence fixture; external activity/session production is non-blocking. Evidence: `T8-AC1`–`T8-AC2`. |
-| Result | `AUTHORITY_CONSUMABLE`. |
+| Result | `AUTHORITY_DEFINED_BUT_NOT_CONSUMABLE` for integrated-only EXEC capability; local contract witness only. |
 
 ## 14b. Producer / Consumer Contract Proof
 
@@ -101,18 +140,19 @@ Blocked until command validation completes. No external blocker exists.
 
 ### Capability Availability Reconciliation
 
-APPLICABLE_SHARED_CAPABILITY_RECORDS: NONE.
+APPLICABLE_SHARED_CAPABILITY_RECORDS: CAP-EXEC-EXACT-VERSION-BASIS (PCP-EXEC-04).
 RECONCILIATION_SOURCE: README section 11.1 and current Plan section 12.1.
 AUTHORITY_STATUS = DEFINED; CONTRACT_STATUS = DEFINED; LOCAL_TESTABILITY = NO;
 PRODUCTIVE_AVAILABILITY = NO; DEPENDENCY_CLASS = REQUIRED_FOR_INTEGRATED_PROOF.
 BLOCKING_EFFECT: no local execution or local-closure block; integrated proof
 only. Local fixture evidence is contract-level only. Complete owner, producer,
 consumer, contract, failure semantics, version transport, and availability
-evidence are preserved in README section 11.1. For NONE, no shared capability
-record is required by the current Plan for this ticket's local closure.
+evidence are preserved in README section 11.1. The listed shared capability is
+required only for integrated proof and does not block local execution or local
+closure.
 NO_DOWNSTREAM_CAPABILITY_PROMOTION_WITHOUT_NEW_EVIDENCE = TRUE.
 
-## 14c. ACCEPTANCE_WITNESS_MATRIX
+### Acceptance witness context
 `PRODUCER_CONSUMER_CONTRACT_PROOF_FIELDS`: `PRODUCER = SPEC-EXEC-002`;
 `PRODUCED_CONTRACT = activity/session evidence reference`;
 `AUTHORITY_OWNER = SPEC-DOM-001`; `CONSUMER = TICKET-008`;
@@ -124,10 +164,10 @@ docs/tickets/SPEC-DOM-001/evidence/TICKET-008/AC-DOM-050-verdict.md`.
 
 ## 14c. ACCEPTANCE_WITNESS_MATRIX
 
-| AC | Normative behavior / verb | Concrete operation | State/transition | Direct positive test | Direct negative/isolation test | Expected evidence | Acceptance owner |
-|---|---|---|---|---|---|---|---|
-| AC-DOM-049 | Create distinct artifact/cycle/round identity | cycle create/register command | audit cycle identity | `T8-AC1-P` distinct identity for each artifact/revision/round | `T8-AC1-N` implicit reuse or wrong artifact/revision rejects | `docs/tickets/SPEC-DOM-001/evidence/TICKET-008/AC-DOM-049-cycle.md` | TICKET-008 |
-| AC-DOM-050 | Close only with structured verdict | verdict close command | cycle closure | `T8-AC2-P` exact structured verdict closes exact cycle | `T8-AC2-N` empty findings, remediation-only result, or process termination cannot close | `docs/tickets/SPEC-DOM-001/evidence/TICKET-008/AC-DOM-050-verdict.md` | TICKET-008 |
+| NORMATIVE_BEHAVIOR | NORMATIVE_VERB | CONCRETE_OPERATION_COMMAND_OR_QUERY | STATE_OR_TRANSITION_AFFECTED | DIRECT_POSITIVE_TEST | DIRECT_NEGATIVE_OR_ISOLATION_TEST | EXPECTED_EVIDENCE_FILE | EVIDENCE_TYPE | ACCEPTANCE_OWNER | REQUIRED_PRODUCER_OR_CAPABILITY | AUTHORITY_STATUS | CONTRACT_STATUS | LOCAL_TESTABILITY | PRODUCTIVE_AVAILABILITY | CAPABILITY_SUMMARY_STATUS | DEPENDENCY_CLASS | WITNESS_EXECUTABLE_AT_LOCAL_CLOSURE |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Cycle identity | creates distinctly | cycle create/register command | audit cycle identity | `T8-AC1-P` distinct identity per artifact/revision/round | `T8-AC1-N` implicit reuse or wrong artifact/revision rejects | `docs/tickets/SPEC-DOM-001/evidence/TICKET-008/AC-DOM-049-cycle.md` | LOCAL_TEST_EVIDENCE | TICKET-008 | none — local audit-cycle identity | DEFINED | DEFINED | YES | YES | CONTRACT_PRODUCTIVELY_AVAILABLE | REQUIRED_FOR_LOCAL_CLOSURE | YES |
+| Structured verdict closure | closes only with | verdict close command | cycle closure | `T8-AC2-P` exact structured verdict closes exact cycle | `T8-AC2-N` empty findings, remediation-only result, or termination cannot close | `docs/tickets/SPEC-DOM-001/evidence/TICKET-008/AC-DOM-050-verdict.md` | LOCAL_TEST_EVIDENCE | TICKET-008 | none — local DOM cycle/verdict boundary | DEFINED | DEFINED | YES | YES | CONTRACT_PRODUCTIVELY_AVAILABLE | REQUIRED_FOR_LOCAL_CLOSURE | YES |
 
 ### Temporal Authority Proof
 
@@ -156,11 +196,11 @@ All criteria are `TESTABLE: YES` and `LOCALLY_PROVABLE: YES` after prerequisites
 
 ## 18. Required Tests
 
-`LOCAL_TEST_EVIDENCE`: unit/domain/command tests for cycle identity, prohibited reuse, verdict structure, remediation rejection, and historical replay. `RECOVERY_EVIDENCE`: exact artifact/revision/cycle identity survives rehydration and cannot be silently reused.
+`LOCAL_TEST_EVIDENCE`: unit/domain/command tests for cycle identity, independent revision, prohibited reuse, verdict structure/attachment, remediation rejection, and historical replay. `RECOVERY_EVIDENCE`: exact artifact/revision/cycle identity survives rehydration and cannot be silently reused. `CONCURRENCY_EVIDENCE`: barrier-controlled round append has one winner and one stale loser.
 
 ## 19. Completion Evidence
 
-Cycle/verdict authority; structured closure evidence; and negative remediation tests. `EXPECTED_EVIDENCE_FILES`: `docs/tickets/SPEC-DOM-001/evidence/TICKET-008/AC-DOM-049-cycle.md`, `AC-DOM-050-verdict.md`, `temporal-authority.md`.
+Cycle/verdict authority; ordered-round, structured-closure, recovery, and negative remediation tests. `EXPECTED_EVIDENCE_FILES`: `docs/tickets/SPEC-DOM-001/evidence/TICKET-008/AC-DOM-049-cycle.md`, `AC-DOM-050-verdict.md`, `temporal-authority.md`.
 
 ## 20. Completion Gate
 
@@ -168,9 +208,11 @@ Cycle/verdict authority; structured closure evidence; and negative remediation t
 COMPLETION_GATE:
   production_code: REQUIRED
   automated_tests: REQUIRED
-  integration_evidence: REQUIRED
-  legacy_transition_evidence: REQUIRED
-  conformance_evidence: REQUIRED
+  local_completion_evidence: REQUIRED
+  integration_evidence: REQUIRED_AS_LOCAL_CONTRACT_CONTRIBUTION; FOREIGN_PRODUCTIVE_CHECKPOINT_DEFERRED
+  legacy_transition_evidence: REQUIRED_FOR_LOCAL_SCOPE; FOREIGN_RETIREMENT_DEFERRED
+  conformance_evidence: REQUIRED_FOR_LOCAL_CONTRIBUTION; FINAL_CONFORMANCE_DEFERRED_TO_TICKET-012
+  local_closure_boundary: local cycle/verdict evidence is required; external activity/session production is integrated-only
 ```
 
 ## 21. Legacy / Cutover Impact
@@ -183,11 +225,11 @@ Implicit cycle reuse or process completion treated as approval. Mitigation: iden
 
 ## 23. Implementation Wave
 
-`WAVE: 4`.
+`WAVE: 5`.
 
 ## 24. Parallelization
 
-`SAFE_WITH_COORDINATION`; blocked by TICKET-001/005 and unblocks TICKET-009/012.
+`SAFE_WITH_COORDINATION`; ready after TICKET-001/005 and unblocks TICKET-009/012.
 
 ## 25. Handoff After Completion
 
@@ -196,3 +238,27 @@ Independent ticket audit may validate this ticket; TICKET-009 consumes its cycle
 ## 26. Ticket Local Closure
 
 `TICKET_LOCAL_CLOSURE = YES`.
+
+## 27. Post-finalization correction
+
+`FINALIZATION_INVALIDATED = YES`.
+`INVALIDATION_REASON = exact duplicate command with stale expected revision was accepted by the handler`.
+`REMEDIATION_STATUS = CLOSED_AFTER_REAUDIT`.
+`REAUDIT_REQUIRED = COMPLETE`.
+
+## 28. Re-finalization
+
+`FINALIZATION_VERDICT = TICKET_FINALIZED_LOCALLY`.
+`FINALIZATION_DATE = 2026-09-16`.
+`FINALIZATION_AUTHORITY = docs/tickets/SPEC-DOM-001/DOM-001-TICKET-008-implementation-audit.md`.
+`TICKET_STATUS_BEFORE = VALIDATION_REQUIRED`.
+`TICKET_STATUS_AFTER = DONE`.
+`FINALIZATION_ARTIFACT = docs/tickets/SPEC-DOM-001/evidence/TICKET-008/finalization-2026-09-16-reaudit-002.md`.
+
+## 27. Local Finalization
+
+`FINALIZATION_VERDICT = TICKET_FINALIZED_LOCALLY`.
+`FINALIZATION_DATE = 2026-09-16`.
+`FINALIZATION_AUTHORITY = docs/tickets/SPEC-DOM-001/DOM-001-TICKET-008-implementation-audit.md`.
+`TICKET_STATUS_BEFORE = VALIDATION_REQUIRED`.
+`TICKET_STATUS_AFTER = DONE`.

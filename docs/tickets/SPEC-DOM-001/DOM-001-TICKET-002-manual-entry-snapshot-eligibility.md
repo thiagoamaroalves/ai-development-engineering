@@ -2,13 +2,46 @@
 
 ## 1. Status
 
-`STATUS: READY`
+`STATUS: DONE`
+
+### Implementation execution record
+
+```text
+INITIAL_STATUS: READY
+FINAL_STATUS: DONE
+TICKET_AUDIT_HEAD: 6b31bcee1591c8b2e6499a434950664077b2be01
+IMPLEMENTATION_BASELINE: 6b31bcee1591c8b2e6499a434950664077b2be01 plus the assessed dirty worktree
+CURRENT_HEAD: 6b31bcee1591c8b2e6499a434950664077b2be01
+BASELINE_DRIFT: LOCALIZED_IMPLEMENTATION_DRIFT
+DESIGN_DEVIATIONS: NONE
+IMPLEMENTATION_STRUCTURAL_SELF_CHECK: PASS
+DOMAIN_MODEL_CONFORMANT: YES
+AGGREGATE_BOUNDARIES_CONFORMANT: YES
+INVARIANT_PLACEMENT_CONFORMANT: YES
+COMPONENT_BOUNDARIES_CONFORMANT: YES
+SOLID_CONFORMANT: YES
+DEPENDENCY_DIRECTION_CONFORMANT: YES
+CLEAN_CODE_STRUCTURALLY_ACCEPTABLE: YES
+CROSS_SPEC_BOUNDARY_CONFORMANT: YES
+CRITICAL_INVARIANTS_WITH_TESTS: ALL
+REQUIRED_TEST_SURFACES_IMPLEMENTED: YES
+TESTABILITY_REGRESSIONS: 0
+CHANGED_FILES: src/domain/snapshot.ts; src/application/snapshot.ts; tests/dom-001-ticket-002.test.ts; docs/tickets/SPEC-DOM-001/evidence/TICKET-002/*
+TESTS_RUN: focused T002 suite (7); full productive suite (81); strict source typecheck
+TESTS_PASSED: 7 focused; 81 full; source typecheck PASS
+TESTS_FAILED: 0
+TESTS_SKIPPED: 0
+ENVIRONMENTAL_FAILURES: 0
+ACCEPTANCE_CRITERIA: AC-DOM-002 SATISFIED; AC-DOM-003 SATISFIED; AC-DOM-004 SATISFIED
+COMPLETION_EVIDENCE: PRESENT locally; foreign durable persistence/recovery remains integrated-only
+REMAINING_BLOCKERS: NONE for local closure; integrated-only downstream handoffs preserved
+```
 `ISSUE_DECOMPOSITION_READINESS: ISSUE_READY`  
 `INITIAL_DAG_STATE: BLOCKED`  
 `BLOCKED_BY: NONE`
-`CURRENT_DAG_STATE: READY`
-`DEPENDS_ON: DOM-001-TICKET-001`  
-`UNBLOCKS: DOM-001-TICKET-003, DOM-001-TICKET-012`
+`CURRENT_DAG_STATE: DONE`
+`DEPENDS_ON: DOM-001-TICKET-001, DOM-001-TICKET-003`
+`UNBLOCKS: DOM-001-TICKET-012`
 
 ## 2. Source Traceability
 
@@ -17,8 +50,8 @@
 - Component SPEC: `docs/specs/SPEC-DOM-001-workflow-authority-and-governance.md` — DOM-INGEST-001, DOM-SNAPSHOT-001, DOM-ELIG-001.
 - Gap Matrix: `docs/specs/gap-matrices/SPEC-DOM-001-implementation-gap-matrix.md` — GAP-003, GAP-004, GAP-005.
 - Gap Matrix Audit: `docs/specs/gap-matrices/audits/SPEC-DOM-001-implementation-gap-matrix-audit.md`.
-- Implementation Plan: `docs/specs/implementation-plans/SPEC-DOM-001-implementation-plan.md` — DOM-IMP-02.
-- Plan Audit: `docs/specs/implementation-plans/audits/SPEC-DOM-001-implementation-plan-audit.md`.
+- Implementation Plan: `docs/specs/implementation-plans/SPEC-DOM-001-implementation-plan.md` — SHA-256 `C57D24FEC7CF69BED3EC354C4334DE698AFC54722FD7EDA6F2D3D6353FF35C33`; DOM-IMP-02.
+- Plan Audit: `docs/specs/implementation-plans/audits/SPEC-DOM-001-implementation-plan-audit-2026-09-11-reaudit-002.md` — SHA-256 `474E33C3FD17F8790FBB2CD2A39C9670A33D0830FF851C8D06DE31CA6BFB9695`; `READY_FOR_ISSUE_DECOMPOSITION`.
 
 ## 3. Authority / Scope
 
@@ -73,7 +106,7 @@ Internal: `DOM-001-TICKET-001`. Cross-SPEC: `SPEC-EXEC-001` exact version metada
 
 ## 14. Blocking Conditions
 
-`DOM-001-TICKET-001` is completed and its identity contract is available. No unresolved blocker exists.
+`DOM-001-TICKET-001` and `DOM-001-TICKET-003` are completed, and the refreshed `EV-DOM-IMP-03-AUTHORITY-READER-COMPLETE` plus `PROMO-DOM-ADR-01` confirm the required internal capability. No internal or foreign blocker remains; `DEPENDS_ON` retains both prerequisites for lineage.
 
 ## 14a. Authority Consumption Proof
 
@@ -85,7 +118,7 @@ Internal: `DOM-001-TICKET-001`. Cross-SPEC: `SPEC-EXEC-001` exact version metada
 | Consumed interface / returned data | Canonical ADR catalog and snapshot command port; returns accepted ADR IDs, hashes, base, configuration, and exact version metadata. |
 | Revision/version transport | ADR revision, skill/contract version, base, and configuration hash are frozen in the snapshot. |
 | Failure / stale semantics | Automatic start, non-accepted revision, false caller status/hash, drift, corruption, or missing material fail closed with no fallback. |
-| Productive availability / evidence | `YES` for the local catalog/snapshot contract and deterministic foreign-contract fixtures; EXEC/PLAT runtime integration is not required to start this ticket. Evidence: rows `T2-AC1`–`T2-AC3`. |
+| Productive availability / evidence | Local catalog/snapshot contract and the refreshed DOM authority-reader capability are available for execution; EXEC/PLAT runtime integration remains non-blocking for local closure. Evidence: rows `T2-AC1`–`T2-AC3` and current TICKET-003 producer records. |
 | Result | `AUTHORITY_CONSUMABLE`. |
 
 ## 14b. Producer / Consumer Contract Proof
@@ -101,6 +134,8 @@ Internal: `DOM-001-TICKET-001`. Cross-SPEC: `SPEC-EXEC-001` exact version metada
 
 ### Capability Availability Reconciliation
 
+APPLICABLE_INTERNAL_CAPABILITY_RECORD: `CAP-DOM-ADR-AUTHORITY-READ-OBSERVATION`; AUTHORITY_OWNER = SPEC-DOM-001; PRODUCER = DOM-IMP-03 / TICKET-003; CONSUMER = DOM-IMP-02 / TICKET-002; CONTRACT = canonical ADR reference, lifecycle/status, revision, content hash, and independent second observation; AUTHORITY_STATUS = DEFINED; CONTRACT_STATUS = DEFINED; LOCAL_TESTABILITY = YES; PRODUCTIVE_AVAILABILITY = YES after refreshed `EV-DOM-IMP-03-AUTHORITY-READER-COMPLETE` and `PROMO-DOM-ADR-01`; CAPABILITY_SUMMARY_STATUS = CONTRACT_PRODUCTIVELY_AVAILABLE; DEPENDENCY_CLASS = REQUIRED_FOR_LOCAL_EXECUTION; BLOCKING_EFFECT = NONE; the producer evidence refresh is complete and TICKET-002 is execution-ready.
+
 APPLICABLE_SHARED_CAPABILITY_RECORDS: CAP-EXEC-EXACT-VERSION-BASIS, CAP-PLAT-SNAPSHOT-PIPELINE-PROVENANCE.
 RECONCILIATION_SOURCE: README section 11.1 and current Plan section 12.1.
 AUTHORITY_STATUS = DEFINED; CONTRACT_STATUS = DEFINED; LOCAL_TESTABILITY = NO;
@@ -112,7 +147,7 @@ evidence are preserved in README section 11.1. For NONE, no shared capability
 record is required by the current Plan for this ticket's local closure.
 NO_DOWNSTREAM_CAPABILITY_PROMOTION_WITHOUT_NEW_EVIDENCE = TRUE.
 
-## 14c. ACCEPTANCE_WITNESS_MATRIX
+### Acceptance witness context
 `PRODUCER_CONSUMER_CONTRACT_PROOF_FIELDS`: `PRODUCER = SPEC-EXEC-001,
 SPEC-PLAT-001, SPEC-REPO-001`; `PRODUCED_CONTRACT = exact version metadata,
 durable snapshot/recovery material, and explicit legacy mapping`;
@@ -125,11 +160,11 @@ fixtures available; runtime integration is a later checkpoint`;
 
 ## 14c. ACCEPTANCE_WITNESS_MATRIX
 
-| AC | Normative behavior / verb | Concrete operation | State/transition | Direct positive test | Direct negative/isolation test | Expected evidence | Acceptance owner |
-|---|---|---|---|---|---|---|---|
-| AC-DOM-002 | Submit manually; reject automatic start | explicit submit command | pre-execution start | `T2-AC1-P` manual command starts processing | `T2-AC1-N` discovery/session state cannot start it | `docs/tickets/SPEC-DOM-001/evidence/TICKET-002/AC-DOM-002-manual-entry.md` | TICKET-002 |
-| AC-DOM-003 / AC-DOM-004 | Resolve and freeze accepted canonical ADR | eligibility resolve/snapshot create | immutable snapshot basis | `T2-AC2-P` accepted revision snapshot with exact fields | `T2-AC2-N` proposed/superseded revision, false caller status/hash, and drift reject | `docs/tickets/SPEC-DOM-001/evidence/TICKET-002/AC-DOM-003-snapshot.md` | TICKET-002 |
-| AC-DOM-003 / AC-DOM-004 | Rehydrate and reject mutation/drift/corruption | snapshot rehydrate command | snapshot lock/recovery | `T2-AC3-P` exact field round-trip after restart | `T2-AC3-N` mutation, corrupt, or missing record rejects without mutation | `docs/tickets/SPEC-DOM-001/evidence/TICKET-002/AC-DOM-004-rehydration.md` | TICKET-002 |
+| NORMATIVE_BEHAVIOR | NORMATIVE_VERB | CONCRETE_OPERATION_COMMAND_OR_QUERY | STATE_OR_TRANSITION_AFFECTED | DIRECT_POSITIVE_TEST | DIRECT_NEGATIVE_OR_ISOLATION_TEST | EXPECTED_EVIDENCE_FILE | EVIDENCE_TYPE | ACCEPTANCE_OWNER | REQUIRED_PRODUCER_OR_CAPABILITY | AUTHORITY_STATUS | CONTRACT_STATUS | LOCAL_TESTABILITY | PRODUCTIVE_AVAILABILITY | CAPABILITY_SUMMARY_STATUS | DEPENDENCY_CLASS | WITNESS_EXECUTABLE_AT_LOCAL_CLOSURE |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Manual trigger | accepts | explicit submit command | pre-execution start accepted; discovery inert | `T2-AC1-P` manual command starts processing | `T2-AC1-N` discovery/session state cannot start it | `docs/tickets/SPEC-DOM-001/evidence/TICKET-002/AC-DOM-002-manual-entry.md` | LOCAL_TEST_EVIDENCE | TICKET-002 | none — local DOM manual-entry boundary | DEFINED | DEFINED | YES | YES | CONTRACT_PRODUCTIVELY_AVAILABLE | LOCAL_IMPLEMENTATION | YES |
+| Canonical authority snapshot | resolves and freezes | eligibility resolve → snapshot create | immutable snapshot basis | `T2-AC2-P` accepted revision snapshot with exact fields | `T2-AC2-N` proposed/superseded revision, false caller status/hash, and drift reject | `docs/tickets/SPEC-DOM-001/evidence/TICKET-002/AC-DOM-003-snapshot.md` | LOCAL_TEST_EVIDENCE | TICKET-002 | `CAP-DOM-ADR-AUTHORITY-READ-OBSERVATION` from TICKET-003 | DEFINED | DEFINED | YES | YES | CONTRACT_PRODUCTIVELY_AVAILABLE | REQUIRED_FOR_LOCAL_EXECUTION | YES |
+| Immutable basis recovery | rehydrates and rejects | snapshot rehydrate → mutation/corruption attempt | snapshot lock and recovery | `T2-AC3-P` exact field round-trip after restart | `T2-AC3-N` mutation, corrupt, or missing record rejects without mutation | `docs/tickets/SPEC-DOM-001/evidence/TICKET-002/AC-DOM-004-rehydration.md` | LOCAL_TEST_EVIDENCE | TICKET-002 | `CAP-DOM-ADR-AUTHORITY-READ-OBSERVATION` from TICKET-003 | DEFINED | DEFINED | YES | YES | CONTRACT_PRODUCTIVELY_AVAILABLE | REQUIRED_FOR_LOCAL_CLOSURE | YES |
 
 ### Temporal Authority Proof
 
@@ -174,9 +209,11 @@ Productive boundary; immutable snapshot evidence; fail-closed rejection tests; a
 COMPLETION_GATE:
   production_code: REQUIRED
   automated_tests: REQUIRED
-  integration_evidence: REQUIRED
-  legacy_transition_evidence: REQUIRED
-  conformance_evidence: REQUIRED
+  local_completion_evidence: REQUIRED
+  integration_evidence: REQUIRED_AS_LOCAL_CONTRACT_CONTRIBUTION; FOREIGN_PRODUCTIVE_CHECKPOINT_DEFERRED
+  legacy_transition_evidence: REQUIRED_FOR_LOCAL_SCOPE; FOREIGN_RETIREMENT_DEFERRED
+  conformance_evidence: REQUIRED_FOR_LOCAL_CONTRIBUTION; FINAL_CONFORMANCE_DEFERRED_TO_TICKET-012
+  local_closure_boundary: all local evidence above plus completed TICKET-003 promotion; integrated-only evidence is not required for local closure
 ```
 
 ## 21. Legacy / Cutover Impact
@@ -189,11 +226,11 @@ Snapshot mutation or accidental automatic trigger. Mitigation: immutable tests a
 
 ## 23. Implementation Wave
 
-`WAVE: 2`.
+`WAVE: 3`.
 
 ## 24. Parallelization
 
-`SAFE_WITH_COORDINATION`; depends on TICKET-001 and unblocks TICKET-003 and TICKET-012.
+`SAFE_WITH_COORDINATION`; depends on TICKET-001 and TICKET-003, and unblocks TICKET-012.
 
 ## 25. Handoff After Completion
 
@@ -201,4 +238,86 @@ Independent ticket audit may validate this ticket; completion makes lifecycle re
 
 ## 26. Ticket Local Closure
 
-`TICKET_LOCAL_CLOSURE = YES`. Foreign persistence and recovery proof is excluded from local acceptance.
+`TICKET_LOCAL_CLOSURE = YES`; the refreshed producer evidence and promotion establish the required internal capability. Foreign persistence and recovery proof remains excluded from local acceptance.
+
+## 27. Local Finalization
+
+FINALIZATION_VERDICT: TICKET_FINALIZED_LOCALLY
+FINALIZATION_AUTHORITY: docs/tickets/SPEC-DOM-001/DOM-001-TICKET-002-implementation-audit.md
+AUDIT_ROUND: RE_AUDIT
+AUDIT_ROUND_NUMBER: 3
+AUDIT_TARGET_HEAD: 6b31bcee1591c8b2e6499a434950664077b2be01
+CURRENT_HEAD: 6b31bcee1591c8b2e6499a434950664077b2be01
+TARGET_MISMATCHES: 0
+AUDIT_BASIS_FINGERPRINT: 71FD416DDAC22426B6E538AE6B5711CA913ECF58E24A2F5E80558C0306A1AB31
+LOCAL_TICKET_DONE_ALLOWED: YES
+TICKET_GATE: READY_FOR_DONE
+LOCAL_TICKET_DONE_BLOCKERS: 0
+LOCAL_CLOSURE_PERSISTED: YES
+FINAL_TICKET_STATUS: DONE
+OPEN_INTEGRATED_FINDINGS: 2
+OPEN_INTEGRATED_FINDING_IDS: IMA-MAJOR-001; IMA-MAJOR-002
+INTEGRATED_HANDOFFS_COMPLETE: YES
+INTEGRATED_ONLY_AVAILABILITY_BLOCKING_LOCAL_DONE: 0
+LOCAL_CLOSURE_FINDINGS_NOT_BLOCKING_DONE: 0
+FINDING_SEVERITY_USED_AS_SOLE_COMPLETION_GATE: 0
+OPEN_INTEGRATED_FINDING_LOST_FROM_TRACEABILITY: 0
+SPECIALIST_CANNOT_SILENTLY_PROMOTE_INTEGRATED_DEPENDENCY_TO_LOCAL_BLOCKER: TRUE
+CONSOLIDATOR_CANNOT_DERIVE_LOCAL_BLOCKING_FROM_SEVERITY_ALONE: TRUE
+LOCAL_DONE_GATE_USES_LOCAL_CLOSURE_SCOPE: TRUE
+INTEGRATED_PROOF_GATE_USES_INTEGRATED_DEPENDENCY_SCOPE: TRUE
+AUDIT_ARTIFACT_IMMUTABILITY: REQUIRED
+UPSTREAM_AUDIT_ARTIFACTS_MODIFIED_BY_FINALIZATION: 0
+UPSTREAM_AUTHORITY_ARTIFACTS_MODIFIED_BY_FINALIZATION: 0
+DAG_EDGES_RELEASED: 1
+DEPENDENCY_SATISFIED_FOR: DOM-001-TICKET-012
+TICKETS_NEWLY_UNBLOCKED: NONE; DOM-001-TICKET-012 retains DOM-001-TICKET-005 through DOM-001-TICKET-011 blockers
+DOWNSTREAM_CHECKPOINTS_PRESERVED: YES
+SPEC_FINAL_CONFORMANCE_STATE: NOT_FINAL_CONFORMANT_YET
+PRODUCTIVE_AVAILABILITY_PROMOTED: NO
+INTEGRATED_PROOF_AUTO_APPROVED: NO
+SPEC_FINALIZED: NO
+
+### Integrated handoff — IMA-MAJOR-001
+
+FINDING_ID: IMA-MAJOR-001
+FINDING_STATUS: OPEN
+SEVERITY: MAJOR
+DEPENDENCY_CLASS: REQUIRED_FOR_INTEGRATED_PROOF
+LOCAL_CLOSURE_BLOCKING: NO
+LOCAL_ACCEPTANCE_REQUIRES_PRODUCTIVE_CAPABILITY: NO
+BLOCKS_LOCAL_EXECUTION: NO
+BLOCKS_LOCAL_CLOSURE: NO
+BLOCKS_TICKET_DONE: NO
+BLOCKS_INTEGRATED_PROOF: YES
+BLOCKS_SPEC_FINAL_CONFORMANCE: YES
+PRIMARY_ROUTE: IMPLEMENTATION_PLAN_REVALIDATION
+DOWNSTREAM_CHECKPOINT: CP-DOM-02 productive PLAT persistence/recovery and AC-DOM-052/TICKET-012
+DOWNSTREAM_OWNER: SPEC-PLAT-001 producer and integrated conformance owner
+SOURCE_AUDIT: docs/tickets/SPEC-DOM-001/DOM-001-TICKET-002-implementation-audit.md
+SOURCE_TICKET: DOM-001-TICKET-002
+SOURCE_FINDING_IDS: CONF-MAJOR-001
+OPEN_INTEGRATED_FINDING_TRACEABILITY: COMPLETE
+UPSTREAM_DEPENDENCY_CLASSIFICATION_PRESERVED: YES
+
+### Integrated handoff — IMA-MAJOR-002
+
+FINDING_ID: IMA-MAJOR-002
+FINDING_STATUS: OPEN
+SEVERITY: MAJOR
+DEPENDENCY_CLASS: REQUIRED_FOR_INTEGRATED_PROOF
+LOCAL_CLOSURE_BLOCKING: NO
+LOCAL_ACCEPTANCE_REQUIRES_PRODUCTIVE_CAPABILITY: NO
+BLOCKS_LOCAL_EXECUTION: NO
+BLOCKS_LOCAL_CLOSURE: NO
+BLOCKS_TICKET_DONE: NO
+BLOCKS_INTEGRATED_PROOF: YES
+BLOCKS_SPEC_FINAL_CONFORMANCE: YES
+PRIMARY_ROUTE: IMPLEMENTATION_PLAN_REVALIDATION
+DOWNSTREAM_CHECKPOINT: CP-DOM-01 productive EXEC exact-version basis
+DOWNSTREAM_OWNER: SPEC-EXEC-001 producer and integrated conformance owner
+SOURCE_AUDIT: docs/tickets/SPEC-DOM-001/DOM-001-TICKET-002-implementation-audit.md
+SOURCE_TICKET: DOM-001-TICKET-002
+SOURCE_FINDING_IDS: CONF-MAJOR-002
+OPEN_INTEGRATED_FINDING_TRACEABILITY: COMPLETE
+UPSTREAM_DEPENDENCY_CLASSIFICATION_PRESERVED: YES

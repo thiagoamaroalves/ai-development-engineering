@@ -2,11 +2,13 @@
 
 ## 1. Status
 
-`STATUS: BLOCKED`  
-`ISSUE_DECOMPOSITION_READINESS: ISSUE_READY`  
-`INITIAL_DAG_STATE: BLOCKED`  
-`BLOCKED_BY: DOM-001-TICKET-008`  
-`DEPENDS_ON: DOM-001-TICKET-008`  
+`STATUS: DONE`
+`ISSUE_DECOMPOSITION_READINESS: ISSUE_READY`
+`INITIAL_DAG_STATE: BLOCKED`
+`BLOCKED_BY: NONE`
+`CURRENT_DAG_STATE: DONE`
+`RELEASE_WAVE: WAVE-6 / 2026-09-16`
+`DEPENDS_ON: DOM-001-TICKET-008`
 `UNBLOCKS: DOM-001-TICKET-012`
 
 ## 2. Source Traceability
@@ -16,8 +18,8 @@
 - Component SPEC: `docs/specs/SPEC-DOM-001-workflow-authority-and-governance.md` — DOM-AUDIT-003.
 - Gap Matrix: `docs/specs/gap-matrices/SPEC-DOM-001-implementation-gap-matrix.md` — GAP-019.
 - Gap Matrix Audit: `docs/specs/gap-matrices/audits/SPEC-DOM-001-implementation-gap-matrix-audit.md`.
-- Implementation Plan: `docs/specs/implementation-plans/SPEC-DOM-001-implementation-plan.md` — DOM-IMP-09.
-- Plan Audit: `docs/specs/implementation-plans/audits/SPEC-DOM-001-implementation-plan-audit.md`.
+- Implementation Plan: `docs/specs/implementation-plans/SPEC-DOM-001-implementation-plan.md` — SHA-256 `C57D24FEC7CF69BED3EC354C4334DE698AFC54722FD7EDA6F2D3D6353FF35C33`; DOM-IMP-09.
+- Plan Audit: `docs/specs/implementation-plans/audits/SPEC-DOM-001-implementation-plan-audit-2026-09-11-reaudit-002.md` — SHA-256 `474E33C3FD17F8790FBB2CD2A39C9670A33D0830FF851C8D06DE31CA6BFB9695`; `READY_FOR_ISSUE_DECOMPOSITION`.
 
 ## 3. Authority / Scope
 
@@ -85,7 +87,7 @@ Blocked until TICKET-008 provides explicit cycle/verdict identity. No external b
 | Revision/version transport | Cycle, unit, round number, and continuation authorization revision are correlated and single-use. |
 | Failure / not-found / stale semantics | Wrong cycle/unit, implicit continuation, duplicate authorization, stale authorization, or unrelated-unit pause rejects. |
 | Productive availability / evidence | `YES` for local round policy and deterministic scheduler consumer fixture; EXEC scheduling is foreign and non-blocking. Evidence: `T9-AC1`–`T9-AC2`. |
-| Result | `AUTHORITY_CONSUMABLE`. |
+| Result | `AUTHORITY_DEFINED_BUT_NOT_CONSUMABLE` for integrated-only EXEC capability; local contract witness only. |
 
 ## 14b. Producer / Consumer Contract Proof
 
@@ -100,18 +102,19 @@ Blocked until TICKET-008 provides explicit cycle/verdict identity. No external b
 
 ### Capability Availability Reconciliation
 
-APPLICABLE_SHARED_CAPABILITY_RECORDS: NONE.
+APPLICABLE_SHARED_CAPABILITY_RECORDS: CAP-EXEC-EXACT-VERSION-BASIS (PCP-EXEC-05).
 RECONCILIATION_SOURCE: README section 11.1 and current Plan section 12.1.
 AUTHORITY_STATUS = DEFINED; CONTRACT_STATUS = DEFINED; LOCAL_TESTABILITY = NO;
 PRODUCTIVE_AVAILABILITY = NO; DEPENDENCY_CLASS = REQUIRED_FOR_INTEGRATED_PROOF.
 BLOCKING_EFFECT: no local execution or local-closure block; integrated proof
 only. Local fixture evidence is contract-level only. Complete owner, producer,
 consumer, contract, failure semantics, version transport, and availability
-evidence are preserved in README section 11.1. For NONE, no shared capability
-record is required by the current Plan for this ticket's local closure.
+evidence are preserved in README section 11.1. The listed shared capability is
+required only for integrated proof and does not block local execution or local
+closure.
 NO_DOWNSTREAM_CAPABILITY_PROMOTION_WITHOUT_NEW_EVIDENCE = TRUE.
 
-## 14c. ACCEPTANCE_WITNESS_MATRIX
+### Acceptance witness context
 `PRODUCER_CONSUMER_CONTRACT_PROOF_FIELDS`: `PRODUCER = SPEC-EXEC-002`;
 `PRODUCED_CONTRACT = scheduling acknowledgment and execution outcome`;
 `AUTHORITY_OWNER = SPEC-DOM-001`; `CONSUMER = TICKET-009`;
@@ -123,10 +126,10 @@ docs/tickets/SPEC-DOM-001/evidence/TICKET-009/AC-DOM-051-rounds.md`.
 
 ## 14c. ACCEPTANCE_WITNESS_MATRIX
 
-| AC | Normative behavior / verb | Concrete operation | State/transition | Direct positive test | Direct negative/isolation test | Expected evidence | Acceptance owner |
-|---|---|---|---|---|---|---|---|
-| AC-DOM-051 | Count and pause at the tenth round | record round command | affected-unit pause | `T9-AC1-P` tenth-round pause test | `T9-AC1-N` ninth/elevated round or cross-unit pause rejects; unrelated unit continues | `docs/tickets/SPEC-DOM-001/evidence/TICKET-009/AC-DOM-051-pause.md` | TICKET-009 |
-| AC-DOM-051 | Authorize continuation explicitly | continuation command | next-round authorization | `T9-AC2-P` explicit authorized continuation after recovery | `T9-AC2-N` implicit, duplicate, wrong-cycle, or stale authorization rejects; concurrent retry is idempotent | `docs/tickets/SPEC-DOM-001/evidence/TICKET-009/AC-DOM-051-continuation.md` | TICKET-009 |
+| NORMATIVE_BEHAVIOR | NORMATIVE_VERB | CONCRETE_OPERATION_COMMAND_OR_QUERY | STATE_OR_TRANSITION_AFFECTED | DIRECT_POSITIVE_TEST | DIRECT_NEGATIVE_OR_ISOLATION_TEST | EXPECTED_EVIDENCE_FILE | EVIDENCE_TYPE | ACCEPTANCE_OWNER | REQUIRED_PRODUCER_OR_CAPABILITY | AUTHORITY_STATUS | CONTRACT_STATUS | LOCAL_TESTABILITY | PRODUCTIVE_AVAILABILITY | CAPABILITY_SUMMARY_STATUS | DEPENDENCY_CLASS | WITNESS_EXECUTABLE_AT_LOCAL_CLOSURE |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Round limit | counts and pauses at ten | record round command | affected-unit pause | `T9-AC1-P` tenth-round pause test | `T9-AC1-N` ninth/elevated round or cross-unit pause rejects; unrelated unit continues | `docs/tickets/SPEC-DOM-001/evidence/TICKET-009/AC-DOM-051-pause.md` | LOCAL_TEST_EVIDENCE | TICKET-009 | none — local DOM round policy | DEFINED | DEFINED | YES | YES | CONTRACT_PRODUCTIVELY_AVAILABLE | LOCAL_IMPLEMENTATION | YES |
+| Continuation authorization | authorizes explicitly | continuation command | next-round authorization | `T9-AC2-P` explicit authorized continuation after recovery | `T9-AC2-N` implicit, duplicate, wrong-cycle, or stale authorization rejects; retry idempotent | `docs/tickets/SPEC-DOM-001/evidence/TICKET-009/AC-DOM-051-continuation.md` | LOCAL_TEST_EVIDENCE | TICKET-009 | none — local continuation authorization | DEFINED | DEFINED | YES | YES | CONTRACT_PRODUCTIVELY_AVAILABLE | LOCAL_IMPLEMENTATION | YES |
 
 ### Temporal Authority Proof
 
@@ -167,9 +170,11 @@ Configurable policy; pause/authorization record; and isolation/duplicate tests. 
 COMPLETION_GATE:
   production_code: REQUIRED
   automated_tests: REQUIRED
-  integration_evidence: REQUIRED
-  legacy_transition_evidence: REQUIRED
-  conformance_evidence: REQUIRED
+  local_completion_evidence: REQUIRED
+  integration_evidence: REQUIRED_AS_LOCAL_CONTRACT_CONTRIBUTION; FOREIGN_PRODUCTIVE_CHECKPOINT_DEFERRED
+  legacy_transition_evidence: REQUIRED_FOR_LOCAL_SCOPE; FOREIGN_RETIREMENT_DEFERRED
+  conformance_evidence: REQUIRED_FOR_LOCAL_CONTRIBUTION; FINAL_CONFORMANCE_DEFERRED_TO_TICKET-012
+  local_closure_boundary: local round/continuation evidence is required; scheduler execution is integrated-only
 ```
 
 ## 21. Legacy / Cutover Impact
@@ -182,7 +187,7 @@ Global pause or implicit continuation. Mitigation: unit-isolation and explicit a
 
 ## 23. Implementation Wave
 
-`WAVE: 5`.
+`WAVE: 6`.
 
 ## 24. Parallelization
 
@@ -195,3 +200,71 @@ Independent ticket audit may validate this ticket; its round policy evidence is 
 ## 26. Ticket Local Closure
 
 `TICKET_LOCAL_CLOSURE = YES`.
+
+## 27. Implementation Execution Record
+
+```text
+INITIAL_STATUS: READY
+FINAL_STATUS: DONE
+IMPLEMENTATION_DESIGN: docs/tickets/SPEC-DOM-001/DOM-001-TICKET-009-implementation-design.md
+IMPLEMENTATION_DESIGN_GATE: READY_FOR_IMPLEMENTATION
+IMPLEMENTATION_STRUCTURAL_SELF_CHECK: PASS
+ACCEPTANCE_CRITERIA: 2/2 SATISFIED
+COMPLETION_EVIDENCE: PRESENT
+CHANGED_PRODUCTION_FILES: src/domain/round-continuation.ts; src/application/round-continuation.ts
+CHANGED_TEST_FILES: tests/dom-001-ticket-009.test.ts
+CHANGED_EVIDENCE_FILES: docs/tickets/SPEC-DOM-001/evidence/TICKET-009/
+FOCUSED_TESTS: 5 passed, 0 failed
+FULL_PRODUCTIVE_SUITE_AFTER_BATCH: 132 passed, 0 failed
+PROTOTYPE_SUITE_AFTER_BATCH: 92 passed, 0 failed
+SOURCE_TYPECHECK: PASS
+IMPLEMENTATION_TIME_REMAINING_BLOCKERS: NONE locally; independent structural review and implementation audit required
+IMPLEMENTATION_TIME_UNBLOCKS: TICKET-012 remained gated until T009/T010/T011 were finalized
+```
+
+## 28. Structural Review Record
+
+```text
+CURRENT_REMAINING_BLOCKERS: NONE locally; structural review, independent implementation audit, and finalization are complete; TICKET-012 is DONE
+CURRENT_UNBLOCKS: TICKET-012; finalization releases this prerequisite edge
+
+
+STRUCTURAL_REVIEW_STATUS: PASS
+STRUCTURAL_REVIEW_FINDINGS: 0
+DOMAIN_MODEL_CONFORMANT: YES
+AGGREGATE_BOUNDARIES_CONFORMANT: YES
+INVARIANT_PLACEMENT_CONFORMANT: YES
+COMPONENT_BOUNDARIES_CONFORMANT: YES
+SOLID_CONFORMANT: YES
+DEPENDENCY_DIRECTION_CONFORMANT: YES
+CLEAN_CODE_STRUCTURALLY_ACCEPTABLE: YES
+CROSS_SPEC_BOUNDARY_CONFORMANT: YES
+CRITICAL_INVARIANTS_WITH_TESTS: ALL
+REQUIRED_TEST_SURFACES_IMPLEMENTED: YES
+TESTABILITY_REGRESSIONS: 0
+UNJUSTIFIED_COMPONENT_COLLAPSES: 0
+UNPLANNED_STRUCTURAL_COMPONENTS: 0
+MISSING_REQUIRED_COMPONENTS: 0
+UNJUSTIFIED_SOLID_VIOLATIONS: 0
+DEPENDENCY_DIRECTION_VIOLATIONS: 0
+INFRASTRUCTURE_LEAKAGE_POINTS: 0
+DOMAIN_RULE_DUPLICATION: 0
+IMPLEMENTATION_STRUCTURAL_SELF_CHECK: PASS
+FOCUSED_STRUCTURAL_REVIEW_TESTS: 5 passed, 0 failed
+REVIEW_CORRECTIONS: decision/action consistency; temporal second cycle observation; mapper pause authorization guard
+```
+
+## 29. Finalization Record
+
+```text
+FINALIZATION_VERDICT: TICKET_FINALIZED_LOCALLY
+FINALIZATION_DATE: 2026-09-16
+TICKET_STATUS_BEFORE: VALIDATION_REQUIRED
+TICKET_STATUS_AFTER: DONE
+LOCAL_TICKET_DONE_ALLOWED: YES
+TICKET_GATE: READY_FOR_DONE
+OPEN_INTEGRATED_FINDINGS: 0
+INTEGRATED_HANDOFFS_COMPLETE: YES
+AUDIT_ARTIFACT_IMMUTABILITY: REQUIRED
+FINALIZATION_ARTIFACT: docs/tickets/SPEC-DOM-001/evidence/TICKET-009/finalization-2026-09-16.md
+```
