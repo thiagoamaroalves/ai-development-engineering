@@ -14,11 +14,12 @@ Command:
 prototype/node_modules/.bin/tsx.cmd --test tests/dom-001-ticket-004.test.ts
 ```
 
-Result: 11 tests passed, 0 failed, 0 skipped.
+Result: 15 tests passed, 0 failed, 0 skipped.
 
 The suite directly proves that independent state inputs are not combined into
-a transition, queries do not mutate state, and two concurrent advances with
-the same expected revision have exactly one winner. The losing operation is
+a transition, concurrent queries preserve distinct machine values across a
+restart, queries do not mutate state, and two concurrent advances with the
+same expected revision have exactly one winner. The losing operation is
 rejected as `PIPELINE_STALE`, and the accepted chain remains at the single
 next stage with revision `1`.
 

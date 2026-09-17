@@ -14,12 +14,13 @@ Command:
 prototype/node_modules/.bin/tsx.cmd --test tests/dom-001-ticket-004.test.ts
 ```
 
-Result: 11 tests passed, 0 failed, 0 skipped.
+Result: 15 tests passed, 0 failed, 0 skipped.
 
-The test suite verifies that rehydration preserves the accepted chain and
-rejects invalid provenance before state is exposed or advanced. The authority
-port is used to validate the canonical identity; local fixtures remain
-contract fixtures and are not treated as productive foreign capability.
+The test suite verifies that rehydration preserves the accepted chain, rejects
+duplicate/reordered/detached/divergent provenance before state is exposed or
+advanced, and remains idempotent on exact replay. The authority port is used
+to validate the canonical identity; local fixtures remain contract fixtures
+and are not treated as productive foreign capability.
 
 ## Boundary conclusion
 
