@@ -29,6 +29,43 @@ import {
   Revision,
 } from '../src/domain/identity.js'
 import { PipelineRepository } from '../src/domain/pipeline.js'
+import {
+  type CanonicalCommandRejection,
+  type CommandRejectionRecord,
+  type CommandRejectionRecorder,
+  CommandAuthorityFreshness,
+  CommandPreconditionEvidence,
+  type CommandAuthorityReader,
+} from '../src/domain/command.js'
+
+function commandAuthorityFor(pipelines: PipelineRepository): CommandAuthorityReader {
+  return {
+    observe(identity) {
+      const pipeline = pipelines.find(identity)
+      return pipeline ? {
+        identity: pipeline.identity,
+        aggregateRevision: pipeline.revision,
+        stage: pipeline.stage.value,
+        preconditions: CommandPreconditionEvidence.create({
+          specStatus: 'KNOWN',
+          revisionStatus: 'ELIGIBLE',
+          dependencyClosure: 'CLOSED',
+          verdict: 'COMPATIBLE',
+        }),
+        freshness: CommandAuthorityFreshness.create({
+          dependencyRevision: 'dependency-revision-1',
+          verdictRevision: 'verdict-revision-1',
+        }),
+      } : undefined
+    },
+  }
+}
+
+class InMemoryCommandRejectionRecorder implements CommandRejectionRecorder {
+  async record(rejection: CanonicalCommandRejection): Promise<CommandRejectionRecord> {
+    return { rejection, recorded: true }
+  }
+}
 
 class InMemoryIdentityRepository implements CanonicalIdentityRepository {
   private readonly records = new Map<string, CanonicalIdentityRecord>()
@@ -786,14 +823,20 @@ test('effective pipeline consumption guard resolves catalog authority before rep
     revision: 1,
   })
 
-  await assert.rejects(
-    new AdvancePipelineHandler(pipelines, identities).handle({
+  const outcome = await new AdvancePipelineHandler(
+    pipelines,
+    identities,
+    new InMemoryCommandRejectionRecorder(),
+    commandAuthorityFor(pipelines),
+  ).handle({
       identity: detached,
       target: 'SPECS',
       expectedRevision: 0,
-    }),
-    (error: unknown) => error instanceof IdentityDomainError && error.code === 'IDENTITY_NOT_FOUND',
-  )
+      correlation: 'T1-DETACHED-PIPELINE',
+      preconditions: { specStatus: 'KNOWN', revisionStatus: 'ELIGIBLE', dependencyClosure: 'CLOSED', verdict: 'COMPATIBLE' },
+    })
+  assert.equal(outcome.status, 'REJECTED')
+  if (outcome.status === 'REJECTED') assert.equal(outcome.rejection.code, 'UNKNOWN_SPEC')
   assert.equal(findCalls, 0)
 
   assert.throws(

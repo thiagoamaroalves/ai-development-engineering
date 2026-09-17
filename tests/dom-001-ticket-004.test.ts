@@ -28,6 +28,37 @@ import {
   AdvancePipelineHandler,
   GetPipelineStateHandler,
 } from '../src/application/pipeline.js'
+import {
+  type CommandRejectionRecorder,
+  type CommandRejectionRecord,
+  type CanonicalCommandRejection,
+  CommandAuthorityFreshness,
+  CommandPreconditionEvidence,
+  type CommandAuthorityReader,
+} from '../src/domain/command.js'
+
+function commandAuthorityFor(pipelines: PipelineRepository): CommandAuthorityReader {
+  return {
+    observe(identity) {
+      const pipeline = pipelines.find(identity)
+      return pipeline ? {
+        identity: pipeline.identity,
+        aggregateRevision: pipeline.revision,
+        stage: pipeline.stage.value,
+        preconditions: CommandPreconditionEvidence.create({
+          specStatus: 'KNOWN',
+          revisionStatus: 'ELIGIBLE',
+          dependencyClosure: 'CLOSED',
+          verdict: 'COMPATIBLE',
+        }),
+        freshness: CommandAuthorityFreshness.create({
+          dependencyRevision: 'dependency-revision-1',
+          verdictRevision: 'verdict-revision-1',
+        }),
+      } : undefined
+    },
+  }
+}
 
 class InMemoryPipelineRepository implements PipelineRepository {
   private readonly pipelines = new Map<string, WorkflowPipeline>()
@@ -49,6 +80,18 @@ class InMemoryPipelineRepository implements PipelineRepository {
     if (!current.revision.equals(expectedRevision)) return { status: 'STALE', existing: current }
     this.pipelines.set(proposed.identity.canonicalKey, proposed)
     return { status: 'ADVANCED', pipeline: proposed }
+  }
+}
+
+class InMemoryCommandRejectionRecorder implements CommandRejectionRecorder {
+  readonly records: CommandRejectionRecord[] = []
+
+  async record(rejection: CanonicalCommandRejection): Promise<CommandRejectionRecord> {
+    const existing = this.records.find((record) => record.rejection.idempotencyKey === rejection.idempotencyKey)
+    if (existing) return existing
+    const record = { rejection, recorded: true as const }
+    this.records.push(record)
+    return record
   }
 }
 
@@ -127,18 +170,18 @@ function createPipeline(stage = pipelineIdentity()): WorkflowPipeline {
   return WorkflowPipeline.create({ identity: stage }, identityAuthorityFor(stage))
 }
 
-function stateInputs(): PipelineStateInputs {
+function stateInputs(overrides: Partial<Record<keyof PipelineStateInputSet, string>> = {}): PipelineStateInputs {
   const state = (machine: PipelineStateInputSet['execution']['machine'], value: string) => ({ machine, state: value })
   return PipelineStateInputs.create({
-    execution: state('EXECUTION', 'READY'),
-    spec: state('SPEC', 'READY'),
-    stage: state('STAGE', 'READY'),
-    activity: state('ACTIVITY', 'READY'),
-    cycle: state('CYCLE', 'READY'),
-    wave: state('WAVE', 'READY'),
-    ticket: state('TICKET', 'READY'),
-    migration: state('MIGRATION', 'READY'),
-    publication: state('PUBLICATION', 'READY'),
+    execution: state('EXECUTION', overrides.execution ?? 'READY'),
+    spec: state('SPEC', overrides.spec ?? 'READY'),
+    stage: state('STAGE', overrides.stage ?? 'READY'),
+    activity: state('ACTIVITY', overrides.activity ?? 'READY'),
+    cycle: state('CYCLE', overrides.cycle ?? 'READY'),
+    wave: state('WAVE', overrides.wave ?? 'READY'),
+    ticket: state('TICKET', overrides.ticket ?? 'READY'),
+    migration: state('MIGRATION', overrides.migration ?? 'READY'),
+    publication: state('PUBLICATION', overrides.publication ?? 'READY'),
   })
 }
 
@@ -227,6 +270,94 @@ test('pipeline rehydration requires an attached complete immediate-transition ch
       (error: unknown) => error instanceof PipelineDomainError && error.code === 'INVALID_PIPELINE_TRANSITION',
     )
   }
+})
+
+test('pipeline rehydration rejects duplicate, reordered, and detached provenance records', () => {
+  const identity = pipelineIdentity('STAGE-PROVENANCE-MATRIX')
+  const authority = identityAuthorityFor(identity)
+  const initial = { identity: identity.reference, stage: 'ACCEPTED_ADRS' as const, revision: 0 }
+  const next = {
+    identity: identity.reference,
+    stage: 'SPECS' as const,
+    revision: 1,
+    previousStage: 'ACCEPTED_ADRS' as const,
+    previousRevision: 0,
+  }
+  const accepted = [initial, next]
+  const provenanceAuthority = new InMemoryPipelineProvenanceAuthority()
+  provenanceAuthority.seed(identity.reference, accepted)
+  const detachedIdentity = CanonicalIdentityReference.create({
+    identity: { kind: 'STAGE', scope: 'EXECUTION-DETACHED', value: 'STAGE-PROVENANCE-MATRIX' },
+    revision: 1,
+  })
+
+  for (const provenance of [
+    [initial, next, next],
+    [next, initial],
+    [initial, { ...next, identity: detachedIdentity }],
+  ]) {
+    assert.throws(
+      () => WorkflowPipeline.rehydrate({ identity, stage: 'SPECS', revision: 1, provenance }, authority, provenanceAuthority),
+      (error: unknown) => error instanceof PipelineDomainError && error.code === 'INVALID_PIPELINE_TRANSITION',
+    )
+  }
+})
+
+test('pipeline rehydration rejects supplied provenance that diverges from accepted authority', () => {
+  const identity = pipelineIdentity('STAGE-PROVENANCE-AUTHORITY-DIVERGENCE')
+  const authority = identityAuthorityFor(identity)
+  const accepted = [
+    { identity: identity.reference, stage: 'ACCEPTED_ADRS' as const, revision: 0 },
+    {
+      identity: identity.reference,
+      stage: 'SPECS' as const,
+      revision: 1,
+      previousStage: 'ACCEPTED_ADRS' as const,
+      previousRevision: 0,
+    },
+  ]
+  const provenanceAuthority = new InMemoryPipelineProvenanceAuthority()
+  provenanceAuthority.seed(identity.reference, accepted)
+
+  assert.throws(
+    () => WorkflowPipeline.rehydrate({
+      identity,
+      stage: 'SPECS',
+      revision: 1,
+      provenance: [
+        accepted[0],
+        { ...accepted[1], previousRevision: 1 },
+      ],
+    }, authority, provenanceAuthority),
+    (error: unknown) => error instanceof PipelineDomainError && error.code === 'INVALID_PIPELINE_TRANSITION',
+  )
+})
+
+test('exact provenance replay is idempotent and does not mutate accepted history', () => {
+  const identity = pipelineIdentity('STAGE-PROVENANCE-REPLAY')
+  const authority = identityAuthorityFor(identity)
+  const provenance = [
+    { identity: identity.reference, stage: 'ACCEPTED_ADRS' as const, revision: 0 },
+    {
+      identity: identity.reference,
+      stage: 'SPECS' as const,
+      revision: 1,
+      previousStage: 'ACCEPTED_ADRS' as const,
+      previousRevision: 0,
+    },
+  ]
+  const provenanceAuthority = new InMemoryPipelineProvenanceAuthority()
+  provenanceAuthority.seed(identity.reference, provenance)
+  const before = JSON.stringify(provenance)
+
+  const first = WorkflowPipeline.rehydrate({ identity, stage: 'SPECS', revision: 1, provenance }, authority, provenanceAuthority)
+  const second = WorkflowPipeline.rehydrate({ identity, stage: 'SPECS', revision: 1, provenance }, authority, provenanceAuthority)
+
+  assert.equal(first.stage.value, second.stage.value)
+  assert.equal(first.revision.value, second.revision.value)
+  assert.equal(first.identity.canonicalKey, second.identity.canonicalKey)
+  assert.equal(JSON.stringify(provenance), before)
+  assert.equal(provenanceAuthority.size, 1)
 })
 
 test('pipeline identity is canonical STAGE reference and rejects local aliases', () => {
@@ -364,28 +495,94 @@ test('independent aggregate state inputs are validated, frozen, and never combin
   )
 })
 
+test('independent machine queries remain isolated under concurrency and restart', async () => {
+  const identity = pipelineIdentity('STAGE-ISOLATION-CONCURRENCY')
+  const authority = identityAuthorityFor(identity)
+  const repository = new InMemoryPipelineRepository()
+  repository.seed(createPipeline(identity))
+  const ticketReady = new GetPipelineStateHandler(
+    repository,
+    new InMemoryPipelineStateReader(stateInputs({ ticket: 'READY', publication: 'DRAFT' })),
+    authority,
+  )
+  const ticketBlocked = new GetPipelineStateHandler(
+    repository,
+    new InMemoryPipelineStateReader(stateInputs({ ticket: 'BLOCKED', publication: 'PUBLISHED' })),
+    authority,
+  )
+
+  const [ready, blocked] = await Promise.all([
+    Promise.resolve().then(() => ticketReady.handle({ identity })),
+    Promise.resolve().then(() => ticketBlocked.handle({ identity })),
+  ])
+
+  assert.equal(ready.pipelineStage.value, 'ACCEPTED_ADRS')
+  assert.equal(blocked.pipelineStage.value, 'ACCEPTED_ADRS')
+  assert.equal(ready.stateFor('TICKET').state, 'READY')
+  assert.equal(ready.stateFor('PUBLICATION').state, 'DRAFT')
+  assert.equal(blocked.stateFor('TICKET').state, 'BLOCKED')
+  assert.equal(blocked.stateFor('PUBLICATION').state, 'PUBLISHED')
+  assert.equal(repository.find(identity.reference)?.stage.value, 'ACCEPTED_ADRS')
+
+  const restarted = new GetPipelineStateHandler(
+    repository,
+    new InMemoryPipelineStateReader(stateInputs()),
+    authority,
+  ).handle({ identity })
+  assert.equal(restarted.pipelineStage.value, 'ACCEPTED_ADRS')
+  assert.equal(restarted.stateFor('EXECUTION').machine, 'EXECUTION')
+  assert.equal(restarted.stateFor('TICKET').machine, 'TICKET')
+  assert.equal(restarted.stateFor('PUBLICATION').machine, 'PUBLICATION')
+  assert.equal(repository.find(identity.reference)?.revision.value, 0)
+})
+
 test('advance handler uses expected revision as CAS token and rejects stale without last-write-wins', async () => {
   const repository = new InMemoryPipelineRepository()
   repository.seed(createPipeline())
-  const handler = new AdvancePipelineHandler(repository, identityAuthorityFor(pipelineIdentity()))
-
-  const advanced = await handler.handle({ identity: pipelineIdentity(), target: 'SPECS', expectedRevision: 0 })
-  assert.equal(advanced.stage.value, 'SPECS')
-  assert.equal(advanced.revision.value, 1)
-
-  await assert.rejects(
-    handler.handle({ identity: pipelineIdentity(), target: 'SPECS', expectedRevision: 0 }),
-    (error: unknown) => error instanceof PipelineDomainError && error.code === 'INVALID_PIPELINE_TRANSITION',
+  const recorder = new InMemoryCommandRejectionRecorder()
+  const handler = new AdvancePipelineHandler(
+    repository,
+    identityAuthorityFor(pipelineIdentity()),
+    recorder,
+    commandAuthorityFor(repository),
   )
+
+  const advanced = await handler.handle({
+    identity: pipelineIdentity(),
+    target: 'SPECS',
+    expectedRevision: 0,
+    correlation: 'T4-CAS-1',
+    preconditions: { specStatus: 'KNOWN', revisionStatus: 'ELIGIBLE', dependencyClosure: 'CLOSED', verdict: 'COMPATIBLE' },
+  })
+  assert.equal(advanced.status, 'ACCEPTED')
+  if (advanced.status === 'ACCEPTED') {
+    assert.equal(advanced.value.stage.value, 'SPECS')
+    assert.equal(advanced.value.revision.value, 1)
+  }
+
+  const invalidTransition = await handler.handle({
+    identity: pipelineIdentity(),
+    target: 'SPECS',
+    expectedRevision: 1,
+    correlation: 'T4-CAS-2',
+    preconditions: { specStatus: 'KNOWN', revisionStatus: 'ELIGIBLE', dependencyClosure: 'CLOSED', verdict: 'COMPATIBLE' },
+  })
+  assert.equal(invalidTransition.status, 'REJECTED')
+  if (invalidTransition.status === 'REJECTED') assert.equal(invalidTransition.rejection.code, 'INVALID_COMMAND_BASIS')
   assert.equal(repository.advanceCalls, 1)
-  await assert.rejects(
-    handler.handle({ identity: pipelineIdentity(), target: 'SPEC_AUDIT_REMEDIATION', expectedRevision: 0 }),
-    (error: unknown) => error instanceof PipelineDomainError && error.code === 'PIPELINE_STALE',
-  )
+  const stale = await handler.handle({
+    identity: pipelineIdentity(),
+    target: 'SPEC_AUDIT_REMEDIATION',
+    expectedRevision: 0,
+    correlation: 'T4-CAS-3',
+    preconditions: { specStatus: 'KNOWN', revisionStatus: 'ELIGIBLE', dependencyClosure: 'CLOSED', verdict: 'COMPATIBLE' },
+  })
+  assert.equal(stale.status, 'REJECTED')
+  if (stale.status === 'REJECTED') assert.equal(stale.rejection.code, 'STALE_REVISION')
   const current = repository.find(pipelineIdentity().reference)!
   assert.equal(current.stage.value, 'SPECS')
   assert.equal(current.revision.value, 1)
-  assert.equal(repository.advanceCalls, 2)
+  assert.equal(repository.advanceCalls, 1)
 })
 
 test('query handler is read-only and missing state fails closed', () => {
@@ -403,18 +600,35 @@ test('query handler is read-only and missing state fails closed', () => {
 test('concurrent advances on one pipeline have one winner and preserve the accepted chain', async () => {
   const repository = new InMemoryPipelineRepository()
   repository.seed(createPipeline())
-  const handler = new AdvancePipelineHandler(repository, identityAuthorityFor(pipelineIdentity()))
+  const handler = new AdvancePipelineHandler(
+    repository,
+    identityAuthorityFor(pipelineIdentity()),
+    new InMemoryCommandRejectionRecorder(),
+    commandAuthorityFor(repository),
+  )
 
-  const outcomes = await Promise.allSettled([
-    handler.handle({ identity: pipelineIdentity(), target: 'SPECS', expectedRevision: 0 }),
-    handler.handle({ identity: pipelineIdentity(), target: 'SPECS', expectedRevision: 0 }),
+  const outcomes = await Promise.all([
+    handler.handle({
+      identity: pipelineIdentity(),
+      target: 'SPECS',
+      expectedRevision: 0,
+      correlation: 'T4-CONCURRENT-1',
+      preconditions: { specStatus: 'KNOWN', revisionStatus: 'ELIGIBLE', dependencyClosure: 'CLOSED', verdict: 'COMPATIBLE' },
+    }),
+    handler.handle({
+      identity: pipelineIdentity(),
+      target: 'SPECS',
+      expectedRevision: 0,
+      correlation: 'T4-CONCURRENT-2',
+      preconditions: { specStatus: 'KNOWN', revisionStatus: 'ELIGIBLE', dependencyClosure: 'CLOSED', verdict: 'COMPATIBLE' },
+    }),
   ])
 
-  assert.equal(outcomes.filter((outcome) => outcome.status === 'fulfilled').length, 1)
-  assert.equal(outcomes.filter((outcome) => outcome.status === 'rejected').length, 1)
-  const rejected = outcomes.find((outcome) => outcome.status === 'rejected')
-  assert.ok(rejected && rejected.reason instanceof PipelineDomainError)
-  assert.equal((rejected as PromiseRejectedResult).reason.code, 'PIPELINE_STALE')
+  assert.equal(outcomes.filter((outcome) => outcome.status === 'ACCEPTED').length, 1)
+  assert.equal(outcomes.filter((outcome) => outcome.status === 'REJECTED').length, 1)
+  const rejected = outcomes.find((outcome) => outcome.status === 'REJECTED')
+  assert.ok(rejected)
+  if (rejected?.status === 'REJECTED') assert.equal(rejected.rejection.code, 'STALE_REVISION')
   assert.equal(repository.advanceCalls, 2)
   assert.equal(repository.find(pipelineIdentity().reference)?.stage.value, 'SPECS')
   assert.equal(repository.find(pipelineIdentity().reference)?.revision.value, 1)
