@@ -1,0 +1,505 @@
+# DOM-001-TICKET-013 — Canonical Implementation Audit Re-Audit
+
+## 1. Audit Verdict
+
+```text
+VERDICT = TICKET_IMPLEMENTATION_CONFORMANT
+TICKET_GATE = READY_FOR_DONE
+LOCAL_TICKET_DONE_ALLOWED = YES
+INTEGRATED_FOLLOWUP_REQUIRED = YES
+AUDIT_ROUND = RE_AUDIT
+RE_AUDIT_NUMBER = 1
+AUDIT_TARGET_HEAD = 6b31bcee1591c8b2e6499a434950664077b2be01
+CURRENT_HEAD = 6b31bcee1591c8b2e6499a434950664077b2be01
+AUDIT_BASIS_FINGERPRINT = C51BC87D09812F69C50852C55C475437D7905950CD7525CD7C9622C203A7F964
+BASELINE_DRIFT_STATUS = DRIFT_ASSESSED
+REASSESSMENT_COMPLETE = YES
+FINDINGS_ARE_ACTIONABLE = YES
+BASELINE_REMEDIATION_READINESS = READY
+AUDIT_BASIS_STALE = NO
+```
+
+All required independent specialist domains completed against the same pinned
+semantic state. The four local blocking findings from the initial audit are
+resolved. One INFO finding remains open as an integrated-only downstream
+handoff; it does not block T013 local completion and is preserved below.
+
+## 2. Ticket Subject
+
+```text
+TICKET_ID = DOM-001-TICKET-013
+TICKET_PATH = docs/tickets/SPEC-DOM-001/DOM-001-TICKET-013-command-authority-observation.md
+TICKET_FOLDER = docs/tickets/SPEC-DOM-001
+IMPLEMENTATION_UNIT = DOM-IMP-13 — Canonical command-authority observation
+CAPABILITY = CAP-DOM-COMMAND-AUTHORITY-OBSERVATION
+GAP_IDS = GAP-011,GAP-012 producer slice
+REQUIREMENT_IDS = DOM-CMD-001
+ACCEPTANCE_IDS = T13-AC1,T13-AC2,T13-AC3,T13-AC4,T13-AC5,AC-DOM-011 producer contribution
+TICKET_STATUS_OBSERVED = VALIDATION_REQUIRED
+IMPLEMENTATION_STATUS_OBSERVED = IMPLEMENTED
+PRODUCTIVE_CAPABILITY_STATUS_OBSERVED = IMPLEMENTED_PENDING_INDEPENDENT_AUDIT_AND_PROMOTION
+```
+
+The observed ticket status is correct for the audit phase. This artifact does
+not transition the ticket or create the downstream promotion record.
+
+## 3. Audit Round
+
+```text
+AUDIT_ROUND = RE_AUDIT
+RE_AUDIT_NUMBER = 1
+PREVIOUS_CANONICAL_AUDIT_PATH = docs/tickets/SPEC-DOM-001/DOM-001-TICKET-013-implementation-audit.md
+PREVIOUS_AUDIT_ROUND = INITIAL_AUDIT
+PREVIOUS_AUDIT_TARGET_HEAD = 6b31bcee1591c8b2e6499a434950664077b2be01 plus pre-remediation dirty semantic state
+PREVIOUS_CANONICAL_FINDINGS = IMA-MAJOR-001,IMA-MAJOR-002,IMA-MAJOR-003,IMA-MAJOR-004,IMA-INFO-001
+REMEDIATION_BASELINE = docs/tickets/SPEC-DOM-001/DOM-001-TICKET-013-implementation-remediation.md
+REMEDIATION_HEAD = 6b31bcee1591c8b2e6499a434950664077b2be01
+REMEDIATION_DELTA = concrete source; runtime source guard; named lifecycle/mutation witnesses; direct same-status freshness witness; transitive architecture guard
+REMEDIATION_CHANGED_FILES = src/domain/command.ts; src/application/command-authority.ts; src/application/composition.ts; tests/dom-001-ticket-013.test.ts; four T013 evidence files
+```
+
+## 4. Audit Target HEAD
+
+```text
+AUDIT_TARGET_HEAD = 6b31bcee1591c8b2e6499a434950664077b2be01
+CURRENT_HEAD = 6b31bcee1591c8b2e6499a434950664077b2be01
+WORKTREE_STATE = DIRTY; unrelated user changes preserved
+IMPLEMENTATION_BASELINE = pinned HEAD plus the post-remediation T013 semantic working-tree content
+SPECIALIST_HEADS = all equal AUDIT_TARGET_HEAD
+SPECIALIST_STATE_CONSISTENCY = SPECIALIST_STATE_CONSISTENT
+```
+
+The current audit artifact files are excluded from the basis manifest. The
+initial audit and initial specialist artifacts remain preserved; the dated
+re-audit artifacts are additive.
+
+## 5. Specialist Audit Profile
+
+```text
+CONFORMANCE = REQUIRED
+BEHAVIOR = REQUIRED
+DESIGN_CONFORMANCE = REQUIRED
+ARCHITECTURE = REQUIRED
+DESIGN_AUDIT_REQUIRED_BY_CURRENT_WORKFLOW = YES
+```
+
+Required specialist artifacts for this round:
+
+```text
+CONFORMANCE_AUDIT_PATH = docs/tickets/SPEC-DOM-001/DOM-001-TICKET-013-ticket-conformance-audit-2026-09-15-reaudit-001.md
+BEHAVIOR_AUDIT_PATH = docs/tickets/SPEC-DOM-001/DOM-001-TICKET-013-implementation-behavior-audit-2026-09-15-reaudit-001.md
+DESIGN_CONFORMANCE_AUDIT_PATH = docs/tickets/SPEC-DOM-001/DOM-001-TICKET-013-implementation-design-conformance-audit-2026-09-15-reaudit-001.md
+ARCHITECTURE_AUDIT_PATH = docs/tickets/SPEC-DOM-001/DOM-001-TICKET-013-architecture-boundaries-audit-2026-09-15-reaudit-001.md
+IMPLEMENTATION_DESIGN_PATH = docs/tickets/SPEC-DOM-001/DOM-001-TICKET-013-implementation-design.md
+```
+
+## 6. Specialist Artifact Validation
+
+| Domain | Artifact exists | Ticket/round/head match | Domain complete | Result |
+|---|---|---|---|---|
+| Conformance | YES | YES | YES | `SPECIALIST_CONFORMANCE_PASS` |
+| Behavior | YES | YES | YES | `SPECIALIST_BEHAVIOR_PASS` |
+| Design | YES | YES | YES | `SPECIALIST_DESIGN_PASS` |
+| Architecture | YES | YES | YES | `SPECIALIST_ARCHITECTURE_PASS` |
+
+```text
+ALL_REQUIRED_SPECIALISTS_COMPLETE = YES
+SPECIALIST_ARTIFACTS_VALID = YES
+SPECIALIST_SUBJECT_MISMATCH = NO
+SPECIALIST_RESULT_INVALID = NO
+SPECIALIST_AUDIT_BLOCKED = NO
+```
+
+The approved Implementation Design was verified as
+`IMPLEMENTATION_DESIGN_GATE = READY_FOR_IMPLEMENTATION`; no design baseline
+mismatch was found.
+
+## 7. Repository-State Consistency
+
+```text
+CONFORMANCE_HEAD = 6b31bcee1591c8b2e6499a434950664077b2be01
+BEHAVIOR_HEAD = 6b31bcee1591c8b2e6499a434950664077b2be01
+DESIGN_HEAD = 6b31bcee1591c8b2e6499a434950664077b2be01
+ARCHITECTURE_HEAD = 6b31bcee1591c8b2e6499a434950664077b2be01
+AUDIT_TARGET_HEAD = 6b31bcee1591c8b2e6499a434950664077b2be01
+SPECIALIST_STATE_CONSISTENT = YES
+MATERIAL_STATE_DIVERGENCE = NO
+NON_SEMANTIC_ARTIFACT_DRIFT = NO during specialist wave
+```
+
+## 8. Specialist Results
+
+```text
+CONFORMANCE_RESULT = SPECIALIST_CONFORMANCE_PASS
+BEHAVIOR_RESULT = SPECIALIST_BEHAVIOR_PASS
+DESIGN_RESULT = SPECIALIST_DESIGN_PASS
+ARCHITECTURE_RESULT = SPECIALIST_ARCHITECTURE_PASS
+```
+
+The specialists are independent evidence sources. Their results do not by
+themselves assign canonical finding identity, severity, lineage, or the ticket
+gate; those judgments are made below.
+
+## 9. Source Finding Inventory
+
+Current-round source findings:
+
+| Source specialist | Source finding ID | Severity | Canonical disposition |
+|---|---|---:|---|
+| Conformance | `CONF-INFO-001` | INFO | `IMA-INFO-001` |
+
+```text
+CONFORMANCE_SOURCE_FINDINGS = 1
+BEHAVIOR_SOURCE_FINDINGS = 0
+DESIGN_SOURCE_FINDINGS = 0
+ARCHITECTURE_SOURCE_FINDINGS = 0
+SOURCE_FINDINGS_TOTAL = 1
+SOURCE_FINDINGS_ACCOUNTED_FOR = YES
+```
+
+The four previous local findings are not current source findings because the
+fresh specialists verified their absence. They are reconciled explicitly in
+Section 13 and are not silently dropped.
+
+## 10. Finding Relationship / Deduplication Analysis
+
+```text
+CONF-INFO-001 = INDEPENDENT_NON_BLOCKING_DOWNSTREAM_HANDOFF
+DUPLICATE_REPRESENTATIONS_MERGED = 0
+CONTRADICTORY_SPECIALIST_INTERPRETATION_REQUIRING_REAUDIT = NO
+```
+
+The prior local source manifestations were not reintroduced and therefore do
+not require current-round merging. The INFO handoff remains a single
+integrated checkpoint, with no competing behavior/design/architecture defect.
+
+## 11. Canonical Root-Cause Analysis
+
+The remaining observation is a sequencing handoff, not an implementation
+defect. T013 now has a productive source and local evidence. The downstream
+capability promotion record and fresh T005 consumer audit must still be
+performed through the approved plan route. The producer must not promote its
+own capability by assertion, and the consumer must not be treated as locally
+ready until that integrated checkpoint is complete.
+
+```text
+IMA-INFO-001_ROOT_CAUSE_DOMAIN = TICKET_CONFORMANCE
+IMA-INFO-001_ROOT_CAUSE_CATEGORY = READINESS_HANDOFF_CONTRADICTION
+IMA-INFO-001_SYSTEMIC_PATTERN = NO
+LOCAL_IMPLEMENTATION_ROOT_CAUSES_OPEN = 0
+UPSTREAM_AUTHORITY_GAPS = 0
+```
+
+## 12. Canonical Findings
+
+### IMA-INFO-001 — Fresh T005 consumer audit and capability promotion remain downstream pending
+
+```text
+FINDING_ID = IMA-INFO-001
+SEVERITY = INFO
+TITLE = Fresh T005 consumer audit and capability promotion remain downstream pending
+ROOT_CAUSE_DOMAIN = TICKET_CONFORMANCE
+ROOT_CAUSE_CATEGORY = READINESS_HANDOFF_CONTRADICTION
+SOURCE_SPECIALISTS = TICKET_CONFORMANCE
+SOURCE_FINDING_IDS = CONF-INFO-001
+TICKET = DOM-001-TICKET-013
+IMPLEMENTATION_UNIT = DOM-IMP-13
+GAP_IDS = GAP-011,GAP-012
+REQUIREMENT_IDS = DOM-CMD-001
+ACCEPTANCE_IDS = T13-AC3,T13-AC4,AC-DOM-011
+NORMATIVE_AUTHORITY = T013 §§10-12; capability promotion contract
+REPOSITORY_EVIDENCE = no PROMO-DOM-COMMAND-AUTHORITY-01 and no fresh independent T005 audit through the promoted capability
+TEST_EVIDENCE = T013 factory path and affected T005 regression are green, but they do not themselves create the promotion record or fresh T005 audit
+EXPECTED_RESULT = after local producer closure, create promotion evidence against this exact basis and obtain a fresh T005 audit
+AUDITED_RESULT = downstream handoff remains pending; T013 local implementation is conformant
+PROBLEM = downstream integrated evidence has not yet been produced
+ROOT_CAUSE = capability promotion is sequenced after producer validation
+IMPACT = T005 local execution and integrated SPEC proof remain blocked
+STRUCTURAL_IMPACT = NOT_APPLICABLE to T013 local implementation
+BEHAVIORAL_IMPACT = NOT_APPLICABLE to T013 local implementation
+ARCHITECTURE_IMPACT = NOT_APPLICABLE to T013 local ownership
+SYSTEMIC_PATTERN = NO
+RELATED_LOCATIONS = tests/dom-001-ticket-005.test.ts; T013 §§12 and 15; active ticket index
+MINIMUM_CORRECTION_REQUIRED = downstream capability-promotion record and fresh T005 audit after T013 finalization handoff; no T013 source correction
+REMEDIATION_ROUTE = IMPLEMENTATION_PLAN_REVALIDATION
+FINDING_STATUS = OPEN
+CAPABILITY = CAP-DOM-COMMAND-AUTHORITY-OBSERVATION
+DEPENDENCY_CLASS = REQUIRED_FOR_INTEGRATED_PROOF
+LOCAL_CLOSURE_BLOCKING = NO
+LOCAL_ACCEPTANCE_REQUIRES_PRODUCTIVE_CAPABILITY = NO for T013 after it produces the capability
+CLOSURE_OWNERSHIP = INTEGRATED_CHECKPOINT
+COMPLETION_EVIDENCE_TIMING = DOWNSTREAM_AFTER_PRODUCER_AUDIT
+DEPENDENCY_CLASS_RECLASSIFICATION_REQUIRED = NO
+UPSTREAM_DEPENDENCY_CLASSIFICATION_PRESERVED = YES
+BLOCKS_LOCAL_EXECUTION = NO
+BLOCKS_LOCAL_CLOSURE = NO
+BLOCKS_TICKET_DONE = NO
+BLOCKS_INTEGRATED_PROOF = YES
+BLOCKS_SPEC_FINAL_CONFORMANCE = YES
+DOWNSTREAM_CHECKPOINT = T005 productive-reader promotion and fresh T005 audit
+DOWNSTREAM_OWNER = DOM-IMP-05 / T005 with capability-handoff owner
+```
+
+This INFO finding is visible and routed; it is not converted into a local
+blocker by severity or by the producer's downstream dependency class.
+
+## 13. Previous Finding Reconciliation
+
+| Previous canonical finding | Status | Evidence |
+|---|---|---|
+| `IMA-MAJOR-001` Productive command-authority source missing | `RESOLVED` | Concrete `CanonicalCommandAuthorityStateSource` exists in `src`; T013 focused and source typecheck pass. |
+| `IMA-MAJOR-002` Same-status freshness drift lacked direct factory witness | `RESOLVED` | Direct factory-to-consumer same-status freshness test rejects before advance and preserves state. |
+| `IMA-MAJOR-003` Named lifecycle negatives/mutation witness incomplete | `RESOLVED` | Named PROPOSED/SUPERSEDED/REVOKED/INVALIDATED test and reflective mutation attempts pass. |
+| `IMA-MAJOR-004` Productive composition guard was source-only | `RESOLVED` | Runtime fake-source rejection plus transitive productive import graph guard pass. |
+| `IMA-INFO-001` Fresh T005 audit/promotion pending | `STILL_PRESENT` | No promotion record or fresh T005 audit exists; handoff remains correctly open. |
+
+```text
+PREVIOUS_FINDINGS_RECONCILED = YES
+PREVIOUS_FINDINGS_TOTAL = 5
+PREVIOUS_FINDINGS_RESOLVED = 4
+PREVIOUS_FINDINGS_STILL_PRESENT = 1
+PREVIOUS_FINDINGS_REGRESSED = 0
+PREVIOUS_FINDINGS_SUPERSEDED = 0
+```
+
+## 14. New Finding Origin Analysis
+
+```text
+NEW_FINDINGS_TOTAL = 0
+NEW_PREEXISTING_FINDINGS = 0
+NEW_REMEDIATION_INTRODUCED_FINDINGS = 0
+NEWLY_APPLICABLE_FINDINGS = 0
+UNKNOWN_ORIGIN_FINDINGS = 0
+NEW_FINDING_ORIGINS_CLASSIFIED = YES
+```
+
+No current finding lacks a previous identity. The still-open INFO finding
+preserves its initial canonical identity.
+
+## 15. Audit Escape Analysis
+
+The initial audit detected all four local defects in its canonical finding set;
+the current wave detected no preexisting defect that escaped its expected
+specialist domain.
+
+```text
+AUDIT_ESCAPE_COUNT = 0
+CONFORMANCE_ESCAPES = 0
+BEHAVIOR_ESCAPES = 0
+DESIGN_ESCAPES = 0
+ARCHITECTURE_ESCAPES = 0
+CROSS_DOMAIN_ESCAPES = 0
+UNCLASSIFIED_ESCAPES = 0
+DESIGN_DEVIATION_ESCAPES = 0
+```
+
+## 16. Design Escape / Structural Regression Analysis
+
+```text
+DESIGN_FINDINGS_PREVIOUS = 3
+DESIGN_FINDINGS_RESOLVED = 3
+DESIGN_FINDINGS_STILL_PRESENT = 0
+DESIGN_FINDINGS_REGRESSED = 0
+STRUCTURAL_REGRESSIONS = 0
+MISSING_REQUIRED_COMPONENTS = 0
+DOMAIN_INVARIANT_BYPASSES = 0
+DOMAIN_RULE_DUPLICATION = 0
+SOLID_VIOLATIONS = 0
+DEPENDENCY_DIRECTION_VIOLATIONS = 0
+INFRASTRUCTURE_LEAKAGE_POINTS = 0
+```
+
+## 17. Remediation Regression Analysis
+
+The remediation was checked for authority fallback, caller-claim acceptance,
+pipeline mutation on failed reread, altered T005 failure mapping, new
+dependency leakage, and new structural responsibility mixing. None was found.
+
+```text
+REMEDIATION_REGRESSION_COUNT = 0
+DIRECT_REMEDIATION_REGRESSIONS = 0
+COLLATERAL_REMEDIATION_REGRESSIONS = 0
+SYSTEMIC_REMEDIATION_REGRESSIONS = 0
+STRUCTURAL_REGRESSIONS = 0
+BEHAVIORAL_REGRESSIONS = 0
+```
+
+## 18. Remediation Routing
+
+Only the integrated INFO handoff has a route. No implementation remediation is
+authorized or required by this audit.
+
+```text
+IMPLEMENTATION_REMEDIATION_FINDINGS = 0
+IMPLEMENTATION_DESIGN_REVALIDATION_FINDINGS = 0
+TICKET_REVALIDATION_FINDINGS = 0
+PLAN_REVALIDATION_FINDINGS = 1
+IMPLEMENTATION_PLAN_REVALIDATION_FINDINGS = 1
+GAP_MATRIX_REVALIDATION_FINDINGS = 0
+SPEC_REVALIDATION_FINDINGS = 0
+PORTFOLIO_REVALIDATION_FINDINGS = 0
+ADR_REVALIDATION_FINDINGS = 0
+PLAN_OR_TICKET_REVALIDATION_FINDINGS = 0
+OPEN_INTEGRATED_FINDINGS = 1
+LOCAL_TICKET_BLOCKING_FINDINGS = 0
+```
+
+## 19. Canonical Metrics
+
+```text
+CANONICAL_FINDINGS_TOTAL = 1
+DUPLICATE_REPRESENTATIONS_MERGED = 0
+CRITICAL_FINDINGS = 0
+MAJOR_FINDINGS = 0
+MINOR_FINDINGS = 0
+INFO_FINDINGS = 1
+```
+
+## 20. Design Convergence Metrics
+
+```text
+DESIGN_FINDINGS_PREVIOUS = 3
+DESIGN_FINDINGS_RESOLVED = 3
+DESIGN_FINDINGS_STILL_PRESENT = 0
+DESIGN_FINDINGS_REGRESSED = 0
+MISSING_REQUIRED_COMPONENTS = 0
+DOMAIN_INVARIANT_BYPASSES = 0
+DOMAIN_RULE_DUPLICATION = 0
+SOLID_VIOLATIONS = 0
+DEPENDENCY_DIRECTION_VIOLATIONS = 0
+INFRASTRUCTURE_LEAKAGE_POINTS = 0
+TESTABILITY_REGRESSIONS = 0
+UNPLANNED_STRUCTURAL_COMPONENTS = 0
+```
+
+## 21. Overall Convergence Metrics
+
+```text
+REQUIRED_BEHAVIORS_TOTAL = 15
+DIRECT_BEHAVIOR_WITNESSES = 15
+PROXY_ONLY_BEHAVIORS = 0
+UNTESTED_STATE_TRANSITIONS = 0
+UNPROVEN_CONCURRENCY_CONTRACTS = 0
+MISSING_ARCHITECTURE_GUARDS = 0
+TESTS_EXECUTED = 127 runtime cases across focused, affected, and full invocations
+UNIQUE_FULL_SUITE_TESTS = 102
+TESTS_PASSED = 127 runtime cases; source typecheck PASS
+TESTS_FAILED = 0 runtime cases
+TESTS_SKIPPED = 0
+REGRESSIONS = 0
+```
+
+## 22. Finding Completeness Gate
+
+```text
+ALL_REQUIRED_SPECIALISTS_COMPLETE = YES
+CONFORMANCE_DOMAIN_COMPLETE = YES
+BEHAVIOR_DOMAIN_COMPLETE = YES
+DESIGN_DOMAIN_COMPLETE = YES
+ARCHITECTURE_DOMAIN_COMPLETE = YES
+SPECIALIST_STATE_CONSISTENT = YES
+SOURCE_FINDINGS_ACCOUNTED_FOR = YES
+PREVIOUS_FINDINGS_RECONCILED = YES
+NEW_FINDING_ORIGINS_CLASSIFIED = YES
+CANONICAL_FINDING_ROUTES_CLASSIFIED = YES
+BASELINE_DRIFT_STATUS = DRIFT_ASSESSED
+BASELINE_REMEDIATION_READINESS = READY
+AUDIT_BASIS_STALE = NO
+FINDING_COMPLETENESS_GATE = PASS
+INTEGRATED_ONLY_AVAILABILITY_BLOCKING_LOCAL_DONE = 0
+LOCAL_CLOSURE_FINDINGS_NOT_BLOCKING_DONE = 0
+FINDING_SEVERITY_USED_AS_SOLE_COMPLETION_GATE = 0
+OPEN_INTEGRATED_FINDING_LOST_FROM_TRACEABILITY = 0
+SPECIALIST_CANNOT_SILENTLY_PROMOTE_INTEGRATED_DEPENDENCY_TO_LOCAL_BLOCKER = YES
+CONSOLIDATOR_CANNOT_DERIVE_LOCAL_BLOCKING_FROM_SEVERITY_ALONE = YES
+LOCAL_DONE_GATE_USES_LOCAL_CLOSURE_SCOPE = YES
+INTEGRATED_PROOF_GATE_USES_INTEGRATED_DEPENDENCY_SCOPE = YES
+```
+
+## 23. Ticket Completion Gate
+
+```text
+LOCAL_ACCEPTANCE_VALID = YES
+LOCAL_COMPLETION_EVIDENCE_VALID = YES
+NON_EXECUTABLE_LOCAL_WITNESSES = 0
+OPEN_FINDINGS_BLOCKING_TICKET_DONE = 0
+LOCAL_TICKET_DONE_ALLOWED = YES
+TICKET_GATE = READY_FOR_DONE
+```
+
+This audit authorizes the separate finalization workflow to evaluate local
+completion. It does not mark the ticket `DONE`, promote the capability, or
+close the integrated T005 handoff.
+
+## 24. Completeness Proof
+
+```text
+AUDIT_ROUND = RE_AUDIT
+AUDIT_TARGET_HEAD = 6b31bcee1591c8b2e6499a434950664077b2be01
+CURRENT_HEAD = 6b31bcee1591c8b2e6499a434950664077b2be01
+AUDIT_BASIS_FINGERPRINT = C51BC87D09812F69C50852C55C475437D7905950CD7525CD7C9622C203A7F964
+AUDIT_BASIS_FINGERPRINT_ALGORITHM = UTF-8 SHA-256 of HEAD line plus ordered path=uppercase-SHA256 rows
+BASELINE_REASSESSMENT_PROOF = THIS SECTION AND THE MANIFEST BELOW
+AUDIT_BASIS_LIVE_MATCH = YES at specialist dispatch and consolidation
+PRODUCTION_OR_TEST_CHANGES_DURING_AUDIT = NONE
+```
+
+### BASELINE_REASSESSMENT_PROOF
+
+```text
+OLD_AUTHORITY_BASELINE = accepted ADR-0002 revision 3 -> O-011 -> DOM-CMD-001 -> validated GAP-011/GAP-012 -> conformant Plan/ticket-set audit
+CURRENT_AUTHORITY_BASELINE = same authority, ownership, requirements, gaps, acceptance IDs, and downstream dependency classification
+OLD_REPOSITORY_BASELINE = initial canonical audit basis 61691C40E7E9F7757F266686752CA0186BEC1EE3479ACA0B68FF87D4C5EF92EA
+CURRENT_REPOSITORY_BASELINE = post-remediation basis C51BC87D09812F69C50852C55C475437D7905950CD7525CD7C9622C203A7F964
+AUTHORITY_DRIFT_CLASSIFICATION = NO_RELEVANT_NORMATIVE_DRIFT
+REPOSITORY_DRIFT_CLASSIFICATION = AUTHORIZED_IMPLEMENTATION_REMEDIATION_ASSESSED
+REQUIREMENTS_PRESERVED = DOM-CMD-001; T13-AC1..T13-AC5; AC-DOM-011 producer contribution; CAP-DOM-COMMAND-AUTHORITY-OBSERVATION
+REQUIREMENTS_ADDED = NONE
+REQUIREMENTS_REMOVED = NONE
+GAPS_PRESERVED = GAP-011; GAP-012
+DEPENDENCY_RECORDS_PRESERVED = T005 REQUIRED_FOR_LOCAL_EXECUTION; integrated handoff canonicalized as REQUIRED_FOR_INTEGRATED_PROOF for T013 local closure
+PREVIOUS_FINDINGS_RECONCILED = YES; four resolved, one still present integrated-only
+STALE_EVIDENCE_REPLACED = YES; current specialist reports and fresh test runs are bound to the current fingerprint
+REASSESSMENT_ACTIONABLE = YES
+```
+
+### Current audit-basis manifest
+
+```text
+HEAD=6b31bcee1591c8b2e6499a434950664077b2be01
+docs/adrs/ADR-0002-pipeline-state-machines-and-transitions.md=EF9289C6FCA4BBA73FCA53CA38C71DD19110EB1CFE948358A7CCA1FE14E177D9
+docs/specs/SPEC-DOM-001-workflow-authority-and-governance.md=CB4A21924D9619B8349D6CC239D7998633C402D7EA3D7461C2D4D8498F9A014C
+docs/specs/gap-matrices/SPEC-DOM-001-implementation-gap-matrix.md=8D8401903F5558C129FCB516F699D7DB40DDFCBF83D52B136AE22CA95976675C
+docs/specs/implementation-plans/SPEC-DOM-001-implementation-plan.md=388F5F0797C291887E3C0005845CCDFD0E2DBF83DDD5EAA38385121F98D9184F
+docs/specs/implementation-plans/audits/SPEC-DOM-001-implementation-plan-audit-2026-09-15-command-authority-producer.md=A197E5D57A12A933EAFB2FA7672E180CA15FF36EC57236BB5367FAB630562705
+docs/tickets/SPEC-DOM-001/implementation-ticket-audit-2026-09-15-command-authority-producer.md=70BB360256C6E7E6A2D11302EF4497478DB6BEB2EC8C40267D32446AA19E2EF5
+docs/tickets/SPEC-DOM-001/DOM-001-TICKET-013-command-authority-observation.md=EFE626038BD1DD2D909C35307D00D5F8C249B27A33B5E0993299346DFA338BEC
+docs/tickets/SPEC-DOM-001/DOM-001-TICKET-013-implementation-design.md=ECC068026749ADFD3C5FCAFE7808FCE070666C1DCE16CD4849CFEAFE7557760B
+docs/tickets/SPEC-DOM-001/DOM-001-TICKET-013-implementation-remediation.md=FB12049B95537E43BEC5439F15F784D3CB58C0FC0B45C6927158D13DEA4A5719
+docs/tickets/SPEC-DOM-001/evidence/TICKET-013/EV-DOM-IMP-13-AUTHORITY-READER-COMPLETE.md=B790181A29C9DF8372E4B1C5DC089BE21A79AA245F129F3F9CE2F2435B9E6468
+docs/tickets/SPEC-DOM-001/evidence/TICKET-013/EV-DOM-IMP-13-COMPOSITION.md=C6EAAD8E24CAF55525D00D2CF06CA3E3B06AB414F55A545EDCE616BDE299004D
+docs/tickets/SPEC-DOM-001/evidence/TICKET-013/EV-DOM-IMP-13-TEMPORAL-REOBSERVATION.md=93E2ACD690C77B09497281CC6B606D2DE0FB07A495DBC0A4B5A094FF54551038
+docs/tickets/SPEC-DOM-001/evidence/TICKET-013/EV-DOM-IMP-13-BOUNDARY-NEGATIVE.md=1FA220F4449333B7034852E4731DBB845E650E27D67A081BF871FD307EC39881
+src/domain/command.ts=F614A24E3FE8BAFDA30C99C7E8608C9D841BAE66056C8EE16CAFFF436F81D699
+src/domain/identity.ts=B1D2157480B63EC245E4A465A7805A43A82C4D091C6E231F6EAF17C6BCC73E96
+src/domain/pipeline.ts=E02D4765A9FE4B38C6DF873220FC2F1DEA34FC0F2ED10C9B5A9639D3D6EB605F
+src/application/command.ts=0B2547C5935A8DE16A325F0FB12864F47AF29A3DE08392C47CC112EB39635F85
+src/application/command-authority.ts=7F29A6E5CCC26DF4BEAD68A492976764AE7CA5F5296B561880BD20B5E24171F6
+src/application/composition.ts=6677E7E1E05276758588E84B21D79A4BB178898D2BFB4A143B2FB68FB9B9C542
+src/application/pipeline.ts=5150038AFA296B173D4C13E086AD1B276E139257F8B5E500E5820967A059057B
+tests/dom-001-ticket-005.test.ts=761C8384DBC2B5B23B95A87CB363F59A319B6A8D258831128EE59555BB2B9B6B
+tests/dom-001-ticket-013.test.ts=5B6B56323456E78E741B1AD92F42A4C816CA30B5D704D2A1337E9440025B5267
+```
+
+```text
+SOURCE_FINDINGS_ACCOUNTED_FOR = YES
+PREVIOUS_FINDINGS_RECONCILED = YES
+NEW_FINDING_ORIGINS_CLASSIFIED = YES
+CANONICAL_FINDING_ROUTES_CLASSIFIED = YES
+ALL_REQUIRED_SPECIALISTS_COMPLETE = YES
+SPECIALIST_STATE_CONSISTENT = YES
+AUDIT_BASIS_STALE = NO
+FINDING_COMPLETENESS_GATE = PASS
+VERDICT = TICKET_IMPLEMENTATION_CONFORMANT
+TICKET_GATE = READY_FOR_DONE
+```
