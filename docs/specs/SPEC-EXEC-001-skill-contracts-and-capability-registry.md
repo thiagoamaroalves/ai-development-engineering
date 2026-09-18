@@ -3,8 +3,8 @@ schema_version: "1.0.0"
 id: SPEC-EXEC-001
 title: Skill Contracts and Capability Registry
 status: PROPOSED
-revision: 1
-date: 2026-09-08
+revision: 3
+date: 2026-09-17
 spec_scope: execution-contracts
 portfolio: SPEC-PORTFOLIO-001
 portfolio_revision: 2
@@ -19,8 +19,9 @@ upstream_dependencies: [SPEC-DOM-001]
 
 ## 1. Status
 
-`PROPOSED` — primeira materialização do boundary EXEC-001 a partir do
-portfolio aprovado.
+`PROPOSED` — materialização remediada do boundary EXEC-001 a partir do
+portfolio aprovado; a revisão 3 incorpora a correção do achado validado da
+auditoria independente.
 
 Generation baseline:
 
@@ -31,11 +32,11 @@ Generation baseline:
 | Portfolio audit | `docs/specs/SPEC-PORTFOLIO-001-decomposition-audit.md` |
 | Portfolio verdict | `PORTFOLIO_DECOMPOSITION_APPROVED` |
 | Primary ADR | `ADR-0003` revision `3`, `ACCEPTED` |
-| Upstream dependency | `SPEC-DOM-001` revision `2`, audit `PASS — COMPONENT_SPEC_CONFORMANT` |
-| Repository HEAD | `b1c2c4ab81ba716ccd079f80f187f6b773e0655f` |
-| Existing target draft | ausente |
+| Upstream dependency | `SPEC-DOM-001` revision `4`, audit `PASS — COMPONENT_SPEC_CONFORMANT` (`docs/specs/audits/SPEC-DOM-001-component-conformance-audit.md`) |
+| Repository HEAD | `381218d5fbf8d969ee5ae5349b8f65c4cd5af7f9` (remediation baseline) |
+| Existing target draft | revision `2`, `PROPOSED` |
 | Prior Gap Matrix | ausente |
-| Gate | `READY_FOR_INDEPENDENT_COMPONENT_SPEC_AUDIT` |
+| Gate | `READY_FOR_INDEPENDENT_COMPONENT_SPEC_REAUDIT` |
 
 Esta SPEC ainda não é aceita. Sua aceitação depende de auditoria independente
 da SPEC. A decomposição do portfolio, a autoridade das ADRs e o contrato
@@ -91,7 +92,7 @@ projetar os contratos, mas não alteram a semântica canônica desta SPEC.
 |---|---|
 | `docs/specs/SPEC-PORTFOLIO-001-organization.md` | ownership, registry O-016…O-021, falhas, compatibilidade e DAG |
 | `docs/specs/SPEC-PORTFOLIO-001-decomposition-audit.md` | aprovação independente mais recente; `PORTFOLIO_DECOMPOSITION_APPROVED` |
-| `docs/specs/audits/SPEC-DOM-001-component-conformance-audit.md` | auditoria upstream mais recente; `PASS — COMPONENT_SPEC_CONFORMANT` |
+| `docs/specs/audits/SPEC-DOM-001-component-conformance-audit.md` | auditoria upstream mais recente de `SPEC-DOM-001` revision `4`; `PASS — COMPONENT_SPEC_CONFORMANT` |
 | `docs/specs/SPEC-DOM-001-workflow-authority-and-governance.md` | contrato upstream de identidade, revisão, snapshot e lifecycle |
 
 Esta especificação materializa ownership já atribuído pelo portfolio aprovado
@@ -167,9 +168,9 @@ as consequências persistentes/externas nos owners correspondentes.
 |---|---|---|---|
 | ADR-0003 | documento aceito, revision 3, não implementado | autoridade identificável para todos os contratos EXEC-001 | `ALREADY_CONFORMANT` |
 | Portfolio e registry de obrigações | O-016…O-021 atribuídos uma única vez a EXEC-001 | boundary preservado | `ALREADY_CONFORMANT` |
-| Upstream DOM | SPEC revision 2; auditoria independente `PASS — COMPONENT_SPEC_CONFORMANT` | consumir IDs, revisão, snapshot e lifecycle canônicos | `ALREADY_CONFORMANT` |
+| Upstream DOM | SPEC revision 4; auditoria independente `PASS — COMPONENT_SPEC_CONFORMANT` | consumir IDs, revisão, snapshot e lifecycle canônicos | `ALREADY_CONFORMANT` |
 | Schemas JSON produtivos | não encontrados | envelope e payload validáveis independentemente | `IMPLEMENTATION_GAP` |
-| Registry normal/bootstrap | não encontrado fora da simulação | catálogo explícito, versionado e separado | `IMPLEMENTATION_GAP` |
+| Registry normal/bootstrap | não encontrado fora da simulação | catálogo explícito, versionado, separado e com `RepositoryId` no escopo `NORMAL` | `IMPLEMENTATION_GAP` |
 | Manifesto produtivo de atividade | não encontrado | manifesto imutável com versões e checkpoints | `IMPLEMENTATION_GAP` |
 | Runtime/adapters de skills | não encontrados | consumidores usam contratos sem texto autoritativo | `IMPLEMENTATION_GAP` |
 | `prototype/src/mockDomain.ts` | simula envelope/campos de skill, versões e checkpoints em memória | evidência de cenário, não implementação ou autoridade | `PROTOTYPE_ONLY` |
@@ -186,8 +187,8 @@ as consequências persistentes/externas nos owners correspondentes.
 | O-017 | ADR-0003 / Decisão | semver e versões suportadas declaradas | EXEC-VERSION-001, EXEC-VERSION-002 |
 | O-018 | ADR-0003 / Decisão | versão exata congelada por execução e cutover por revisão | EXEC-SNAPSHOT-001, EXEC-MANIFEST-003 |
 | O-019 | ADR-0003 / Decisão | falha fechada para JSON/schema/veredito e resultado estruturado | EXEC-CONTRACT-001, EXEC-CONTRACT-002, EXEC-FAILURE-001 |
-| O-020 | ADR-0003 / Decisão | registry versionado, catálogo normal/bootstrap e extensibilidade | EXEC-REGISTRY-001, EXEC-REGISTRY-002, EXEC-REGISTRY-003, EXEC-CAPABILITY-001, EXEC-CAPABILITY-002 |
-| O-021 | ADR-0003 / Decisão | manifesto completo imutável, checkpoints seguros e retomada | EXEC-MANIFEST-001, EXEC-MANIFEST-002, EXEC-MANIFEST-003, EXEC-HISTORY-001 |
+| O-020 | ADR-0003 / Decisão | registry versionado, identidade/reconstrução de entradas, catálogo normal/bootstrap e extensibilidade | EXEC-REGISTRY-001, EXEC-REGISTRY-002, EXEC-REGISTRY-003, EXEC-REGISTRY-004, EXEC-CAPABILITY-001, EXEC-CAPABILITY-002 |
+| O-021 | ADR-0003 / Decisão | manifesto completo imutável, identidade/reconstrução, checkpoints seguros e retomada | EXEC-MANIFEST-001, EXEC-MANIFEST-002, EXEC-MANIFEST-003, EXEC-MANIFEST-004, EXEC-HISTORY-001 |
 
 Cada obrigação possui requisito, critério de aceitação e cobertura de
 conformance nas seções 21–23.
@@ -196,7 +197,7 @@ conformance nas seções 21–23.
 
 | Owner SPEC | Contract / requirement | Why consumed | Local rule |
 |---|---|---|---|
-| `SPEC-DOM-001` | `DOM-ID-001`, `DOM-SNAPSHOT-001`, `DOM-LINEAGE-001`, `DOM-LIFE-001`, `DOM-AUDIT-002` | relacionar execução, atividade, ciclo, revisão, snapshot e veredito a contratos de skill | usar IDs/revisões canônicos; não criar identidade, lifecycle ou veredito DOM alternativo |
+| `SPEC-DOM-001` revision `4` | `DOM-ID-001`, `DOM-SNAPSHOT-001`, `DOM-LINEAGE-001`, `DOM-LIFE-001`, `DOM-AUDIT-002` | relacionar repositório, execução, atividade, ciclo, revisão, snapshot e veredito a contratos de skill | usar `RepositoryId` e demais IDs/revisões canônicos; não criar identidade, lifecycle ou veredito DOM alternativo |
 | `SPEC-DOM-001` | `DOM-CMD-001`, `DOM-ADV-001` | rejeições de contrato podem impedir avanço de domínio | propagar precondição/falha; validação de contrato não aprova transição DOM |
 
 `SPEC-DOM-001` é a única dependência normativa upstream aprovada. Os
@@ -228,6 +229,7 @@ confirma efeito externo nem altera estado de domínio por si só.
 | Identidade/conceito | Canonical owner | Reference identity | Local correlation | Derived projection |
 |---|---|---|---|---|
 | `ExecutionId`, `ActivityId`, `AttemptId`, `ArtifactCycleId`, `AgentId` | DOM | referência recebida no envelope/manifesto | correlation de contrato/execução | nome/status exibido |
+| `NORMAL` catalog identity (`RepositoryId` + entry key) | EXEC-001; `RepositoryId` is DOM-owned | enabled repository catalog and its entries | catalog/resolution correlation | repository/skill label |
 | `SkillContractId` + versão | EXEC-001 | entrada do registry | request/result correlation | nome da skill |
 | `CapabilityId` + versão | EXEC-001 | entrada do registry e capability requerida | resolution correlation | label/categoria |
 | `ContractVerdict` | EXEC-001 para validade do contrato; DOM para veredito de lifecycle | campo estruturado do envelope | result correlation | texto/status de consumidor |
@@ -236,9 +238,139 @@ confirma efeito externo nem altera estado de domínio por si só.
 
 Os IDs de agregados e sua revisão não podem ser substituídos por nomes de
 arquivo, labels, títulos ou campos de transporte. `SkillContractId`,
-`CapabilityId` e `SchemaId` são identificadores contratuais locais; o manifesto
-é vinculado às identidades DOM recebidas e não cria uma identidade canônica
-concorrente.
+`CapabilityId` e `SchemaId` são identificadores contratuais locais; para uma
+entrada `NORMAL`, `RepositoryId` é a identidade canônica do catálogo
+habilitado fornecida por DOM. O manifesto é vinculado às identidades DOM
+recebidas e não cria uma identidade canônica concorrente.
+
+### 12.1 — Identidade canônica das entradas do registry
+
+Cada entrada do registry é uma entidade contratual de tipo
+`REGISTRY_ENTRY`. Para uma entrada `NORMAL`, sua identidade canônica e chave
+de lookup são o tuplo imutável
+`(CatalogScope=NORMAL, RepositoryId, SkillContractId, CapabilityId, SchemaId,
+SemanticVersion)`. `RepositoryId` é resolvido pela identidade canônica DOM do
+repositório que fornece a configuração habilitada e não pode ser substituído
+por nome, caminho, branch, URL ou digest. Para uma entrada `BOOTSTRAP`, a
+identidade é o catálogo de sistema independente de escopo `BOOTSTRAP` mais
+`(SkillContractId, CapabilityId, SchemaId, SemanticVersion)`; não há
+`RepositoryId` de repositório habilitado nesse escopo. Assim, `NORMAL` é
+sempre repository-scoped e `BOOTSTRAP` permanece uma fonte system-scoped
+separada.
+
+A mesma chave (incluindo `RepositoryId` quando `NORMAL`) não pode representar
+duas entradas ou ser substituída por mutação. Uma atualização que altera
+semântica exige nova `SemanticVersion`; uma alteração de catálogo produz novo
+`CatalogRevision` dentro do mesmo `RepositoryId`/escopo, sem reescrever a
+entrada ou o basis de execuções existentes. `CatalogRevision` é distinto da
+versão semântica do contrato.
+
+A criação é a operação de registrar uma chave ausente; registro duplicado,
+conflitante ou tentativa de substituir uma chave existente falha com
+`CONTRACT_INVALID` e não altera o catálogo. A resolução usa a chave completa,
+incluindo `RepositoryId` para `NORMAL`, o `CatalogRevision` congelado pelo
+snapshot e as referências de etapa, papéis, schemas, artefatos e vereditos.
+O registro normal é obtido da configuração habilitada do repositório cuja
+identidade DOM é `RepositoryId`; o bootstrap é o catálogo de sistema
+independente. EXEC-001 valida a semântica e a integridade, enquanto a fonte
+respectiva fornece o material autorizado.
+
+Um basis de catálogo persistido contém as entradas schema-válidas, seu
+`CatalogScope`, `RepositoryId` quando `NORMAL` (ausente para o catálogo
+`BOOTSTRAP` system-scoped), `CatalogRevision`, origem autorizada e digest de
+conteúdo. Reidratação é distinta de registro: o material só pode ser
+materializado após validação da identidade de catálogo, origem, digest,
+unicidade, referências e continuidade do `CatalogRevision` dentro do mesmo
+`RepositoryId`/escopo. Material ausente, desconhecido, detached, corrompido,
+duplicado, fora de ordem ou com revisão inconsistente falha fechado como
+`CONTRACT_INVALID`; uma chave desconhecida produz `UNKNOWN_CAPABILITY` e uma
+chave conhecida cujo basis, versão, schema ou papel não é compatível produz
+`INCOMPATIBLE_CAPABILITY`. Nenhum desses caminhos muta estado parcialmente.
+
+### 12.2 — Identidade canônica do manifesto
+
+O manifesto é um artefato imutável de tipo `ACTIVITY_ATTEMPT_MANIFEST`, com
+escopo de `ExecutionId`/`ArtifactCycleId` e identidade canônica exatamente
+`(ExecutionId, ActivityId, AttemptId)`, resolvida por DOM. Cada tentativa
+possui exatamente um manifesto; `ActivityId` e `AttemptId` permanecem
+identidades distintas e um retry usa novo `AttemptId` e novo manifesto. O
+`ArtifactCycleId` é referência de lineage, não um substituto da identidade do
+manifesto, e não existe um `ManifestId` local concorrente.
+
+A criação ocorre uma vez, antes do início da tentativa, com as referências DOM,
+o snapshot e o basis do catálogo exatos e todos os campos mínimos de
+`EXEC-MANIFEST-001`; criação duplicada, attachment a outra atividade/ciclo ou
+referência ausente falha com `CONTRACT_INVALID`. O registro persistido inclui
+a tupla canônica, tipo, escopo, `ManifestContentRevision = 1`, conteúdo
+completo e digest de integridade. Esse revision é imutável; qualquer nova base
+exige nova tentativa/identidade, não edição do registro histórico.
+
+Reidratação não é criação: o material persistido é primeiro validado quanto ao
+digest físico pelo owner de armazenamento e quanto à identidade, attachment,
+basis, cardinalidade e campos normativos pelo owner semântico EXEC-001. PLAT
+permanece responsável por serialização, durabilidade, ordenação e recovery
+físico; EXEC-002 aplica contexto de sessão conforme O-025. Registro detached,
+digest divergente, duplicado, corrompido, stale, com referência desconhecida
+ou com basis incompatível falha fechado como `CONTRACT_INVALID`, sem mutação.
+Replay carrega a identidade e o basis originais e nunca resolve o conteúdo
+novamente contra o registry atual. Path, filename, hash isolado, checkpoint,
+correlation ou label são aliases/evidência, nunca identidade canônica.
+
+### 12.3 — Aggregate Identity Authority Proofs
+
+| Field | Registry entry | Activity-attempt manifest |
+|---|---|---|
+| `AGGREGATE_ROOT` | `REGISTRY_ENTRY` | `ACTIVITY_ATTEMPT_MANIFEST` |
+| `CANONICAL_IDENTITY` | `NORMAL: (CatalogScope=NORMAL, RepositoryId, SkillContractId, CapabilityId, SchemaId, SemanticVersion)`; `BOOTSTRAP: (CatalogScope=BOOTSTRAP, SkillContractId, CapabilityId, SchemaId, SemanticVersion)` | `(ExecutionId, ActivityId, AttemptId)` |
+| `IDENTITY_AUTHORITY_SOURCE` | EXEC-001 registry; `RepositoryId` comes from DOM `DOM-ID-001` for NORMAL; BOOTSTRAP is the independent system catalog | DOM `DOM-ID-001` identities consumed by EXEC-001 under O-021 |
+| `IDENTITY_KIND_OR_TYPE` | `REGISTRY_ENTRY` | `ACTIVITY_ATTEMPT_MANIFEST` |
+| `IDENTITY_SCOPE` | NORMAL is scoped to the canonical `RepositoryId`; BOOTSTRAP is the independent system catalog scope | `ExecutionId` and `ArtifactCycleId` scope; attempt attachment validated by DOM |
+| `STABLE_CORRELATION_FIELDS` | `RepositoryId` when NORMAL, stage, capability, contract and catalog revision references; correlation is not identity | `ExecutionId`, `ActivityId`, `AttemptId`, `ArtifactCycleId`, exact snapshot/catalog basis |
+| `CREATION_RULE` | register only an absent complete scoped key; duplicate/conflict rejects | create exactly one complete manifest before attempt start |
+| `COMMAND_REPRESENTATION` | registry-entry registration / new scoped catalog revision application command | manifest creation with canonical DOM references and exact basis |
+| `REPOSITORY_LOOKUP_REPRESENTATION` | complete scoped key, including `RepositoryId` for NORMAL, plus requested `CatalogRevision` | complete DOM identity tuple plus manifest content revision |
+| `PERSISTED_REPRESENTATION` | schema-valid entry set, scope, `RepositoryId` when NORMAL, revision, authorized source and content digest | identity tuple, type, scope, content revision `1`, complete fields and integrity digest |
+| `REHYDRATED_REPRESENTATION` | validated entry set preserving scoped key, repository/catalog identity, revision, source, references and digest | validated immutable record preserving tuple, basis, fields and digest |
+| `EQUALITY_AND_CONTINUITY_SEMANTICS` | same scoped key/version is same immutable entry; catalog revisions cannot rewrite it or cross-resolve repositories | same DOM tuple is same manifest; retry/new basis requires a new AttemptId |
+| `REVISION_RELATIONSHIP` | semantic version is contract revision; `CatalogRevision` is catalog-basis revision within the scoped repository/catalog | `ManifestContentRevision=1`; DOM snapshot/basis revisions remain distinct |
+| `ALIASES_LOCAL_IDS_DERIVED_IDS` | labels, paths, branch, URL, category, digest and correlation are not entry identity; `RepositoryId` is not replaceable by them | path, filename, digest, checkpoint, correlation and label are not manifest identity |
+| `ALIAS_AUTHORITY_AND_FORBIDDEN_SUBSTITUTIONS` | no caller, projection, detached record or catalog source may replace the complete scoped key or its repository binding | no caller, storage adapter, filename or hash may replace DOM tuple |
+| `PROOF_EVIDENCE` | this §12.1, §12.3, §13 `EXEC-REGISTRY-004`, §14, §15, §21, §22 | this §12.2–§12.3, §13 `EXEC-MANIFEST-004`, §14, §15, §16–§18, §21, §22 |
+
+### 12.4 — Aggregate Reconstruction Authority Proofs
+
+| Field | Registry entry | Activity-attempt manifest |
+|---|---|---|
+| `WHAT_PERSISTED_MATERIAL_IS_ACCEPTED` | schema-valid complete catalog basis with authorized source, matching digest, contiguous `CatalogRevision` and `RepositoryId` when `NORMAL` | complete immutable record with DOM tuple, basis, content revision `1`, fields and matching digest |
+| `WHO_VALIDATES_PERSISTED_MATERIAL` | EXEC-001 validates semantic catalog identity, repository attachment, references, revision and failure result; physical adapter only supplies material/integrity evidence | PLAT validates physical integrity; EXEC-001 validates semantic identity, attachment, basis and fields |
+| `CREATE_SEMANTICS` | absent scoped key creates one immutable entry in a new valid basis; `NORMAL` creation requires the DOM-resolved `RepositoryId` | one manifest for one DOM attempt before start |
+| `REHYDRATE_SEMANTICS` | resolve requested scoped key/revision, requiring matching `RepositoryId` for `NORMAL`, validate source/digest/continuity, then materialize | resolve DOM tuple, validate attachment/basis/digest/content revision, then materialize |
+| `REHYDRATABLE_STATES` | valid current catalog basis and historical frozen catalog basis within the same repository/system scope | pre-start-created, started-immutable and historical-replay record |
+| `CURRENT_STATE_EVIDENCE` | exact scope, `RepositoryId` when `NORMAL`, `CatalogRevision`, complete key set, source and digest | exact DOM tuple, snapshot/catalog basis, content revision and digest |
+| `CANONICAL_IDENTITY_RESOLUTION` | `NORMAL` resolves complete key including DOM `RepositoryId`; `BOOTSTRAP` resolves independent system-scoped key | DOM resolves `ExecutionId`, `ActivityId`, `AttemptId`; `ArtifactCycleId` is lineage |
+| `REFERENCE_ATTACHMENT_VALIDATION` | repository/catalog identity, stage/capability/schema/artifact/verdict/role references resolve in the same scoped basis | activity/attempt/cycle and snapshot references resolve to the same execution |
+| `VERSION_OR_REVISION_VALIDATION` | semver and supported set plus contiguous `CatalogRevision` within the same `RepositoryId`/scope | exact skill/schema/catalog basis plus `ManifestContentRevision=1` |
+| `CAN_UNTRUSTED_OR_DETACHED_PERSISTED_MATERIAL_BE_MATERIALIZED_DIRECTLY_AS_VALID_DOMAIN_STATE?` | `NO` | `NO` |
+| `RECONSTRUCTION_VALIDATOR_OR_RESOLVER_OWNER` | EXEC-001 semantic registry resolver; source/physical adapter cannot promote material | EXEC-001 manifest validator; PLAT remains physical storage/recovery owner |
+| `CONTINUITY_VALIDATION` | no skipped, duplicate, conflicting or forged catalog revision | no duplicate attachment, digest/basis divergence or cross-attempt attachment |
+| `STALE_STATE_BEHAVIOR` | requested stale or foreign-repository basis fails closed; current or another repository catalog cannot reinterpret a frozen basis | stale current registry cannot reinterpret historical manifest |
+| `UNKNOWN_REFERENCE_BEHAVIOR` | unknown capability returns `UNKNOWN_CAPABILITY`; unknown schema/reference is `CONTRACT_INVALID` | unknown DOM attachment is `CONTRACT_INVALID` |
+| `DETACHED_REFERENCE_BEHAVIOR` | detached source/entry or entry attached to another `RepositoryId` fails `CONTRACT_INVALID` | detached manifest fails `CONTRACT_INVALID` |
+| `CORRUPTED_MATERIAL_BEHAVIOR` | digest/schema/continuity corruption fails `CONTRACT_INVALID` | digest/schema/identity corruption fails `CONTRACT_INVALID` |
+| `STATE_SKIP_REJECTION` | skipped/out-of-order `CatalogRevision` rejects without mutation | missing or mismatched manifest basis rejects without mutation |
+| `STATE_EVIDENCE_INCONSISTENCY_REJECTION` | repository identity, source, digest, key set or revision mismatch rejects | DOM tuple, basis, content revision or digest mismatch rejects |
+| `FORGED_LATER_STATE_REJECTION` | untrusted later or foreign-repository catalog cannot replace a frozen scoped revision | untrusted later registry/manifest cannot replace historical record |
+| `DOMAIN_VALIDATION_OWNER` | EXEC-001 | EXEC-001; DOM validates referenced identity authority |
+| `PERSISTENCE_ADAPTER_RESPONSIBILITY` | physical storage/integrity remains outside this SPEC; adapter cannot define semantics | PLAT serializes, stores, orders and recovers; it cannot define manifest meaning |
+| `FAIL_CLOSED_FAILURES` | `CONTRACT_INVALID`, `UNKNOWN_CAPABILITY`, `INCOMPATIBLE_CAPABILITY` as mapped above | `CONTRACT_INVALID` for invalid material/attachment/basis |
+| `FAIL_CLOSED_RESULT` | no catalog mutation or resolution success | no manifest mutation, attachment or replay success |
+| `MUTATION_ON_FAILURE` | `NO` | `NO` |
+| `PERSISTED_IDENTITY_STATE_VERSION` | scoped catalog revision plus entry semantic version; `RepositoryId` is required for `NORMAL` | manifest content revision `1` plus DOM snapshot/basis revisions |
+| `INVARIANTS_REVALIDATED` | unique scoped key, repository attachment when `NORMAL`, source, digest, references, semantic compatibility and continuity | identity attachment, completeness, immutability, basis, digest and cardinality |
+| `EXTERNAL_REFERENCES_REQUIRED` | DOM `RepositoryId` and stage, capability, schema, artifact, verdict and role references for `NORMAL`; system catalog scope for `BOOTSTRAP` | DOM execution/activity/attempt/cycle and snapshot/catalog basis |
+| `INVALID_PERSISTENCE_BEHAVIOR` | reject `CONTRACT_INVALID`, no materialization/mutation | reject `CONTRACT_INVALID`, no materialization/mutation |
+| `INCOMPLETE_HISTORY_BEHAVIOR` | reject missing/omitted repository identity, catalog revision or scoped history | reject missing original basis/manifest fields or detached history |
+| `PROOF_EVIDENCE` | this §12.1, §12.3–§12.4, §13, §14–§18, §21–§23; cross-catalog witnesses in C-EXEC-018/020 | this §12.2–§12.4, §13, §14–§18, §21–§23 |
 
 ## 13. Normative Requirements
 
@@ -320,6 +452,33 @@ congelado da execução.
 
 Authority: `O-020`, `ADR-0003`, `Decisão`.
 
+### EXEC-REGISTRY-004 — Identidade e reconstrução determinística do registry
+
+Cada entrada deve ser do tipo `REGISTRY_ENTRY`. Para `NORMAL`, a identidade
+canônica é `(CatalogScope=NORMAL, RepositoryId, SkillContractId, CapabilityId,
+SchemaId, SemanticVersion)`, em que `RepositoryId` é a identidade canônica
+DOM (`DOM-ID-001`) do repositório cuja configuração habilitada fornece o
+catálogo. Para `BOOTSTRAP`, a identidade é o escopo independente do catálogo
+de sistema mais `(SkillContractId, CapabilityId, SchemaId, SemanticVersion)`;
+`RepositoryId` não é usado para esse escopo. A chave é imutável e única no
+`CatalogRevision` dentro do seu escopo; registro de chave existente,
+conflitante ou duplicado falha com `CONTRACT_INVALID` sem mutação. Alteração
+semântica exige nova versão semântica e uma nova base de catálogo. Cada base
+persistida deve incluir o escopo, `RepositoryId` quando `NORMAL`, revisão do
+catálogo, origem autorizada, digest de conteúdo e referências completas;
+criação e reidratação são operações separadas. Somente material schema-válido,
+íntegro, ligado à origem e ao repositório correto quando `NORMAL`, com
+continuidade de revisão dentro do mesmo escopo e referências resolvíveis pode
+ser reidratado. Material unknown, detached, corrompido, stale, inconsistente,
+fora de ordem ou cross-repository falha fechado com `CONTRACT_INVALID`;
+capability desconhecida e capability conhecida incompatível conservam,
+respectivamente, `UNKNOWN_CAPABILITY` e `INCOMPATIBLE_CAPABILITY`. A resolução
+de uma execução usa o `RepositoryId` da execução e o `CatalogRevision`
+congelado, nunca outro catálogo ou o catálogo atual por substituição implícita.
+
+Authority: `O-020`, `ADR-0003`, `ADR-0010`, `Decisão`, identidade/reconstrução
+consumidas de `DOM-ID-001`/`DOM-SNAPSHOT-001`.
+
 ### EXEC-REGISTRY-002 — Catálogo normal separado de bootstrap
 
 O registro normal de skills deve pertencer à configuração habilitada do
@@ -391,11 +550,38 @@ referência e manifesto próprios conforme DOM.
 
 Authority: `O-018` e `O-021`, `ADR-0003`, `Decisão`, consumindo `DOM-SNAPSHOT-001`.
 
+### EXEC-MANIFEST-004 — Identidade e reconstrução do manifesto
+
+Cada tentativa DOM possui exatamente um manifesto imutável do tipo
+`ACTIVITY_ATTEMPT_MANIFEST`, cuja identidade canônica é
+`(ExecutionId, ActivityId, AttemptId)` no escopo do `ArtifactCycleId`. A
+criação ocorre uma vez antes do início e exige as referências DOM, o snapshot,
+o basis de catálogo e todos os campos mínimos do manifesto. Criação duplicada,
+attachment a outra atividade/tentativa/ciclo ou referência ausente falha com
+`CONTRACT_INVALID`. O registro persistido conserva essa identidade, o tipo,
+o escopo, `ManifestContentRevision = 1`, conteúdo completo e digest de
+integridade; nenhum caminho, nome, hash isolado, checkpoint, correlation ou
+label é identidade substituta.
+
+Reidratação é distinta da criação. Material persistido não pode virar estado
+válido diretamente: PLAT valida a integridade física e EXEC-001 valida
+identidade, attachment, basis, cardinalidade, versão e campos normativos antes
+de materializar. Registro desconhecido, detached, stale, corrompido,
+duplicado ou com digest/basis/referência incompatível falha fechado com
+`CONTRACT_INVALID`, sem mutação. Replay resolve a identidade e o basis
+originais, não o registry atual; retry recebe novo `AttemptId` e novo
+manifesto. A aplicação do contexto entre sessões continua sob O-025/EXEC-002 e
+a durabilidade/recovery física sob PLAT.
+
+Authority: `O-018`, `O-021`, `ADR-0003`, `ADR-0001`, `ADR-0006`, consumindo
+`DOM-ID-001` e `DOM-SNAPSHOT-001`.
+
 ### EXEC-HISTORY-001 — Replay histórico
 
-Replay ou consulta histórica deve preservar o manifesto, schema, versões,
-hashes, commits, resultados e checkpoints que pertenciam à atividade original.
-Um registry atual não pode reescrever a interpretação histórica nem converter
+Replay ou consulta histórica deve preservar o manifesto, identidade do
+repositório/catalog, schema, versões, hashes, commits, resultados e checkpoints
+que pertenciam à atividade original. Um registry atual ou de outro repositório
+não pode reescrever a interpretação histórica nem converter
 silenciosamente um payload incompatível para uma versão atual.
 
 Authority: `O-021`, `ADR-0003`, `Decisão`.
@@ -419,11 +605,11 @@ consumidor transforme uma mensagem observável em nova autoridade:
 
 | Interface | Classificação | Regra |
 |---|---|---|
-| Registro/atualização de entrada versionada | `APPLICATION_COMMAND` de contrato | só altera o catálogo aplicável a novas resoluções; não altera snapshot/manifesto existentes |
+| Registro de entrada versionada / publicação de novo `CatalogRevision` | `APPLICATION_COMMAND` de contrato | cria somente chave ausente; duplicata/conflito falha fechado; só altera o catálogo aplicável a novas resoluções e não altera snapshot/manifesto existentes |
 | Resolução de skill/capability para uma etapa | `QUERY`/resolução contratual | retorna entrada, versões, schemas, artefatos, vereditos e papéis; não cria lifecycle DOM |
 | Resultado JSON de uma skill | `INTEGRATION_EVENT`/resultado estruturado | precisa do envelope e schema; texto humano é auxiliar |
 | Falha `CONTRACT_INVALID`, `VERDICT_UNKNOWN`, `UNKNOWN_CAPABILITY`, `INCOMPATIBLE_CAPABILITY` | `INTEGRATION_EVENT` de falha canônica | preserva família, basis e não-sucesso; transporte e projeção só mapeiam |
-| Manifesto de atividade | `IMMUTABLE_ARTIFACT` contratual associado a Activity/Attempt DOM | serve como basis de execução e replay; eventos que o referenciam permanecem no owner do aggregate; não confirma efeito externo |
+| Manifesto de tentativa | `IMMUTABLE_ARTIFACT` contratual associado à identidade `(ExecutionId, ActivityId, AttemptId)` DOM | uma tentativa possui um registro imutável com revisão de conteúdo e digest; reidratação valida attachment/basis antes do replay; eventos que o referenciam permanecem no owner do aggregate e não confirmam efeito externo |
 
 Nomes de rota, DTO interno, protocolo e mecanismo de emissão permanecem
 livres. O conteúdo semântico acima não pode ser removido por um mapping de
@@ -440,8 +626,11 @@ portfolio:
 | Capability | `INCOMPATIBLE_CAPABILITY` | capability/versão/schema/papel não é compatível | existe referência, mas ela não satisfaz o contrato requerido | não converter silenciosamente; nova tentativa exige basis/versão compatível |
 | Contract/verdict | `CONTRACT_INVALID` | JSON, envelope ou schema inválido/incompatível | resultado não é contrato consumível | não é sucesso; tentativas seguem política operacional sem mudar o código/semântica |
 | Contract/verdict | `VERDICT_UNKNOWN` | veredito ausente, desconhecido ou não declarado | não é possível interpretar resultado funcional com segurança | não é aprovação; nova tentativa exige resultado conforme registry |
+| Contract/basis | `CONTRACT_INVALID` | entrada de registry ou manifesto ausente, duplicada, detached, corrompida, stale ou inconsistente | material não pode ser usado como contrato/basis autoritativo | não há materialização parcial; correção exige material conforme e a mesma identidade não é sobrescrita |
 
-Todas as quatro falhas são fail-closed e não produzem transição ou efeito
+Todas as quatro falhas canônicas permanecem fail-closed; o caso adicional de
+material inválido usa `CONTRACT_INVALID` e não cria uma quinta família. Nenhum
+caminho produz transição ou efeito
 parcial. O owner de transporte (`SPEC-BACKEND-001`) pode escolher status,
 envelope ou representação local; `SPEC-OPS-001` pode registrar e `SPEC-UI-001`
 apresentar. Nenhum pode renomear a semântica, torná-la sucesso ou substituí-la
@@ -455,13 +644,16 @@ tentativas:
 - falha de JSON/schema/veredito/capability nunca é sucesso e não recebe retry
   implícito dentro do contrato;
 - uma política operacional pode solicitar nova tentativa, mas deve conservar
-  a versão/basis declarada e produzir novo resultado estruturado;
+  a identidade do repositório/catalog, a versão/basis declarada e produzir novo
+  resultado estruturado;
 - retry não pode converter uma versão incompatível, reciclar silenciosamente
   um manifesto ou duplicar um efeito externo;
-- `AttemptId` permanece identidade canônica de `SPEC-DOM-001`; retry pode
-  receber novo assignment/sessão de `SPEC-EXEC-002`, enquanto persistência do
-  manifesto, replay de journal, idempotência de efeito e reconciliação seguem
-  `SPEC-PLAT-001`/`SPEC-GIT-001`;
+- `AttemptId` permanece identidade canônica de `SPEC-DOM-001`; cada retry usa
+  novo `AttemptId` e novo manifesto, enquanto assignment/sessão operacional
+  pertence a `SPEC-EXEC-002`;
+- o manifesto de uma tentativa não é mutado nem substituído por um registro de
+  outra tentativa; persistência, replay de journal, idempotência de efeito e
+  reconciliação seguem `SPEC-PLAT-001`/`SPEC-GIT-001`;
 - EXEC-001 expõe checkpoint, manifesto e basis para retomada; a aplicação do
   contexto entre sessões segue `O-025`/`SPEC-EXEC-002` e a recuperação física
   segue `SPEC-PLAT-001`.
@@ -472,7 +664,7 @@ tentativas:
 |---|---|---|
 | `NEW_CANONICAL_PATH` | `OWNER` (`O-016`, `O-020`) | novos resultados e resoluções usam envelope/schema/registry canônicos |
 | `LEGACY_COMPATIBILITY` | `CONSUMER` de `SPEC-REPO-001` | legado pode ser adaptado por REPO para o caminho canônico; não é segundo registry nem segunda semântica |
-| `HISTORICAL_REPLAY` | `OWNER` (`O-021`) | manifesto, versão, schema, hashes e resultados históricos permanecem interpretáveis pelo basis original |
+| `HISTORICAL_REPLAY` | `OWNER` (`O-021`) | manifesto, identidade do repositório/catalog, versão, schema, hashes e resultados históricos permanecem interpretáveis pelo basis original |
 | `CUTOVER` | `OWNER` (`O-018`) | alteração incompatível exige nova versão/basis e invalida o uso do basis antigo para novas execuções; snapshots existentes não são mutados |
 | `RETIREMENT` | `NOT_APPLICABLE` | ADR-0003 não atribui aposentadoria independente do registry a EXEC-001 |
 
@@ -484,7 +676,7 @@ canônica indefinidamente.
 
 | Fonte canônica | Projeção/consumidor | Refresh/replay/stale behavior | Limite |
 |---|---|---|---|
-| Registry e schemas EXEC-001 | EXEC-002/REPO/BACKEND | resolver novamente somente para nova base; snapshot antigo permanece congelado | consumidor não edita registry por projeção |
+| Registry e schemas EXEC-001 | EXEC-002/REPO/BACKEND | resolver novamente somente para nova base no `RepositoryId` correto; snapshot antigo permanece congelado | consumidor não edita registry por projeção |
 | Resultado e manifesto | DOM/PLAT/OPS/BACKEND | replay preserva basis, IDs, versão e hashes; dado stale não autoriza avanço | resultado não substitui estado/lifecycle DOM |
 | Falha canônica | transporte, log e UI | reconexão pode reprojetar a mesma falha; representação pode variar | significado e retryability não mudam |
 | Capability catalog | UI/OPS | label/lista pode ficar stale e requer refresh; não pode criar capability | projeção não é catálogo canônico |
@@ -533,6 +725,15 @@ owner de segurança sem alterar o schema sem versionamento.
   sem regra especial por categoria.
 - `C-EXEC-007`: manifesto completo e imutável é associado a Activity/Attempt
   DOM e declara checkpoint seguro.
+- `C-EXEC-018`: entradas `NORMAL` de dois `RepositoryId` distintos com o
+  mesmo `(SkillContractId, CapabilityId, SchemaId, SemanticVersion)` resolvem
+  somente dentro do catálogo do repositório solicitado; a entrada resolve
+  pela chave completa e pelo `CatalogRevision`. Material reidratado com
+  digest, origem, referência, escopo/repositório ou continuidade inválidos não
+  é materializado e uma duplicata não substitui a entrada existente.
+- `C-EXEC-019`: uma tentativa cria exatamente um manifesto pela tupla DOM;
+  reidratação valida identidade, attachment, basis, revisão de conteúdo e
+  digest antes do replay.
 
 ### Negative and fail-closed
 
@@ -545,6 +746,10 @@ owner de segurança sem alterar o schema sem versionamento.
   `INCOMPATIBLE_CAPABILITY` e não habilita o repositório.
 - `C-EXEC-012`: tentativa de alterar versão/schema/manifesto de atividade
   iniciada é rejeitada ou preserva o basis original.
+- `C-EXEC-020`: registro duplicado ou material de registry/manifesto
+  desconhecido, detached, corrompido, stale, cross-repository ou inconsistente
+  produz `CONTRACT_INVALID`, sem mutação; capability desconhecida e
+  incompatível mantêm seus códigos canônicos.
 
 ### Boundary isolation and dependency conformance
 
@@ -586,7 +791,9 @@ existir. Os testes atuais do protótipo não satisfazem esta suíte.
 | AC-EXEC-015 | Tentativa de modificar manifesto, schema ou versão após início não altera o registro histórico nem o resultado associado. | EXEC-MANIFEST-003 |
 | AC-EXEC-016 | Replay histórico reproduz o basis original mesmo quando o registry atual contém versão diferente. | EXEC-HISTORY-001 |
 | AC-EXEC-017 | Toda falha canônica contém código/família, contrato, versão/basis e causa observável, sem aprovação ou confirmação implícita. | EXEC-FAILURE-001 |
-| AC-EXEC-018 | Um retry solicitado externamente não altera semântica de falha, não converte versão e não confirma efeito externo por si só. | EXEC-FAILURE-001, EXEC-MANIFEST-002 |
+| AC-EXEC-018 | Um retry solicitado externamente não altera semântica de falha, não converte versão e não confirma efeito externo por si só; um retry usa novo `AttemptId` e manifesto. | EXEC-FAILURE-001, EXEC-MANIFEST-002 |
+| AC-EXEC-019 | Para `NORMAL`, uma chave `(CatalogScope=NORMAL, RepositoryId, SkillContractId, CapabilityId, SchemaId, SemanticVersion)` resolve somente no catálogo do `RepositoryId` da execução; para `BOOTSTRAP`, a chave permanece no catálogo de sistema independente. A resolução usa o `CatalogRevision` congelado; same-key duplicate/conflict, digest/origem/referência/escopo inválidos, cross-repository lookup e quebra de continuidade produzem `CONTRACT_INVALID` sem mutação. | EXEC-REGISTRY-004 |
+| AC-EXEC-020 | Cada tentativa tem exatamente um manifesto com identidade `(ExecutionId, ActivityId, AttemptId)`, `ManifestContentRevision = 1` e digest; criação duplicada, attachment detached ou reidratação stale/corrompida é rejeitada com `CONTRACT_INVALID`, e replay usa o basis original. | EXEC-MANIFEST-004 |
 
 ## 23. ADR / Obligation / Requirement Traceability
 
@@ -600,6 +807,7 @@ existir. Os testes atuais do protótipo não satisfazem esta suíte.
 | EXEC-CONTRACT-001 | O-019 | ADR-0003 | Decisão | canonical owner | AC-EXEC-006; C-EXEC-008 |
 | EXEC-CONTRACT-002 | O-019 | ADR-0003 | Decisão | canonical owner | AC-EXEC-007; C-EXEC-009 |
 | EXEC-REGISTRY-001 | O-020 | ADR-0003 | Decisão | canonical owner | AC-EXEC-008; C-EXEC-004 |
+| EXEC-REGISTRY-004 | O-020 | ADR-0003; ADR-0001; ADR-0010 | Decisão; DOM-ID-001/DOM-SNAPSHOT-001; configuração normal por repositório | canonical owner; consumes DOM authority | AC-EXEC-019; C-EXEC-018, C-EXEC-020 |
 | EXEC-REGISTRY-002 | O-020 | ADR-0003 | Decisão | canonical owner | AC-EXEC-009; C-EXEC-005 |
 | EXEC-REGISTRY-003 | O-020 | ADR-0003 | Decisão | canonical owner | AC-EXEC-010; C-EXEC-011 |
 | EXEC-CAPABILITY-001 | O-020 | ADR-0003 | Decisão | canonical owner | AC-EXEC-011; C-EXEC-010 |
@@ -607,11 +815,16 @@ existir. Os testes atuais do protótipo não satisfazem esta suíte.
 | EXEC-MANIFEST-001 | O-021 | ADR-0003 | Decisão | canonical owner; consumes DOM-ID-001 | AC-EXEC-013; C-EXEC-007 |
 | EXEC-MANIFEST-002 | O-021 | ADR-0003 | Decisão | canonical owner; recovery consumed from PLAT/EXEC-002 | AC-EXEC-014; C-EXEC-017 |
 | EXEC-MANIFEST-003 | O-018, O-021 | ADR-0003 | Decisão | canonical owner; consumes DOM-SNAPSHOT-001 | AC-EXEC-015; C-EXEC-012 |
+| EXEC-MANIFEST-004 | O-018, O-021 | ADR-0003; ADR-0001; ADR-0006 | Decisão; DOM-ID-001/DOM-SNAPSHOT-001 | canonical owner; PLAT physical consumer | AC-EXEC-020; C-EXEC-019, C-EXEC-020 |
 | EXEC-HISTORY-001 | O-021 | ADR-0003 | Decisão | canonical owner | AC-EXEC-016; C-EXEC-016 |
 | EXEC-FAILURE-001 | O-019 | ADR-0003 | Decisão | canonical failure owner; mappings consumed by BACKEND/OPS/UI | AC-EXEC-017, AC-EXEC-018; C-EXEC-014 |
 
 `REQUIREMENTS_WITHOUT_PORTFOLIO_OBLIGATION = 0` e
 `OWNED_OBLIGATIONS_WITHOUT_REQUIREMENT = 0`.
+
+Every changed or added requirement is authority-backed, observable,
+implementation-independent and covered by a direct positive and negative
+witness; no witness promotes local testability to productive availability.
 
 ## 24. Known Gap Summary
 
@@ -620,11 +833,11 @@ Esta tabela registra divergência observada; não é a Gap Matrix formal.
 | Gap subject | Classification | Related requirement | Evidence |
 |---|---|---|---|
 | Schemas JSON e validação produtiva ausentes | `IMPLEMENTATION_GAP` | EXEC-ENVELOPE-001/002, EXEC-CONTRACT-001/002 | nenhum runtime/schema produtivo; somente `prototype/src/mockDomain.ts` |
-| Registry normal/bootstrap ausente | `IMPLEMENTATION_GAP` | EXEC-REGISTRY-001/002/003, EXEC-CAPABILITY-001/002 | nenhum catálogo produtivo encontrado |
-| Manifesto/checkpoint produtivo ausente | `IMPLEMENTATION_GAP` | EXEC-MANIFEST-001/002/003, EXEC-HISTORY-001 | campos simulados em memória; nenhum registro persistido |
+| Registry normal/bootstrap ausente | `IMPLEMENTATION_GAP` | EXEC-REGISTRY-001/002/003/004, EXEC-CAPABILITY-001/002 | nenhum catálogo produtivo encontrado |
+| Manifesto/checkpoint produtivo ausente | `IMPLEMENTATION_GAP` | EXEC-MANIFEST-001/002/003/004, EXEC-HISTORY-001 | campos simulados em memória; nenhum registro persistido |
 | Runtime de skill e consumidores reais ausentes | `IMPLEMENTATION_GAP` | todos os requisitos EXEC | não há backend/.NET, scheduler ou onboarding produtivo |
 | Protótipo e testes de mock | `PROTOTYPE_ONLY` | todos | `prototype/src/*`, `prototype/tests/*`, `prototype/README.md` |
-| Conteúdo normativo desta SPEC | `SPECIFICATION_GAP` | todos | target inexistente antes desta geração; agora materializado para auditoria |
+| Autoridade normativa desta SPEC após remediação | `NON_GAP` | todos | requisitos, identidade, reconstrução, acceptance e conformance materializados; validação independente ainda pendente |
 | Technology/schema/transport choice | `UNFROZEN_IMPLEMENTATION_DETAIL` | todos | nenhuma ADR congela biblioteca, banco ou protocolo |
 | Architecture gap | `NON_GAP` | todos | portfolio audit aprovado; upstream DOM auditado como conformant |
 
@@ -641,15 +854,18 @@ Não há nova dependência normativa. `SPEC-EXEC-002`, `SPEC-REPO-001` e
 `SPEC-BACKEND-001` são consumidores downstream, não upstream dependencies.
 
 `NORMATIVE_DEPENDENCIES = 1`; `NEW_UNAPPROVED_DEPENDENCIES = 0`; nenhum ciclo
-foi criado.
+foi criado. A revisão upstream exigida é `SPEC-DOM-001` revision `4`, conforme a
+auditoria upstream conformante vigente; nenhuma referência normativa
+superseded permanece.
 
 ## 26. Risks
 
 | Risk | Mitigation / conformance |
 |---|---|
+| Identidade de entrada ou manifesto ser substituída por alias/digest/path | EXEC-REGISTRY-004, EXEC-MANIFEST-004 e C-EXEC-018/019/020 |
 | Texto humano virar autoridade | EXEC-ENVELOPE-001/002 e C-EXEC-002 |
 | Conversão silenciosa entre versões | EXEC-VERSION-002, EXEC-SNAPSHOT-001 e C-EXEC-003/012 |
-| Registry normal e bootstrap virarem autoridade dupla | EXEC-REGISTRY-002/003 e C-EXEC-005/011 |
+| Registry normal e bootstrap virarem autoridade dupla ou um catálogo NORMAL ser resolvido em outro repositório | EXEC-REGISTRY-002/003/004 e C-EXEC-005/011/018 |
 | Capability desconhecida ser tratada como indisponibilidade ou sucesso | EXEC-CAPABILITY-001 e C-EXEC-010 |
 | Manifesto atual ser usado para reinterpretar histórico | EXEC-MANIFEST-003, EXEC-HISTORY-001 e C-EXEC-012/016 |
 | Falha mapeada por BACKEND/UI perder semântica | EXEC-FAILURE-001 e C-EXEC-014 |
@@ -695,7 +911,7 @@ resolvida nesta SPEC.
 
 - portfolio aprovado e `O-016…O-021` materializados;
 - ADR-0003 aceita e efetiva;
-- `SPEC-DOM-001` upstream revision 2 com auditoria independente conformante;
+- `SPEC-DOM-001` upstream revision 4 com auditoria independente conformante;
 - ownership, consumers e exclusões explícitos;
 - envelope, semver, registry, bootstrap, capabilities, manifestos,
   checkpoints e falhas definidos normativamente;
@@ -714,21 +930,34 @@ resolvida nesta SPEC.
 PORTFOLIO_OBLIGATIONS_OWNED = 6
 PORTFOLIO_OBLIGATIONS_COVERED = 6
 OWNED_OBLIGATIONS_UNCOVERED = 0
-NORMATIVE_REQUIREMENTS = 17
+OWNED_OBLIGATIONS_PARTIAL = 0
+NORMATIVE_REQUIREMENTS = 19
 REQUIREMENTS_WITHOUT_AUTHORITY = 0
-CONSUMED_CONTRACTS = 2 contract groups from SPEC-DOM-001
+UNTESTABLE_REQUIREMENTS = 0
+ACCEPTANCE_GAPS = 0
+CONSUMED_CONTRACTS = 2 contract groups from SPEC-DOM-001 revision 4
 CONSUMED_CONTRACTS_REDEFINED = 0
 FAILURES_OWNED = 4
 FAILURES_CONSUMED = 0
 AMBIGUOUS_FAILURE_OWNERS = 0
 NORMATIVE_DEPENDENCIES = 1
-NEW_UNAPPROVED_DEPENDENCIES = 0
+UNAPPROVED_DEPENDENCIES = 0
+MISSING_REQUIRED_DEPENDENCIES = 0
+DEPENDENCY_DIRECTION_VIOLATIONS = 0
+FAILURE_OWNER_VIOLATIONS = 0
+COMPATIBILITY_OWNER_VIOLATIONS = 0
 KNOWN_SPECIFICATION_GAPS = 0
 KNOWN_IMPLEMENTATION_GAPS = 4
 ARCHITECTURE_GAPS = 0
-PORTFOLIO_OWNERSHIP_GAPS = 0
-ACCEPTANCE_CRITERIA = 18
-CONFORMANCE_TESTS = 17
+PORTFOLIO_GAPS = 0
+UPSTREAM_CONTRACT_GAPS = 0
+IMPLEMENTATION_PLAN_LEAKS = 0
+IMPLEMENTER_DECISION_CHECKS = 19
+IMPLEMENTER_DECISION_CHECK_FAILURES = 0
+CAPABILITY_AVAILABILITY_CLASSIFICATION_ERRORS = 0
+DOWNSTREAM_PROMOTION_WITHOUT_NEW_EVIDENCE = 0
+ACCEPTANCE_CRITERIA = 20
+CONFORMANCE_TESTS = 20
 ```
 
 Required invariants:
@@ -775,13 +1004,13 @@ IMPLEMENTATION_PLAN_LEAKAGE = PASS
 ## 32. Final Gate
 
 ```text
-COMPONENT_SPEC_GENERATION_COMPLETE
+COMPONENT_SPEC_REMEDIATION_MATERIALIZATION_COMPLETE
 ```
 
-The artifact is ready for the next independent SPEC conformance audit. It is
-not an accepted implementation specification until that audit returns the
-repository-governed conformant verdict.
+The artifact is ready for the next independent component SPEC conformance
+audit. It is not an accepted implementation specification until that audit
+returns the repository-governed conformant verdict.
 
 ```text
-READY_FOR_SPEC_VALIDATION
+READY_FOR_INDEPENDENT_COMPONENT_SPEC_REAUDIT
 ```
