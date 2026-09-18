@@ -1,7 +1,6 @@
 import { Compile, type Validator } from 'typebox/compile'
 import {
-  issueSchemaValidationEvidence,
-  registerSchemaValidationAdapter,
+  recordCanonicalValidationEvidence,
   type SchemaValidationAdapterReceipt,
 } from '../domain/exec-validation-evidence-internal.ts'
 import {
@@ -38,10 +37,6 @@ interface ValidationReceipt {
 export class JsonSchemaExecValidator implements ExecSchemaValidationPort, SchemaValidationAdapterReceipt {
   private readonly compiled = new WeakMap<ExecSchemaDefinition, Validator>()
   private readonly validatedInputs = new WeakMap<SchemaReference, ValidationReceipt>()
-
-  constructor() {
-    registerSchemaValidationAdapter(this)
-  }
 
   hasValidated(schemaReference: SchemaReference, validatedInput: object): boolean {
     const receipt = this.validatedInputs.get(schemaReference)
@@ -83,7 +78,7 @@ export class JsonSchemaExecValidator implements ExecSchemaValidationPort, Schema
         return Object.freeze({
           valid: true,
           issues: Object.freeze([]),
-          evidence: issueSchemaValidationEvidence(this, validatedInput, schema.reference),
+          evidence: recordCanonicalValidationEvidence(this, validatedInput, schema.reference),
         })
       }
       const issues = validator.Errors(value).map((error) => {

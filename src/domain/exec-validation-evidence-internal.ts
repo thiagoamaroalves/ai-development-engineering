@@ -7,27 +7,23 @@ import type { SchemaReference, SchemaValidationEvidence } from './exec-contract.
  * manufacturing a structurally identical proof object.
  */
 const ISSUED_VALIDATION_EVIDENCE = new WeakSet<object>()
-const REGISTERED_SCHEMA_ADAPTERS = new WeakSet<object>()
 
 export interface SchemaValidationAdapterReceipt {
   hasValidated(schemaReference: SchemaReference, validatedInput: object): boolean
 }
 
 /**
- * The infrastructure adapter registers its instance once at construction.
- * This is an internal capability handoff, not a public validation authority.
+ * Record evidence only after the adapter has proved the exact input/reference
+ * pair. This is an internal adapter handoff; callers cannot issue evidence by
+ * importing the former public issuer because issuance is not part of this
+ * module's export surface.
  */
-export function registerSchemaValidationAdapter(adapter: object): void {
-  REGISTERED_SCHEMA_ADAPTERS.add(adapter)
-}
-
-export function issueSchemaValidationEvidence(
+export function recordCanonicalValidationEvidence(
   adapter: SchemaValidationAdapterReceipt,
   validatedInput: object,
   schemaReference: SchemaReference,
 ): SchemaValidationEvidence {
-  if (!REGISTERED_SCHEMA_ADAPTERS.has(adapter)
-    || !adapter.hasValidated(schemaReference, validatedInput)) {
+  if (!adapter.hasValidated(schemaReference, validatedInput)) {
     throw new Error('Validation evidence requires a successful canonical schema-adapter execution.')
   }
 

@@ -12,7 +12,6 @@ import {
 } from '../src/application/exec-contract.ts'
 import { createExecContractValidator } from '../src/composition/exec-contract.ts'
 import * as execContractDomain from '../src/domain/exec-contract.ts'
-import * as validationEvidenceInternal from '../src/domain/exec-validation-evidence-internal.ts'
 import {
   SchemaReference,
   StructuredCapabilityPayload,
@@ -237,32 +236,21 @@ test('accepts a valid alternate adapter through the explicit evidence contract',
   assert.equal(result.status, 'VALID')
 })
 
-test('does not expose caller-mintable validation authority through the domain boundary', () => {
+test('does not expose caller-mintable validation authority through the domain boundary', async () => {
   assert.equal('registerExecValidationAuthority' in execContractDomain, false)
   assert.equal('recordExecSchemaValidation' in execContractDomain, false)
+  const validationEvidenceModule = await import('../src/domain/exec-validation-evidence-internal.ts')
+  assert.equal('issueSchemaValidationEvidence' in validationEvidenceModule, false)
+  assert.equal('registerSchemaValidationAdapter' in validationEvidenceModule, false)
 
   const definitions = new ExecContractSchemaDefinitions()
   const adapter = new JsonSchemaExecValidator()
   const input = validInput()
-  assert.throws(
-    () => validationEvidenceInternal.issueSchemaValidationEvidence(
-      adapter,
-      input.envelope as object,
-      definitions.envelope.reference,
-    ),
-    /successful canonical schema-adapter execution/,
-  )
   const validation = adapter.validate(definitions.envelope, input.envelope)
   assert.equal(validation.valid, true)
   ;(input.envelope as Record<string, unknown>).contractVersion = ' 1.0.0 '
-  assert.throws(
-    () => validationEvidenceInternal.issueSchemaValidationEvidence(
-      adapter,
-      input.envelope as object,
-      definitions.envelope.reference,
-    ),
-    /successful canonical schema-adapter execution/,
-  )
+  const postMutationValidation = adapter.validate(definitions.envelope, input.envelope)
+  assert.equal(postMutationValidation.valid, false)
 
   assert.throws(
     () => StructuredExecutionEnvelope.create(
@@ -513,6 +501,43 @@ test('rejects non-JSON and inherited values at the schema boundary', () => {
   assert.equal(inheritedPayloadValidation.valid, false)
   const inheritedPayloadResult = createDefaultValidator().validate({ ...input, payload: inheritedPayload })
   assert.equal(inheritedPayloadResult.status, 'INVALID')
+
+  const originalExecutionId = Object.getOwnPropertyDescriptor(Object.prototype, 'executionId')
+  const originalData = Object.getOwnPropertyDescriptor(Object.prototype, 'data')
+  try {
+    Object.defineProperty(Object.prototype, 'executionId', {
+      configurable: true,
+      enumerable: false,
+      writable: true,
+      value: 'prototype-execution',
+    })
+    const objectPrototypeEnvelope = { ...(input.envelope as Record<string, unknown>) }
+    delete objectPrototypeEnvelope.executionId
+    const objectPrototypeEnvelopeResult = createDefaultValidator().validate({
+      ...input,
+      envelope: objectPrototypeEnvelope,
+    })
+    assert.equal(objectPrototypeEnvelopeResult.status, 'INVALID')
+
+    Object.defineProperty(Object.prototype, 'data', {
+      configurable: true,
+      enumerable: false,
+      writable: true,
+      value: { forged: true },
+    })
+    const objectPrototypePayload = { ...(input.payload as Record<string, unknown>) }
+    delete objectPrototypePayload.data
+    const objectPrototypePayloadResult = createDefaultValidator().validate({
+      ...input,
+      payload: objectPrototypePayload,
+    })
+    assert.equal(objectPrototypePayloadResult.status, 'INVALID')
+  } finally {
+    if (originalExecutionId) Object.defineProperty(Object.prototype, 'executionId', originalExecutionId)
+    else delete (Object.prototype as Record<string, unknown>).executionId
+    if (originalData) Object.defineProperty(Object.prototype, 'data', originalData)
+    else delete (Object.prototype as Record<string, unknown>).data
+  }
 
   const bigintEnvelope = {
     ...(input.envelope as Record<string, unknown>),
