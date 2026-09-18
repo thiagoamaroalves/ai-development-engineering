@@ -1,292 +1,108 @@
 # EXEC-001-TICKET-001 — Implementation behavior audit
 
-Audit: `docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-behavior-audit.md`
+## Audit inputs and target
 
-## Specialist
-
-```text
-IMPLEMENTATION_BEHAVIOR
-```
-
-## Audit identity and inputs
-
-| Field | Observed value |
+| Field | Value |
 |---|---|
 | `TICKET_ID` | `EXEC-001-TICKET-001` |
 | `TICKET_PATH` | `docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-envelope-schema-contract.md` |
 | `IMPLEMENTATION_UNIT` | `EXEC-IMP-01 — Envelope and schema contract` |
-| `REQUIREMENT_IDS` | `EXEC-ENVELOPE-001`, `EXEC-ENVELOPE-002` |
+| `REQUIREMENT_IDS` | `EXEC-ENVELOPE-001`, `EXEC-ENVELOPE-002`; affected fail-closed boundary `EXEC-CONTRACT-001` |
 | `ACCEPTANCE_IDS` | `AC-EXEC-001`, `AC-EXEC-002` |
-| `SPEC_PATH` | `docs/specs/SPEC-EXEC-001-skill-contracts-and-capability-registry.md` |
+| `SPEC_PATH` | `docs/specs/SPEC-EXEC-001-skill-contracts-and-capability-registry.md` (revision 3) |
 | `GAP_MATRIX_PATH` | `docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md` (`GAP-001`) |
 | `IMPLEMENTATION_PLAN_PATH` | `docs/specs/implementation-plans/SPEC-EXEC-001-implementation-plan.md` (`EXEC-IMP-01`) |
-| `IMPLEMENTATION_BASELINE` | `381218d5fbf8d969ee5ae5349b8f65c4cd5af7f9`; no productive EXEC implementation or ticket test at that baseline |
-| `CURRENT_HEAD` | `e50dc2e721b1517faae55d60883248ca1fe71844` |
-| `AUDIT_TARGET_HEAD` | `e50dc2e721b1517faae55d60883248ca1fe71844` |
-| `AUDIT_TARGET_STATE_FINGERPRINT` | `b967f87041ee3133242ca6910c8f673d9434d712f8e053ee0057f96132cef63d` |
-| `TICKET_STATUS` | `VALIDATION_REQUIRED` |
-| `DESIGN_PATH` | `docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design.md` |
-| `TICKET_SET_AUDIT` | `docs/tickets/SPEC-EXEC-001/implementation-ticket-audit.md` |
+| `IMPLEMENTATION_BASELINE` | `381218d5fbf8d969ee5ae5349b8f65c4cd5af7f9` |
+| `CURRENT_HEAD` | `e83bc09150f9b0d7b7f4c26434926578723fef1a` |
+| `AUDIT_TARGET_HEAD` | `e83bc09150f9b0d7b7f4c26434926578723fef1a` |
+| `AUDIT_TARGET_STATE_FINGERPRINT` | `7f68eea870da956f4d8552cb155a9cc5bcfb38c048fe2f494f12f2fbdfbbba79` |
+| `CHANGED_PRODUCTION_FILES` | `src/application/exec-contract.ts`; `src/composition/exec-contract.ts`; `src/domain/exec-contract.ts`; `src/domain/exec-schema.ts`; `src/domain/exec-validation-evidence-internal.ts`; `src/infrastructure/exec-schema-validator.ts` |
+| `CHANGED_TEST_FILES` | `tests/exec-001-ticket-001.test.ts` |
+| `RELEVANT_TEST_SUITES` | Ticket-specific EXEC test; generic delegation consumer regression; strict touched-source typecheck; package typecheck |
 
-The pinned HEAD matches the current HEAD. The semantic implementation/evidence
-overlay is present in the working tree and is covered by the supplied state
-fingerprint; the implementation and test files were not changed during this
-audit. The requested audit artifact is excluded from the semantic target.
+The target commit is the current HEAD. The working tree was documentation-dirty only; no production or test semantic overlay changed during this audit. The behavior was reconstructed independently from `ADR-0003` (accepted, revision 3) → portfolio obligation `O-016` → `SPEC-EXEC-001` requirements → validated `GAP-001` → `EXEC-IMP-01` → ticket/design → repository implementation → executable tests. The ticket's `ACP-EXEC-01` and `PCP-EXEC-01` are preserved as `AUTHORITY_STATUS=DEFINED`, `CONTRACT_STATUS=DEFINED`, `LOCAL_TESTABILITY=YES`, `PRODUCTIVE_AVAILABILITY=NO`, `DEPENDENCY_CLASS=INFORMATIONAL`; the local harness is not promoted to a productive foreign producer. `TEMPORAL_AUTHORITY_PROOF` is `NOT_APPLICABLE` because this operation observes no mutable external authority before committing an effect.
 
-The ticket's execution record names `exec-validation-authority*.ts`, but those
-files do not exist in the target. The actual implementation boundary is the
-six-file graph recorded below, including `exec-validation-evidence-internal.ts`.
-This naming discrepancy does not substitute for repository evidence.
+## Reconstructed behavioral contract
 
-### Authority chain reconstructed
+1. A complete envelope and capability payload are accepted only after validation against the two identifiable, ticket-owned schemas.
+2. The common envelope carries all required structured execution/result fields; omitted fields cannot be supplied by human text.
+3. Invalid, incomplete, text-only, or schema-incompatible input returns `CONTRACT_INVALID` and cannot imply approval, checkpoint confirmation, or effect.
+4. Successful consumption returns an immutable structured pair with the canonical schema references.
 
-```text
-ADR-0003 revision 3 (ACCEPTED)
-  → SPEC-EXEC-001 revision 3
-  → GAP-001 in the validated EXEC Gap Matrix
-  → EXEC-IMP-01 in the Implementation Plan
-  → EXEC-001-TICKET-001 and approved Implementation Design
-  → target repository implementation and executable tests
-```
+## Behavioral applicability matrix
 
-The governing behavior is: both a common envelope and capability payload must
-pass identifiable ticket-owned schemas before structured consumption; missing
-minimum fields and text-only input must return `CONTRACT_INVALID` without
-success, approval, checkpoint, or effect implication. This ticket does not own
-registry resolution, DOM identity/lifecycle, persistence, recovery, transport,
-or downstream mappings.
-
-## Changed implementation and test surfaces
-
-### Changed production files
-
-- `src/domain/exec-contract.ts`
-- `src/domain/exec-schema.ts`
-- `src/domain/exec-validation-evidence-internal.ts`
-- `src/application/exec-contract.ts`
-- `src/infrastructure/exec-schema-validator.ts`
-- `src/composition/exec-contract.ts`
-
-### Changed test file
-
-- `tests/exec-001-ticket-001.test.ts`
-
-### Relevant evidence files
-
-- `docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-001-envelope-schema.md`
-- `docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-001-structured-consumption.md`
-- `docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-002-required-fields.md`
-- `docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-002-fail-closed.md`
-
-## Authority and capability records
-
-### `AUTHORITY_CONSUMPTION_PROOF`
-
-The local schema definitions are owned by `SPEC-EXEC-001`; `typebox` is only a
-schema-mechanics dependency. No foreign productive capability is required for
-local closure. The handoff is reconciled mechanically as follows:
-
-```text
-CAPABILITY_ID = UNIT-EXEC-SCHEMA-HARNESS
-AUTHORITY_OWNER = SPEC-EXEC-001 / EXEC-001
-PRODUCER = ticket-owned schema definitions plus schema-validation adapter
-CONSUMER = ValidateExecContract and later EXEC consumers
-CONTRACT = identifiable envelope/payload validation result with structured fields
-RETURNED_DATA = validation status, issues, schema reference and exact-input evidence
-VERSION_REVISION_TRANSPORT = schemaId/schemaVersion and immutable SchemaReference
-FAILURE_NOT_FOUND_STALE_SEMANTICS = invalid or unknown schema-shaped input fails CONTRACT_INVALID
-AUTHORITY_STATUS = DEFINED
-CONTRACT_STATUS = DEFINED
-SEMANTIC_STATUS = DEFINED
-LOCAL_TESTABILITY = YES
-PRODUCTIVE_AVAILABILITY = NO for the unit-owned harness/fixture record
-CAPABILITY_SUMMARY_STATUS = CONTRACT_TESTABLE_LOCALLY
-DEPENDENCY_CLASS = INFORMATIONAL
-AVAILABILITY_EVIDENCE = direct production-boundary operations and focused tests
-BLOCKING_EFFECT = NONE for capability availability
-RESULT = DEFINED_BUT_NOT_CONSUMABLE as a productive external capability; no local availability blocker
-```
-
-The fixture/harness is not promoted to productive foreign availability. The
-implementation itself is nevertheless required to enforce the local contract;
-the open finding below is local behavior, not a reason to reclassify the
-capability dependency.
-
-### `PRODUCER_CONSUMER_CONTRACT_PROOF`
-
-The ticket-owned producer and consumer contract is defined and locally
-executable. No DOM, registry, persistence, transport, or external-effect
-producer is consumed by the local acceptance path. The generic delegation
-runtime remains a directly affected consumer boundary only; it is not promoted
-to schema authority.
-
-### `TEMPORAL_AUTHORITY_PROOF`
-
-`NOT_APPLICABLE`. The operation validates immutable local contract definitions
-and commits no external or durable effect. There is no mutable external
-observation followed by an effect commit in this ticket.
-
-### `CALLER_AS_AUTHORITY_CHECK`
-
-Raw `schemaId`/`schemaVersion` values and `humanText` are not accepted as
-canonical schema authority by the normal composition root. The current evidence
-issuer, however, accepts a caller-provided receipt object; this is recorded as
-`CALLER_SUPPLIED_AUTHORITY_BYPASS` in finding `BEH-CRITICAL-001`.
-
-## Behavioral contract and applicability matrix
-
-| Dimension | Classification | Applicability and inspection result |
+| Dimension | Classification | Reason / inspection result |
 |---|---|---|
-| `UNIT_BEHAVIOR` | `REQUIRED` | Schema identity, pair validation, required fields, structured values, and fail-closed result are the ticket's local behavior. |
-| `INTEGRATION_BEHAVIOR` | `AFFECTED` | The existing generic delegation consumer must not promote text-only output; no downstream EXEC mapping is owned here. |
-| `PERSISTENCE` | `NOT_APPLICABLE` | The ticket explicitly creates no durable record, repository, journal, or storage boundary. |
-| `CONCURRENCY` | `NOT_APPLICABLE` | Validation has no mutable shared state or concurrent mutation contract. |
-| `STALE_STATE` | `NOT_APPLICABLE` | No revisioned mutable state, compare-and-set, predecessor, or stale mutation exists in this unit. |
-| `IDEMPOTENCY` | `NOT_APPLICABLE` | The operation has no command effect, durable identity, or external side effect whose retry idempotency is owned here. |
-| `DURABILITY` | `NOT_APPLICABLE` | No completion or observation is reported from durable state. |
-| `RECOVERY` | `NOT_APPLICABLE` | Restart, replay, interrupted operation, and physical recovery are explicitly outside scope. |
-| `COMPATIBILITY` | `AFFECTED` | This is the `NEW_CANONICAL_PATH`; prototype/text formats are non-authoritative and the existing text consumer regression was exercised. |
-| `MIGRATION_BEHAVIOR` | `NOT_APPLICABLE` | No legacy conversion, migration, retirement, or cutover implementation is owned by this ticket. |
-| `NEGATIVE_PATHS` | `REQUIRED` | Invalid schema, missing fields, text-only input, malformed adapter output, thrown adapter values, and partial pairs must fail closed. |
+| `UNIT_BEHAVIOR` | `REQUIRED` | Core schema validation, structured values, and failure result are ticket-owned. |
+| `INTEGRATION_BEHAVIOR` | `AFFECTED` | The existing generic delegation consumer must not promote text-only output; the ticket contributes the structured boundary but not downstream mapping. |
+| `PERSISTENCE` | `NOT_APPLICABLE` | No durable record, repository, serialization, or rehydration exists in this unit. |
+| `CONCURRENCY` | `NOT_APPLICABLE` | No mutable shared state, command, reservation, or concurrent mutation is owned here. |
+| `STALE_STATE` | `NOT_APPLICABLE` | No revision/CAS/predecessor state is observed or mutated. |
+| `IDEMPOTENCY` | `NOT_APPLICABLE` | Validation has no business effect or durable command; effect idempotency is outside this unit. |
+| `DURABILITY` | `NOT_APPLICABLE` | No completion or dependent observation is reported from durable state. |
+| `RECOVERY` | `NOT_APPLICABLE` | No interrupted operation, replay, retry identity, or restart behavior is implemented. |
+| `COMPATIBILITY` | `AFFECTED` | This is a `NEW_CANONICAL_PATH`; prototype, historical, and text formats must not become alternate authority. |
+| `MIGRATION_BEHAVIOR` | `NOT_APPLICABLE` | No migration or cutover conversion is implemented. |
+| `NEGATIVE_PATHS` | `REQUIRED` | Invalid schema, missing fields, text-only input, malformed adapter output, and failure/no-effect semantics are normative. |
 
-## Production semantic audit
+## Production semantics and classifications
 
-| Required behavior | Production evidence | Classification | Observed semantics |
-|---|---|---|---|
-| Identifiable envelope and payload schemas exist | `src/domain/exec-schema.ts:39-137` defines deeply frozen JSON Schema 2020-12 documents and canonical references; `src/infrastructure/exec-schema-validator.ts:53-88` compiles/checks them. | `PARTIAL` | The normal composition path uses the canonical adapter, but the evidence issuer can be called with a caller-controlled receipt that merely returns `true`; see `BEH-CRITICAL-001`. |
-| Both sides must validate before pair consumption | `src/application/exec-contract.ts:98-126` invokes envelope and payload validation before constructing either value, and `ValidatedExecContract.create` requires both branded values. | `IMPLEMENTED_CORRECTLY` on the canonical path | One-side invalid input returns one failure and exposes no partial `value`; focused test passed. The bypass in evidence issuance weakens proof of the validation predicate, not pair atomicity. |
-| Minimum structured envelope fields are required | Schema `required` set and properties in `src/domain/exec-schema.ts:61-105`; semantic checks in `src/domain/exec-contract.ts:365-383`. | `IMPLEMENTED_CORRECTLY` | Missing schema fields, wrong types, invalid semver, inherited/non-enumerable values, and non-JSON values fail closed. |
-| Payload has identifiable schema and required structured data | `src/domain/exec-schema.ts:107-126`; `StructuredCapabilityPayload.create` and constructor in `src/domain/exec-contract.ts:413-464`. | `IMPLEMENTED_CORRECTLY` | Payload identity, capability identity, and structured object data are required; invalid payload prevents pair construction. |
-| Human text is non-authoritative | `ValidateExecContractInput.humanText` is not used for construction; schema/domain constructors consume only structured envelope/payload values. | `IMPLEMENTED_CORRECTLY` | Text-only and missing-field input return `CONTRACT_INVALID`; text does not fill a missing verdict or field. |
-| Invalid input is fail-closed | `invalidContract` and `ContractInvalidFailure` in `src/domain/exec-contract.ts:467-523`; normalization/catch boundary in `src/application/exec-contract.ts:21-129`. | `IMPLEMENTED_CORRECTLY` on tested paths | Invalid results carry `CONTRACT_INVALID`, immutable expected/observed references, `noApproval`, `noCheckpoint`, and `noEffect`, with no `value`. |
-| Returned valid values are structured and immutable | `cloneAndFreeze` and immutable domain value objects in `src/domain/exec-contract.ts:77-158,346-387,420-464`; `ValidatedExecContract` is frozen. | `IMPLEMENTED_CORRECTLY` | Focused tests assert frozen values and structured field access; source copies/freeze nested JSON values before return. |
-| Validation evidence represents an actual schema operation | `recordCanonicalValidationEvidence` in `src/domain/exec-validation-evidence-internal.ts:21-37` checks only `adapter.hasValidated(...)`; it is exported and accepts any object implementing the receipt interface. | `CONTRADICTORY` | A caller can supply `{ hasValidated: () => true }`, call the exported issuer, inject the resulting evidence into a port, and obtain `VALID` without a schema engine invocation. |
-
-## Acceptance witness audit
-
-The four normative witness rows from the ticket/design were independently
-recalculated. All operations are executable at local closure; the fourth row's
-architecture/evidence provenance guard is incomplete and is the subject of the
-critical finding.
-
-| # | Normative behavior / verb | Concrete operation | Direct positive witness | Direct negative/isolation witness | Evidence type | Local executable | Result |
-|---:|---|---|---|---|---|---|---|
-| 1 | Envelope/payload are schema-validatable / `validate` | `ValidateExecContract.validate` via `createExecContractValidator` | `accepts a valid identifiable envelope and capability payload as structured values`; schema document and adapter assertions | text-only, invalid schema, custom-schema substitution, and malformed adapter tests | `LOCAL_TEST_EVIDENCE` | `YES` | Direct witness present; authority provenance guard partial. |
-| 2 | Minimum structured fields are required / `reject` | Same production validation boundary | valid complete fixture and structured field assertions | missing `functionalVerdict`, missing payload `data`, inherited/non-enumerable, non-JSON and semver-invalid cases | `LOCAL_TEST_EVIDENCE` | `YES` | Direct witness present. |
-| 3 | Valid input is consumed as structured contract / `consume` | `ValidateExecContract.validate` result | typed schema references, capability data and envelope fields are inspected | human text cannot supply omitted authority; wrong schema identity is rejected | `LOCAL_TEST_EVIDENCE` | `YES` | Direct witness present. |
-| 4 | Invalid contract fails closed / `reject` | Invalid envelope/payload operation | valid result remains consumable and immutable | `CONTRACT_INVALID`, no `value`, no-approval/checkpoint/effect flags, one-side failure, malformed/thrown adapter result, generic consumer text regression | `LOCAL_TEST_EVIDENCE` | `YES` | Direct failure witness present; current evidence-issuer guard is missing. |
-
-```text
-REQUIRED_BEHAVIORS_TOTAL = 4
-DIRECT_BEHAVIOR_WITNESSES = 4
-PROXY_ONLY_BEHAVIORS = 0
-UNTESTED_STATE_TRANSITIONS = 0
-UNPROVEN_CONCURRENCY_CONTRACTS = 0
-MISSING_ARCHITECTURE_GUARDS = 1
-WITNESS_EXECUTABLE_AT_LOCAL_CLOSURE = YES for all four rows
-```
-
-The schema, missing-field, text-only, pair-completeness, and fail-closed tests
-are direct operation/result witnesses rather than registration/listing proxies.
-The generic delegation test is a regression witness for the affected consumer;
-it is not treated as proof that the generic runtime is an EXEC schema producer.
-
-## Test inventory and assertion quality
-
-| Category | Classification | Evidence |
+| Required behavior | Production evidence | Classification |
 |---|---|---|
-| `UNIT` | `REQUIRED_TEST_PRESENT` | 20 focused node tests invoke the production composition/application/domain boundary. |
-| `INVARIANT` | `REQUIRED_TEST_PRESENT` | Required fields, canonical schema identity, evidence binding, immutability, own-enumerability, pair completeness and no-success flags are asserted. |
-| `INTEGRATION` | `REQUIRED_TEST_PRESENT` | Generic delegation consumer regression executes the existing consumer and verifies text-only output cannot become canonical completion. |
-| `NEGATIVE_PATH` | `REQUIRED_TEST_PRESENT` | Missing, malformed, text-only, wrong-schema, one-side-invalid, non-JSON, inherited, malformed-adapter, thrown-adapter and unproven-port cases are executed. |
-| `ARCHITECTURE_GUARD` | `REQUIRED_TEST_PRESENT` but incomplete | Executable import-graph guard is present, but it checks obsolete issuer/registration names and does not test the current exported `recordCanonicalValidationEvidence` bypass. |
-| `CONFORMANCE` | `REQUIRED_TEST_PRESENT` | Canonical schema IDs/documents, public boundary, structured consumption and generic consumer conformance are directly asserted. |
-| `PERSISTENCE` | `TEST_CATEGORY_NOT_APPLICABLE` | No persistence behavior is in scope. |
-| `CONCURRENCY` | `TEST_CATEGORY_NOT_APPLICABLE` | No concurrency contract is in scope. |
-| `STALE` | `TEST_CATEGORY_NOT_APPLICABLE` | No stale-state behavior is in scope. |
-| `IDEMPOTENCY` | `TEST_CATEGORY_NOT_APPLICABLE` | No effect or durable command is in scope. |
-| `RECOVERY` | `TEST_CATEGORY_NOT_APPLICABLE` | No restart/recovery behavior is in scope. |
-| `COMPATIBILITY` | `REQUIRED_TEST_PRESENT` | New canonical path and non-authoritative text/prototype boundary are exercised; no legacy migration is required. |
-| `MIGRATION` | `TEST_CATEGORY_NOT_APPLICABLE` | No migration/cutover implementation is in scope. |
+| Both identifiable schemas validate before consumption | `src/domain/exec-schema.ts:80-131` defines frozen `$id`/`$schema` documents and required fields; `src/infrastructure/exec-schema-validator.ts:53-82` compiles only canonical definitions and issues evidence; `src/application/exec-contract.ts:98-125` invokes both validators before constructing the pair. A caller-importable evidence issuer permits bypassing that path (finding below). | `PARTIAL` |
+| Minimum structured envelope fields are required and text is non-authoritative | `src/domain/exec-contract.ts:326-383` requires schema identity, contract version, opaque IDs, status/verdict and all six structured arrays; `humanText` is not read by the application. On the canonical adapter path this is correct, but forged internal evidence can bypass the adapter's own-enumerable required-field check. | `PARTIAL` |
+| Valid input is consumed as an immutable structured pair | `StructuredExecutionEnvelope`, `StructuredCapabilityPayload`, and `ValidatedExecContract` are branded/frozen (`src/domain/exec-contract.ts:346-386`, `425-457`); focused tests observe schema references and structured fields. The same result can be reached with forged evidence from the internal module. | `PARTIAL` |
+| Invalid input fails closed without approval, checkpoint, effect, or partial pair | `src/application/exec-contract.ts:105-128` returns `CONTRACT_INVALID` for invalid/malformed/throwing validation paths; `ContractInvalidFailure` sets `noApproval`, `noCheckpoint`, and `noEffect` (`src/domain/exec-contract.ts:459-482`). The authority-bypass probe can instead produce `VALID` for an input the canonical adapter would reject. | `UNSAFE_FAILURE_BEHAVIOR` |
 
-### Assertion quality
+### Acceptance witness audit
 
-```text
-OVERALL_ASSERTION_QUALITY = SUFFICIENT, with one material architecture-guard gap
-```
+The ticket/design witness matrix has four normative rows. The repository tests execute the production composition boundary for positive structured consumption, missing/text-only rejection, one-side invalid isolation, and no-success/no-effect failure assertions. Thus `REQUIRED_BEHAVIORS_TOTAL=4` and `DIRECT_BEHAVIOR_WITNESSES=4`; none is proxy-only. There are no lifecycle state transitions and no concurrency contract in scope. The architecture/import guard is real for forbidden dependency paths, but it does not guard the caller-reachable evidence issuer; therefore `MISSING_ARCHITECTURE_GUARDS=1`.
 
-The focused tests make semantic assertions on status, canonical failure code,
-expected/observed references, no-success flags, absence of a partial `value`,
-structured fields, schema identity, immutability, and forbidden imports. The
-positive/negative behavior evidence is therefore strong for the canonical
-composition path. The caller-minting test is misleadingly incomplete: it
-checks that `issueSchemaValidationEvidence` and
-`registerSchemaValidationAdapter` are absent, while the replacement exported
-`recordCanonicalValidationEvidence` remains callable and is not exercised with
-a forged receipt.
+Every ticket witness is executable at local closure for the contract-level behavior. No fixture is being used to claim persistence, restart/recovery, physical CAS, foreign integration, productive availability, or external effects.
 
-## Negative and failure behavior
+## Authority-consumption and caller-authority audit
 
-| Case | Expected result | Observed result |
-|---|---|---|
-| Valid identifiable envelope + payload | `VALID` structured pair with both canonical schema references | Observed as expected through `createExecContractValidator`; focused test passed. |
-| Text-only envelope/payload | `CONTRACT_INVALID`; no approval/checkpoint/effect or partial value | Observed as expected; focused test passed. |
-| Missing minimum field, including verdict/data | `CONTRACT_INVALID`; human text cannot fill the omission | Observed as expected; focused test passed. |
-| Unknown/caller-selected schema identity or custom schema document | `CONTRACT_INVALID`; canonical expected reference retained | Observed as expected; focused test passed. |
-| One valid side and one invalid side | One fail-closed result and no partial pair | Observed as expected; focused test passed. |
-| Malformed validation result or thrown adapter value | `CONTRACT_INVALID`; no success signals | Observed as expected; focused test passed. |
-| Inherited/non-enumerable/non-JSON values | Rejection without schema authority from prototype or runtime values | Observed as expected; focused test passed. |
-| Caller calls exported `recordCanonicalValidationEvidence` with a receipt returning `true` | Evidence must only be issuable after an actual schema validation operation | Audit probe obtained evidence and an injected `ValidateExecContract` returned `VALID` without invoking a schema engine; this is `BEH-CRITICAL-001`. |
-
-No persistence failure, unavailable external dependency, unauthorized action,
-stale state, duplicate command, retry-after-failure, recovery, or effect
-reconciliation path is authorized by this ticket; those cases are
-`NOT_APPLICABLE` rather than untested local requirements.
-
-## Audit probe for the open authority escape
-
-The following read-only runtime probe was executed independently (not counted as
-one of the repository test-suite counts):
-
-```text
-fakePort.validate(schema, value) returns:
-  valid = true
-  issues = []
-  evidence = recordCanonicalValidationEvidence({ hasValidated: () => true }, value, schema.reference)
-
-new ValidateExecContract(fakePort).validate(validStructuredInput).status
-  => VALID
-
-schema engine invocation
-  => none
-recordCanonicalValidationEvidence export
-  => function
-```
-
-This does not claim that every malformed shape bypasses the later domain shape
-checks. It proves the stronger required guard is absent: the result can be
-marked as having passed the identifiable schema without any schema validation
-operation. The application trusts a caller-supplied authority receipt rather
-than requiring evidence issued only by an actual canonical/approved schema
-adapter execution.
+- `UNIT-EXEC-SCHEMA-HARNESS`: `AUTHORITY_STATUS=DEFINED`; `CONTRACT_STATUS=DEFINED`; `LOCAL_TESTABILITY=YES`; `PRODUCTIVE_AVAILABILITY=NO`; summary `CONTRACT_TESTABLE_LOCALLY`; `DEPENDENCY_CLASS=INFORMATIONAL`; local closure is not blocked by productive foreign availability. The local canonical adapter does execute the ticket-owned schema contract, but the declared harness record is not a productive external producer.
+- `AUTHORITY_CONSUMPTION_PROOF`: `DEFINED_BUT_NOT_CONSUMABLE` for the declared capability record, not `CONSUMABLE`, because productive availability is explicitly `NO`. This is not an availability defect for this ticket's local closure.
+- `PRODUCER_CONSUMER_CONTRACT_PROOF`: `PCP-EXEC-01`; ticket-owned schema definitions/adapter produce the structured validation result consumed by `ValidateExecContract` and later EXEC consumers. The dependency class remains `INFORMATIONAL`.
+- `CALLER_AS_AUTHORITY_CHECK`: failed. A caller can import `src/domain/exec-validation-evidence-internal.ts` and call its exported `recordCanonicalValidationEvidence` with a fake `{ hasValidated: () => true }` receipt. This manufactures the opaque evidence accepted by `isSchemaValidationEvidence`, so caller-supplied evidence becomes canonical validation authority.
+- `CALLER_SUPPLIED_AUTHORITY_BYPASS=1`.
+- No temporal revalidation or external authority effect applies; `TEMPORAL_AUTHORITY=NOT_APPLICABLE`.
 
 ## Findings
 
-### BEH-CRITICAL-001 — Caller-controlled validation receipt can mint schema authority
+### BEH-CRITICAL-001 — Caller-mintable schema-validation authority bypass
+
+- **Severity:** `CRITICAL`
+- **Ticket:** `EXEC-001-TICKET-001`
+- **Requirement references:** `EXEC-ENVELOPE-001`, `EXEC-ENVELOPE-002`, affected `EXEC-CONTRACT-001`
+- **Acceptance references:** `AC-EXEC-001`, `AC-EXEC-002`
+- **Finding category:** `CALLER_SUPPLIED_AUTHORITY_BYPASS`
+- **Capability:** `UNIT-EXEC-SCHEMA-HARNESS`
+- **Dependency class:** `INFORMATIONAL`
+- **Local-acceptance dependency:** No productive capability is required; the local acceptance directly requires genuine schema-validation authority. `LOCAL_ACCEPTANCE_REQUIRES_PRODUCTIVE_CAPABILITY=NO`.
+- **Evidence timing:** local ticket closure; the direct validation/no-effect witness must be valid before closure.
+- **Required behavior:** only a successful execution of the canonical schema adapter for the exact input/reference pair may establish evidence that permits structured contract consumption.
+- **Production evidence:** `src/domain/exec-validation-evidence-internal.ts:11-27` exposes `SchemaValidationAdapterReceipt` and exports `recordCanonicalValidationEvidence`. Its only authority check is caller-supplied `adapter.hasValidated(...)`; a caller can provide an object whose method returns `true`. `src/domain/exec-contract.ts:309-323` accepts any evidence object present in the module WeakSet, and `src/application/exec-contract.ts:98-125` trusts the returned evidence when constructing both values. The intended adapter path is otherwise sound at `src/infrastructure/exec-schema-validator.ts:53-82`.
+- **Test evidence:** the focused suite passes 20/20, including forged structural evidence rejection at `tests/exec-001-ticket-001.test.ts:264-321`, but that test never imports/calls the current `recordCanonicalValidationEvidence` export. The export guard at `:239-261` checks absence of `issueSchemaValidationEvidence` and `registerSchemaValidationAdapter`, not the current issuer. Independent adversarial execution directly imported the issuer, used `hasValidated: () => true`, and returned `VALID` without running the JSON Schema engine. A second probe omitted `executionId` as an own property, supplied it only through `Object.prototype`, and received `VALID` with `executionId='inherited'`; the canonical adapter rejects the same input.
+- **Observed result:** a caller-reachable fake receipt mints WeakSet-accepted evidence and allows a custom validation port to produce a `VALID` `ValidatedExecContract`; schema-invalid/inherited input can be consumed as canonical structured data.
+- **Expected result:** evidence issuance must be unforgeable to callers and must attest to the actual canonical schema-engine check of the exact input/reference pair. The same adversarial calls must return `CONTRACT_INVALID`, with no validated pair or effect signals.
+- **Problem:** the internal module's export surface contradicts its “callers cannot issue evidence” comment. Structural forged evidence is rejected, but the current issuer is callable and delegates authority to an untrusted receipt implementation.
+- **Impact:** a consumer can receive a successful contract without JSON Schema validation, defeating the central `EXEC-ENVELOPE-001` boundary and potentially allowing malformed or inherited fields to reach downstream approval/checkpoint/effect consumers. This is a fundamental authority bypass.
+- **Minimum correction required:** remove caller access to the evidence issuer and ensure only the canonical adapter-controlled mechanism can mint accepted evidence; add a direct negative witness for importing/current-issuer forgery and for own-enumerability bypass. Preserve the ticket's no-text/no-effect and canonical-schema semantics.
+- **Systemic pattern:** `NO`; the observed defect is localized to the evidence issuance seam. No second analogous ticket path was found in the inspected production import graph.
+- **Related locations:** `src/domain/exec-validation-evidence-internal.ts:11-41`; `src/infrastructure/exec-schema-validator.ts:37-82`; `src/domain/exec-contract.ts:309-324,346-386,389-423`; `src/application/exec-contract.ts:93-128`; `tests/exec-001-ticket-001.test.ts:239-321,594-645`; evidence files `AC-EXEC-001-envelope-schema.md`, `AC-EXEC-001-structured-consumption.md`, `AC-EXEC-002-fail-closed.md` claim the issuer is not caller-facing but do not test the current export.
+
+Finding completion fields for canonical consolidation:
 
 ```text
-severity = CRITICAL
-ticket = EXEC-001-TICKET-001
-requirement_references = EXEC-ENVELOPE-001; EXEC-ENVELOPE-002
-acceptance_references = AC-EXEC-001; AC-EXEC-002
-finding_category = CALLER_SUPPLIED_AUTHORITY_BYPASS
-capability = UNIT-EXEC-SCHEMA-HARNESS
-dependency_class = INFORMATIONAL
-finding_status = OPEN
+FINDING_STATUS = OPEN
+FINDING_CATEGORY = CALLER_SUPPLIED_AUTHORITY_BYPASS
+CAPABILITY = UNIT-EXEC-SCHEMA-HARNESS
+DEPENDENCY_CLASS = INFORMATIONAL
 LOCAL_CLOSURE_BLOCKING = YES
 LOCAL_ACCEPTANCE_REQUIRES_PRODUCTIVE_CAPABILITY = NO
 CLOSURE_OWNERSHIP = LOCAL_TICKET
-EVIDENCE_TIMING = LOCAL_TICKET_CLOSURE
 DEPENDENCY_CLASS_RECLASSIFICATION_REQUIRED = NO
 UPSTREAM_DEPENDENCY_CLASSIFICATION_PRESERVED = YES
 BLOCKS_LOCAL_EXECUTION = YES
@@ -295,150 +111,79 @@ BLOCKS_TICKET_DONE = YES
 BLOCKS_INTEGRATED_PROOF = YES
 BLOCKS_SPEC_FINAL_CONFORMANCE = YES
 PRIMARY_ROUTE = IMPLEMENTATION_REMEDIATION
-DOWNSTREAM_CHECKPOINT = ticket local closure re-audit
-DOWNSTREAM_OWNER = implementation audit / behavior specialist
-Systemic pattern = NO
+DOWNSTREAM_CHECKPOINT = EXEC-001-TICKET-001 local closure and downstream EXEC contract conformance
+DOWNSTREAM_OWNER = EXEC-001-TICKET-001 / canonical EXEC-001 consolidator
 ```
 
-- **Required behavior:** A valid result may be consumed only after both
-  identifiable ticket-owned schemas have actually validated the exact input;
-  validation evidence cannot be supplied as caller-controlled canonical truth.
-- **Production evidence:** `src/domain/exec-validation-evidence-internal.ts:21-37`
-  exports `recordCanonicalValidationEvidence` and accepts any
-  `SchemaValidationAdapterReceipt`, checking only its caller-controlled
-  `hasValidated` boolean. `src/application/exec-contract.ts:80-82` accepts any
-  `ExecSchemaValidationPort`; `:98-126` forwards returned evidence into the
-  domain constructors. `src/domain/exec-contract.ts:309-324,389-409` proves
-  only that the evidence was issued by the shared WeakSet and matches the
-  object/reference, not that the issuer performed schema validation.
-- **Test evidence:** The focused suite passes `20/20`, but
-  `tests/exec-001-ticket-001.test.ts:239-262` checks only that the former
-  `issueSchemaValidationEvidence` and `registerSchemaValidationAdapter` names
-  are absent. `:229-237` tests only an alternate adapter delegating to the
-  canonical adapter. No test calls the current exported issuer with a forged
-  receipt. The independent probe above returned `VALID` with no schema engine
-  invocation.
-- **Observed result:** A caller can import the current internal source module,
-  create a receipt whose `hasValidated` always returns `true`, mint evidence for
-  the canonical reference/input pair, inject that evidence through a custom
-  validation port, and reach the `VALID` result branch. The implementation's
-  normal composition root is correct, but the exposed validation boundary does
-  not enforce the required provenance of the schema witness.
-- **Expected result:** Only an actual approved schema adapter execution may
-  issue evidence accepted by `StructuredExecutionEnvelope.create` and
-  `StructuredCapabilityPayload.create`. An unproven or caller-fabricated
-  receipt must fail closed as `CONTRACT_INVALID`; the architecture guard must
-  exercise the current issuer, not only removed symbol names.
-- **Problem:** The replacement issuer is still exported and is not bound to an
-  unforgeable adapter capability or an independently verifiable validation
-  result. Renaming/removing the former issuer did not close the authority
-  escape.
-- **Impact:** The local acceptance predicate “both schemas validate” is not
-  enforced at the application boundary. A caller-controlled adapter can claim
-  schema success without performing validation; future schema constraints or
-  alternate consumers can therefore accept unvalidated contract material. This
-  is a canonical-authority bypass and invalidates strong evidence of AC-EXEC-001
-  until closed.
-- **Minimum correction required:** Make validation evidence issuable only from
-  an actual approved schema-validation execution, with no caller-accessible
-  minting path based solely on a caller-controlled boolean receipt. Preserve
-  alternate adapter support only when that adapter supplies independently
-  verifiable validation evidence. Add a direct negative witness that exercises
-  the current issuer/receipt path and proves it cannot produce accepted
-  evidence or a `VALID` contract without schema validation.
-- **Suggested local blocking effect:** Block local execution/closure and ticket
-  completion until the evidence provenance guard and its direct negative witness
-  are corrected and re-executed.
-- **Suggested integrated blocking effect:** Preserve an integrated-proof blocker
-  because downstream consumers cannot rely on the structured contract's schema
-  provenance while this bypass remains.
-- **Related locations:** `src/domain/exec-validation-evidence-internal.ts:11-37`;
-  `src/infrastructure/exec-schema-validator.ts:37-82`;
-  `src/application/exec-contract.ts:76-129`;
-  `src/domain/exec-contract.ts:309-409`;
-  `tests/exec-001-ticket-001.test.ts:229-262`.
+The local/integrated effect is a local ticket blocker because the acceptance-owned schema-validation witness is not safe against caller authority injection; it also remains an integrated-proof blocker because downstream consumers rely on this contract. No dependency-class reclassification is proposed, and the upstream `INFORMATIONAL` classification is preserved.
 
-## Conditional runtime dimensions
+## Test inventory and assertion quality
 
-```text
-Concurrency: NOT_APPLICABLE
-  No mutable state or concurrent mutation is owned by the ticket.
+| Category | Classification | Evidence quality / reason |
+|---|---|---|
+| `UNIT` | `REQUIRED_TEST_PRESENT` | Direct 20-test ticket suite invokes the production boundary. |
+| `INVARIANT` | `REQUIRED_TEST_PRESENT` | Required fields, canonical schema identity, immutability, own-enumerability, JSON-only values and constructor guards are asserted. |
+| `NEGATIVE_PATH` | `REQUIRED_TEST_PRESENT` | Text-only, missing, malformed, one-side-invalid, non-JSON, malformed adapter, thrown adapter, forged structural evidence and no-effect paths assert canonical failure. |
+| `ARCHITECTURE_GUARD` | `REQUIRED_TEST_PRESENT` (incomplete) | Import graph guard is executable, but no guard covers the exported current evidence issuer; this is the finding's missing guard. |
+| `CONFORMANCE` | `REQUIRED_TEST_PRESENT` | Generic delegation regression rejects text-only output as incomplete canonical result. |
+| `INTEGRATION` | `TEST_CATEGORY_NOT_APPLICABLE` | No foreign productive capability or downstream mapping is required for local closure; the generic consumer regression is covered as conformance. |
+| `PERSISTENCE`, `CONCURRENCY`, `STALE`, `IDEMPOTENCY`, `RECOVERY`, `MIGRATION` | `TEST_CATEGORY_NOT_APPLICABLE` | No corresponding state, durable boundary, retry/replay, CAS, migration, or concurrent mutation is owned or materially affected. |
+| `CROSS_SPEC` | `TEST_CATEGORY_NOT_APPLICABLE` | Downstream consumers are integrated-proof contributors only; no foreign contract is required locally. |
+| `COMPATIBILITY` | `TEST_CATEGORY_NOT_APPLICABLE` for separate compatibility testing | The new canonical path has no legacy EXEC reader/migration; non-authoritative text/prototype rejection is directly covered by negative/conformance tests. |
 
-Stale behavior: NOT_APPLICABLE
-  No revisioned state or compare-and-set operation exists.
-
-Idempotency: NOT_APPLICABLE
-  Validation is intended to be side-effect free and owns no command/effect.
-
-Durability/persistence: NOT_APPLICABLE
-  No durable identity, transaction, storage, or persistence ordering exists.
-
-Recovery: NOT_APPLICABLE
-  Restart, replay, interrupted operation, and physical recovery are excluded.
-
-Compatibility: AFFECTED / no behavior regression observed
-  New canonical path and non-authoritative text/prototype boundaries are preserved;
-  no legacy EXEC format is converted.
-
-Authority consumption: DEFINED_BUT_NOT_CONSUMABLE
-  The informational unit harness is locally testable but is not a productive
-  foreign producer. No local gate is blocked by capability availability.
-
-Temporal authority: NOT_APPLICABLE
-  No mutable authority is observed before committing an effect.
-
-Caller-as-authority bypasses: 1
-  BEH-CRITICAL-001 covers caller-controlled evidence issuance.
-```
-
-## Regression result
-
-```text
-REGRESSION_RESULT = NO_REGRESSION
-```
-
-The focused ticket test includes the generic delegation consumer regression,
-and the repository regression suite passed. No existing DOM, `.pi`, prototype,
-or unrelated application behavior was changed by the target implementation.
-The ticket-local architecture guard defect is a new local finding, not a
-pre-existing regression.
+Assertions on direct behavior are `STRONG`: tests assert result discriminants, canonical code, absence of `value`, expected references, no-approval/no-checkpoint/no-effect flags, structured fields, immutability, and consumer stop codes. The architecture guard is `WEAK` for the current issuer because it tests former export names and forbidden imports rather than the actual caller-reachable issuer. The completion evidence is therefore `MISLEADING` on that specific claim, despite the normal-path assertions being strong.
 
 ## Test execution record
 
+| Execution | Result |
+|---|---|
+| `node --experimental-strip-types --test tests/exec-001-ticket-001.test.ts` | 20 passed, 0 failed, 0 skipped |
+| `npm test` (`.pi/extensions/workflow-orchestrator/test/*.test.ts`) | 25 passed, 0 failed, 0 skipped |
+| Direct repeat: `node --experimental-strip-types --test .pi/extensions/workflow-orchestrator/test/*.test.ts` | 25 passed, 0 failed, 0 skipped; duplicate regression run, not counted twice in unique total |
+| Focused strict typecheck over all six touched production files plus ticket test | PASS |
+| `npm run typecheck` | PASS; package scope is `.pi/extensions/**/*.ts`, not the ticket source |
+| Independent adversarial issuer probes | Reproduced `VALID` from forged issuer and inherited-field input; this is behavioral evidence, not a repository test |
+
 ```text
-TESTS_RUN = 45
-TESTS_PASSED = 45
+TESTS_RUN = 45 unique test cases (70 executions including the duplicate regression run)
+TESTS_PASSED = 45 unique test cases
 TESTS_FAILED = 0
 TESTS_SKIPPED = 0
 ENVIRONMENTAL_FAILURES = 0
 ```
 
-| Execution | Result | Classification / scope |
-|---|---|---|
-| `node --experimental-strip-types --test tests/exec-001-ticket-001.test.ts` | `20/20 PASS` | Ticket-specific direct behavior suite. |
-| `npm test` | `25/25 PASS` | Directly affected repository regression suite (`.pi` workflow-orchestrator tests). |
-| Focused strict `npx tsc --noEmit --strict --allowImportingTsExtensions --target ES2022 --module NodeNext --moduleResolution NodeNext --skipLibCheck` over all six production files and ticket test | `PASS` | Direct static evidence for touched production/test graph. |
-| `npm run typecheck` | `PASS` | Package check is green but its `tsconfig.json` includes only `.pi/extensions/**/*.ts`; it does not typecheck this ticket source. |
-| Independent forged-receipt runtime probe | `VALID` observed without schema-engine invocation | Adversarial audit evidence for `BEH-CRITICAL-001`; not counted as a repository test case. |
+## Regression and conditional dimensions
 
-No failed test or environmental failure occurred. A green suite does not close
-the finding because the missing witness concerns the current exported evidence
-issuer and the suite does not exercise that path.
+`REGRESSION_RESULT = NO_REGRESSION`; `REGRESSIONS = 0`. The implementation baseline had no EXEC production contract surface, and the directly affected generic delegation suite passed 25/25. The defect above is a local implementation authority defect, not a pre-existing regression in an existing EXEC contract.
 
-## Summary
+```text
+CONCURRENCY = NOT_APPLICABLE
+STALE_BEHAVIOR = NOT_APPLICABLE
+IDEMPOTENCY = NOT_APPLICABLE
+DURABILITY = NOT_APPLICABLE
+RECOVERY = NOT_APPLICABLE
+COMPATIBILITY = CONFORMANT for the scoped NEW_CANONICAL_PATH; no legacy authority is accepted
+PERSISTENCE = NOT_APPLICABLE
+MIGRATION = NOT_APPLICABLE
+AUTHORITY_CONSUMPTION = DEFINED_BUT_NOT_CONSUMABLE
+TEMPORAL_AUTHORITY = NOT_APPLICABLE
+CALLER_AS_AUTHORITY_BYPASSES = 1
+```
+
+## Required audit summary
 
 Audit: `docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-behavior-audit.md`
 
 Specialist:
-`IMPLEMENTATION_BEHAVIOR`
+IMPLEMENTATION_BEHAVIOR
 
 Ticket: `EXEC-001-TICKET-001`
 
-Required behavioral dimensions: 2
+Required behavioral dimensions: 4 (2 REQUIRED, 2 AFFECTED)
 
-Required tests: 6
+Required tests: 5 categories
 
-Required tests missing: 0
+Required tests missing: 0 categories; the architecture category is present but its current-issuer negative witness is incomplete
 
 Required behaviors total: 4
 
@@ -452,47 +197,47 @@ Unproven concurrency contracts: 0
 
 Missing architecture guards: 1
 
-Tests run: 45
+Tests run: 45 unique test cases
 
-Tests passed: 45
+Tests passed: 45 unique test cases
 
 Tests failed: 0
 
 Regressions: 0
 
 Concurrency:
-`NOT_APPLICABLE`
+NOT_APPLICABLE
 
 Stale behavior:
-`NOT_APPLICABLE`
+NOT_APPLICABLE
 
 Idempotency:
-`NOT_APPLICABLE`
+NOT_APPLICABLE
 
 Recovery:
-`NOT_APPLICABLE`
+NOT_APPLICABLE
 
 Authority consumption:
-`DEFINED_BUT_NOT_CONSUMABLE`
+DEFINED_BUT_NOT_CONSUMABLE
 
 Temporal authority:
-`NOT_APPLICABLE`
+NOT_APPLICABLE
 
 Caller-as-authority bypasses: 1
 
 Findings:
-`CRITICAL=1`
-`MAJOR=0`
-`MINOR=0`
-`INFO=0`
+CRITICAL=1
+MAJOR=0
+MINOR=0
+INFO=0
 
 Domain audit complete:
-`YES`
+YES
 
 Specialist result:
-`SPECIALIST_BEHAVIOR_FINDINGS`
+SPECIALIST_BEHAVIOR_FINDINGS
 
-AUDIT_TARGET_HEAD: e50dc2e721b1517faae55d60883248ca1fe71844
-AUDIT_TARGET_STATE_FINGERPRINT: b967f87041ee3133242ca6910c8f673d9434d712f8e053ee0057f96132cef63d
+AUDIT_TARGET_HEAD: e83bc09150f9b0d7b7f4c26434926578723fef1a
+AUDIT_TARGET_STATE_FINGERPRINT: 7f68eea870da956f4d8552cb155a9cc5bcfb38c048fe2f494f12f2fbdfbbba79
 DOMAIN_AUDIT_COMPLETE: YES
 SPECIALIST_RESULT: SPECIALIST_BEHAVIOR_FINDINGS
