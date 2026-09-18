@@ -1,0 +1,228 @@
+# SPEC-EXEC-001 — Implementation Tickets
+
+## 1. Authority
+
+This index converts the conformant `SPEC-EXEC-001` Implementation Plan into execution artifacts only. Authority chain: accepted ADRs → approved SPEC portfolio → conformant component SPEC → conformant upstream SPEC → validated Gap Matrix → conformant Implementation Plan → independent Plan Audit → tickets. Tickets preserve scope; they do not redesign, approve, audit, or implement it.
+
+Gates consumed: `PORTFOLIO_DECOMPOSITION_APPROVED`; `PASS — COMPONENT_SPEC_CONFORMANT`; `SPEC_IMPLEMENTABILITY_CHECK = PASS`; `GAP_MATRIX_CONFORMANT`; `IMPLEMENTATION_PLAN_CONFORMANT`; `READY_FOR_ISSUE_DECOMPOSITION`; `IMPLEMENTATION_UNIT_AUTHORITY_CHECK = PASS`.
+
+## 2. Baselines
+
+| Artifact | Path | Frozen baseline |
+|---|---|---|
+| Portfolio | `docs/specs/SPEC-PORTFOLIO-001-organization.md` | revision 2; SHA-256 `c449388972279d8add520564a9614cfa236f87b6c8932a70d5bc2d28eef6be86` |
+| Portfolio audit | `docs/specs/SPEC-PORTFOLIO-001-decomposition-audit.md` | SHA-256 `120f22d0080ac0640ebbdad7c460df5de2745788cfaea83a1859f2c577168104`; `PORTFOLIO_DECOMPOSITION_APPROVED` |
+| Component SPEC | `docs/specs/SPEC-EXEC-001-skill-contracts-and-capability-registry.md` | revision 3; SHA-256 `b55e106c3b2e239f28e3ba3d2a0e75fbb9c840a3697acc2d1f540777b284b053` |
+| Component SPEC audit | `docs/specs/audits/SPEC-EXEC-001-component-conformance-audit.md` | `PASS — COMPONENT_SPEC_CONFORMANT`; SHA-256 `d0eea5fc93afcc254d022512b6a8ed9902fe152a885ccfd7f2ac51e609a9a6f1` |
+| Upstream SPEC | `docs/specs/SPEC-DOM-001-workflow-authority-and-governance.md` | revision 4; SHA-256 `cb4a21924d9619b8349d6cc239d7998633c402d7ea3d7461c2d4d8498f9a014` |
+| Gap Matrix | `docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md` | 17 active gaps; SHA-256 `c1aac7122a25131608123d2eef20aa3c8962e9985f2042d13f024840e3fdde7c` |
+| Gap Matrix audit | `docs/specs/gap-matrices/audits/SPEC-EXEC-001-implementation-gap-matrix-audit.md` | `GAP_MATRIX_CONFORMANT`; SHA-256 `d27facb97a8455fa9a08d74d54281cf8ab8596da1f4fa5ce96159d75d1592962` |
+| Implementation Plan | `docs/specs/implementation-plans/SPEC-EXEC-001-implementation-plan.md` | SHA-256 `a86b8ab98be5804b3f12e7c8e81a02902b12ed4cb7a5d1708379b8fb8b39ba7e` |
+| Plan audit | `docs/specs/implementation-plans/audits/SPEC-EXEC-001-implementation-plan-audit.md` | `IMPLEMENTATION_PLAN_CONFORMANT`; SHA-256 `606543a4fd83d6ebab507317a29097e2fabee92e88bdcf066246ff8da14c9df0` |
+| Current HEAD | repository | `381218d5fbf8d969ee5ae5349b8f65c4cd5af7f9` |
+| Working tree | repository | documentation-dirty as expected; no source/test/prototype/`.pi` implementation drift |
+
+The live HEAD equals the Plan and audit baseline. No upstream authority or planning artifact changed after the conformant Plan Audit.
+
+## 3. Ticket Status Summary
+
+| Ticket | Unit | Status | Initial DAG state | Blocked by | Wave | Mode |
+|---|---|---|---|---|---:|---|
+| EXEC-001-TICKET-001 | EXEC-IMP-01 | VALIDATION_REQUIRED | READY | NONE | 1 | SAFE |
+| EXEC-001-TICKET-002 | EXEC-IMP-02 | BLOCKED | BLOCKED | TICKET-001 | 2 | SAFE_WITH_COORDINATION |
+| EXEC-001-TICKET-003 | EXEC-IMP-03 | BLOCKED | BLOCKED | TICKET-002 | 3 | SAFE_WITH_COORDINATION |
+| EXEC-001-TICKET-004 | EXEC-IMP-04 | BLOCKED | BLOCKED | TICKET-001, TICKET-002 | 2 | SAFE_WITH_COORDINATION |
+| EXEC-001-TICKET-005 | EXEC-IMP-05 | BLOCKED | BLOCKED | TICKET-002 | 2 | SERIAL_REQUIRED |
+| EXEC-001-TICKET-006 | EXEC-IMP-06 | BLOCKED | BLOCKED | TICKET-001, TICKET-002 | 2 | SAFE_WITH_COORDINATION |
+| EXEC-001-TICKET-007 | EXEC-IMP-07 | BLOCKED | BLOCKED | TICKET-003, TICKET-006 | 4 | SAFE_WITH_COORDINATION |
+| EXEC-001-TICKET-008 | EXEC-IMP-08 | BLOCKED | BLOCKED | TICKET-006 | 3 | SAFE_WITH_COORDINATION |
+| EXEC-001-TICKET-009 | EXEC-IMP-09 | BLOCKED | BLOCKED | TICKET-003, TICKET-007 | 5 | SAFE_WITH_COORDINATION |
+
+Statuses are mechanically derived from the Plan's initial DAG. All tickets have `TICKET_LOCAL_CLOSURE = YES`; integrated-only foreign capabilities are not local blockers.
+
+## 4. Implementation Unit → Ticket Traceability
+
+| Unit | Ticket | Mapping | Readiness | Initial DAG state |
+|---|---|---|---|---|
+| EXEC-IMP-01 | EXEC-001-TICKET-001 | 1:1 | ISSUE_READY | READY |
+| EXEC-IMP-02 | EXEC-001-TICKET-002 | 1:1 | ISSUE_READY | BLOCKED |
+| EXEC-IMP-03 | EXEC-001-TICKET-003 | 1:1 | ISSUE_READY | BLOCKED |
+| EXEC-IMP-04 | EXEC-001-TICKET-004 | 1:1 | ISSUE_READY | BLOCKED |
+| EXEC-IMP-05 | EXEC-001-TICKET-005 | 1:1 | ISSUE_READY | BLOCKED |
+| EXEC-IMP-06 | EXEC-001-TICKET-006 | 1:1 | ISSUE_READY | BLOCKED |
+| EXEC-IMP-07 | EXEC-001-TICKET-007 | 1:1 | ISSUE_READY | BLOCKED |
+| EXEC-IMP-08 | EXEC-001-TICKET-008 | 1:1 | ISSUE_READY | BLOCKED |
+| EXEC-IMP-09 | EXEC-001-TICKET-009 | 1:1 | ISSUE_READY | BLOCKED |
+
+No split or merge is authorized: `FALSE_TICKET_SPLITS = 0`; `FALSE_TICKET_MERGES = 0`.
+
+## 5. Portfolio Obligation → Ticket Traceability
+
+| Obligation | Ticket |
+|---|---|
+| O-016 | TICKET-001 |
+| O-017, O-020 | TICKET-002, TICKET-003 |
+| O-018 | TICKET-005, TICKET-006, TICKET-007 |
+| O-019 | TICKET-004 |
+| O-021 | TICKET-006, TICKET-007, TICKET-008, TICKET-009 |
+
+All six locally owned obligations are mapped.
+
+## 6. Gap → Requirement → Ticket Traceability
+
+| Gaps | Requirements | Ticket |
+|---|---|---|
+| GAP-001 | EXEC-ENVELOPE-001/002 | TICKET-001 |
+| GAP-002, GAP-003, GAP-016 | EXEC-CONTRACT-001/002, EXEC-FAILURE-001 | TICKET-004 |
+| GAP-004, GAP-006, GAP-008, GAP-009, GAP-010, GAP-011 | EXEC-VERSION-001/002, EXEC-REGISTRY-001/002/003, EXEC-CAPABILITY-001/002 | TICKET-002 |
+| GAP-005 | EXEC-SNAPSHOT-001 | TICKET-005 |
+| GAP-007 | EXEC-REGISTRY-004 | TICKET-003 |
+| GAP-012, GAP-017 | EXEC-MANIFEST-001/003 | TICKET-006 |
+| GAP-013 | EXEC-MANIFEST-002 | TICKET-008 |
+| GAP-014 | EXEC-MANIFEST-004 | TICKET-007 |
+| GAP-015 | EXEC-HISTORY-001 | TICKET-009 |
+
+All 17 active local gaps are covered exactly once.
+
+## 7. Acceptance → Ticket Traceability
+
+| Acceptance | Final Proof Owner | Contributors |
+|---|---|---|
+| AC-EXEC-001, AC-EXEC-002 | TICKET-001 | TICKET-001 |
+| AC-EXEC-003, AC-EXEC-004, AC-EXEC-008–AC-EXEC-012 | TICKET-002 | TICKET-002 |
+| AC-EXEC-005 | TICKET-005 | TICKET-005 |
+| AC-EXEC-006, AC-EXEC-007, AC-EXEC-017 | TICKET-004 | TICKET-004 |
+| AC-EXEC-013, AC-EXEC-015 | TICKET-006 | TICKET-006 |
+| AC-EXEC-014 | TICKET-008 | TICKET-008 |
+| AC-EXEC-019 | TICKET-003 | TICKET-003 |
+| AC-EXEC-018 | TICKET-007 | TICKET-004/TICKET-007 |
+| AC-EXEC-020 | TICKET-007 | TICKET-003/TICKET-004/TICKET-007 |
+| AC-EXEC-016 | TICKET-009 | TICKET-009 |
+
+`AC-EXEC-018` has TICKET-004 as contributor and TICKET-007 as Final Proof Owner. `AC-EXEC-020` has TICKET-003 and TICKET-004 as contributors and TICKET-007 as Final Proof Owner. `UNRESOLVED_TICKET_FINAL_PROOF_OWNERS = 0`.
+
+## 8. Dependency / Blocker Graph
+
+```text
+TICKET-001
+  └──> TICKET-002
+         ├──> TICKET-003 ──┐
+         ├──> TICKET-004   │
+         ├──> TICKET-005   ├──> TICKET-007 ──> TICKET-009
+         └──> TICKET-006 ──┴──> TICKET-008
+TICKET-001 ────────────────> TICKET-004, TICKET-006
+```
+
+Canonical dependency edges are `001→002`; `002→003,004,005,006`; `003→007,009`; `006→007,008`; and `007→009`. Internal blocker relationships are bidirectionally reconciled. `TICKET_BLOCKER_GRAPH_CYCLE = NO`.
+
+## 9. Execution Order
+
+| Wave | Tickets | Mode |
+|---:|---|---|
+| 1 | TICKET-001 | SAFE |
+| 2 | TICKET-002, TICKET-004, TICKET-005, TICKET-006 | coordination; TICKET-005 serial at DOM seam |
+| 3 | TICKET-003, TICKET-008 | SAFE_WITH_COORDINATION |
+| 4 | TICKET-007 | SAFE_WITH_COORDINATION |
+| 5 | TICKET-009 | SAFE_WITH_COORDINATION |
+
+Wave does not independently make a ticket READY.
+
+## 10. Current READY / BLOCKED State
+
+```text
+INITIAL_READY_TICKETS = 1
+INITIAL_BLOCKED_TICKETS = 8
+CURRENT_READY_TICKETS = 0
+CURRENT_VALIDATION_REQUIRED_TICKETS = 1
+CURRENT_BLOCKED_TICKETS = 8
+EXECUTION_READY = FALSE; TICKET-001 is awaiting independent validation
+READY_TICKETS_WITH_UNAVAILABLE_REQUIRED_CAPABILITY = 0
+```
+
+All foreign capabilities are `REQUIRED_FOR_INTEGRATED_PROOF`, with `PRODUCTIVE_AVAILABILITY = NO`; they are carried forward without blocking local execution or closure.
+
+## 11. Cross-Spec Dependencies
+
+| Capability | Producer / owner | Consumers | Availability | Class | Local effect |
+|---|---|---|---|---|---|
+| DOM-EXEC-IDENTITY-SNAPSHOT | DOM canonical resolver / SPEC-DOM-001 | T002, T003, T005, T006, T007 | DEFINED/DEFINED/NO/NO | REQUIRED_FOR_INTEGRATED_PROOF | integrated proof only |
+| REPO-EXEC-NORMAL-CATALOG | enabled REPO configuration / SPEC-REPO-001 | T002 | DEFINED/DEFINED/NO/NO | REQUIRED_FOR_INTEGRATED_PROOF | integrated proof only |
+| PLAT-EXEC-PERSISTED-MATERIAL | PLAT journal/checkpoint reader / SPEC-PLAT-001 | T003, T006, T007, T009 | DEFINED/DEFINED/NO/NO | REQUIRED_FOR_INTEGRATED_PROOF | integrated proof only |
+| EXEC2-EXEC-RESUME-CONTEXT | EXEC-002 context applicator | T008 | DEFINED/DEFINED/NO/NO | REQUIRED_FOR_INTEGRATED_PROOF | integrated proof only |
+| BACKEND-EXEC-FAILURE-MAPPING | BACKEND mapping boundary | T004 | DEFINED/DEFINED/NO/NO | REQUIRED_FOR_INTEGRATED_PROOF | integrated proof only |
+| OPS-EXEC-FAILURE-PROJECTION | OPS projection boundary | T004 | DEFINED/DEFINED/NO/NO | REQUIRED_FOR_INTEGRATED_PROOF | integrated proof only |
+| UI-EXEC-FAILURE-PROJECTION | UI projection boundary | T004 | DEFINED/DEFINED/NO/NO | REQUIRED_FOR_INTEGRATED_PROOF | integrated proof only |
+
+Every ticket PCP section preserves producer, contract, owner, consumer, semantic status, availability dimensions, evidence, failure semantics, version transport, dependency class and edge. No downstream capability promotion is claimed.
+
+## 12. Parallelization Waves
+
+The Plan's modes are inherited without weakening: T001 `SAFE`; T002/T003/T004/T006/T007/T008/T009 `SAFE_WITH_COORDINATION`; T005 `SERIAL_REQUIRED` at the existing DOM snapshot seam.
+
+## 13. Final Proof Ownership
+
+Each acceptance obligation has exactly one Final Proof Owner as listed in §7. No synthetic proof-only ticket exists. Integrated checkpoints CP-EXEC-01 through CP-EXEC-04 remain downstream proof gates and are not copied into contributor acceptance.
+
+## 14. Ticket Split / Merge Ledger
+
+| Units | Split | Merge | Reason |
+|---|---:|---:|---|
+| EXEC-IMP-01–EXEC-IMP-09 | 0 | 0 | each conformant locally closable unit maps 1:1 to one ticket |
+
+## 15. Closure Metrics
+
+```text
+IMPLEMENTATION_UNITS_TOTAL = 9
+ISSUE_READY_UNITS = 9
+INTERNAL_ONLY_UNITS = 0
+PLAN_BLOCKED_UNITS = 0
+IMPLEMENTATION_UNITS_DECOMPOSED = 9
+IMPLEMENTATION_UNITS_NOT_DECOMPOSED = 0
+TICKETS_CREATED = 9
+READY_TICKETS = 0
+BLOCKED_TICKETS = 8
+VALIDATION_REQUIRED_TICKETS = 1
+PORTFOLIO_OBLIGATIONS_MAPPED = 6
+UNMAPPED_PORTFOLIO_OBLIGATIONS = 0
+ACTIVE_LOCAL_GAPS = 17
+LOCAL_GAPS_COVERED = 17
+UNMAPPED_LOCAL_GAPS = 0
+ACCEPTANCE_OBLIGATIONS_REFERENCED = 20
+UNRESOLVED_TICKET_FINAL_PROOF_OWNERS = 0
+FALSE_TICKET_SPLITS = 0
+FALSE_TICKET_MERGES = 0
+TICKETS_WITH_LOCAL_CLOSURE_NO = 0
+TICKETS_WITHOUT_ACCEPTANCE = 0
+TICKETS_WITHOUT_TESTS_WHEN_REQUIRED = 0
+TICKETS_WITHOUT_COMPLETION_EVIDENCE = 0
+STATUS_BLOCKER_MISMATCHES = 0
+DEPENDENCY_BLOCKER_MISMATCHES = 0
+IMPLEMENTATION_BATCH_STATUS = VALIDATION_REQUIRED
+IMPLEMENTED_TICKETS = 0
+DONE_TICKETS = 0
+UNBLOCK_GRAPH_MISMATCHES = 0
+UNRESOLVED_EXTERNAL_BLOCKERS = 0
+TICKET_BLOCKER_GRAPH_CYCLE = NO
+READY_TICKETS_WITH_UNAVAILABLE_CONTRACT = 0
+CAPABILITY_AVAILABILITY_CLASSIFICATION_ERRORS = 0
+DOWNSTREAM_PROMOTION_WITHOUT_NEW_EVIDENCE = 0
+TICKETS_WITH_UNAVAILABLE_REQUIRED_CAPABILITY = 0
+WITNESS_NOT_EXECUTABLE_AT_LOCAL_CLOSURE = 0
+UPSTREAM_AUTHORITY_BLOCKER_MISMATCHES = 0
+PRODUCER_CONSUMER_CONTRACT_ERRORS = 0
+REQUIRED_BEHAVIORS_TOTAL = 20
+ACCEPTANCE_CRITERIA_TOTAL = 20
+DIRECT_BEHAVIOR_WITNESSES = 39
+PROXY_ONLY_BEHAVIORS = 0
+UNTESTED_STATE_TRANSITIONS = 0
+UNPROVEN_CONCURRENCY_CONTRACTS = 0
+MISSING_ARCHITECTURE_GUARDS = 0
+```
+
+## 16. Ticket Decomposition Gate
+
+```text
+TICKET_DECOMPOSITION_GATE: READY_FOR_TICKET_AUDIT
+```
+
+The mandatory next step is independent ticket decomposition audit. No ticket is approved or implemented by this artifact.
