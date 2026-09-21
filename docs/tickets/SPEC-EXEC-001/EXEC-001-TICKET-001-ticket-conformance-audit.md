@@ -1,148 +1,168 @@
 # EXEC-001-TICKET-001 — Ticket Conformance Audit
 
-## 1. Audit mode and subject
+## 1. Audit identity and pinned subject
 
 ```text
-READ_ONLY = YES
-INDEPENDENT = YES
-ADVERSARIAL = YES
-TICKET_SCOPED = YES
-SPEC_FIRST = YES
-GAP_MATRIX_AWARE = YES
-PLAN_AWARE = YES
-DIFF_AWARE = YES
-EVIDENCE_REQUIRED = YES
-NO_REMEDIATION = YES
-NO_TICKET_STATE_CHANGE = YES
+Audit mode = READ_ONLY INDEPENDENT ADVERSARIAL TICKET_SCOPED SPEC_FIRST
+              GAP_MATRIX_AWARE PLAN_AWARE DIFF_AWARE EVIDENCE_REQUIRED
+              EXHAUSTIVE_WITHIN_DOMAIN
+Specialist = TICKET_CONFORMANCE
+TICKET_ID = EXEC-001-TICKET-001
+TICKET_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-envelope-schema-contract.md
+IMPLEMENTATION_UNIT = EXEC-IMP-01 — Envelope and schema contract
+IMPLEMENTATION_DESIGN_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design.md
+TICKET_SET_AUDIT_PATH = docs/tickets/SPEC-EXEC-001/implementation-ticket-audit.md
+TICKET_STATUS = VALIDATION_REQUIRED
+GAP_IDS = GAP-001
+REQUIREMENT_IDS = EXEC-ENVELOPE-001, EXEC-ENVELOPE-002
+ACCEPTANCE_IDS = AC-EXEC-001, AC-EXEC-002
+ADR_PATHS = docs/adrs/ADR-0003-versioned-skill-contracts.md
+SPEC_PATH = docs/specs/SPEC-EXEC-001-skill-contracts-and-capability-registry.md
+GAP_MATRIX_PATH = docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md
+IMPLEMENTATION_PLAN_PATH = docs/specs/implementation-plans/SPEC-EXEC-001-implementation-plan.md
+PLAN_AUDIT_PATH = docs/specs/implementation-plans/audits/SPEC-EXEC-001-implementation-plan-audit.md
+TICKET_AUDIT_PATH = docs/tickets/SPEC-EXEC-001/implementation-ticket-audit.md
+IMPLEMENTATION_BASELINE = 381218d5fbf8d969ee5ae5349b8f65c4cd5af7f9
+CURRENT_HEAD = 71d73d96d7df69513894736214aa0a36d53a7736
+AUDIT_TARGET_HEAD = 71d73d96d7df69513894736214aa0a36d53a7736
+AUDIT_TARGET_STATE_FINGERPRINT = 73f7214519ab58d119929dfcd35b539caf2a81361fdf5a17333240cd748d4c03
+TARGET_HEAD_MATCH = YES
+SEMANTIC_WORKING_TREE_OVERLAY = NONE for production/test subject
+AUDIT_ARTIFACT_ONLY = YES
 ```
 
-This audit evaluates whether the implemented ticket delivered exactly the authorized contract. It does not approve the ticket, change status, or substitute for the global implementation audit.
-
-| Input | Value |
-|---|---|
-| TICKET_ID | `EXEC-001-TICKET-001` |
-| TICKET_PATH | `docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-envelope-schema-contract.md` |
-| TICKET_STATUS | `VALIDATION_REQUIRED` |
-| IMPLEMENTATION_UNIT | `EXEC-IMP-01 — Envelope and schema contract` |
-| GAP_IDS | `GAP-001` |
-| REQUIREMENT_IDS | `EXEC-ENVELOPE-001`, `EXEC-ENVELOPE-002` |
-| ACCEPTANCE_IDS | `AC-EXEC-001`, `AC-EXEC-002` |
-| ADR_PATHS | `docs/adrs/ADR-0003-versioned-skill-contracts.md` (accepted, revision 3) |
-| SPEC_PATH | `docs/specs/SPEC-EXEC-001-skill-contracts-and-capability-registry.md` |
-| GAP_MATRIX_PATH | `docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md` |
-| GAP_MATRIX_AUDIT_PATH | `docs/specs/gap-matrices/audits/SPEC-EXEC-001-implementation-gap-matrix-audit.md` |
-| IMPLEMENTATION_PLAN_PATH | `docs/specs/implementation-plans/SPEC-EXEC-001-implementation-plan.md` |
-| PLAN_AUDIT_PATH | `docs/specs/implementation-plans/audits/SPEC-EXEC-001-implementation-plan-audit.md` |
-| TICKET_SET_AUDIT_PATH | `docs/tickets/SPEC-EXEC-001/implementation-ticket-audit.md` |
-| TICKET_AUDIT_PATH | `docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-ticket-conformance-audit.md` |
-| IMPLEMENTATION_BASELINE | `381218d5fbf8d969ee5ae5349b8f65c4cd5af7f9` |
-| CURRENT_HEAD | `e83bc09150f9b0d7b7f4c26434926578723fef1a` |
-| AUDIT_TARGET_HEAD | `e83bc09150f9b0d7b7f4c26434926578723fef1a` |
-| AUDIT_TARGET_STATE_FINGERPRINT | `7f68eea870da956f4d8552cb155a9cc5bcfb38c048fe2f494f12f2fbdfbbba79` |
-
-The supplied target pair matches the current HEAD. The implementation files were not changed during this audit. The working-tree overlay is audit-artifact dirtiness only and is covered by the supplied state fingerprint.
-
-## 2. Traceability and upstream authority
-
-Result: `TRACEABILITY_CONFORMANT`.
-
-The ticket resolves through the accepted authority chain:
+The pinned target is the current `HEAD`. Production and test paths in the
+semantic subject are unchanged from that target during this audit. Existing
+working-tree changes are audit-document changes and are excluded from the
+semantic subject by the pinned state protocol.
 
 ```text
-ADR-0003 revision 3
-  → Portfolio O-016
-  → SPEC-EXEC-001 EXEC-ENVELOPE-001 / EXEC-ENVELOPE-002
-  → validated GAP-001
-  → conformant Plan EXEC-IMP-01
-  → ticket EXEC-001-TICKET-001
+BASELINE_DRIFT_STATUS = NO_DRIFT
+REASSESSMENT_COMPLETE = YES
+FINDINGS_ARE_ACTIONABLE = YES
+BASELINE_REMEDIATION_READINESS = READY
+AUDIT_BASIS_FINGERPRINT = 73f7214519ab58d119929dfcd35b539caf2a81361fdf5a17333240cd748d4c03
+AUDIT_BASIS_STALE = NO
 ```
 
-The Gap Matrix audit is `GAP_MATRIX_CONFORMANT`, the Implementation Plan audit is `IMPLEMENTATION_PLAN_CONFORMANT`, and the ticket-set audit identifies this ticket as the 1:1 owner of `EXEC-IMP-01`. The references, IDs, ownership, local closure, and evidence paths resolve.
+## 2. Traceability and authority result
+
+The ticket resolves to the expected `SPEC-EXEC-001` component, `EXEC-IMP-01`,
+`GAP-001`, both envelope requirements, and both ticket-owned acceptance
+criteria. The accepted ADR, portfolio obligation `O-016`, component SPEC,
+validated Gap Matrix, conformant Implementation Plan, Plan Audit, and ticket-set
+audit references resolve. The upstream ticket-set audit records the ticket
+mapping as conformant and preserves the `INFORMATIONAL` local schema-harness
+capability classification.
+
+```text
+TRACEABILITY = TRACEABILITY_CONFORMANT
+UPSTREAM_AUTHORITY_COMPLETE = YES
+IMPLEMENTATION_DESIGN = IMPLEMENTATION_DESIGN_READY
+IMPLEMENTATION_DESIGN_GATE = READY_FOR_IMPLEMENTATION
+TICKET_SET_GATE = IMPLEMENTATION_TICKETS_CONFORMANT
+```
 
 ## 3. Execution eligibility
 
-Eligibility at implementation start was confirmed:
+Execution eligibility is evaluated at the start of implementation, not inferred
+from the final validation status. The ticket-set and ticket identify the unit as
+Wave 1, initially `READY`, with no internal predecessor or blocker. The only
+capability record is the unit-owned local schema harness:
 
-| Predicate | Evidence | Result |
-|---|---|---|
-| Initial ticket state | Ticket `INITIAL_DAG_STATE: READY`, `BLOCKED_BY: NONE`, `DEPENDS_ON: NONE` | PASS |
-| Plan readiness | Plan `WORK_CAN_START = YES`, `EXECUTION_READY = YES` for `EXEC-IMP-01` | PASS |
-| Design input state | Approved design `DESIGN_INPUT_TICKET_STATE: READY` | PASS |
-| Predecessors | None | PASS |
-| Local capability | Unit-owned contract harness; `LOCAL_TESTABILITY = YES` | PASS |
-| Productive foreign capability | None required for local closure; no external producer claimed | PASS |
+| Capability | Authority | Contract | Local testability | Productive availability | Dependency class | Local closure blocking | Result |
+|---|---|---|---|---|---|---|---|
+| `UNIT-EXEC-SCHEMA-HARNESS` | DEFINED | DEFINED | YES | NO (a fixture is not a productive producer) | `INFORMATIONAL` | NO | Locally sufficient |
 
-Recalculated result: `EXECUTION_ELIGIBILITY_CONFIRMED`.
-
-The ticket's current `EXECUTION_READY: FALSE` reflects that it is now in `VALIDATION_REQUIRED`; it does not contradict the initial READY state used to authorize implementation.
-
-### Capability and completion-scope record
+No capability classified `REQUIRED_FOR_LOCAL_EXECUTION` or
+`REQUIRED_FOR_LOCAL_CLOSURE` is unavailable. Both local acceptance witnesses
+and completion evidence are executable at the ticket closure point.
 
 ```text
-CAPABILITY = UNIT-EXEC-SCHEMA-HARNESS
-AUTHORITY_STATUS = DEFINED
-CONTRACT_STATUS = DEFINED
-LOCAL_TESTABILITY = YES
-PRODUCTIVE_AVAILABILITY = NO (unit-owned harness; not a foreign productive producer)
-DEPENDENCY_CLASS = INFORMATIONAL
-LOCAL_CLOSURE_BLOCKING = NO for capability availability
-LOCAL_ACCEPTANCE_REQUIRES_PRODUCTIVE_CAPABILITY = NO
-CLOSURE_OWNERSHIP = LOCAL_TICKET
-COMPLETION_EVIDENCE_TIMING = LOCAL_CLOSURE
+EXECUTION_READY_AT_START = TRUE
+WORK_CAN_START = YES
+LOCAL_CLOSURE = YES
+EXECUTION_ELIGIBILITY = EXECUTION_ELIGIBILITY_CONFIRMED
+PRODUCTIVE_AVAILABILITY_CONTRADICTION = NO
 DEPENDENCY_CLASS_RECLASSIFICATION_REQUIRED = NO
 UPSTREAM_DEPENDENCY_CLASSIFICATION_PRESERVED = YES
 ```
 
-No unavailable `REQUIRED_FOR_LOCAL_EXECUTION`, `REQUIRED_FOR_LOCAL_CLOSURE`, or integrated capability was silently promoted to a local blocker.
+The current `STATUS: VALIDATION_REQUIRED` and `EXECUTION_READY: FALSE` reflect
+that implementation has finished and independent validation is pending; they do
+not contradict the confirmed pre-execution eligibility. The unavailable
+productive capability is not promoted to a local blocker. There is no
+`CAPABILITY_AVAILABILITY_CONTRADICTION` finding for this ticket.
 
 ## 4. Reconstructed canonical implementation contract
 
 ### Required local behavior
 
-1. Define identifiable common envelope and capability-payload schemas and accept a pair only after both schemas validate.
-2. Require the structured minimum fields from `EXEC-ENVELOPE-002`; reject missing or text-only input as `CONTRACT_INVALID` with no approval, checkpoint, success, or effect implication.
-3. Return an immutable structured pair for valid input and a structured fail-closed result for invalid input.
+1. A structured envelope and structured capability payload are accepted only
+   when both ticket-owned, identifiable JSON Schemas validate.
+2. The envelope contains the required structured version, execution, activity,
+   agent assignment, artifact/cycle, round/attempt, status, functional
+   verdict, checkpoints, artifacts, evidence, findings, requested effects and
+   errors fields.
+3. Missing structured fields, invalid schema input, and text-only input return
+   `CONTRACT_INVALID` without a success value, approval, checkpoint or effect.
+4. Human text may accompany input but cannot supply omitted authority.
+5. A successful result is a complete immutable structured envelope/payload pair.
 
 ### Integration behavior
 
-The implementation may provide a downstream structured-contract seam. Existing generic delegation must not promote human text to canonical completion or effects. Downstream registry, failure mapping, persistence, runtime/session, transport, UI, OPS, and BACKEND ownership is outside this ticket and is only an integrated contract contribution.
+The local boundary exposes a structured validated contract to later EXEC
+consumers. The generic delegation consumer is only a regression consumer; it
+must not promote text to canonical approval, checkpoint or effect. Downstream
+registry, failure mapping, persistence, transport, UI, OPS and DOM behavior is
+not required for this ticket's local closure.
 
 ### Does not implement
 
-Version/registry resolution; DOM identity or lifecycle; persistence/recovery; runtime/session execution; external effects; transport; UI/OPS/BACKEND mappings; downstream integrated conformance; legacy conversion.
+Version or registry resolution, supported capability sets, DOM identity or
+lifecycle, persistence or recovery, runtime/session execution, external
+ effects, transport mappings, UI/OPS/BACKEND projections, migration, or
+integrated downstream conformance.
 
 ### Expected repository impact
 
-A productive EXEC domain/application validation boundary, identifiable schema definitions and adapter, direct ticket tests, and file-addressed local evidence. The physical schema representation and schema library remain implementation details; no registry, persistence, transport, or alternate authority is authorized.
+The authorized impact is a productive EXEC schema/validation boundary, an
+adapter behind the narrow schema-validation port, direct contract tests, and
+file-addressed local evidence. This is a `NEW_CANONICAL_PATH`; prototype and
+historical shapes remain non-authoritative. No migration or generated contract
+is required.
 
-### Gap, requirements, acceptance, and completion obligations
+### Gap, requirement and acceptance obligations
 
 ```text
 GAP-001 = productive identifiable envelope/payload schemas and structured minimum fields
-EXEC-ENVELOPE-001 = both envelope and payload validate before structured consumption; text is non-authoritative
-EXEC-ENVELOPE-002 = minimum structured fields are required; missing fields fail closed
-AC-EXEC-001 = valid pair accepted only when both registered identifiable schemas validate; text-only input is not authoritative
-AC-EXEC-002 = missing minimum fields reject as CONTRACT_INVALID without inferred success/approval/checkpoint/effect
-COMPLETION = production code, automated tests, local evidence, contract-contribution evidence, and conformance evidence
+EXEC-ENVELOPE-001 = both envelope and payload validate against identifiable schemas; text is non-authoritative
+EXEC-ENVELOPE-002 = the envelope contains all required structured minimum fields
+AC-EXEC-001 = valid pair passes registered identifiable schemas; text alone is never authoritative
+AC-EXEC-002 = missing minimum fields are CONTRACT_INVALID with no success, approval, checkpoint or effect
+FINAL_PROOF_OWNER = EXEC-001-TICKET-001
 ```
 
-## 5. Changed-file classification and scope
+## 5. Repository scope audit
 
-The semantic implementation impact contains 11 files. Workflow audit/checkpoint artifacts are authorized audit-workspace outputs and are not counted as product implementation files.
+The semantic implementation diff from the declared implementation baseline
+contains 11 ticket-scoped files. All are in scope; no shared support,
+migration, generated artifact, unrelated change, scope expansion or foreign
+scope implementation was found in the semantic subject.
 
-| File | Classification | Evidence / reason |
+| Changed file | Classification | Evidence / reason |
 |---|---|---|
-| `src/domain/exec-contract.ts` | `DIRECT_TICKET_IMPLEMENTATION` | schema references, structured values, fail-closed result and required-field invariants |
-| `src/domain/exec-schema.ts` | `DIRECT_TICKET_IMPLEMENTATION` | identifiable JSON Schema documents and narrow validation port |
-| `src/domain/exec-validation-evidence-internal.ts` | `REQUIRED_SHARED_SUPPORT` | adapter evidence handoff used by the contract boundary |
-| `src/application/exec-contract.ts` | `DIRECT_TICKET_IMPLEMENTATION` | paired validation orchestration and fail-closed result aggregation |
-| `src/infrastructure/exec-schema-validator.ts` | `REQUIRED_SHARED_SUPPORT` | JSON Schema compilation/validation adapter |
-| `src/composition/exec-contract.ts` | `DIRECT_TICKET_IMPLEMENTATION` | productive composition boundary |
-| `tests/exec-001-ticket-001.test.ts` | `REQUIRED_TEST_CHANGE` | direct positive, negative, isolation, architecture and consumer witnesses |
-| `docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-001-envelope-schema.md` | `AUTHORIZED_GENERATED_ARTIFACT` | local acceptance evidence |
-| `docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-001-structured-consumption.md` | `AUTHORIZED_GENERATED_ARTIFACT` | structured consumption evidence |
-| `docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-002-fail-closed.md` | `AUTHORIZED_GENERATED_ARTIFACT` | fail-closed evidence |
-| `docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-002-required-fields.md` | `AUTHORIZED_GENERATED_ARTIFACT` | required-field evidence |
+| `src/domain/exec-contract.ts` | `DIRECT_TICKET_IMPLEMENTATION` | Schema references, structured values, immutable result and fail-closed failure |
+| `src/domain/exec-schema.ts` | `DIRECT_TICKET_IMPLEMENTATION` | Ticket-owned identifiable JSON Schema definitions and validation port |
+| `src/domain/exec-validation-evidence-internal.ts` | `DIRECT_TICKET_IMPLEMENTATION` | Adapter validation-evidence handoff |
+| `src/application/exec-contract.ts` | `DIRECT_TICKET_IMPLEMENTATION` | Pair validation orchestration and fail-closed result |
+| `src/composition/exec-contract.ts` | `DIRECT_TICKET_IMPLEMENTATION` | Productive composition boundary |
+| `src/infrastructure/exec-schema-validator.ts` | `DIRECT_TICKET_IMPLEMENTATION` | JSON Schema compiler adapter |
+| `tests/exec-001-ticket-001.test.ts` | `REQUIRED_TEST_CHANGE` | Direct positive, negative, authority-isolation, immutability and consumer witnesses |
+| `docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-001-envelope-schema.md` | `AUTHORIZED_GENERATED_ARTIFACT` | File-addressed AC-EXEC-001 evidence |
+| `docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-001-structured-consumption.md` | `AUTHORIZED_GENERATED_ARTIFACT` | File-addressed structured-consumption evidence |
+| `docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-002-required-fields.md` | `AUTHORIZED_GENERATED_ARTIFACT` | File-addressed minimum-field evidence |
+| `docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-002-fail-closed.md` | `AUTHORIZED_GENERATED_ARTIFACT` | File-addressed fail-closed evidence |
 
 ```text
 CHANGED_FILES_TOTAL = 11
@@ -150,108 +170,138 @@ IN_SCOPE_FILES = 11
 UNRELATED_FILES = 0
 SCOPE_EXPANSION_FILES = 0
 FOREIGN_SCOPE_FILES = 0
-REQUIRED_MIGRATION_FILES = 0
 ```
 
-The ticket's execution-record list names two obsolete `exec-validation-authority*.ts` paths; the actual implementation uses `exec-validation-evidence-internal.ts`. This documentation mismatch is recorded as `CONF-MINOR-001`, not treated as a foreign production change.
+The ticket's persisted changed-file list names absent
+`src/domain/exec-validation-authority.ts` and
+`src/domain/exec-validation-authority-internal.ts`, and omits the actual
+`src/domain/exec-validation-evidence-internal.ts`. This metadata discrepancy
+is reported as `CONF-MINOR-001`; it does not alter the semantic classification
+above.
 
-## 6. Required behavior coverage
+## 6. Test and execution evidence
+
+The target was independently executed with these results:
+
+| Evidence | Result |
+|---|---|
+| `node --experimental-strip-types --test tests/exec-001-ticket-001.test.ts` | PASS, 20/20 |
+| `npm test` | PASS, 25/25 repository workflow tests |
+| Focused strict `tsc` over the six touched production modules, composition root and ticket test | PASS |
+| `npm run typecheck` | PASS; package script scope is `.pi/extensions/**/*.ts`, not the ticket source |
+
+The focused suite directly exercises valid pairs, schema identity, invalid and
+text-only inputs, missing fields, no-success/no-effect failure semantics,
+caller-selected/custom schema rejection, evidence integrity, immutable values,
+non-JSON/inherited values, and the generic delegation consumer boundary. The
+focused and repository suites were green, but the authority-bypass finding in
+§11 is not covered by the current negative witnesses.
+
+## 7. Required behavior coverage
 
 | Required behavior | Repository evidence | Result |
 |---|---|---|
-| Both envelope and payload use ticket-owned identifiable schemas before normal validation | `src/domain/exec-schema.ts:80-131` defines frozen `$id`/`$schema` documents; `src/application/exec-contract.ts:98-125` validates both; `tests/exec-001-ticket-001.test.ts` valid/custom-schema/invalid witnesses. A caller-importable evidence issuer bypasses the proof boundary; see `CONF-MAJOR-001`. | `IMPLEMENTED_WITH_SCOPE_LEAKAGE` |
-| Minimum envelope and payload fields are structured and required | Schema required arrays at `src/domain/exec-schema.ts:101-130`; domain construction at `src/domain/exec-contract.ts:365-383,426-431`; missing-field tests pass. | `IMPLEMENTED` |
-| Human text cannot provide omitted authority | `humanText` is not consumed by `ValidateExecContract`; text-only and missing-field tests return invalid. | `IMPLEMENTED` |
-| Invalid input returns `CONTRACT_INVALID` without approval, checkpoint, effect, or partial pair | `src/application/exec-contract.ts:105-128`; failure flags at `src/domain/exec-contract.ts:489-511`; direct tests cover text-only, missing-field, one-side-invalid, malformed result and thrown adapter cases. | `IMPLEMENTED` |
-| Valid input is consumed as immutable structured values | `ValidatedExecContract` and frozen value objects at `src/domain/exec-contract.ts:461-486`; focused test verifies structured fields and immutability. | `IMPLEMENTED_WITH_SCOPE_LEAKAGE` |
+| Valid envelope/payload pair is accepted only after both identifiable schemas validate | `src/application/exec-contract.ts:98-122` invokes both definitions and requires validation evidence; normal composition path is covered by the 20 focused tests | `IMPLEMENTED_WITH_SCOPE_LEAKAGE` |
+| Required structured envelope fields are enforced | `src/domain/exec-schema.ts` declares all required fields; canonical adapter rejects missing/inherited fields; direct missing-field tests pass | `IMPLEMENTED_WITH_SCOPE_LEAKAGE` |
+| Missing/text-only input returns `CONTRACT_INVALID` with no success/approval/checkpoint/effect | `ContractInvalidFailure` exposes the three negative signals; direct negative tests pass | `IMPLEMENTED_WITH_SCOPE_LEAKAGE` |
+| Valid input is consumed as a complete immutable structured pair and text is non-authoritative | `ValidatedExecContract`, immutable value construction and structured-consumption evidence; direct tests pass | `IMPLEMENTED_WITH_SCOPE_LEAKAGE` |
 
-## 7. Gap closure
+The common residual is not a failure of the default composition path. It is an
+alternate caller-reachable evidence path that can bypass the required schema
+authority, described in `CONF-CRITICAL-001`.
+
+## 8. Gap closure
 
 | Gap | Validated Delta | Implementation Evidence | Residual | Result |
 |---|---|---|---|---|
-| `GAP-001` | Productive identifiable envelope/payload schemas, required structured fields, and local validation boundary were absent. | `src/domain/exec-schema.ts:61-131`; `src/infrastructure/exec-schema-validator.ts:53-93`; `src/application/exec-contract.ts:93-129`; focused test 20/20; four evidence files. | `recordCanonicalValidationEvidence` is exported from `src/domain/exec-validation-evidence-internal.ts:21-38` and accepts any object satisfying a caller-controlled `hasValidated` method. A caller can mint accepted evidence without running the JSON Schema adapter. | `GAP_CLOSED_WITH_NEW_CONTRADICTION` |
+| `GAP-001` | Productive identifiable envelope/payload schemas, required structured fields, pair validation and fail-closed result were added | `src/domain/exec-schema.ts`, `src/infrastructure/exec-schema-validator.ts`, `src/application/exec-contract.ts`, focused tests and four evidence files | `recordCanonicalValidationEvidence` is exported from an importable production module and trusts any structural `SchemaValidationAdapterReceipt`; a caller can mint issued evidence without JSON Schema execution and reach the value constructors | `GAP_PARTIALLY_CLOSED` |
 
-```text
-GAPS_REFERENCED = 1
-GAPS_CLOSED = 1 (one with a new contradiction)
-GAPS_FULLY_CONFORMANT = 0
-```
-
-## 8. Requirement conformance
+## 9. Requirement conformance
 
 | Requirement | Required behavior | Evidence | Result |
 |---|---|---|---|
-| `EXEC-ENVELOPE-001` | Both identifiable envelope and payload schemas validate before contract consumption; human text is non-authoritative. | Normal composition validates both sides and rejects text/custom/invalid input. However, the exported evidence issuer permits direct contract construction without an actual adapter validation. | `PARTIAL` |
-| `EXEC-ENVELOPE-002` | Required structured execution/result fields cannot be omitted or inferred from text. | Required schema lists, domain constructors, `CONTRACT_INVALID` failure, and focused missing-field/text tests. | `CONFORMANT` |
+| `EXEC-ENVELOPE-001` | Both envelope and payload must validate against identifiable schemas before contract consumption; text is non-authoritative | Canonical definitions and adapter enforce this on the normal composition path; `src/domain/exec-validation-evidence-internal.ts:11-27` exposes a caller-reachable structural receipt/evidence issuer that bypasses actual schema execution | `PARTIAL` |
+| `EXEC-ENVELOPE-002` | All minimum execution/result fields must be structured and cannot be inferred from text | Canonical schema `required` list and direct missing/inherited-field tests pass; the forged-evidence path can produce `VALID` from an input with only schema identity fields own/enumerable and the remaining fields inherited, while `structured` contains only the own schema fields | `PARTIAL` |
 
-## 9. Acceptance criteria
+## 10. Acceptance criteria
 
 | Acceptance | Objective evidence | Result |
 |---|---|---|
-| `AC-EXEC-001` | Valid identifiable pair passes the compiled adapter and returns structured values; text-only, invalid, custom, and unproven adapter cases fail in the application boundary. Direct exported evidence minting remains an untested alternate authority path. | `PARTIALLY_SATISFIED` |
-| `AC-EXEC-002` | Missing fields, malformed values, inherited fields, one-side-invalid input, and text-only input return `CONTRACT_INVALID`; no approval/checkpoint/effect flags or partial pair are exposed. Focused test passes. | `SATISFIED` |
+| `AC-EXEC-001` | A valid pair passes the canonical identifiable JSON Schemas and text-only input fails in the default composition path. However, an untrusted port can call the exported evidence recorder with `hasValidated: () => true` and return issued evidence without running a schema validator | `PARTIALLY_SATISFIED` |
+| `AC-EXEC-002` | Canonical missing-field input returns immutable `CONTRACT_INVALID` with `noApproval`, `noCheckpoint` and `noEffect`. The same boundary accepts a raw envelope missing its required own fields when forged evidence is supplied and values are inherited, so the result is not universally fail-closed | `PARTIALLY_SATISFIED` |
 
-## 10. Acceptance obligations
+## 11. Acceptance obligations
 
-| Acceptance | Implementation Evidence | Supporting Test Evidence | Result |
+| Acceptance | Implementation evidence | Supporting test evidence | Result |
 |---|---|---|---|
-| `AC-EXEC-001` — envelope and payload are schema-validatable | Frozen identifiable documents, canonical definition identity checks, paired application validation. | `tests/exec-001-ticket-001.test.ts`, focused 20/20; no test exercises `recordCanonicalValidationEvidence` with a fake receipt. | `PARTIAL` |
-| `AC-EXEC-001` — valid input is consumed as a structured contract | Immutable `ValidatedExecContract`, typed envelope/payload values, no `humanText` authority. | Valid pair, structured consumption, immutability, and generic-consumer regression witnesses pass. | `PARTIAL` |
-| `AC-EXEC-002` — minimum structured fields are required | Schema `required` arrays and domain required-field constructors. | Missing `functionalVerdict`, inherited required fields, malformed values, and text-only tests pass. | `DIRECTLY_CONFORMANT` |
-| `AC-EXEC-002` — invalid contract fails closed | Canonical `CONTRACT_INVALID`, `noApproval`, `noCheckpoint`, `noEffect`, and no partial result. | Negative and thrown/malformed-adapter tests pass 20/20. | `DIRECTLY_CONFORMANT` |
+| `AC-EXEC-001` | `ExecContractSchemaDefinitions` owns the identifiable definitions and the default composition path validates both sides; the evidence issuer/receipt boundary remains caller-mintable | 20/20 focused tests, including valid pair, text-only rejection, custom-schema rejection and structured consumption; no test rejects a forged issued receipt | `PARTIAL` |
+| `AC-EXEC-002` | The normal adapter rejects missing fields and the failure result is fail-closed, but an alternate forged-evidence route can construct a consumable value from non-own/inherited required fields | 20/20 focused tests cover canonical missing-field, inherited-field, one-side-invalid and no-effect cases; they do not cover a forged receipt produced through the exported recorder | `PARTIAL` |
 
-## 11. Completion evidence
+## 12. Completion evidence
 
-| Required item | Evidence | Classification |
+| Required completion-evidence item | Repository evidence | Classification |
 |---|---|---|
-| Production code | Six productive source files listed in the scope ledger; direct source inspection and focused typecheck. | `PRESENT_AND_VERIFIED` |
-| Automated tests | `node --experimental-strip-types --test tests/exec-001-ticket-001.test.ts` = 20/20; `npm test` = 25/25; explicit strict source typecheck passes. | `PRESENT_AND_VERIFIED` |
-| Local completion evidence | Four file-addressed evidence files exist and identify the production boundary, negative assertions and focused execution. Their focused count matches the current 20/20 run. | `PRESENT_AND_VERIFIED` |
-| Integration/contract contribution evidence | The focused suite includes the generic delegation consumer regression; it demonstrates text-only output is not promoted to canonical completion/effects. | `PRESENT_AND_VERIFIED` |
-| Legacy transition evidence | Ticket declares `NEW_CANONICAL_PATH` and no legacy EXEC authority. | `NOT_APPLICABLE` |
-| Conformance evidence | Independent audit artifacts are present, but the ticket's own execution record overstates current acceptance and file evidence, and this audit identifies an open major conformance defect. | `PRESENT_BUT_WEAK` |
+| Production code | Six productive `src` modules are present and exercised by the focused suite | `PRESENT_AND_VERIFIED` |
+| Automated tests | `tests/exec-001-ticket-001.test.ts`; focused run PASS 20/20 | `PRESENT_AND_VERIFIED` |
+| AC-EXEC-001 envelope/schema evidence | `evidence/TICKET-001/AC-EXEC-001-envelope-schema.md`; schema identity, direct witnesses and current 20/20 result are recorded | `PRESENT_AND_VERIFIED` |
+| AC-EXEC-001 structured-consumption evidence | `evidence/TICKET-001/AC-EXEC-001-structured-consumption.md`; structured result and non-authority claims are recorded | `PRESENT_AND_VERIFIED` |
+| AC-EXEC-002 required-field evidence | `evidence/TICKET-001/AC-EXEC-002-required-fields.md`; negative assertions and current focused result are recorded | `PRESENT_AND_VERIFIED` |
+| AC-EXEC-002 fail-closed evidence | `evidence/TICKET-001/AC-EXEC-002-fail-closed.md`; no-success/no-effect assertions and current focused result are recorded | `PRESENT_AND_VERIFIED` |
+| Integration evidence as contract contribution | Generic delegation consumer regression is executed in the focused ticket suite; no downstream productive capability is claimed | `PRESENT_AND_VERIFIED` |
+| Legacy transition evidence | Ticket declares `NEW_CANONICAL_PATH` and no legacy EXEC authority; no transition applies | `NOT_APPLICABLE` |
+| Conformance evidence | This specialist artifact records the complete ticket-scoped conformance evaluation | `PRESENT_AND_VERIFIED` |
+| Persisted ticket execution metrics and changed-file record | Ticket §27 reports 17/17 focused and 23/23 repository tests and seven touched production files, while the target runs 20/20 and 25/25 and has six touched production files | `PRESENT_BUT_WEAK` |
 
 ```text
-COMPLETION_EVIDENCE_REQUIRED = 5 (excluding NOT_APPLICABLE legacy evidence)
-COMPLETION_EVIDENCE_VERIFIED = 4
+COMPLETION_EVIDENCE_REQUIRED = 10
+COMPLETION_EVIDENCE_VERIFIED = 9
 COMPLETION_EVIDENCE_MISSING = 0
-COMPLETION_EVIDENCE_WEAK = 1
 ```
 
-The ticket execution record claims 17 focused tests and 23 repository tests, while the current target executes 20 and 25 respectively. The current evidence files and direct execution are the authoritative observations; the stale claim is recorded as a minor documentation finding.
-
-## 12. Scope creep
-
-Result: `UNAUTHORIZED_SCOPE_EXPANSION = NO`.
-
-The TypeBox dependency is isolated to the schema adapter. The additional evidence support, immutable values, composition root, generic consumer regression, and four evidence files are required or explicitly authorized. No registry, persistence, DOM lifecycle, transport, runtime/session, mapping, or foreign implementation was added.
-
-## 13. Status accuracy
+## 13. Scope creep and status accuracy
 
 ```text
-STATUS_RESULT = STATUS_CORRECT
-CURRENT_STATUS = VALIDATION_REQUIRED
+SCOPE_CREEP = NONE
+UNAUTHORIZED_SCOPE_EXPANSION = NO
+SPECULATIVE_FEATURE = NO
+FOREIGN_SCOPE_IMPLEMENTATION = NO
+NECESSARY_INTERNAL_REFACTOR = YES, limited to the validation-evidence boundary
+REQUIRED_SHARED_SUPPORT = NO
+
+STATUS_ACCURACY = STATUS_CORRECT
 STATUS_INCONSISTENT_WITH_REPOSITORY = NO
 STATUS_INCONSISTENT_WITH_AVAILABILITY = NO
 ```
 
-Implementation and local evidence exist, but independent validation is the next gate. The current status therefore must not be advanced to `DONE` or treated as approval.
+The implementation remains within EXEC envelope/payload contract ownership and
+does not implement registry, lifecycle, persistence, transport or downstream
+mapping behavior. The exported evidence recorder is an authority-boundary
+defect, not an unauthorized product feature.
 
-## 14. Findings
-
-### CONF-MAJOR-001 — Caller-importable evidence issuer bypasses schema validation authority
+## 14. Final-defense metrics
 
 ```text
-FINDING_ID = CONF-MAJOR-001
+CALLER_SUPPLIED_AUTHORITY_BYPASS = YES
+TEMPORAL_AUTHORITY_GAP = NO
+AUTHORITY_CONSUMPTION_GAP = YES (validation evidence can be minted by an untrusted receipt)
+ALTERNATE_AUTHORITY_INTRODUCED = YES
+REPOSITORY_SEMANTIC_AUTHORITY = NO
+INVENTED_LIFECYCLE_OR_IDENTITY_OR_PROVENANCE = NO
+```
+
+## 15. Findings
+
+### CONF-CRITICAL-001 — Caller-mintable validation evidence bypasses schema authority
+
+```text
 FINDING_STATUS = OPEN
-SEVERITY = MAJOR
+SEVERITY = CRITICAL
 TICKET = EXEC-001-TICKET-001
 GAP_IDS = GAP-001
-REQUIREMENT_IDS = EXEC-ENVELOPE-001
-ACCEPTANCE_IDS = AC-EXEC-001
-NORMATIVE_AUTHORITY = ADR-0003 Decision; SPEC-EXEC-001 EXEC-ENVELOPE-001; ticket §§9, 15, 16, 18; approved design §§7, 13, 17, 20
-FINDING_CATEGORY = CONTRACT_VALIDATION_AUTHORITY_BYPASS
-CAPABILITY = UNIT-EXEC-SCHEMA-HARNESS / canonical schema-validation evidence
+REQUIREMENT_IDS = EXEC-ENVELOPE-001, EXEC-ENVELOPE-002
+ACCEPTANCE_IDS = AC-EXEC-001, AC-EXEC-002
+FINDING_CATEGORY = ALTERNATE_AUTHORITY_INTRODUCED
+CAPABILITY = UNIT-EXEC-SCHEMA-HARNESS
 DEPENDENCY_CLASS = INFORMATIONAL
 LOCAL_CLOSURE_BLOCKING = YES
 LOCAL_ACCEPTANCE_REQUIRES_PRODUCTIVE_CAPABILITY = NO
@@ -259,46 +309,84 @@ CLOSURE_OWNERSHIP = LOCAL_TICKET
 COMPLETION_EVIDENCE_TIMING = LOCAL_CLOSURE
 DEPENDENCY_CLASS_RECLASSIFICATION_REQUIRED = NO
 UPSTREAM_DEPENDENCY_CLASSIFICATION_PRESERVED = YES
-BLOCKS_LOCAL_EXECUTION = YES (suggested effect; acceptance-owned validation witness is not authoritative)
-BLOCKS_LOCAL_CLOSURE = YES (suggested effect)
-BLOCKS_TICKET_DONE = YES (suggested effect)
-BLOCKS_INTEGRATED_PROOF = YES (suggested effect)
-BLOCKS_SPEC_FINAL_CONFORMANCE = YES (suggested effect)
+SUGGESTED_BLOCKS_LOCAL_EXECUTION = NO
+SUGGESTED_BLOCKS_LOCAL_CLOSURE = YES
+SUGGESTED_BLOCKS_TICKET_DONE = YES
+SUGGESTED_BLOCKS_INTEGRATED_PROOF = YES
+SUGGESTED_BLOCKS_SPEC_FINAL_CONFORMANCE = YES
 PRIMARY_ROUTE = IMPLEMENTATION_REMEDIATION
-DOWNSTREAM_CHECKPOINT = local ticket closure and later integrated contract conformance
-DOWNSTREAM_OWNER = EXEC-001 ticket owner / canonical conformance checkpoint
-SYSTEMIC_PATTERN = NO
+DOWNSTREAM_CHECKPOINT = LOCAL_TICKET_CLOSURE
+DOWNSTREAM_OWNER = EXEC-001-TICKET-001
+SYSTEMIC_PATTERN = YES
 ```
 
-**Repository evidence.** `src/domain/exec-validation-evidence-internal.ts:21-38` exports `recordCanonicalValidationEvidence` and only checks the caller-provided `adapter.hasValidated(...)` result at line 26. The domain factory accepts any evidence object issued into its private `WeakSet` at `src/domain/exec-contract.ts:309-324,389-410`. The following independent execution against the pinned target succeeded without invoking `JsonSchemaExecValidator.validate`:
+**Normative authority.** ADR-0003 Decision requires JSON output validated by
+JSON Schema and makes human text non-authoritative. Portfolio `O-016`,
+`EXEC-ENVELOPE-001`, `EXEC-ENVELOPE-002`, `AC-EXEC-001` and `AC-EXEC-002`
+require identifiable schema validation and structured minimum fields before
+consumption.
+
+**Repository evidence.**
+
+- `src/domain/exec-validation-evidence-internal.ts:11-13` defines
+  `SchemaValidationAdapterReceipt` structurally as a single public
+  `hasValidated` method.
+- `src/domain/exec-validation-evidence-internal.ts:21-37` exports
+  `recordCanonicalValidationEvidence` and issues a trusted WeakSet-marked
+  evidence object whenever that structural method returns `true`. No private
+  adapter capability or canonical adapter identity is required.
+- `src/application/exec-contract.ts:98-122` accepts any injected
+  `ExecSchemaValidationPort` result carrying that evidence and passes the raw
+  input to the validated value constructors.
+- `src/domain/exec-contract.ts:314-324` checks only that the evidence was
+  issued, references the same object and canonical schema reference, and has
+  the expected shape; it cannot establish that JSON Schema execution occurred.
+- A direct runtime probe against the target imported the exported recorder,
+  supplied `{ hasValidated: () => true }`, returned issued evidence from an
+  always-true validation port, and reached `VALID` without a JSON Schema
+  execution. A stronger probe supplied an envelope with only own
+  `schemaId`/`schemaVersion`, inherited the other fields from
+  `Object.prototype`, and reached `VALID`; the returned `structured` object
+  contained only the two own schema fields. The canonical adapter correctly
+  rejects the same inherited-field input, so this is an alternate authority
+  route rather than an expected schema behavior.
+
+**Problem.** The implementation's normal composition root uses the TypeBox
+adapter, but the public module graph still permits a caller or alternate
+consumer to mint the evidence that the domain treats as proof of successful
+schema validation. Exact object/reference identity does not prove exact schema
+validation or complete own structured content.
+
+**Impact.** Both envelope and payload can be consumed as a validated contract
+without the required identifiable schema execution. Missing minimum structured
+fields can therefore escape fail-closed rejection through the injected-port
+route. This contradicts the canonical validation authority and invalidates the
+local acceptance contract despite green ordinary-path tests.
+
+**Minimum correction required.** Make evidence issuance reachable only through
+an unforgeable private adapter capability (or equivalent canonical adapter
+identity/content-bound receipt); do not expose a structurally satisfiable
+issuer to callers. Ensure the application cannot accept an issued receipt from
+an untrusted port, and add a direct regression witness for forged evidence and
+missing own required fields. Re-run both acceptance evidence files and the
+focused suite. This is implementation remediation within the existing ticket
+scope; no authority or dependency-class reclassification is required.
 
 ```text
-const fake = { hasValidated: () => true }
-const evidence = recordCanonicalValidationEvidence(fake, envelope, canonicalEnvelopeReference)
-StructuredExecutionEnvelope.create(envelope, canonicalEnvelopeReference, evidence)
-=> FORGED e
+OPEN_INTEGRATED_FINDING_TRACEABILITY = NOT_APPLICABLE (local ticket finding)
+LOCAL_TICKET_DONE_ALLOWED = NO while this local closure obligation remains open
 ```
 
-The public test only checks absence of the former names `issueSchemaValidationEvidence` and `registerSchemaValidationAdapter` (`tests/exec-001-ticket-001.test.ts:239-245`); it does not check that the currently exported `recordCanonicalValidationEvidence` cannot be called by a fake receipt.
-
-**Problem.** A caller can manufacture an evidence token that the domain treats as successful canonical validation. This contradicts the ticket/design requirement that schema evidence is tied to an actual successful canonical adapter execution and permits a second authority path around the registered JSON Schema validator.
-
-**Impact.** `EXEC-ENVELOPE-001` is only partial: a structured value can be consumed without both registered schemas having validated it. The local acceptance witness and downstream consumers cannot rely on the evidence token as proof of schema validation.
-
-**Minimum correction required.** Keep evidence issuance inaccessible to callers or make it unforgeably bound to the canonical adapter implementation while retaining only the authorized substitutable validation seam; add a direct regression proving a caller-controlled receipt cannot mint evidence. Do not solve by changing the ticket's acceptance scope or dependency classification.
-
-### CONF-MINOR-001 — Ticket execution record has stale file and test-count claims
+### CONF-MINOR-001 — Persisted execution record is stale/inexact
 
 ```text
-FINDING_ID = CONF-MINOR-001
 FINDING_STATUS = OPEN
 SEVERITY = MINOR
 TICKET = EXEC-001-TICKET-001
 GAP_IDS = GAP-001
 REQUIREMENT_IDS = EXEC-ENVELOPE-001, EXEC-ENVELOPE-002
 ACCEPTANCE_IDS = AC-EXEC-001, AC-EXEC-002
-NORMATIVE_AUTHORITY = Ticket §§19, 20, 27
-FINDING_CATEGORY = COMPLETION_EVIDENCE_TRACEABILITY_DEFECT
+FINDING_CATEGORY = COMPLETION_EVIDENCE_TRACEABILITY
 CAPABILITY = UNIT-EXEC-SCHEMA-HARNESS
 DEPENDENCY_CLASS = INFORMATIONAL
 LOCAL_CLOSURE_BLOCKING = NO
@@ -307,85 +395,84 @@ CLOSURE_OWNERSHIP = LOCAL_TICKET
 COMPLETION_EVIDENCE_TIMING = LOCAL_CLOSURE
 DEPENDENCY_CLASS_RECLASSIFICATION_REQUIRED = NO
 UPSTREAM_DEPENDENCY_CLASSIFICATION_PRESERVED = YES
-BLOCKS_LOCAL_EXECUTION = NO
-BLOCKS_LOCAL_CLOSURE = NO
-BLOCKS_TICKET_DONE = NO
-BLOCKS_INTEGRATED_PROOF = NO
-BLOCKS_SPEC_FINAL_CONFORMANCE = NO
-PRIMARY_ROUTE = TICKET_ARTIFACT_RECONCILIATION
-DOWNSTREAM_CHECKPOINT = independent ticket re-audit
-DOWNSTREAM_OWNER = ticket owner / conformance auditor
-SYSTEMIC_PATTERN = NO
+SUGGESTED_BLOCKS_LOCAL_EXECUTION = NO
+SUGGESTED_BLOCKS_LOCAL_CLOSURE = NO
+SUGGESTED_BLOCKS_TICKET_DONE = NO
+SUGGESTED_BLOCKS_INTEGRATED_PROOF = NO
+SUGGESTED_BLOCKS_SPEC_FINAL_CONFORMANCE = NO
+PRIMARY_ROUTE = IMPLEMENTATION_REMEDIATION
+DOWNSTREAM_CHECKPOINT = LOCAL_TICKET_CLOSURE
+DOWNSTREAM_OWNER = EXEC-001-TICKET-001
+SYSTEMIC_PATTERN = YES
 ```
 
-**Repository evidence.** Ticket §27 lists nonexistent `src/domain/exec-validation-authority.ts` and `src/domain/exec-validation-authority-internal.ts` instead of the actual `src/domain/exec-validation-evidence-internal.ts`. It claims focused 17/17 and repository 23/23 at lines 247-252. Direct execution at the pinned target produced focused 20/20 and repository 25/25; the current four evidence files also report 20/20. The actual implementation and tests are present, so this is a localized evidence/index defect rather than a missing implementation.
+**Normative authority.** Ticket §19 requires file-addressed validation and test
+execution evidence; ticket §27's changed-file and execution record is the
+implementation claim subject to repository verification.
 
-**Minimum correction required.** Reconcile the ticket execution record with the actual file paths and target test counts. No production scope change is required.
+**Repository evidence.** The ticket lists absent
+`src/domain/exec-validation-authority.ts` and
+`src/domain/exec-validation-authority-internal.ts`, omits the actual
+`src/domain/exec-validation-evidence-internal.ts`, and claims seven touched
+production files. The target contains six touched production files. The ticket
+claims 17/17 focused tests, 23/23 repository tests and 40 total; independent
+execution produced 20/20, 25/25 and 45 total. The evidence files have the
+current 20/20 result, so the underlying execution obligation is present but the
+persisted ticket record is not exact.
 
-## 15. Specialist summary
+**Impact.** Downstream audit readers cannot rely on the ticket's changed-file
+and test-count claims without reconciliation. This is a localized evidence and
+traceability defect; it does not hide the independently verified pass/fail
+result.
+
+**Minimum correction required.** Reconcile the ticket execution record with
+the target's actual 11 semantic changed files, six production files, test
+commands and observed counts. No production behavior change is required for
+this minor finding.
+
+## 16. Specialist summary
 
 ```text
-TRACEABILITY = TRACEABILITY_CONFORMANT
-EXECUTION_ELIGIBILITY = EXECUTION_ELIGIBILITY_CONFIRMED
-GAP_RESULT = GAP_CLOSED_WITH_NEW_CONTRADICTION
-REQUIREMENT_RESULTS = PARTIAL=1, CONFORMANT=1
-ACCEPTANCE_RESULTS = PARTIALLY_SATISFIED=1, SATISFIED=1
-ACCEPTANCE_OBLIGATION_RESULTS = PARTIAL=2, DIRECTLY_CONFORMANT=2
-UNAUTHORIZED_SCOPE_EXPANSION = NO
-STATUS_ACCURACY = STATUS_CORRECT
-INTEGRATED_ONLY_AVAILABILITY_BLOCKING_LOCAL_DONE = 0
-LOCAL_CLOSURE_FINDINGS_NOT_BLOCKING_DONE = 0
-FINDING_SEVERITY_USED_AS_SOLE_COMPLETION_GATE = 0
-OPEN_INTEGRATED_FINDING_LOST_FROM_TRACEABILITY = 0
-SPECIALIST_CANNOT_SILENTLY_PROMOTE_INTEGRATED_DEPENDENCY_TO_LOCAL_BLOCKER = TRUE
-CONSOLIDATOR_CANNOT_DERIVE_LOCAL_BLOCKING_FROM_SEVERITY_ALONE = TRUE
-LOCAL_DONE_GATE_USES_LOCAL_CLOSURE_SCOPE = TRUE
-INTEGRATED_PROOF_GATE_USES_INTEGRATED_DEPENDENCY_SCOPE = TRUE
-```
-
-The local dependency classification is preserved. `CONF-MAJOR-001` is a local behavioral/authority defect, not an unavailable integrated capability; it is therefore suggested as a local closure blocker. This specialist does not assign canonical consolidation gates.
-
-Audit completeness: all applicable phases ran; authority links, eligibility, scope, behavior, Gap, requirements, acceptance criteria, obligations, completion evidence, scope creep, status, and repository tests were evaluated. No remediation or state transition was performed.
-
-Audit: `docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-ticket-conformance-audit.md`
+Audit: docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-ticket-conformance-audit.md
 
 Specialist:
-`TICKET_CONFORMANCE`
+TICKET_CONFORMANCE
 
-Ticket: `EXEC-001-TICKET-001`
+Ticket: EXEC-001-TICKET-001
 
-Changed files: `11`
+Changed files: 11
 
-Gaps: `1`
+Gaps: 1
 
-Gaps closed: `1` (with a new contradiction)
+Gaps closed: 0
 
-Requirements: `2`
+Requirements: 2
 
-Requirements conformant: `1`
+Requirements conformant: 0
 
-Acceptance criteria: `2`
+Acceptance criteria: 2
 
-Acceptance criteria satisfied: `1`
+Acceptance criteria satisfied: 0
 
-Completion evidence missing: `0`
+Completion evidence missing: 0
 
 Unauthorized scope expansion:
-`NO`
+NO
 
 Findings:
-`CRITICAL=0`
-`MAJOR=1`
-`MINOR=1`
-`INFO=0`
+CRITICAL=1
+MAJOR=0
+MINOR=1
+INFO=0
 
 Domain audit complete:
-`YES`
+YES
 
 Specialist result:
-`SPECIALIST_CONFORMANCE_FINDINGS`
+SPECIALIST_CONFORMANCE_FINDINGS
+```
 
-AUDIT_TARGET_HEAD: e83bc09150f9b0d7b7f4c26434926578723fef1a
-AUDIT_TARGET_STATE_FINGERPRINT: 7f68eea870da956f4d8552cb155a9cc5bcfb38c048fe2f494f12f2fbdfbbba79
+AUDIT_TARGET_HEAD: 71d73d96d7df69513894736214aa0a36d53a7736
+AUDIT_TARGET_STATE_FINGERPRINT: 73f7214519ab58d119929dfcd35b539caf2a81361fdf5a17333240cd748d4c03
 DOMAIN_AUDIT_COMPLETE: YES
 SPECIALIST_RESULT: SPECIALIST_CONFORMANCE_FINDINGS
