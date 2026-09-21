@@ -242,6 +242,7 @@ test('does not expose caller-mintable validation authority through the domain bo
   const validationEvidenceModule = await import('../src/domain/exec-validation-evidence-internal.ts')
   assert.equal('issueSchemaValidationEvidence' in validationEvidenceModule, false)
   assert.equal('registerSchemaValidationAdapter' in validationEvidenceModule, false)
+  assert.equal('recordCanonicalValidationEvidence' in validationEvidenceModule, false)
 
   const definitions = new ExecContractSchemaDefinitions()
   const adapter = new JsonSchemaExecValidator()

@@ -28,6 +28,8 @@ export interface SchemaValidationEvidence {
   readonly issues: readonly string[]
   readonly validatedInput: object
   readonly schemaReference: SchemaReference
+  /** Adapter-private runtime brand check; not an enumerable evidence field. */
+  readonly isCanonicalEvidence?: () => boolean
 }
 
 export class ExecContractDomainError extends Error {

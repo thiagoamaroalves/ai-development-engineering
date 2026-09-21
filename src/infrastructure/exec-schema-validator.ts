@@ -1,16 +1,15 @@
 import { Compile, type Validator } from 'typebox/compile'
-import {
-  recordCanonicalValidationEvidence,
-  type SchemaValidationAdapterReceipt,
-} from '../domain/exec-validation-evidence-internal.ts'
+import type { TSchema } from 'typebox'
 import {
   isCanonicalExecSchemaDefinition,
   type ExecSchemaDefinition,
   type ExecSchemaValidationPort,
   type SchemaValidationResult,
 } from '../domain/exec-schema.ts'
-import type { TSchema } from 'typebox'
-import type { SchemaReference } from '../domain/exec-contract.ts'
+import type {
+  SchemaReference,
+  SchemaValidationEvidence,
+} from '../domain/exec-contract.ts'
 
 function issue(message: string): SchemaValidationResult {
   return Object.freeze({ valid: false, issues: Object.freeze([message]) })
@@ -24,6 +23,52 @@ function hasOwnEnumerableRequiredFields(schema: ExecSchemaDefinition, value: unk
 }
 
 /**
+ * Evidence is created only by this adapter after the compiled schema engine
+ * has accepted the exact input/reference pair. The private brand prevents a
+ * caller from manufacturing an object that merely has the public evidence
+ * shape; the domain-side guard can verify the instance without importing
+ * infrastructure or schema-library concerns.
+ */
+const EVIDENCE_CONSTRUCTION_TOKEN = {}
+
+class CanonicalSchemaValidationEvidence implements SchemaValidationEvidence {
+  readonly valid = true as const
+  readonly issues = Object.freeze([] as readonly string[])
+  readonly validatedInput: object
+  readonly schemaReference: SchemaReference
+  #brand: object
+
+  constructor(
+    validatedInput: object,
+    schemaReference: SchemaReference,
+    token: object,
+  ) {
+    if (token !== EVIDENCE_CONSTRUCTION_TOKEN) {
+      throw new Error('Canonical validation evidence construction is restricted to the schema adapter.')
+    }
+    this.validatedInput = validatedInput
+    this.schemaReference = schemaReference
+    this.#brand = EVIDENCE_CONSTRUCTION_TOKEN
+    Object.freeze(this)
+  }
+
+  isCanonicalEvidence(): boolean {
+    return this.#brand === EVIDENCE_CONSTRUCTION_TOKEN
+  }
+}
+
+function issueCanonicalEvidence(
+  validatedInput: object,
+  schemaReference: SchemaReference,
+): SchemaValidationEvidence {
+  return new CanonicalSchemaValidationEvidence(
+    validatedInput,
+    schemaReference,
+    EVIDENCE_CONSTRUCTION_TOKEN,
+  )
+}
+
+/**
  * Adapter around a JSON Schema 2020-12 compiler. Schema vocabulary and
  * contract ownership stay with ExecSchemaDefinition; this adapter only
  * translates engine results into the domain port result.
@@ -34,11 +79,11 @@ interface ValidationReceipt {
   readonly inputs: WeakSet<object>
 }
 
-export class JsonSchemaExecValidator implements ExecSchemaValidationPort, SchemaValidationAdapterReceipt {
+export class JsonSchemaExecValidator implements ExecSchemaValidationPort {
   private readonly compiled = new WeakMap<ExecSchemaDefinition, Validator>()
   private readonly validatedInputs = new WeakMap<SchemaReference, ValidationReceipt>()
 
-  hasValidated(schemaReference: SchemaReference, validatedInput: object): boolean {
+  private hasValidated(schemaReference: SchemaReference, validatedInput: object): boolean {
     const receipt = this.validatedInputs.get(schemaReference)
     if (!receipt?.inputs.has(validatedInput) || !hasOwnEnumerableRequiredFields(receipt.schema, validatedInput)) {
       return false
@@ -75,10 +120,13 @@ export class JsonSchemaExecValidator implements ExecSchemaValidationPort, Schema
         }
         receipt.inputs.add(validatedInput)
         this.validatedInputs.set(schema.reference, receipt)
+        if (!this.hasValidated(schema.reference, validatedInput)) {
+          return issue('Canonical schema validation evidence could not be established.')
+        }
         return Object.freeze({
           valid: true,
           issues: Object.freeze([]),
-          evidence: recordCanonicalValidationEvidence(this, validatedInput, schema.reference),
+          evidence: issueCanonicalEvidence(validatedInput, schema.reference),
         })
       }
       const issues = validator.Errors(value).map((error) => {
