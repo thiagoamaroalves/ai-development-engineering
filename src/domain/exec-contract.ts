@@ -20,16 +20,14 @@ const VALIDATED_PAYLOAD_INSTANCES = new WeakSet<object>()
 /**
  * Explicit evidence returned by the schema-validation port. The evidence is
  * tied to the exact canonical schema reference and input object that the port
- * validated. It is part of the substitutable port contract; no module-global
- * receipt ledger or adapter-registration side effect is required.
+ * validated. Issuance is an internal adapter handoff; domain recognition uses
+ * object identity rather than a caller-controlled prototype method.
  */
 export interface SchemaValidationEvidence {
   readonly valid: true
   readonly issues: readonly string[]
   readonly validatedInput: object
   readonly schemaReference: SchemaReference
-  /** Adapter-private runtime brand check; not an enumerable evidence field. */
-  readonly isCanonicalEvidence?: () => boolean
 }
 
 export class ExecContractDomainError extends Error {

@@ -249,6 +249,8 @@ test('does not expose caller-mintable validation authority through the domain bo
   const input = validInput()
   const validation = adapter.validate(definitions.envelope, input.envelope)
   assert.equal(validation.valid, true)
+  assert.ok(validation.evidence)
+  assert.equal('isCanonicalEvidence' in validation.evidence, false)
   ;(input.envelope as Record<string, unknown>).contractVersion = ' 1.0.0 '
   const postMutationValidation = adapter.validate(definitions.envelope, input.envelope)
   assert.equal(postMutationValidation.valid, false)
@@ -265,12 +267,25 @@ test('does not expose caller-mintable validation authority through the domain bo
 test('rejects forged evidence and runtime-created canonical-looking references', () => {
   const definitions = new ExecContractSchemaDefinitions()
   const input = validInput()
-  const forgedEvidence = (schema: SchemaReference, value: object) => ({
-    valid: true as const,
-    issues: [],
-    validatedInput: value,
-    schemaReference: schema,
-  })
+  const forgedEvidence = (schema: SchemaReference, value: object) => Object.assign(
+    Object.create({ isCanonicalEvidence: () => true }),
+    {
+      valid: true as const,
+      issues: [],
+      validatedInput: value,
+      schemaReference: schema,
+    },
+  )
+  const canonicalValidation = new JsonSchemaExecValidator().validate(
+    definitions.envelope,
+    input.envelope,
+  )
+  assert.equal(canonicalValidation.valid, true)
+  if (!canonicalValidation.valid || !canonicalValidation.evidence) return
+  const copiedEvidence = Object.assign(
+    Object.create(Object.getPrototypeOf(canonicalValidation.evidence)),
+    canonicalValidation.evidence,
+  )
 
   assert.throws(
     () => StructuredExecutionEnvelope.create(
@@ -285,6 +300,14 @@ test('rejects forged evidence and runtime-created canonical-looking references',
       input.payload as never,
       definitions.payload.reference,
       forgedEvidence(definitions.payload.reference, input.payload as object),
+    ),
+    /explicit successful schema validation evidence/,
+  )
+  assert.throws(
+    () => StructuredExecutionEnvelope.create(
+      input.envelope as never,
+      definitions.envelope.reference,
+      copiedEvidence,
     ),
     /explicit successful schema validation evidence/,
   )

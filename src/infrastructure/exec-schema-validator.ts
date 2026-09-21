@@ -6,6 +6,7 @@ import {
   type ExecSchemaValidationPort,
   type SchemaValidationResult,
 } from '../domain/exec-schema.ts'
+import { registerIssuedSchemaValidationEvidence } from '../domain/exec-validation-evidence-internal.ts'
 import type {
   SchemaReference,
   SchemaValidationEvidence,
@@ -24,10 +25,9 @@ function hasOwnEnumerableRequiredFields(schema: ExecSchemaDefinition, value: unk
 
 /**
  * Evidence is created only by this adapter after the compiled schema engine
- * has accepted the exact input/reference pair. The private brand prevents a
- * caller from manufacturing an object that merely has the public evidence
- * shape; the domain-side guard can verify the instance without importing
- * infrastructure or schema-library concerns.
+ * has accepted the exact input/reference pair. The domain handoff records the
+ * exact object identity in a WeakSet; a copied prototype or caller-defined
+ * verifier therefore cannot mint schema authority.
  */
 const EVIDENCE_CONSTRUCTION_TOKEN = {}
 
@@ -36,7 +36,6 @@ class CanonicalSchemaValidationEvidence implements SchemaValidationEvidence {
   readonly issues = Object.freeze([] as readonly string[])
   readonly validatedInput: object
   readonly schemaReference: SchemaReference
-  #brand: object
 
   constructor(
     validatedInput: object,
@@ -48,12 +47,7 @@ class CanonicalSchemaValidationEvidence implements SchemaValidationEvidence {
     }
     this.validatedInput = validatedInput
     this.schemaReference = schemaReference
-    this.#brand = EVIDENCE_CONSTRUCTION_TOKEN
     Object.freeze(this)
-  }
-
-  isCanonicalEvidence(): boolean {
-    return this.#brand === EVIDENCE_CONSTRUCTION_TOKEN
   }
 }
 
@@ -61,11 +55,13 @@ function issueCanonicalEvidence(
   validatedInput: object,
   schemaReference: SchemaReference,
 ): SchemaValidationEvidence {
-  return new CanonicalSchemaValidationEvidence(
+  const evidence = new CanonicalSchemaValidationEvidence(
     validatedInput,
     schemaReference,
     EVIDENCE_CONSTRUCTION_TOKEN,
   )
+  registerIssuedSchemaValidationEvidence(evidence)
+  return evidence
 }
 
 /**
