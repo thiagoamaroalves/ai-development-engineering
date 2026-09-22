@@ -240,9 +240,11 @@ test('does not expose caller-mintable validation authority through the domain bo
   assert.equal('registerExecValidationAuthority' in execContractDomain, false)
   assert.equal('recordExecSchemaValidation' in execContractDomain, false)
   const validationEvidenceModule = await import('../src/domain/exec-validation-evidence-internal.ts')
+  assert.equal('registerIssuedSchemaValidationEvidence' in validationEvidenceModule, false)
   assert.equal('issueSchemaValidationEvidence' in validationEvidenceModule, false)
   assert.equal('registerSchemaValidationAdapter' in validationEvidenceModule, false)
   assert.equal('recordCanonicalValidationEvidence' in validationEvidenceModule, false)
+  assert.equal('recordEvidenceAfterCanonicalValidation' in validationEvidenceModule, false)
 
   const definitions = new ExecContractSchemaDefinitions()
   const adapter = new JsonSchemaExecValidator()
@@ -250,7 +252,8 @@ test('does not expose caller-mintable validation authority through the domain bo
   const validation = adapter.validate(definitions.envelope, input.envelope)
   assert.equal(validation.valid, true)
   assert.ok(validation.evidence)
-  assert.equal('isCanonicalEvidence' in validation.evidence, false)
+  assert.equal(Object.prototype.hasOwnProperty.call(validation.evidence, 'isCanonicalEvidence'), false)
+  assert.equal(typeof (validation.evidence as { readonly isCanonicalEvidence?: unknown }).isCanonicalEvidence, 'function')
   ;(input.envelope as Record<string, unknown>).contractVersion = ' 1.0.0 '
   const postMutationValidation = adapter.validate(definitions.envelope, input.envelope)
   assert.equal(postMutationValidation.valid, false)

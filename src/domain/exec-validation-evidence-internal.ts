@@ -1,22 +1,24 @@
 import type { SchemaValidationEvidence } from './exec-contract.ts'
 
 /**
- * Issued evidence is tracked by object identity, not by a caller-controlled
- * prototype method.  A WeakSet deliberately makes a copied prototype,
- * lookalike receipt, or hostile verifier insufficient to establish provenance.
- *
- * The registration hook is an internal adapter handoff: the infrastructure
- * adapter calls it only after its schema engine and exact-input receipt checks
- * have succeeded.  Domain consumers can recognize a receipt but cannot mint
- * one by shaping an object or replacing a prototype method.
+ * Validation evidence is recognized through the adapter-owned evidence
+ * prototype and its private ECMAScript brand. The domain does not expose an
+ * issuer or mutable ledger: callers can copy fields or provide a hostile
+ * verifier, but neither produces the adapter's private brand.
  */
-const ISSUED_EVIDENCE = new WeakSet<object>()
-
-export function registerIssuedSchemaValidationEvidence(value: SchemaValidationEvidence): void {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return
-  ISSUED_EVIDENCE.add(value)
-}
-
 export function isIssuedSchemaValidationEvidence(value: unknown): value is SchemaValidationEvidence {
-  return Boolean(value && typeof value === 'object' && !Array.isArray(value) && ISSUED_EVIDENCE.has(value))
+  if (!value || typeof value !== 'object' || Array.isArray(value) || !Object.isFrozen(value)) return false
+
+  try {
+    const candidate = value as SchemaValidationEvidence & { readonly evidenceType?: unknown }
+    const evidenceType = candidate.evidenceType
+    if (typeof evidenceType !== 'function' || !evidenceType.prototype) return false
+    if (Object.getPrototypeOf(value) !== evidenceType.prototype) return false
+
+    const verifier = Object.getOwnPropertyDescriptor(evidenceType.prototype, 'isCanonicalEvidence')?.value
+    if (typeof verifier !== 'function') return false
+    return verifier.call(value) === true
+  } catch {
+    return false
+  }
 }

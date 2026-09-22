@@ -25,59 +25,54 @@ IMPLEMENTATION_UNIT = EXEC-IMP-01 — Envelope and schema contract
 IMPLEMENTATION_DESIGN_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design.md
 CANONICAL_AUDIT_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-audit.md
 AUDIT_ROUND = RE_AUDIT
-AUDIT_ROUND_NUMBER = 8
+AUDIT_ROUND_NUMBER = 9
 FROZEN_SCOPE = GAP-001; EXEC-ENVELOPE-001/002; AC-EXEC-001/002
 ```
 
 ## 3. Baseline Validation
 
 ```text
-PINNED_STARTING_HEAD = 7521bb01666b72e71490e0d6016162e490ce4a32
-AUDIT_HEAD = abaad147510b1dc670f92a52adecc44ce914c057
-REMEDIATION_START_HEAD = 7521bb01666b72e71490e0d6016162e490ce4a32
-CURRENT_HEAD = 7521bb01666b72e71490e0d6016162e490ce4a32
-AUDIT_TARGET_STATE_FINGERPRINT = cd087614cfd53496c8cdd404fdbec69b44e853851b0df13a2d624f83b752ec8f
-AUDIT_BASIS_FINGERPRINT = cd087614cfd53496c8cdd404fdbec69b44e853851b0df13a2d624f83b752ec8f
-BASELINE_DRIFT_STATUS = NO_DRIFT at remediation entry
-BASELINE_REMEDIATION_READINESS = READY
+PINNED_STARTING_HEAD = 1d76af345ac6c840f639c7fd861315f7cd2852a2
+AUDIT_HEAD = 2306d92defaf315c5b3daf7639164445fc5dc281
+REMEDIATION_START_HEAD = 1d76af345ac6c840f639c7fd861315f7cd2852a2
+CURRENT_HEAD = 1d76af345ac6c840f639c7fd861315f7cd2852a2
+AUDIT_TARGET_STATE_FINGERPRINT = badcdee7af12b3df3c97732d2eb79e8bb73d3b69f9b8c024ff06fbe154f113f9
+AUDIT_BASIS_FINGERPRINT = badcdee7af12b3df3c97732d2eb79e8bb73d3b69f9b8c024ff06fbe154f113f9
+BASELINE_DRIFT_STATUS = NO_DRIFT for semantic implementation state
+NON_SEMANTIC_DRIFT = AUDIT_ARTIFACT_ONLY (checkpoint overlay)
 REASSESSMENT_COMPLETE = YES
 FINDINGS_ARE_ACTIONABLE = YES
+BASELINE_REMEDIATION_READINESS = READY
 AUDIT_BASIS_STALE = YES after authorized remediation edits
-POST_REMEDIATION_STATE_FINGERPRINT = 9546fa916dfb179b594adaeaf5c0e976726898b8facf25f11e41fa45f56399aa
-POST_FINGERPRINT_SCOPE = three production files, ticket test and four acceptance-evidence files
+POST_REMEDIATION_STATE_FINGERPRINT = 02d347b128e77d67588f7d340346608258dc11cd43f59579c9cfd83f545b0f9d
+POST_FINGERPRINT_SCOPE = six productive source files, ticket test and four acceptance-evidence files
 ```
 
-The round-8 audit targeted `abaad14`; the round-8 audit checkpoint at the
-pinned starting HEAD changed only audit/checkpoint artifacts. The live semantic
-implementation state therefore matched the canonical audit basis before this
-remediation. The post-edit audit basis is intentionally stale and independent
-re-audit is mandatory.
-
-The post-remediation fingerprint is the SHA-256 of the sorted path/hash
-manifest for the three changed production files, the ticket test and four
-refreshed acceptance-evidence files. HEAD remained stable before and after the
-operation. No upstream authority, planning artifact, ticket contract, audit
-artifact, branch, commit, merge, push, publication or destructive repository
-operation was performed.
+Before editing, the semantic implementation and evidence surfaces at
+`REMEDIATION_START_HEAD` matched the round-9 audit target: the only
+`2306d92 → 1d76af3` changes were audit/checkpoint artifacts. Accepted ADR,
+portfolio, SPEC, Gap Matrix, Plan, ticket and approved design authority were
+re-read and unchanged. The post-edit fingerprint is intentionally different;
+independent re-audit is mandatory. No commit, upstream authority, planning
+artifact, ticket contract, audit artifact, branch, merge, push, publication or
+destructive repository operation was performed.
 
 ## 4. Canonical Findings Received
 
 | Finding | Severity | Blocks ticket done | Intake classification | Route | Result |
 |---|---:|---:|---|---|---|
-| IMA-MAJOR-001 | CRITICAL | YES | CONFIRMED; still present at intake; direct remediation regression | IMPLEMENTATION_REMEDIATION | VALIDATED_AND_REMEDIATED |
+| IMA-MAJOR-001 | CRITICAL | YES | CONFIRMED; still present at intake; remediation regression lineage | IMPLEMENTATION_REMEDIATION | VALIDATED_AND_REMEDIATED |
 | IMA-MINOR-001 | MINOR | NO | CONFIRMED; still present | TICKET_REVALIDATION | PRESERVED_OPEN_NON_BLOCKING |
 
 `IMA-MAJOR-001` consolidates `CONF-CRITICAL-001`, `BEH-CRITICAL-001`,
 `IDC-CRITICAL-001` and `ARCH-CRITICAL-001`. It covers GAP-001,
-EXEC-ENVELOPE-001/002 and AC-EXEC-001/002. The canonical defect was that
-`isIssuedSchemaValidationEvidence` trusted a caller-controlled prototype method,
-so forged evidence could reach both structured domain factories and the
-application boundary without schema-engine execution.
+EXEC-ENVELOPE-001/002 and AC-EXEC-001/002. The canonical defect was the
+caller-reachable evidence registrar, which let caller-created receipts enter
+the trusted ledger and bypass schema-engine execution.
 
 `IMA-MINOR-001` covers stale ticket changed-file and test-count bookkeeping.
-It is `BLOCKS_TICKET_DONE = NO` and remains on its canonical
-`TICKET_REVALIDATION` route. This remediation did not alter the ticket artifact
-or silently resolve that finding.
+It remains `BLOCKS_TICKET_DONE = NO` on its `TICKET_REVALIDATION` route. This
+remediation did not modify the ticket artifact or silently resolve it.
 
 ```text
 CANONICAL_FINDINGS_RECEIVED = 2
@@ -91,12 +86,12 @@ FINDINGS_ARE_ACTIONABLE = YES
 
 ```text
 ROOT_CAUSE_ID = RC-001
-ROOT_CAUSE_DESCRIPTION = Domain evidence recognition trusted a caller-controlled prototype method instead of an adapter-issued object identity, allowing a forged receipt to replace canonical schema execution.
+ROOT_CAUSE_DESCRIPTION = A caller-reachable registrar let arbitrary evidence objects enter the trusted validation ledger; domain consumption therefore trusted caller-issued proof instead of adapter-issued evidence.
 ROOT_CAUSE_CATEGORY = CANONICAL_AUTHORITY_VIOLATION / IDENTITY_LINEAGE / INVARIANT_PLACEMENT / DEPENDENCY_DIRECTION
 CANONICAL_FINDINGS = IMA-MAJOR-001
 AFFECTED_COMPONENTS = validation-evidence handoff; schema adapter; domain envelope/payload factories; application validation port
-AFFECTED_PATHS = src/domain/exec-validation-evidence-internal.ts; src/domain/exec-contract.ts; src/infrastructure/exec-schema-validator.ts; src/application/exec-contract.ts
-AFFECTED_TESTS = hostile-prototype evidence regression; forged/injected-port rejection; canonical adapter success; post-validation mutation; import-graph guard
+AFFECTED_PATHS = src/domain/exec-validation-evidence-internal.ts; src/domain/exec-contract.ts; src/infrastructure/exec-schema-validator.ts; src/application/exec-contract.ts; tests/exec-001-ticket-001.test.ts
+AFFECTED_TESTS = caller-registrar absence; hostile/copy evidence rejection; forged/injected-port rejection; canonical adapter success; post-validation mutation; import-graph guard
 DESIGN_BOUNDARIES_AFFECTED = infrastructure adapter → domain validation evidence → immutable value construction
 INVARIANTS_AFFECTED = only successful canonical schema validation of the exact input/reference pair can establish consumable proof
 DEPENDENCY_BOUNDARIES_AFFECTED = domain-facing validation port and infrastructure-only schema mechanics
@@ -106,7 +101,7 @@ DEPENDENCY_BOUNDARIES_AFFECTED = domain-facing validation port and infrastructur
 
 ```text
 WHERE_ELSE_CAN_THE_SAME_DEFECT_EXIST = checked
-MANIFESTATIONS_CHECKED = shared evidence predicate; envelope factory; payload factory; injected validation port; canonical adapter issuance; exact input/reference receipt; post-validation mutation; schema identity; application result aggregation; production import graph
+MANIFESTATIONS_CHECKED = evidence recognition; envelope factory; payload factory; injected validation port; canonical adapter issuance; exact input/reference receipt; post-validation mutation; schema identity; application result aggregation; production import graph
 MANIFESTATION_CLASSIFICATION = all checked locations are ALREADY_COVERED_BY_CANONICAL_FINDING or SAME_ROOT_CAUSE_ADDITIONAL_MANIFESTATION; no independent defect found
 ADDITIONAL_SAME_ROOT_MANIFESTATIONS_FIXED = 0
 INDEPENDENT_NEW_DEFECTS_FOUND = 0
@@ -121,21 +116,21 @@ dependency-classification contradiction was found.
 
 ## 7. Remediation Units
 
-### RU-001 — Replace prototype trust with adapter-issued object identity
+### RU-001 — Remove caller-reachable evidence issuance and preserve adapter brand
 
 ```text
 REMEDIATION_UNIT_ID = RU-001
 ROOT_CAUSE_IDS = RC-001
 CANONICAL_FINDINGS = IMA-MAJOR-001
-BEHAVIOR_TO_CORRECT = A valid pair is returned only after both canonical schemas validate the exact raw inputs; caller-issued, hostile-prototype or copied evidence returns CONTRACT_INVALID.
-STRUCTURE_TO_CORRECT = Replace caller-controlled verifier recognition with a domain-internal WeakSet identity handoff; retain adapter-private construction token and freeze each issued evidence instance; preserve domain/application/adapter separation and immutable value factories.
-FILES_EXPECTED = src/domain/exec-validation-evidence-internal.ts; src/domain/exec-contract.ts; src/infrastructure/exec-schema-validator.ts; tests/exec-001-ticket-001.test.ts; four acceptance-evidence files; this remediation artifact
-TESTS_REQUIRED = hostile caller-created prototype rejection through both low-level factories and application port; canonical adapter success; forged/injected-port rejection; post-validation mutation rejection; focused regression; strict touched-source typecheck; repository regression; package typecheck
+BEHAVIOR_TO_CORRECT = A valid pair is returned only after both canonical schemas validate the exact raw inputs; caller-created, hostile-prototype, copied or unproven evidence returns CONTRACT_INVALID.
+STRUCTURE_TO_CORRECT = Remove the exported evidence registrar and its mutable trust ledger; use adapter-private ECMAScript-branded evidence with exact input/reference checks while preserving domain/application/adapter separation.
+FILES_EXPECTED = src/domain/exec-validation-evidence-internal.ts; src/infrastructure/exec-schema-validator.ts; tests/exec-001-ticket-001.test.ts; four acceptance-evidence files; this remediation artifact
+TESTS_REQUIRED = absence of the former caller registrar; hostile/copy evidence rejection through domain factories and application port; canonical/delegating adapter success; post-validation mutation rejection; focused regression; strict touched-source typecheck; repository regression; package typecheck
 DESIGN_BOUNDARIES_TO_PRESERVE = immutable domain values; thin ValidateExecContract orchestration; ExecSchemaValidationPort; infrastructure-only schema mechanics; composition-root selection; human text non-authority
 OWNERSHIP_CONSTRAINTS = EXEC-001 remains envelope/payload schema owner; no registry, DOM, lifecycle, persistence, transport or downstream mapping authority added
 DEPENDENCY_CONSTRAINTS = application consumes only the existing port result contract; domain imports no schema library; local schema harness remains informational and is not productive foreign availability
 REGRESSION_RISKS = hostile prototype/copy acceptance; alternate-port bypass; stale evidence; rejection of valid canonical/delegating adapters; import-graph drift; hidden authority state
-COMPLETION_PROOF = direct hostile-prototype negative witness; identity-ledger recognition; canonical and delegating adapter success; 20/20 focused tests; strict touched-source typecheck PASS; npm test 25/25; npm run typecheck PASS; independent implementation re-audit required
+COMPLETION_PROOF = direct former-registrar absence witness; adapter-private brand recognition; canonical and delegating adapter success; 20/20 focused tests; strict touched-source typecheck PASS; npm test 25/25; npm run typecheck PASS; independent implementation re-audit required
 ```
 
 RU-001 is required by IMA-MAJOR-001, remains inside frozen GAP-001/envelope
@@ -145,7 +140,7 @@ contract scope, and adds no product behavior.
 
 | Finding | Root cause | Unit | Fixed files | Tests added/changed | Behavioral correction | Structural correction | Status |
 |---|---|---|---|---|---|---|---|
-| IMA-MAJOR-001 | RC-001 | RU-001 | `src/domain/exec-validation-evidence-internal.ts`; `src/domain/exec-contract.ts`; `src/infrastructure/exec-schema-validator.ts`; ticket test; four acceptance-evidence files | hostile caller-created prototype evidence; direct domain factory rejection; forged application-port rejection; canonical/delegating adapter success retained | only the exact adapter-issued evidence object registered after canonical schema execution is consumable; forged receipts fail `CONTRACT_INVALID` | prototype method is no longer the trust decision; adapter evidence is frozen and recognized by object identity | VALIDATED_AND_REMEDIATED |
+| IMA-MAJOR-001 | RC-001 | RU-001 | `src/domain/exec-validation-evidence-internal.ts`; `src/infrastructure/exec-schema-validator.ts`; ticket test; four acceptance-evidence files | former registrar absence; adapter-private brand; hostile/copy/forged evidence; canonical/delegating adapter success retained | only adapter-created evidence carrying the private brand and exact input/reference pair is consumable; caller-created receipts fail `CONTRACT_INVALID` | caller-reachable registrar and mutable trust ledger removed; adapter-only evidence construction retained | VALIDATED_AND_REMEDIATED |
 | IMA-MINOR-001 | not applicable | not applicable | none | none | ticket execution record remains unchanged and routed to ticket revalidation | no ticket authority or scope altered | PRESERVED_OPEN_NON_BLOCKING |
 
 ```text
@@ -178,10 +173,11 @@ STRUCTURAL_BOUNDARY_RESTORED = YES
 The approved domain/application/adapter split remains intact. Domain values
 still own structured contract invariants, `ValidateExecContract` still
 orchestrates two port calls, and the infrastructure adapter still owns schema
-engine mechanics and evidence construction. Evidence recognition now uses the
-internal object-identity handoff rather than a mutable caller-controlled
-prototype method. No aggregate, lifecycle, persistence, recovery,
-cross-SPEC responsibility or second EXEC authority was added.
+engine mechanics and evidence construction. Evidence recognition now relies on
+the adapter-private ECMAScript brand and exact input/reference identity rather
+than a caller-reachable registration ledger. No aggregate, lifecycle,
+persistence, recovery, cross-SPEC responsibility or second EXEC authority was
+added.
 
 ```text
 DOMAIN_MODEL_CONFORMANT = YES
@@ -212,9 +208,8 @@ design and architecture re-audits remain mandatory.
 ## 11. Files Changed
 
 ```text
-CHANGED_PRODUCTION_FILES = 3
+CHANGED_PRODUCTION_FILES = 2
   src/domain/exec-validation-evidence-internal.ts
-  src/domain/exec-contract.ts
   src/infrastructure/exec-schema-validator.ts
 CHANGED_TEST_FILES = 1
   tests/exec-001-ticket-001.test.ts
@@ -270,11 +265,11 @@ TESTS_SKIPPED = 0
 ENVIRONMENTAL_FAILURES = 0
 ```
 
-The focused suite directly exercises the hostile caller-created prototype
-through both domain factories and an injected application port. It also retains
-canonical adapter success, delegating adapter success, post-validation
-mutation rejection, malformed-result normalization, no-partial-result and
-architecture/import-graph coverage.
+The focused suite directly exercises the former caller-registrar absence,
+hostile/copy evidence rejection through domain factories and an injected
+application port, canonical adapter success, delegating adapter success,
+post-validation mutation rejection, malformed-result normalization, no-partial
+result and architecture/import-graph coverage.
 
 ## 14. Behavioral Regression Self-Check
 
@@ -293,10 +288,10 @@ CROSS_SPEC_BOUNDARY_REGRESSION = NO
 ```
 
 Canonical and delegating adapters still validate. Validated values remain
-immutable. Invalid, text-only, malformed, missing-field, inherited,
-caller-selected, hostile-prototype, copied-receipt, post-validation-mutation
-and unproven-port paths fail closed. No registry, DOM, persistence, transport,
-downstream or foreign behavior changed.
+immutable. Invalid, text-only, missing-field, inherited, caller-selected,
+hostile-prototype, copied-receipt, post-validation-mutation and unproven-port
+paths fail closed. No registry, DOM, persistence, transport, downstream or
+foreign behavior changed.
 
 ## 15. Structural Regression Self-Check
 
@@ -319,9 +314,9 @@ STRUCTURAL_REMEDIATION_REGRESSIONS = 0
 ```
 
 The domain remains schema-library-free, the application port remains narrow,
-and the identity ledger does not introduce a product layer or move schema
-semantics into application code. This self-check does not independently close
-findings.
+and the adapter-private brand does not introduce a product layer or move
+schema semantics into application code. This self-check does not independently
+close findings.
 
 ## 16. Ownership / Authority
 
@@ -348,7 +343,7 @@ availability, and no upstream completion scope is reclassified.
 ```text
 COMPLETION_EVIDENCE_REQUIRED = 7 local evidence items for AC-EXEC-001/002, test/typecheck output and remediation proof
 COMPLETION_EVIDENCE_CURRENT = 7
-COMPLETION_EVIDENCE_MISSING = 0
+COMPLETION_EVIDENCE_MISSING = 0 for the remediation scope
 TICKET_EXECUTION_RECORD_RECONCILIATION = PENDING under IMA-MINOR-001 / TICKET_REVALIDATION
 ```
 
@@ -408,7 +403,7 @@ ROOT_CAUSES_CLOSED = 1
 SYSTEMIC_ROOT_CAUSES = 1
 REMEDIATION_UNITS = 1
 ADDITIONAL_SAME_ROOT_MANIFESTATIONS_FIXED = 0
-CHANGED_PRODUCTION_FILES = 3
+CHANGED_PRODUCTION_FILES = 2
 CHANGED_TEST_FILES = 1
 TESTS_RUN = 45
 TESTS_PASSED = 45
