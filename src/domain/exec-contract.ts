@@ -1,4 +1,11 @@
-import { isIssuedSchemaValidationEvidence } from './exec-validation-evidence-internal.ts'
+import {
+  isAuthenticatedExecSchemaValidationPort,
+  isProducerIssuedValidationResult,
+} from './exec-validation-evidence-internal.ts'
+import type {
+  ExecSchemaValidationPort,
+  SchemaValidationResult,
+} from './exec-schema.ts'
 
 export type JsonObject = Readonly<Record<string, unknown>>
 
@@ -18,19 +25,11 @@ const VALIDATED_ENVELOPE_INSTANCES = new WeakSet<object>()
 const VALIDATED_PAYLOAD_INSTANCES = new WeakSet<object>()
 
 /**
- * Explicit evidence returned by the schema-validation port. The evidence is
- * tied to the exact canonical schema reference and input object that the port
- * validated. Issuance is an internal adapter handoff; domain recognition uses
- * object identity rather than a caller-controlled prototype method.
+ * Schema-validation success is accepted only when the authenticated producer
+ * issued the exact result object for the canonical reference and input. Domain
+ * recognition uses producer/result identity rather than caller-controlled
+ * prototype methods or nominal evidence names.
  */
-export interface SchemaValidationEvidence {
-  readonly valid: true
-  readonly issues: readonly string[]
-  readonly validatedInput: object
-  readonly schemaReference: SchemaReference
-  readonly contentFingerprint: string
-}
-
 export class ExecContractDomainError extends Error {
   readonly code: ContractFailureCode
 
@@ -363,27 +362,31 @@ function hasCurrentOwnDataFields(
   })
 }
 
-function isSchemaValidationEvidence(
+function isSuccessfulSchemaValidation(
   value: unknown,
   schema: SchemaReference,
   input: object,
-): value is SchemaValidationEvidence {
-  if (!isIssuedSchemaValidationEvidence(value)
-    || value.valid !== true
-    || value.validatedInput !== input
-    || value.schemaReference !== schema
-    || typeof value.contentFingerprint !== 'string'
-    || value.contentFingerprint !== structuredContentFingerprint(input)
-    || !Array.isArray(value.issues)
-    || !value.issues.every((issue) => typeof issue === 'string')) {
+  producer: unknown,
+): value is Extract<SchemaValidationResult, { readonly valid: true }> {
+  if (!isAuthenticatedExecSchemaValidationPort(producer)
+    || !isProducerIssuedValidationResult(producer, value)) {
     return false
   }
-  return Object.keys(value).every((key) =>
-    key === 'valid'
+  const result = value as Partial<Extract<SchemaValidationResult, { readonly valid: true }>>
+  const keys = Object.keys(value)
+  return keys.length === 5
+    && keys.every((key) => key === 'valid'
       || key === 'issues'
       || key === 'validatedInput'
       || key === 'schemaReference'
       || key === 'contentFingerprint')
+    && result.valid === true
+    && Array.isArray(result.issues)
+    && result.issues.every((issue) => typeof issue === 'string')
+    && result.validatedInput === input
+    && result.schemaReference === schema
+    && typeof result.contentFingerprint === 'string'
+    && result.contentFingerprint === structuredContentFingerprint(input)
 }
 
 export interface StructuredExecutionEnvelopeInput extends JsonObject {
@@ -452,7 +455,8 @@ export class StructuredExecutionEnvelope {
   static create(
     input: StructuredExecutionEnvelopeInput,
     schema: SchemaReference,
-    validation?: SchemaValidationEvidence,
+    validation?: SchemaValidationResult,
+    producer?: ExecSchemaValidationPort,
   ): StructuredExecutionEnvelope {
     if (!input || typeof input !== 'object' || Array.isArray(input)) {
       throw new ExecContractDomainError('A structured envelope is required.')
@@ -460,8 +464,8 @@ export class StructuredExecutionEnvelope {
     if (!isCanonicalSchemaReference(schema, EXEC_ENVELOPE_SCHEMA_ID)) {
       throw new ExecContractDomainError('A ticket-owned envelope schema reference is required.')
     }
-    if (!isSchemaValidationEvidence(validation, schema, input)) {
-      throw new ExecContractDomainError('Envelope construction requires explicit successful schema validation evidence.')
+    if (!isSuccessfulSchemaValidation(validation, schema, input, producer)) {
+      throw new ExecContractDomainError('Envelope construction requires an authenticated successful schema validation result.')
     }
     if (!hasCurrentOwnDataFields(input, ENVELOPE_REQUIRED_FIELDS)) {
       throw new ExecContractDomainError('Envelope required schema properties must remain own enumerable data fields.')
@@ -503,7 +507,8 @@ export class StructuredCapabilityPayload {
   static create(
     input: StructuredCapabilityPayloadInput,
     schema: SchemaReference,
-    validation?: SchemaValidationEvidence,
+    validation?: SchemaValidationResult,
+    producer?: ExecSchemaValidationPort,
   ): StructuredCapabilityPayload {
     if (!input || typeof input !== 'object' || Array.isArray(input)) {
       throw new ExecContractDomainError('A structured capability payload is required.')
@@ -511,8 +516,8 @@ export class StructuredCapabilityPayload {
     if (!isCanonicalSchemaReference(schema, EXEC_PAYLOAD_SCHEMA_ID)) {
       throw new ExecContractDomainError('A ticket-owned payload schema reference is required.')
     }
-    if (!isSchemaValidationEvidence(validation, schema, input)) {
-      throw new ExecContractDomainError('Payload construction requires explicit successful schema validation evidence.')
+    if (!isSuccessfulSchemaValidation(validation, schema, input, producer)) {
+      throw new ExecContractDomainError('Payload construction requires an authenticated successful schema validation result.')
     }
     if (!hasCurrentOwnDataFields(input, PAYLOAD_REQUIRED_FIELDS)) {
       throw new ExecContractDomainError('Payload required schema properties must remain own enumerable data fields.')

@@ -1,9 +1,9 @@
 # AC-EXEC-001 — Structured consumption evidence
 
-- `src/composition/exec-contract.ts` is the outer composition boundary; `ValidateExecContract` consumes the narrow `ExecSchemaValidationPort` and returns `ValidatedExecContract` only after both schema results are valid and domain construction succeeds.
-- Evidence issuance is not a domain contract operation. The infrastructure adapter's frozen, privately constructed evidence carries an adapter-private ECMAScript brand only after the exact current input/reference receipt; the domain exposes no issuer or registration handoff, so pre-execution, post-validation mutation, hostile-prototype/copy attacks, forged evidence, runtime-created references, and unproven injected ports fail closed.
-- Returned envelope and payload expose typed schema references and structured fields; `humanText` is ignored and cannot fill omitted authority. Required fields inherited from `Object.prototype` are rejected before evidence is created.
-- Runtime-callable class constructors are guarded by an internal construction token, and public value factories require explicit evidence from the successful schema-validation result. Alternate ports remain substitutable when they delegate to a canonical adapter result; a caller-created evidence prototype cannot satisfy the identity-ledger check.
+- `src/composition/exec-contract.ts` is the outer composition boundary; `ValidateExecContract` consumes the narrow `ExecSchemaValidationPort` and returns `ValidatedExecContract` only after both authenticated producer results are valid and domain construction succeeds.
+- The success contract carries exact input identity, canonical schema-reference identity and a current-content fingerprint. Plain caller result objects, copied adapters, exact-name evidence lookalikes and runtime-created schema references fail closed.
+- `AuthenticatedExecSchemaValidationPort` is the explicit producer boundary. A non-delegating independent adapter/harness can implement the approved port contract without importing a concrete infrastructure evidence class; the application does not accept an unbranded caller object as a producer.
+- Returned envelope and payload expose typed schema references and structured fields; `humanText` is ignored and cannot fill omitted authority. Required fields inherited from `Object.prototype` are rejected before structured consumption.
 - Focused runtime command: `node --experimental-strip-types --test tests/exec-001-ticket-001.test.ts`.
 - Focused runtime result: 21 tests passed, 0 failed.
 - Focused strict static result: PASS for the touched production modules, composition root and ticket test.

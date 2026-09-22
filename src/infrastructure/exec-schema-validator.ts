@@ -9,8 +9,8 @@ import {
 import {
   structuredContentFingerprint,
   type SchemaReference,
-  type SchemaValidationEvidence,
 } from '../domain/exec-contract.ts'
+import { AuthenticatedExecSchemaValidationPort } from '../domain/exec-schema.ts'
 
 function issue(message: string): SchemaValidationResult {
   return Object.freeze({ valid: false, issues: Object.freeze([message]) })
@@ -23,58 +23,6 @@ function hasOwnEnumerableRequiredFields(schema: ExecSchemaDefinition, value: unk
   return required.every((key) => Object.prototype.propertyIsEnumerable.call(value, key))
 }
 
-/**
- * Evidence is created only by this adapter after the compiled schema engine
- * has accepted the exact input/reference pair. The evidence carries an
- * adapter-private ECMAScript brand; copied/caller-defined receipts cannot
- * establish schema-validation authority.
- */
-const EVIDENCE_CONSTRUCTION_TOKEN = {}
-
-class CanonicalSchemaValidationEvidence implements SchemaValidationEvidence {
-  readonly valid = true as const
-  readonly issues = Object.freeze([] as readonly string[])
-  readonly validatedInput: object
-  readonly schemaReference: SchemaReference
-  readonly contentFingerprint: string
-  #brand: object
-
-  constructor(
-    validatedInput: object,
-    schemaReference: SchemaReference,
-    token: object,
-  ) {
-    if (token !== EVIDENCE_CONSTRUCTION_TOKEN) {
-      throw new Error('Canonical validation evidence construction is restricted to the schema adapter.')
-    }
-    this.validatedInput = validatedInput
-    this.schemaReference = schemaReference
-    this.contentFingerprint = structuredContentFingerprint(validatedInput)
-    this.#brand = EVIDENCE_CONSTRUCTION_TOKEN
-    Object.defineProperty(this, 'evidenceType', {
-      configurable: false,
-      enumerable: false,
-      writable: false,
-      value: CanonicalSchemaValidationEvidence,
-    })
-    Object.freeze(this)
-  }
-
-  isCanonicalEvidence(): boolean {
-    return this.#brand === EVIDENCE_CONSTRUCTION_TOKEN
-  }
-}
-
-function issueCanonicalEvidence(
-  validatedInput: object,
-  schemaReference: SchemaReference,
-): SchemaValidationEvidence {
-  return new CanonicalSchemaValidationEvidence(
-    validatedInput,
-    schemaReference,
-    EVIDENCE_CONSTRUCTION_TOKEN,
-  )
-}
 
 /**
  * Adapter around a JSON Schema 2020-12 compiler. Schema vocabulary and
@@ -87,7 +35,11 @@ interface ValidationReceipt {
   readonly inputs: WeakSet<object>
 }
 
-export class JsonSchemaExecValidator implements ExecSchemaValidationPort {
+export class JsonSchemaExecValidator extends AuthenticatedExecSchemaValidationPort {
+  constructor() {
+    super()
+  }
+
   private readonly compiled = new WeakMap<ExecSchemaDefinition, Validator>()
   private readonly validatedInputs = new WeakMap<SchemaReference, ValidationReceipt>()
 
@@ -131,11 +83,13 @@ export class JsonSchemaExecValidator implements ExecSchemaValidationPort {
         if (!this.hasValidated(schema.reference, validatedInput)) {
           return issue('Canonical schema validation evidence could not be established.')
         }
-        return Object.freeze({
-          valid: true,
+        return this.issueValidatedResult(Object.freeze({
+          valid: true as const,
           issues: Object.freeze([]),
-          evidence: issueCanonicalEvidence(validatedInput, schema.reference),
-        })
+          validatedInput,
+          schemaReference: schema.reference,
+          contentFingerprint: structuredContentFingerprint(validatedInput),
+        }))
       }
       const issues = validator.Errors(value).map((error) => {
         const path = error.instancePath || '$'

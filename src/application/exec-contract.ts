@@ -2,14 +2,16 @@ import {
   invalidContract,
   ObservedContractReference,
   type ExecContractValidationResult,
-  type SchemaValidationEvidence,
   StructuredCapabilityPayload,
   StructuredExecutionEnvelope,
   ValidatedExecContract,
 } from '../domain/exec-contract.ts'
 import {
   ExecContractSchemaDefinitions,
+  isAuthenticatedExecSchemaValidationPort,
+  isProducerIssuedValidationResult,
   type ExecSchemaValidationPort,
+  type SchemaValidationResult,
 } from '../domain/exec-schema.ts'
 
 export interface ValidateExecContractInput {
@@ -18,18 +20,19 @@ export interface ValidateExecContractInput {
   readonly humanText?: unknown
 }
 
-function normalizedValidationResult(value: unknown): {
-  readonly valid: boolean
-  readonly issues: readonly string[]
-  readonly evidence?: SchemaValidationEvidence
-} | undefined {
+function normalizedValidationResult(
+  value: unknown,
+  producer: ExecSchemaValidationPort,
+): SchemaValidationResult | undefined {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined
   if (!Object.prototype.hasOwnProperty.call(value, 'valid')
     || !Object.prototype.hasOwnProperty.call(value, 'issues')) return undefined
   const result = value as {
     readonly valid: unknown
     readonly issues: unknown
-    readonly evidence?: unknown
+    readonly validatedInput?: unknown
+    readonly schemaReference?: unknown
+    readonly contentFingerprint?: unknown
   }
   if (typeof result.valid !== 'boolean' || !Array.isArray(result.issues)
     || !result.issues.every((entry) => typeof entry === 'string')) return undefined
@@ -37,22 +40,23 @@ function normalizedValidationResult(value: unknown): {
   if (!result.valid) {
     if (keys.length !== 2) return undefined
     return Object.freeze({
-      valid: false,
+      valid: false as const,
       issues: Object.freeze([...result.issues]),
     })
   }
 
-  if (keys.length !== 3
-    || !result.evidence
-    || typeof result.evidence !== 'object'
-    || Array.isArray(result.evidence)) {
+  if (!isProducerIssuedValidationResult(producer, value)
+    || keys.length !== 5
+    || typeof result.contentFingerprint !== 'string'
+    || !result.validatedInput
+    || typeof result.validatedInput !== 'object'
+    || Array.isArray(result.validatedInput)
+    || !result.schemaReference
+    || typeof result.schemaReference !== 'object'
+    || Array.isArray(result.schemaReference)) {
     return undefined
   }
-  return Object.freeze({
-    valid: true,
-    issues: Object.freeze([...result.issues]),
-    evidence: result.evidence as SchemaValidationEvidence,
-  })
+  return value as SchemaValidationResult
 }
 
 function safeThrownIssue(error: unknown): readonly string[] {
@@ -96,11 +100,17 @@ export class ValidateExecContract {
     }
 
     try {
+      if (!isAuthenticatedExecSchemaValidationPort(this.validator)) {
+        return this.invalid(input, 'Schema validation requires an authenticated producer port.')
+      }
+
       const envelopeResult = normalizedValidationResult(
         this.validator.validate(this.definitions.envelope, input.envelope),
+        this.validator,
       )
       const payloadResult = normalizedValidationResult(
         this.validator.validate(this.definitions.payload, input.payload),
+        this.validator,
       )
       if (!envelopeResult || !payloadResult) {
         return this.invalid(input, 'Schema validation returned a malformed result.')
@@ -113,12 +123,14 @@ export class ValidateExecContract {
       const envelope = StructuredExecutionEnvelope.create(
         input.envelope as never,
         this.definitions.envelopeReference,
-        envelopeResult.evidence,
+        envelopeResult,
+        this.validator,
       )
       const payload = StructuredCapabilityPayload.create(
         input.payload as never,
         this.definitions.payloadReference,
-        payloadResult.evidence,
+        payloadResult,
+        this.validator,
       )
       return Object.freeze({
         status: 'VALID' as const,

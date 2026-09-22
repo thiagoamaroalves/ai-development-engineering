@@ -1,26 +1,64 @@
-import type { SchemaValidationEvidence } from './exec-contract.ts'
+import type {
+  ExecSchemaDefinition,
+  ExecSchemaValidationPort,
+  SchemaValidationResult,
+} from './exec-schema.ts'
 
 /**
- * Validation evidence is recognized only through the private ECMAScript brand
- * owned by the infrastructure adapter's evidence class. This module exposes
- * no issuer or registration handoff: callers can copy fields or provide a
- * hostile verifier, but neither can create the adapter's private brand.
+ * A validation port is an explicit producer boundary. The private brand is
+ * applied when an adapter is constructed, so a result-shaped object or copied
+ * adapter prototype cannot establish schema-validation authority. Independent
+ * adapters and deterministic contract harnesses implement the same explicit
+ * base contract rather than reproducing an infrastructure receipt protocol.
  */
-export function isIssuedSchemaValidationEvidence(value: unknown): value is SchemaValidationEvidence {
-  if (!value || typeof value !== 'object' || Array.isArray(value) || !Object.isFrozen(value)) return false
+const AUTHENTICATED_PORTS = new WeakSet<object>()
+const ISSUED_RESULTS = new WeakMap<object, WeakSet<object>>()
+const AUTHENTICATED_PORT_TOKEN = {}
 
-  try {
-    const candidate = value as SchemaValidationEvidence & {
-      readonly evidenceType?: unknown
-    }
-    const evidenceType = candidate.evidenceType
-    if (typeof evidenceType !== 'function' || evidenceType.name !== 'CanonicalSchemaValidationEvidence') return false
-    if (Object.getPrototypeOf(value) !== evidenceType.prototype) return false
+export abstract class AuthenticatedExecSchemaValidationPort implements ExecSchemaValidationPort {
+  #producerBrand: object
 
-    const verifier = Object.getOwnPropertyDescriptor(evidenceType.prototype, 'isCanonicalEvidence')?.value
-    if (typeof verifier !== 'function') return false
-    return verifier.call(value) === true
-  } catch {
-    return false
+  protected constructor() {
+    this.#producerBrand = AUTHENTICATED_PORT_TOKEN
+    AUTHENTICATED_PORTS.add(this)
+    ISSUED_RESULTS.set(this, new WeakSet<object>())
   }
+
+  protected issueValidatedResult<T extends Extract<SchemaValidationResult, { readonly valid: true }>>(
+    result: T,
+  ): T {
+    if (!result || typeof result !== 'object' || Array.isArray(result)) {
+      throw new Error('Authenticated validation results must be objects.')
+    }
+    if (Array.isArray(result.issues)) Object.freeze(result.issues)
+    Object.freeze(result)
+    ISSUED_RESULTS.get(this)?.add(result)
+    return result
+  }
+
+  abstract validate(schema: ExecSchemaDefinition, value: unknown): SchemaValidationResult
+}
+
+export function isAuthenticatedExecSchemaValidationPort(
+  value: unknown,
+): value is ExecSchemaValidationPort {
+  return Boolean(
+    value
+      && typeof value === 'object'
+      && !Array.isArray(value)
+      && AUTHENTICATED_PORTS.has(value),
+  )
+}
+
+export function isProducerIssuedValidationResult(
+  producer: unknown,
+  result: unknown,
+): result is Extract<SchemaValidationResult, { readonly valid: true }> {
+  return Boolean(
+    isAuthenticatedExecSchemaValidationPort(producer)
+      && result
+      && typeof result === 'object'
+      && !Array.isArray(result)
+      && ISSUED_RESULTS.get(producer)?.has(result),
+  )
 }

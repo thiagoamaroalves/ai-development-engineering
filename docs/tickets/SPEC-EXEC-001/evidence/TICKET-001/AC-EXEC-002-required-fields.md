@@ -1,9 +1,10 @@
 # AC-EXEC-002 — Required fields and fail-closed evidence
 
-- Direct witnesses cover compiled JSON Schema validation, malformed/text-only input, caller-selected/custom schema rejection, semver and whitespace rejection, missing fields, own-enumerable required-field enforcement, inherited required fields supplied through both ordinary prototypes and `Object.prototype`, one-side-invalid input, unproven ports, sparse arrays and non-JSON values.
-- Missing, malformed, semver-invalid, inherited, unproven-adapter and schema-adapter-failure inputs return `CONTRACT_INVALID`.
+- Direct witnesses cover compiled JSON Schema validation, malformed/text-only input, caller-selected/custom schema rejection, semver and whitespace rejection, missing fields, own-enumerable required-field enforcement, inherited required fields, one-side-invalid input, plain forged ports/results, stale producer results, sparse arrays and non-JSON values.
+- Missing, malformed, semver-invalid, inherited, untrusted-producer, stale-result and schema-adapter-failure inputs return `CONTRACT_INVALID`.
 - Invalid results expose no approval, checkpoint or effect signal and never expose a partial validated pair.
-- Evidence issuance remains on the infrastructure adapter's construction path and the domain accepts only evidence carrying its private ECMAScript brand and matching current content; the domain module exports no caller-facing issuer or registration handoff, so caller-defined prototypes, copied verifiers and forged receipts cannot establish validation authority. The application boundary imports only domain contracts, and the productive graph guard rejects forbidden imports outside the approved `typebox` adapter dependency.
+- The explicit successful result contract carries `validatedInput`, canonical `schemaReference` and `contentFingerprint`; value factories additionally require an authenticated producer port. This preserves stale-input rejection while allowing independent adapter/harness substitution without a hidden concrete-adapter evidence class.
+- Direct witnesses are in `tests/exec-001-ticket-001.test.ts`, including exact-name forged-result rejection, untrusted injected-port rejection, non-delegating producer success, runtime constructor guards and the generic delegation consumer regression.
 - Focused runtime command: `node --experimental-strip-types --test tests/exec-001-ticket-001.test.ts`.
 - Focused runtime result: PASS (21/21).
-- Focused strict static result: PASS, including the internal evidence support module.
+- Focused strict static result: PASS, including the producer-boundary support module.

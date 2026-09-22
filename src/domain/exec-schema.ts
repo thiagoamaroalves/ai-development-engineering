@@ -6,15 +6,31 @@ import {
   EXEC_ENVELOPE_SCHEMA_REFERENCE,
   EXEC_PAYLOAD_SCHEMA_REFERENCE,
   SchemaReference,
-  type SchemaValidationEvidence,
 } from './exec-contract.ts'
+import {
+  AuthenticatedExecSchemaValidationPort,
+  isAuthenticatedExecSchemaValidationPort,
+  isProducerIssuedValidationResult,
+} from './exec-validation-evidence-internal.ts'
 
-export interface SchemaValidationResult {
-  readonly valid: boolean
-  readonly issues: readonly string[]
-  /** Successful results carry explicit, adapter-produced evidence for the exact input/reference pair. */
-  readonly evidence?: SchemaValidationEvidence
+export {
+  AuthenticatedExecSchemaValidationPort,
+  isAuthenticatedExecSchemaValidationPort,
+  isProducerIssuedValidationResult,
 }
+
+export type SchemaValidationResult =
+  | {
+      readonly valid: true
+      readonly issues: readonly string[]
+      readonly validatedInput: object
+      readonly schemaReference: SchemaReference
+      readonly contentFingerprint: string
+    }
+  | {
+      readonly valid: false
+      readonly issues: readonly string[]
+    }
 
 export interface JsonSchemaDocument extends Readonly<Record<string, unknown>> {
   readonly $id: string
