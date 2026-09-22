@@ -6,32 +6,18 @@
 SPECIALIST_RESULT = SPECIALIST_DESIGN_FINDINGS
 DOMAIN_AUDIT_COMPLETE = YES
 CRITICAL_FINDINGS = 1
-MAJOR_FINDINGS = 0
+MAJOR_FINDINGS = 1
 MINOR_FINDINGS = 0
 INFO_FINDINGS = 0
 ```
 
-Design conformance summary:
-
-- Domain model: PASS
-- Aggregate boundaries: NOT_APPLICABLE
-- Invariant placement: FINDINGS
-- Component boundaries: FINDINGS
-- SOLID: PASS
-- Dependency direction: PASS
-- Upstream authority: PASS
-- Clean Code structure: FINDINGS
-- Testability: FINDINGS
-- Direct behavior witnesses: 4
-- Proxy-only behaviors: 0
-- Untested state transitions: 0
-- Unproven concurrency contracts: 0
-- Missing architecture guards: 0; the present guard is ineffective for the exposed evidence handoff
-- Design test coverage gate: BLOCKED
-- Design deviations: FINDINGS
-- Structural self-check: FALSE_PASS
-
-The audit is complete. The implementation preserves the principal domain/application/adapter structure, but the exported evidence handoff permits caller-minted schema-validation authority and therefore does not preserve the approved authority boundary.
+The implementation preserves the principal domain/application/adapter split,
+structured values, fail-closed result shape, and the absence of aggregate,
+lifecycle, persistence, and foreign integration responsibilities. It does not,
+however, preserve the schema-authority boundary: the runtime evidence recognizer
+accepts caller-defined evidence with a caller-controlled class name/prototype,
+and the approved validation port is consequently coupled to one hidden concrete
+adapter evidence type.
 
 ## 2. Audit Subject
 
@@ -41,15 +27,20 @@ TICKET_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-envelope-schema-con
 IMPLEMENTATION_DESIGN_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design.md
 IMPLEMENTATION_UNIT = EXEC-IMP-01 — Envelope and schema contract
 TICKET_STATUS = VALIDATION_REQUIRED
-AUDIT_TARGET_HEAD = fdb26aabd8e54e6fc9034962233678c729507a9a
-AUDIT_TARGET_STATE_FINGERPRINT = 7b71716af32059ee6c2dd952c858cbb34973fc14e1aaf7d80c5bdd23a1f4d8de
+AUDIT_TARGET_HEAD = c3375bf9675629262ed500857b41a9636971efc0
+AUDIT_TARGET_STATE_FINGERPRINT = 8a923cb179405b34582cd6dfafe168750ce897d3b75e4fddb0c00c04d22d8740
 IMPLEMENTATION_BASELINE = 381218d5fbf8d969ee5ae5349b8f65c4cd5af7f9
-IMPLEMENTATION_HEAD = fdb26aabd8e54e6fc9034962233678c729507a9a
-IMPLEMENTATION_STATE_FINGERPRINT = 7b71716af32059ee6c2dd952c858cbb34973fc14e1aaf7d80c5bdd23a1f4d8de
-TARGET_MATCH = YES
+IMPLEMENTATION_HEAD = c3375bf9675629262ed500857b41a9636971efc0
+IMPLEMENTATION_STATE_FINGERPRINT = 8a923cb179405b34582cd6dfafe168750ce897d3b75e4fddb0c00c04d22d8740
+IMPLEMENTATION_DIFF = target baseline to pinned HEAD; seven EXEC production modules, one focused test, and four ticket evidence files; no unrelated production/test change
+DESIGN_VERDICT = IMPLEMENTATION_DESIGN_READY
+DESIGN_GATE = IMPLEMENTATION_DESIGN_GATE: READY_FOR_IMPLEMENTATION
+DESIGN_BASELINE = design pinned starting HEAD 381218d5fbf8d969ee5ae5349b8f65c4cd5af7f9
 ```
 
-The target HEAD and working-tree state match the pinned semantic target pair. The repository was clean during inspection. The implementation is available in the pinned HEAD; no moving-target or baseline-invalidating condition was found.
+The repository HEAD equals the pinned target and the working tree was clean
+before this artifact was written. The implementation and its tests are present
+at the target; no moving-target or implementation-availability blocker exists.
 
 ## 3. Audit Mode
 
@@ -73,592 +64,620 @@ NO_TEST_CHANGES
 NO_SELF_APPROVAL
 ```
 
+The audit did not consume a sibling specialist audit. Actual production code,
+tests, evidence, implementation notes, the approved design, ticket-set audit,
+and upstream authority were inspected independently.
+
 ## 4. Authority / Design Baseline
 
-The approved Implementation Design is `IMPLEMENTATION_DESIGN_READY` with
-`IMPLEMENTATION_DESIGN_GATE: READY_FOR_IMPLEMENTATION`. Its upstream chain is
-ADR-0003 revision 3, Portfolio O-016, SPEC-EXEC-001 revision 3,
-GAP-001, Implementation Plan unit EXEC-IMP-01, the conformant ticket-set audit,
-and the ticket's direct acceptance witness matrix. ADR-0003 requires a JSON
-Schema-validated common envelope and capability payload and makes human text
-non-authoritative.
+Authority was checked in this order: accepted ADRs, approved portfolio,
+conformant `SPEC-EXEC-001`, explicit cross-SPEC authority, validated Gap Matrix,
+conformant Implementation Plan, ticket, approved Implementation Design, and
+actual implementation.
 
-The design's structural blueprint was loaded in full: five value concepts,
-one schema-definition surface, one domain-facing schema port, one thin
-application service, one schema adapter, immutable fail-closed results, no
-aggregate, persistence, lifecycle, recovery, ACL, or foreign capability for
-local closure, and four direct witness rows.
+```text
+PRIMARY_ADR = ADR-0003 revision 3, ACCEPTED
+PORTFOLIO = SPEC-PORTFOLIO-001 revision 2; O-016
+COMPONENT_SPEC = SPEC-EXEC-001 revision 3; EXEC-ENVELOPE-001/002
+UPSTREAM_SPEC = SPEC-DOM-001 revision 4
+GAP_MATRIX = GAP-001
+IMPLEMENTATION_PLAN = EXEC-IMP-01
+SPEC_IMPLEMENTABILITY_CHECK = PASS
+UPSTREAM_AUTHORITY_PRECONDITIONS = present and applicable
+LOCAL_FOREIGN_CAPABILITY_REQUIRED = NO
+UNIT_HARNESS_DEPENDENCY_CLASS = INFORMATIONAL
+UNIT_HARNESS_LOCAL_TESTABILITY = YES
+UNIT_HARNESS_PRODUCTIVE_AVAILABILITY = NO
+LOCAL_CLOSURE = YES by authority classification; current design findings independently block conformance evidence
+```
 
-Upstream authority defense:
-
-| Proof / authority | Recalculated result |
-|---|---|
-| `SPEC_IMPLEMENTABILITY_CHECK` from the approved design and authority chain | PASS |
-| Aggregate identity / reconstruction proofs | NOT_APPLICABLE; this unit creates no aggregate or persisted later state |
-| Lifecycle authority | NOT_APPLICABLE; validation creates no transition |
-| Persistence / recovery authority | NOT_APPLICABLE; no durable material is loaded or stored |
-| Cross-SPEC authority | PASS; no foreign capability is required for local closure |
-| `ACP-EXEC-01` / `UNIT-EXEC-SCHEMA-HARNESS` | Authority and contract defined; locally testable; productive availability intentionally NO; dependency class INFORMATIONAL |
-| Witness executability at local closure | YES for all four design rows |
-| Downstream productive-availability promotion | NONE |
-
-The informational local harness record is not treated as productive
-availability. Its absence therefore does not block local closure. The current
-implementation, however, exposes a local caller-authority escape; that is an
-implementation defect, not an upstream authority gap.
+The design correctly leaves DOM identity/lifecycle, registry resolution,
+persistence/recovery, effects, transport, and downstream mappings outside this
+unit. The informational unit harness has consistent authority, contract,
+testability, availability, and blocking dimensions; its lack of productive
+availability does not block local closure.
 
 ## 5. Implementation Diff
 
-The independently reconstructed implementation diff from
-`381218d5fbf8d969ee5ae5349b8f65c4cd5af7f9` to the pinned target contains the
-following relevant files:
-
-| File | Classification | Audit result |
+| Actual path | Classification | Evidence / result |
 |---|---|---|
-| `src/domain/exec-contract.ts` | DESIGN_EXPECTED | Domain value objects, evidence acceptance, immutable failure result |
-| `src/domain/exec-schema.ts` | DESIGN_EXPECTED | Canonical schema definitions and validation port |
-| `src/domain/exec-validation-evidence-internal.ts` | LOCAL_IMPLEMENTATION_ADAPTATION | Evidence identity ledger and adapter handoff; material exposure finding below |
-| `src/application/exec-contract.ts` | DESIGN_EXPECTED | Thin validation orchestration and fail-closed aggregation |
-| `src/infrastructure/exec-schema-validator.ts` | DESIGN_EXPECTED | TypeBox JSON Schema adapter and evidence issuance |
+| `src/domain/exec-contract.ts` | DESIGN_EXPECTED | Schema references, immutable structured values, pair, and failure result |
+| `src/domain/exec-schema.ts` | DESIGN_EXPECTED | Ticket-owned definitions and inward validation port |
+| `src/domain/exec-validation-evidence-internal.ts` | LOCAL_IMPLEMENTATION_ADAPTATION | Evidence recognition support; its runtime identity check is materially flawed |
+| `src/application/exec-contract.ts` | DESIGN_EXPECTED | Thin pair-validation orchestration and fail-closed normalization |
+| `src/infrastructure/exec-schema-validator.ts` | DESIGN_EXPECTED | JSON Schema compilation and adapter result production |
 | `src/composition/exec-contract.ts` | DESIGN_EXPECTED | Composition-root adapter selection |
-| `tests/exec-001-ticket-001.test.ts` | TEST_SUPPORT | Direct positive, negative, isolation, and import-graph witnesses |
-| Four `docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/*` files | DESIGN_EXPECTED | File-addressed completion evidence |
+| `tests/exec-001-ticket-001.test.ts` | TEST_SUPPORT | Direct contract, negative, authority, import-graph, and consumer-boundary tests |
+| Four `docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/*` files | DESIGN_EXPECTED | File-addressed local completion evidence |
 
-No unrelated production, test, prototype, `.pi`, upstream authority, planning,
-or ticket-scope change was found. The historical ticket execution block lists
-older authority-file names that are not present in the current implementation;
-the current remediation record identifies the actual files. This is evidence
-bookkeeping drift, not a separate design component or authority decision.
+No registry, DOM, persistence, lifecycle, transport, `.pi`, prototype, or
+unrelated implementation file was changed. The additional internal evidence
+module is support for the adapter handoff, not a new product layer, but its
+semantic coupling is addressed in the findings below.
+
+Independently executed evidence:
+
+```text
+FOCUSED_TICKET_TEST = PASS (21/21)
+FOCUSED_STRICT_TYPECHECK = PASS
+REPOSITORY_REGRESSION = PASS (25/25)
+PACKAGE_TYPECHECK = PASS
+```
+
+Green tests do not close the authority and design findings because the existing
+forgery test uses a differently named caller class and does not exercise the
+actual-name/prototype attack.
 
 ## 6. Responsibility Conformance
 
 | Designed responsibility | Designed home | Actual home | Result |
 |---|---|---|---|
-| Define identifiable envelope schema | `ExecContractSchemaDefinitions` / domain contract area | `src/domain/exec-schema.ts` | PRESERVED |
-| Define identifiable capability-payload schema | `ExecContractSchemaDefinitions` / domain contract area | `src/domain/exec-schema.ts` | PRESERVED |
-| Validate raw envelope | schema adapter through `ExecSchemaValidationPort` | `JsonSchemaExecValidator.validate` | PRESERVED |
-| Validate raw payload | schema adapter through `ExecSchemaValidationPort` | `JsonSchemaExecValidator.validate` | PRESERVED |
-| Enforce minimum fields and create immutable values | domain value objects | `StructuredExecutionEnvelope` and `StructuredCapabilityPayload` | PRESERVED |
-| Orchestrate both validations atomically | thin application service | `ValidateExecContract.validate` | PRESERVED |
-| Preserve canonical fail-closed result | domain failure value plus application boundary | `ContractInvalidFailure` and `invalidContract` | PRESERVED |
-| Prevent alternate/text authority | adapter-to-domain evidence boundary and production graph guard | identity ledger, canonical checks, and tests; exported handoff weakens the boundary | LOCALLY_ADAPTED / FINDING |
+| Define identifiable envelope schema | `ExecContractSchemaDefinitions` | `src/domain/exec-schema.ts` | PRESERVED |
+| Define identifiable payload schema | `ExecContractSchemaDefinitions` | `src/domain/exec-schema.ts` | PRESERVED |
+| Validate raw envelope | `ExecSchemaValidationPort` / schema adapter | `ValidateExecContract` → `JsonSchemaExecValidator` | PRESERVED |
+| Validate raw payload | `ExecSchemaValidationPort` / schema adapter | `ValidateExecContract` → `JsonSchemaExecValidator` | PRESERVED |
+| Enforce structured fields and immutable values | envelope/payload value objects | `StructuredExecutionEnvelope` / `StructuredCapabilityPayload` | PRESERVED |
+| Aggregate both validations atomically at result boundary | `ValidateExecContract` | `src/application/exec-contract.ts` | PRESERVED |
+| Preserve canonical `CONTRACT_INVALID` failure | contract failure value/application boundary | `ContractInvalidFailure` and `invalidContract` | PRESERVED |
+| Prevent text/prototype/transport authority | productive contract boundary and tests | canonical definitions, application boundary, and guards | LOCALLY_ADAPTED; the evidence guard is bypassable |
 
-No designed responsibility is missing or moved to a wrong layer. The last
-responsibility is not absent, but its actual handoff is not private as the
-design requires.
+```text
+MISSING_RESPONSIBILITIES = 0
+WRONG_RESPONSIBILITY_PLACEMENTS = 0
+```
+
+The responsibility homes remain identifiable. The findings concern authority
+strength and an implicit dependency contract, not responsibility scattering or
+movement into the wrong layer.
 
 ## 7. Component Conformance
 
 | Designed component | Intended responsibility | Actual implementation | Result |
 |---|---|---|---|
-| `SchemaReference` | Canonical schema identity and comparison | `SchemaReference` with construction token, brand, and canonical-instance checks | PRESERVED |
-| `ExecContractSchemaDefinitions` | Ticket-owned envelope/payload schema documents | Frozen definitions and canonical reference/document identity checks | PRESERVED |
-| `StructuredExecutionEnvelope` | Structured envelope invariants and immutable access | Domain value object with evidence and current-field checks | PRESERVED |
-| `StructuredCapabilityPayload` | Payload invariants and immutable access | Domain value object with evidence and current-field checks | PRESERVED |
-| `ValidatedExecContract` | Complete immutable pair | Private pair constructor and instance brands | PRESERVED |
-| `ExecSchemaValidationPort` | Narrow schema-mechanics boundary | One-method domain port | PRESERVED |
-| `ValidateExecContract` | Coordinate two validations and result construction | Thin application service | PRESERVED |
-| Schema validation adapter | Compile/check schemas and issue evidence | `JsonSchemaExecValidator` using TypeBox | LOCALLY_ADAPTED |
-| Ticket contract test support | Direct executable evidence | Focused Node test and graph guard | PRESERVED |
+| `SchemaReference` | Schema identity and comparison | `SchemaReference` | PRESERVED |
+| `ExecContractSchemaDefinitions` | Two ticket-owned schema definitions | `ExecContractSchemaDefinitions` | PRESERVED |
+| `StructuredExecutionEnvelope` | Validated immutable envelope | `StructuredExecutionEnvelope` | PRESERVED |
+| `StructuredCapabilityPayload` | Validated immutable payload | `StructuredCapabilityPayload` | PRESERVED |
+| `ValidatedExecContract` | Complete immutable pair | `ValidatedExecContract` | PRESERVED |
+| `ExecSchemaValidationPort` | Schema-mechanics boundary | Port plus hidden adapter-evidence requirement | LOCALLY_ADAPTED; material seam restriction |
+| `ValidateExecContract` | Thin validation orchestration | `ValidateExecContract` | PRESERVED |
+| Schema validation adapter | Translate schema engine outcomes | `JsonSchemaExecValidator` | LOCALLY_ADAPTED; sole issuer of accepted success evidence |
+| Ticket contract test support | Direct executable witnesses | Focused test support | PRESERVED |
 
-The evidence ledger is an implementation detail of the adapter/domain handoff,
-not an additional business component. No unjustified component collapse,
-component split, missing required component, god component, or unplanned
-production component was found. The material component-boundary defect is the
-public reachability of the adapter handoff, recorded as IDC-CRITICAL-001.
+There is no material aggregate/application/repository collapse, unjustified
+split, god component, or missing designed component. The internal evidence
+recognizer is a local support module, but it introduces a hidden semantic
+adapter dependency rather than a separate product component.
 
 ## 8. Domain Model Conformance
 
-The implementation preserves the approved domain model. `SchemaReference`,
-`StructuredExecutionEnvelope`, `StructuredCapabilityPayload`,
-`ValidatedExecContract`, and `ContractInvalidFailure` are meaningful immutable
-contract values with validation and comparison/consumption semantics.
+The implementation contains the designed `SchemaReference`, immutable
+structured envelope/payload values, immutable validated pair, and structured
+failure result. Required-field checks and value construction remain in the
+contract values; application code sequences and aggregates rather than owning
+those rules. No aggregate root, entity lifecycle, domain event, repository, or
+foreign domain model is introduced.
 
-There are no Aggregate Roots, Entities, Domain Services, Domain Policies,
-Domain Events, or Anti-Corruption Layers required by this ticket. This is a
-contract/value boundary rather than a stateful domain aggregate. No meaningful
-domain rule was moved into a generic service, handler, repository, or
-infrastructure adapter. `ANEMIC_DOMAIN_MODEL_INTRODUCED = NO`.
+```text
+DOMAIN_CONCEPTS = PRESERVED
+AGGREGATE_ROOTS = NOT_APPLICABLE
+ENTITIES = NOT_APPLICABLE
+VALUE_OBJECTS = PRESERVED
+DOMAIN_SERVICES = NOT_APPLICABLE
+DOMAIN_POLICIES = NOT_APPLICABLE
+DOMAIN_EVENTS = NOT_APPLICABLE
+ANTI_CORRUPTION_BOUNDARIES = NOT_APPLICABLE
+ANEMIC_DOMAIN_MODEL_INTRODUCED = NO
+FAT_APPLICATION_SERVICE_INTRODUCED = NO
+```
 
-The application service coordinates definitions, port calls, value creation,
-and failure mapping. It does not own domain invariants, lifecycle, persistence,
-recovery, or integration semantics. `FAT_APPLICATION_SERVICE_INTRODUCED = NO`.
+The domain is not anemic for this rule-light contract unit. The material issue
+is that a domain factory trusts caller-definable evidence recognition for a
+schema-authority invariant.
 
 ## 9. Upstream Authority Preconditions Audit
 
-No implementation-created aggregate identity, lifecycle, persisted state,
-rehydration rule, or cross-SPEC semantic authority was found. The envelope's
-execution/activity/attempt-looking values remain opaque structured references;
-the implementation does not claim DOM identity or lifecycle ownership.
-
-The local capability record remains mechanically consistent:
-
-```text
-CAPABILITY_ID = UNIT-EXEC-SCHEMA-HARNESS
-AUTHORITY_STATUS = DEFINED
-CONTRACT_STATUS = DEFINED
-LOCAL_TESTABILITY = YES
-PRODUCTIVE_AVAILABILITY = NO
-DEPENDENCY_CLASS = INFORMATIONAL
-WITNESS_EXECUTABLE_AT_LOCAL_CLOSURE = YES
-DOWNSTREAM_PROMOTION_WITHOUT_NEW_EVIDENCE = NO
-```
-
-The implementation does not promote the fixture, adapter, or local evidence to
-foreign productive availability. No authority-consumption or producer/consumer
-contract error was found. The caller-mintable evidence path is a local
-authority bypass and is reported separately; it does not make the approved
-upstream proofs stale or contradictory.
-
 ```text
 SPEC_IMPLEMENTABILITY_CHECK = PASS
-IDENTITY_AUTHORITY_GAPS = 0 applicable
-RECONSTRUCTION_AUTHORITY_GAPS = 0 applicable
-LIFECYCLE_AUTHORITY_GAPS = 0 applicable
-PERSISTENCE_SEMANTICS_GAPS = 0 applicable
-CROSS_SPEC_AUTHORITY_GAPS = 0
-AUTHORITY_CONSUMPTION_GAPS = 0 blocking; productive availability is intentionally NO for the INFORMATIONAL local harness
+IDENTITY_AUTHORITY_GAPS = 0 applicable; no aggregate or canonical DOM identity is created
+RECONSTRUCTION_AUTHORITY_GAPS = 0 applicable; no persisted material is materialized
+LIFECYCLE_AUTHORITY_GAPS = 0 applicable; no lifecycle transition is exposed
+PERSISTENCE_SEMANTICS_GAPS = 0 applicable; no durable state is written
+CROSS_SPEC_AUTHORITY_GAPS = 0 local; no foreign capability is required for closure
+AUTHORITY_CONSUMPTION_GAPS = 0 external; the unit-owned harness is informational
 PRODUCER_CONSUMER_CONTRACT_ERRORS = 0
 CAPABILITY_AVAILABILITY_CLASSIFICATION_ERRORS = 0
 DOWNSTREAM_PROMOTION_WITHOUT_NEW_EVIDENCE = 0
 WITNESSES_NOT_EXECUTABLE_AT_LOCAL_CLOSURE = 0
 TEMPORAL_AUTHORITY_GAPS = 0
-CALLER_SUPPLIED_AUTHORITY_BYPASS = 1 local implementation escape
-UPSTREAM_AUTHORITY_CONFORMANCE = PASS
+CALLER_SUPPLIED_AUTHORITY_BYPASS = 1
+UPSTREAM_AUTHORITY_CONFORMANCE = FINDINGS
 ```
+
+The upstream artifacts remain complete and current for this scope. The
+`UPSTREAM_AUTHORITY_CONFORMANCE` finding is an implementation escape at the
+schema-authority consumption seam, not a newly exposed identity,
+rehydration, lifecycle, persistence, or cross-SPEC authority gap. The
+informational harness is not promoted to productive availability.
 
 ## 10. Aggregate Boundary Audit
 
-`NOT_APPLICABLE`. The design introduces no aggregate, entity, mutable
-consistency boundary, transaction boundary, repository, or durable state.
-Validation returns either one complete immutable pair or one structured
-failure. No aggregate mutation bypass or multiple transition authority exists.
-
 ```text
+AGGREGATE_BOUNDARY_CONFORMANCE = NOT_APPLICABLE
 AGGREGATE_BOUNDARY_VIOLATIONS = 0
 AGGREGATE_INTERNAL_MUTATION_BYPASS = 0
 MULTIPLE_TRANSITION_AUTHORITIES = 0
 INVALID_TRANSACTION_BOUNDARY = 0
 ```
 
+This ticket validates a synchronous contract and creates no mutable aggregate.
+The no-partial-pair result boundary is present.
+
 ## 11. Invariant Placement Audit
 
 | Approved invariant | Designed enforcement | Actual enforcement | Durable enforcement | Actual test | Result |
 |---|---|---|---|---|---|
-| Envelope and payload use canonical identifiable schemas | Canonical definitions and references | `isCanonicalExecSchemaDefinition`, canonical references, and adapter checks | N/A | Yes | PRESERVED |
-| Both sides validate before consumption | Adapter results and pair construction | Application requires two valid results; exported handoff can mint evidence without adapter validation | N/A | Normal and forged-port tests only | BYPASSABLE |
-| Minimum fields cannot be omitted or inferred from text | Domain values and schema required list | Schema checks plus `hasCurrentOwnDataFields` and value constructors | N/A | Yes | PRESERVED |
-| Invalid input maps to `CONTRACT_INVALID` with no success signals | `ContractInvalidFailure` and application catch | Fail-closed invalid result | N/A | Yes | PRESERVED |
-| Human text is non-authoritative | Structured values only | `humanText` is ignored | N/A | Yes | PRESERVED |
-| Returned values are immutable | Immutable value objects | Frozen result, values, arrays, objects, and failure | N/A | Yes | PRESERVED |
-| No second EXEC schema authority exists | Adapter-only internal evidence issuance | Publicly reachable `adapterEvidenceHandoff.accept` creates a second issuance path | N/A | Guard does not cover this path | BYPASSABLE |
-
-The canonical adapter path enforces the intended rules, and no invariant is
-entirely absent. However, the two validation-authority invariants are
-bypassable. This is a material invariant/authority defect, not a harmless
-implementation detail.
+| Ticket-owned identifiable schema is the authority | canonical definitions/reference and adapter | canonical definitions/reference plus caller-checkable evidence recognizer | N/A | canonical/custom schema tests | BYPASSABLE |
+| Both envelope and payload validate before consumption | application pair aggregation and value construction | two port calls and evidence-required construction | N/A | valid/one-side-invalid tests | BYPASSABLE through forged success evidence |
+| Minimum structured fields cannot be omitted/inferred from text | structured value constructors | required own fields, typed values, ignored `humanText` | N/A | missing/text-only tests | PRESERVED |
+| Invalid input is `CONTRACT_INVALID` | failure value and application branch | `invalidContract` / `ContractInvalidFailure` | N/A | fail-closed tests | PRESERVED |
+| Text is non-authoritative | structured values only | `humanText` is not consumed | N/A | text-only/missing-field tests | PRESERVED |
+| Returned values are immutable | private constructors and frozen values | frozen result/value/data structures | N/A | immutability tests | PRESERVED |
+| No second EXEC authority is introduced | one ticket-owned schema boundary | forged evidence can mint proof outside adapter | N/A | incomplete authority guard | BYPASSABLE |
 
 ```text
-DOMAIN_INVARIANT_BYPASSES = 1
+DOMAIN_INVARIANT_BYPASSES = 1 root authority invariant
 UNENFORCED_INVARIANTS = 0
-INVARIANT_PLACEMENT_DEVIATIONS = 0
+INVARIANT_PLACEMENT_DEVIATIONS = 1
 ```
+
+The bypass is not a persistence concern; the operation is side-effect free. It
+is nevertheless material because schema validation is the approved authority
+for contract consumption.
 
 ## 12. Domain Rule Duplication Audit
 
-`DOMAIN_RULE_DUPLICATION = 0`. The schema document's required list and the
-domain's defensive required-field list are two enforcement layers for the same
-boundary, not independent lifecycle or semantic authorities. The adapter owns
-schema-engine checks; the domain owns construction-time invariants. No
-independent implementation of lifecycle, stale revision, eligibility, or
-foreign outcome semantics exists in this ticket.
+The schema document and value objects both check minimum structure. This is
+intentional mechanical defense-in-depth described by the design, not two
+independent lifecycle or semantic authorities. The duplicated required-field
+lists are a maintenance risk but do not create a second domain owner in this
+unit.
+
+```text
+DOMAIN_RULE_DUPLICATION = 0 material semantic duplications
+```
 
 ## 13. Value Object / Primitive Audit
 
-The approved value objects remain explicit and immutable. Schema references
-retain identity and comparison semantics; envelope and payload values retain
-structured fields and reject invalid semantic values; the validated pair keeps
-the complete contract together. The implementation does not collapse these
-concepts to primitives or duplicate their comparison semantics externally.
+`SchemaReference` owns schema identity/version validation and comparison.
+`StructuredExecutionEnvelope` and `StructuredCapabilityPayload` own structured
+field checks and immutable projections. `ValidatedExecContract` owns pair
+completeness. No value object is collapsed to an untyped primitive and no
+meaningful identity semantics are moved to application or infrastructure code.
 
 ```text
 VALUE_OBJECT_COLLAPSED_TO_PRIMITIVE = 0
-VALUE_OBJECT_SEMANTICS_DUPLICATED_EXTERNALLY = 0
+VALUE_OBJECT_SEMANTICS_DUPLICATED_EXTERNALLY = 0 material
 PRIMITIVE_OBSESSION_REGRESSION = 0
 ```
 
 ## 14. Domain Service Audit
 
-`NOT_APPLICABLE`. No domain service was designed or introduced. Required-field,
-schema-reference, immutable-value, and fail-closed result rules remain in the
-contract value boundary. No generic domain service bucket or domain-service
-scope leak exists.
+No domain service or generic rule bucket was designed or introduced. Contract
+rules remain on the value boundaries. The schema adapter performs schema
+engine mechanics and does not decide registry, lifecycle, effect, or failure
+ownership.
+
+```text
+DOMAIN_SERVICE_SCOPE_LEAK = 0
+GENERIC_DOMAIN_SERVICE_BUCKET = 0
+```
 
 ## 15. Application Service Audit
 
-`ValidateExecContract` is a thin application service. It loads the ticket-owned
-definitions, calls the narrow port for envelope and payload, aggregates issues,
-constructs domain values, and returns a discriminated valid/invalid result.
-It does not decide registry resolution, lifecycle, persistence, recovery,
-transport, approval, checkpoint, or effect semantics.
+`ValidateExecContract` loads the ticket-owned definitions, invokes the port
+for envelope and payload, normalizes malformed adapter outcomes, constructs
+validated values, and returns a discriminated success/failure result. It does
+not own registry resolution, persistence, lifecycle, effect execution, or
+foreign mapping.
 
 ```text
 FAT_APPLICATION_SERVICE_INTRODUCED = NO
-RESPONSIBILITY_MIXING = NO
+APPLICATION_SERVICE_CONFORMANCE = PASS except for consumption of the flawed evidence contract
 ```
 
 ## 16. Repository / Persistence Boundary Audit
 
-`NOT_APPLICABLE`. No repository port, serialization boundary, storage adapter,
-registry index, CAS mechanism, transaction, durable invariant, restart
-recovery, or rehydration path is introduced. Parsing raw input is not treated
-as persistence or rehydration. The persistence/lifecycle exclusions in the
-design are preserved.
+Persistence, repository, serialization/recovery, registry index, concurrency,
+and durable invariant protection are not applicable. The adapter parses and
+checks raw contract input only; it does not rehydrate persisted state or write
+external state.
 
 ```text
 PERSISTENCE_DESIGN_CONFORMANCE = NOT_APPLICABLE
-PERSISTENCE_BOUNDARY_VIOLATED = 0
+PERSISTENCE_BOUNDARY_VIOLATIONS = 0
+AGGREGATE_STORAGE_BOUNDARY = NOT_APPLICABLE
+REPOSITORY_PORT = NOT_APPLICABLE
+SERIALIZATION_BOUNDARY = schema input only; not persistence
+CONCURRENCY_MECHANISM = NOT_APPLICABLE
+ATOMICITY_BOUNDARY = synchronous pair result; no durable transaction
+RECOVERY_BEHAVIOR = NOT_APPLICABLE
 ```
 
 ## 17. Anti-Corruption / Cross-Spec Design Audit
 
-`NOT_APPLICABLE` for local closure. No foreign domain model crosses the ticket
-boundary. DOM identity/lifecycle, registry/version resolution, persistence,
-transport, and downstream mappings are not implemented. The TypeBox adapter is
-a technical schema adapter, not a foreign semantic mapper.
+No foreign semantic model crosses the local closure boundary. DOM identities,
+registry semantics, persistence/recovery, transport, UI/OPS/BACKEND mappings,
+and effects remain forbidden local ownership. The generic delegation test is a
+consumer regression witness and is not promoted to schema authority.
 
 ```text
+CROSS_SPEC_DESIGN_CONFORMANCE = PASS
 FOREIGN_MODEL_LEAKAGE = 0
 FOREIGN_AUTHORITY_REIMPLEMENTED = 0
 ACL_BYPASSED = 0
-DESIGN_BOUNDARY_VIOLATED = 0 outside the local evidence-handoff finding
-CROSS_SPEC_DESIGN_CONFORMANCE = PASS
+DESIGN_BOUNDARY_VIOLATED = 0 cross-SPEC boundaries
 ```
 
 ## 18. SOLID Audit
 
-- **SRP:** PASS. Contract values, schema definitions, application orchestration,
-  adapter mechanics, and test support have coherent reasons to change.
-- **OCP:** PASS. The only meaningful variation point is the schema-mechanics
-  adapter port; no speculative extension framework was added.
-- **LSP:** NOT_APPLICABLE. No subtype hierarchy is used.
-- **ISP:** PASS. `ExecSchemaValidationPort` exposes one cohesive operation.
-- **DIP:** PASS. Application code depends on the domain-facing port and the
-  infrastructure adapter depends inward on domain contracts.
+```text
+SRP = PASS
+OCP = FINDINGS
+LSP = FINDINGS
+ISP = PASS
+DIP = FINDINGS
+```
 
-The evidence handoff exposure is an authority-boundary defect, not a material
-SOLID violation or dependency inversion reversal.
+The port is a coherent interface, not a fat interface, and the application
+service has one reason to change. However, a successful implementation of the
+approved port is not behaviorally substitutable unless it can produce an
+unexported concrete adapter evidence class. The accepted result contract is
+therefore narrower than the port type advertises. The application/domain
+construction path also semantically depends on the concrete adapter's hidden
+runtime evidence protocol.
 
 ```text
-SRP_VIOLATIONS = 0
-OCP_VIOLATIONS = 0
-LSP_VIOLATIONS = 0
-ISP_VIOLATIONS = 0
-DIP_VIOLATIONS = 0
-UNJUSTIFIED_SOLID_VIOLATIONS = 0
+UNJUSTIFIED_SOLID_VIOLATIONS = 3
 ```
 
 ## 19. Dependency Direction Audit
 
-The actual productive graph is:
+Static imports point inward: the application consumes domain contracts and the
+schema adapter implements the domain port. The productive graph contains no
+`.pi`, prototype, HTTP, filesystem, database, or serializer-library import in
+the domain/application path. Nevertheless, `src/domain/exec-validation-evidence-internal.ts`
+recognizes a concrete infrastructure class by its runtime name and verifier
+shape. That is infrastructure protocol leakage through a nominally inward
+boundary.
 
 ```text
-src/composition/exec-contract.ts
-  -> src/application/exec-contract.ts
-     -> src/domain/exec-contract.ts
-     -> src/domain/exec-schema.ts
-  -> src/infrastructure/exec-schema-validator.ts
-     -> src/domain/exec-schema.ts
-     -> src/domain/exec-contract.ts
-     -> src/domain/exec-validation-evidence-internal.ts
-src/domain/exec-contract.ts
-  -> src/domain/exec-validation-evidence-internal.ts
-```
-
-The domain does not import TypeBox, filesystem, HTTP, persistence, transport,
-prototype, or `.pi`. The adapter is the only bare productive dependency and
-uses the approved schema mechanism. The internal evidence support module is in
-the domain contract area and does not reverse the infrastructure dependency
-direction. Its public handoff surface is nevertheless an authority boundary
-problem, captured by IDC-CRITICAL-001.
-
-```text
-DEPENDENCY_DIRECTION_VIOLATIONS = 0
-INFRASTRUCTURE_LEAKAGE_POINTS = 0
+DEPENDENCY_DIRECTION_CONFORMANCE = FINDINGS
+DEPENDENCY_DIRECTION_VIOLATIONS = 1 semantic hidden adapter dependency
+INFRASTRUCTURE_LEAKAGE_POINTS = 1
 ```
 
 ## 20. Lifecycle Design Audit
 
-`NOT_APPLICABLE`. No lifecycle state, transition owner, terminal state,
-recovery transition, replay transition, or generic state mutation exists. The
-invalid result is a contract-validation failure, not a lifecycle transition.
-
 ```text
+LIFECYCLE_DESIGN_CONFORMANCE = NOT_APPLICABLE
+TRANSITION_OWNER = NONE
+VALID_TRANSITIONS = NOT_APPLICABLE
+INVALID_TRANSITIONS = validation failure only, not lifecycle
+RECOVERY_TRANSITIONS = NOT_APPLICABLE
+TERMINAL_TRANSITIONS = NOT_APPLICABLE
+FORBIDDEN_BYPASS_PATHS = no lifecycle path introduced
 LIFECYCLE_AUTHORITY_DUPLICATED = 0
 GENERIC_STATE_MUTATION_BYPASS = 0
 TERMINAL_STATE_BYPASS = 0
-LIFECYCLE_DESIGN_CONFORMANCE = NOT_APPLICABLE
 ```
 
 ## 21. Failure / Recovery Structure Audit
 
-The implementation preserves the designed synchronous fail-closed path:
-malformed input, invalid schema result, schema failure, missing fields, and
-one-side-invalid input return `CONTRACT_INVALID`; the result exposes no
-approval, checkpoint, or effect signal and no partial validated pair.
-
-Durable evidence, retry policy, persistence recovery, reconciliation, and
-effect idempotency are outside this ticket. No recovery structure was
-collapsed or moved to the wrong owner.
+The implementation has one structured `CONTRACT_INVALID` failure path with
+explicit no-approval, no-checkpoint, and no-effect markers. Invalid adapter
+results and thrown values are normalized by the application boundary. No
+failure is persisted and no retry/reconciliation owner is invented in this
+unit.
 
 ```text
-FAILURE_DETECTION = application/adapter boundary
+FAILURE_STRUCTURE_CONFORMANCE = PASS
+RECOVERY_STRUCTURE = NOT_APPLICABLE
+FAILURE_DETECTION = adapter/application boundary
+DURABLE_EVIDENCE = NONE
 FAILURE_OWNER = EXEC contract boundary
-RETRY_OWNER = outside this ticket
+RETRY_OWNER = outside ticket
 IDEMPOTENCY_BOUNDARY = side-effect-free validation call
+RECOVERY_PATH = caller correction and revalidation
+RECONCILIATION_PATH = NOT_APPLICABLE
 RECOVERY_STRUCTURE_COLLAPSED = 0
 RETRY_OWNERSHIP_DRIFT = 0
 IDEMPOTENCY_BOUNDARY_DRIFT = 0
 ```
 
+The authority bypass in the evidence seam can undermine whether a result is
+valid, but it does not introduce a second recovery or effect path.
+
 ## 22. Clean Code Structural Audit
 
-Naming is generally explicit and cohesive: `SchemaReference`,
-`StructuredExecutionEnvelope`, `ValidatedExecContract`, and
-`ContractInvalidFailure` communicate domain responsibility. Methods use early
-failure returns and immutable results. No generic Manager/Helper/Util bucket,
-god component, fat interface, unexplained boolean mode, deep nesting, or
-unnecessary abstraction was found.
-
-The `exec-validation-evidence-internal.ts` name and comments claim a
-module-private handoff and say it is kept off the named module API, while line
-19 exports the handoff as the module default. This is materially misleading
-because the mismatch obscures a caller-reachable authority path. It is part of
-IDC-CRITICAL-001, not a style-only observation.
+Naming is specific and domain-relevant. Methods are cohesive, side effects are
+explicit, mutation is confined to input validation/value construction, and no
+generic utility/service bucket or mode-switch API was added. The evidence
+recognizer is small, but its comment claims a private brand while its actual
+check trusts caller-controlled type name/prototype data. Correctness therefore
+depends on an inaccurate security assumption rather than an opaque identity.
 
 ```text
-CLEAR_DOMAIN_NAMING = PASS except misleading internal handoff boundary
-COHESIVE_METHODS = PASS
-EXPLICIT_SIDE_EFFECTS = PASS on the normal adapter path
-EXPLICIT_MUTATION_BOUNDARIES = PASS for returned values
-BOOLEAN_MODE_SWITCH = 0
-LONG_PARAMETER_LIST = 0 material
-DOMAIN_PRIMITIVE_OBSESSION = 0
-MAGIC_VALUES = 0 material
-GENERIC_UTIL_BUCKETS = 0
-GENERIC_SERVICE_BUCKETS = 0
-DOMAIN_RULE_DUPLICATION = 0
-DEEP_NESTING = 0 material
-COMMENT_DEPENDENT_CORRECTNESS = FINDING in the evidence-handoff comment/API mismatch
-HIDDEN_SIDE_EFFECT = 0 material
-HIDDEN_TEMPORAL_COUPLING = 0 material
-UNNECESSARY_MUTABILITY = 0
 CLEAN_CODE_STRUCTURAL_CONFORMANCE = FINDINGS
+GOD_COMPONENTS = 0
+FAT_INTERFACES = 0
+PRIMITIVE_OBSESSION_REGRESSIONS = 0
+GENERIC_SERVICE_BUCKETS = 0
+GENERIC_UTIL_BUCKETS = 0
+PREMATURE_ABSTRACTIONS = 0
+OVERENGINEERING_FINDINGS = 0
+HIDDEN_SIDE_EFFECTS = 0
+HIDDEN_TEMPORAL_COUPLINGS = 0
+COMMENT_DEPENDENT_CORRECTNESS = 1 authority claim
 ```
 
 ## 23. Testability / Structural Test Audit
 
 The four approved witness rows have direct positive and negative tests, and
-the focused suite executes the production composition/application boundary.
-Text-only input, missing fields, one-side-invalid input, malformed adapter
-results, immutable values, schema identity, inherited fields, stale genuine
-evidence, and generic consumer behavior are directly exercised. No proxy-only
-behavior, lifecycle transition, or concurrency obligation applies.
-
-The import-graph guard is present and effective for forbidden dependencies and
-prototype/`.pi` leakage. It is ineffective for the evidence authority seam:
-it checks that several named registration functions are absent, but does not
-check that the default-exported `adapterEvidenceHandoff.accept` is itself a
-caller-mintable issuer. A direct structural test for that reachable path is
-missing.
+all executed witnesses are runnable at local closure. The focused suite tests
+caller-defined evidence, copied evidence, injected ports, stale input, custom
+schemas, and import boundaries. It does not test a caller-defined constructor
+whose name is exactly `CanonicalSchemaValidationEvidence`, nor mutation of the
+actual verifier prototype. The architecture guard consequently does not prove
+the claimed non-forgeable authority boundary.
 
 ```text
-DIRECT_BEHAVIOR_WITNESSES = 4
+DIRECT_BEHAVIOR_WITNESSES = 4 witness rows
 PROXY_ONLY_BEHAVIORS = 0
 UNTESTED_STATE_TRANSITIONS = 0
 UNPROVEN_CONCURRENCY_CONTRACTS = 0
-MISSING_ARCHITECTURE_GUARDS = 0
-ARCHITECTURE_GUARD_PRESENT = YES
-ARCHITECTURE_GUARD_INEFFECTIVE = YES for caller-reachable evidence issuance
-MISSING_STRUCTURAL_TESTS = 1
-TESTABILITY_REGRESSIONS = 0
+MISSING_ARCHITECTURE_GUARDS = 1 ineffective authority-forgery guard
 DESIGN_TEST_COVERAGE_GATE = BLOCKED
+TESTABILITY_CONFORMANCE = FINDINGS
+TESTABILITY_REGRESSIONS = 1 hidden concrete-adapter requirement
+MISSING_STRUCTURAL_TESTS = 1 exact-name/prototype authority attack
+ARCHITECTURE_GUARD_PRESENT = YES but INEFFECTIVE for the exact-name attack
 ```
+
+The direct test suite passing is evidence of the implemented paths, not proof
+that the approved structural authority boundary is secure.
 
 ## 24. Design Deviation Audit
 
-No design deviations were recorded in the ticket or remediation record. The
-identity-ledger mechanism and content fingerprint are valid repository-level
-implementation adaptations of the approved adapter-only evidence boundary.
-
-The default export of the handoff is an actual undeclared material boundary
-difference: the approved design requires an internal adapter-to-domain handoff,
-whereas the implementation exposes an issuer to any caller able to import the
-module. It is classified as an invalid component-boundary change and as an
-undeclared material deviation. No domain ownership, aggregate, persistence,
-lifecycle, recovery, or cross-SPEC design deviation was found.
-
 ```text
-RECORDED_DESIGN_DEVIATIONS = 0
+RECORDED_DESIGN_DEVIATIONS = 0 (ticket/design state says none)
 VALID_DESIGN_DEVIATIONS = 0
 INVALID_DESIGN_DEVIATIONS = 1
-UNDECLARED_MATERIAL = 1
+UNDECLARED_MATERIAL_DESIGN_DEVIATIONS = 1
 ```
+
+The extra internal evidence module alone is a permissible local support detail.
+The material undeclared deviation is the change from a replaceable validation
+port returning schema results to a hidden, concrete-adapter-only evidence
+protocol that the domain recognizes by runtime class shape. This changes the
+approved variation/test seam and is not merely a file-placement choice.
 
 ## 25. Structural Self-Check Verification
 
-The ticket execution record and remediation record claim a passing structural
-self-check with zero invariant bypasses, zero dependency violations, and no
-caller-supplied authority bypass. The normal canonical adapter path and most
-negative tests support the claims, but the self-check did not inspect the
-reachable default handoff export or execute a caller-minted evidence exploit.
-
-The self-check is therefore a false pass for the authority-boundary invariant.
-The stale-evidence remediation itself is confirmed: current content
-fingerprints and own-enumerable required-field checks reject the tested
-schema-valid mutation and inherited-field cases.
+The ticket claims `IMPLEMENTATION_STRUCTURAL_SELF_CHECK = PASS`, zero invariant
+bypasses, zero dependency-direction violations, zero testability regressions,
+and zero unplanned structural components. The independent audit confirms the
+responsibility homes and most component structure, but does not confirm the
+authority, SOLID, dependency, and testability claims.
 
 ```text
-IMPLEMENTATION_STRUCTURAL_SELF_CHECK = PASS (claimed)
-SELF_CHECK_AUDITED = FALSE_PASS
-SELF_CHECK_FALSE_NEGATIVE = 0
-SELF_CHECK_FALSE_PASS = 1
-SELF_CHECK_INCOMPLETE = 0
+IMPLEMENTATION_STRUCTURAL_SELF_CHECK = FALSE_PASS
+CLAIMED = PASS
+AUDITED = FALSE_PASS
 ```
 
 ## 26. Findings
 
-## IDC-CRITICAL-001 — Exported evidence handoff permits caller-minted schema-validation authority
+## IDC-CRITICAL-001 — Caller-mintable schema-validation evidence bypass
 
 Severity: CRITICAL  
-Category: `CALLER_SUPPLIED_AUTHORITY_BYPASS`; `INVALID_COMPONENT_BOUNDARY_CHANGE`
+Category: `CALLER_SUPPLIED_AUTHORITY_BYPASS / DOMAIN_INVARIANT_BYPASS / INVALID_INVARIANT_PLACEMENT`
 
-Ticket: `docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-envelope-schema-contract.md`  
+Ticket: `EXEC-001-TICKET-001`  
 Implementation Design: `docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design.md`  
-Audit Target HEAD: `fdb26aabd8e54e6fc9034962233678c729507a9a`
+Audit Target HEAD: `c3375bf9675629262ed500857b41a9636971efc0`
 
-Designed responsibility/component:
-
-- Prevent prototype, text, transport, and caller-controlled authority.
-- Keep schema-validation evidence on the infrastructure-adapter-to-domain
-  handoff; only successful canonical adapter validation may produce consumable
-  evidence.
+Designed responsibility/component: the schema-validation port and adapter must
+establish the only proof that the exact envelope/payload pair passed the
+identifiable ticket-owned schemas; structured values must not be consumable from
+unproven input.
 
 Approved design:
 
-The design requires an internal evidence handoff behind the narrow
-`ExecSchemaValidationPort`. Domain factories must accept only evidence issued
-by the successful canonical schema-validation path. A caller-created receipt,
-custom verifier, unproven adapter, or alternate schema must fail closed.
+- `ExecSchemaValidationPort` is the inward schema-mechanics boundary;
+- `StructuredExecutionEnvelope` and `StructuredCapabilityPayload` are created
+  only after both schema validations succeed;
+- the ticket-owned schema boundary is the sole local schema authority;
+- text, prototype, and alternate caller input cannot establish authority.
 
 Actual implementation:
 
-`src/domain/exec-validation-evidence-internal.ts:12-19` creates the ledger but
-exports `adapterEvidenceHandoff` as the module default. Its public `accept`
-method records any frozen object in the `WeakSet`; it does not establish that
-the caller is the infrastructure adapter or that the object came from a
-compiled schema validation. `src/domain/exec-contract.ts:371-386` trusts ledger
-membership, canonical reference identity, and a caller-supplied content
-fingerprint. `src/infrastructure/exec-schema-validator.ts:61-67` uses the same
-exported handoff, but the export is also directly importable by callers.
+`isIssuedSchemaValidationEvidence` accepts any frozen object whose caller-
+controlled `evidenceType` is a function named
+`CanonicalSchemaValidationEvidence`, whose prototype is the object's prototype,
+and whose prototype exposes a caller-controlled `isCanonicalEvidence` method.
+The recognizer does not compare the constructor to a module-private identity or
+consult an unforgeable issuance ledger.
 
 Repository evidence:
 
-- The module exports `adapterEvidenceHandoff` at line 19 despite the comment at
-  lines 4-8 claiming that the handoff is off the named module API.
-- A direct runtime probe at the pinned target imported that default, built a
-  frozen evidence object with the canonical reference and current content
-  fingerprint, called `handoff.accept(fake)`, and successfully executed
-  `StructuredExecutionEnvelope.create(...)` with the forged receipt.
-- The focused tests cover forged objects and caller-defined verifier prototypes,
-  but only assert absence of several named registration functions at
-  `tests/exec-001-ticket-001.test.ts:239-247`; they do not exercise the
-  default `accept` export.
-- The normal 21/21 focused tests, repository 25/25 tests, focused strict
-  typecheck, and package typecheck pass, but none proves that the exported
-  handoff is caller-inaccessible.
+- `src/domain/exec-validation-evidence-internal.ts:9-22` checks the supplied
+  type name, supplied prototype, and supplied verifier method.
+- `src/domain/exec-contract.ts:371-386` then trusts that result plus caller-
+  controlled fields/fingerprint to construct the values.
+- `src/infrastructure/exec-schema-validator.ts:54-58` exposes the concrete
+  class through each genuine evidence object's non-enumerable `evidenceType`,
+  while the domain recognizer does not retain its identity.
+- The focused test at `tests/exec-001-ticket-001.test.ts:271-319` uses a
+  differently named `CallerDefinedEvidence`, so it does not cover the exact
+  accepted name.
 
-Structural problem:
-
-The identity ledger is not an adapter-private issuer. Any code with the source
-module path can register a frozen object as issued evidence without executing
-JSON Schema validation. This creates a second authority path and defeats the
-approved evidence provenance boundary. The implementation is therefore
-bypassable even though copied receipts, hostile prototypes, and unproven ports
-are rejected on the tested paths.
-
-DDD impact:
-
-The domain contract's validation authority is no longer owned exclusively by
-the schema adapter/contract boundary. A caller can mint the evidence required
-to construct a domain value, so the domain invariant is not protected by its
-approved owner.
-
-SOLID impact:
-
-No independent SRP, OCP, LSP, ISP, or DIP violation is required to describe
-this defect. The port remains narrow, but its authority contract is undermined
-by the public handoff.
-
-Clean Code impact:
-
-The `internal` module name and comment materially misrepresent the public
-issuer surface. This is a correctness-obscuring boundary mismatch, not a
-formatting preference.
-
-Dependency direction impact:
-
-The import graph remains inward and has no infrastructure leakage. The defect
-is authority exposure across a component boundary, not a reversed dependency.
-
-Invariant impact:
-
-The invariants “both inputs were validated by the canonical schema path” and
-“no second EXEC authority exists” are bypassable. A caller can register an
-object that was never accepted by the compiled schema engine.
-
-Testability impact:
-
-The architecture guard is present for forbidden imports and text/prototype
-paths but structurally incomplete for the exported issuer. One direct negative
-structural witness is missing.
-
-Why this matters:
-
-The ticket's purpose is to make only schema-validated structured input
-consumable and to keep text or caller claims non-authoritative. A consumer that
-can import the handoff can turn an arbitrary shape into a consumable validated
-contract, potentially allowing invalid results to cross the canonical EXEC
-boundary. Downstream consumers would receive a structurally valid-looking
-`ValidatedExecContract` without canonical schema proof.
-
-Minimum structural correction required:
-
-Restore an adapter-only, non-caller-mintable issuance boundary for validation
-evidence. All reachable production module paths must reject caller-created
-receipts and must require evidence tied to an actual canonical schema
-validation; the public validation port and delegating canonical adapter path
-must remain usable. No specific code patch is prescribed here.
+Independent reproduction against the pinned code used a caller-defined class:
 
 ```text
-FINDING_STATUS = OPEN
-CAPABILITY = canonical schema-validation evidence provenance
-DEPENDENCY_CLASS = INFORMATIONAL (unit-owned local contract harness)
-LOCAL_CLOSURE_BLOCKING = YES
-LOCAL_ACCEPTANCE_REQUIRES_PRODUCTIVE_CAPABILITY = NO
-CLOSURE_OWNERSHIP = LOCAL_TICKET
-BLOCKS_LOCAL_EXECUTION = YES
-BLOCKS_LOCAL_CLOSURE = YES
-BLOCKS_TICKET_DONE = YES
-BLOCKS_INTEGRATED_PROOF = YES
-BLOCKS_SPEC_FINAL_CONFORMANCE = YES
-DEPENDENCY_CLASS_RECLASSIFICATION_REQUIRED = NO
-UPSTREAM_DEPENDENCY_CLASSIFICATION_PRESERVED = YES
-COMPLETION_EVIDENCE_TIMING = local ticket closure and downstream integrated contract consumption
-PRIMARY_ROUTE = IMPLEMENTATION_REMEDIATION
-DOWNSTREAM_CHECKPOINT = independent implementation re-audit
-DOWNSTREAM_OWNER = implementation audit/consolidation workflow
-SUGGESTED_LOCAL_INTEGRATED_BLOCKING_EFFECTS = local acceptance remains open until the authority seam is closed; downstream consumers must not treat the contract as canonical before re-audit
+const CanonicalSchemaValidationEvidence = class CanonicalSchemaValidationEvidence {
+  isCanonicalEvidence() { return true }
+}
+```
+
+A frozen object created with that caller class, the canonical reference, the
+input object, and the exported `structuredContentFingerprint` was accepted by
+`StructuredExecutionEnvelope.create` without a `JsonSchemaExecValidator`
+validation result. Mutating the genuine verifier prototype likewise permits a
+forged object after obtaining one genuine evidence object.
+
+Structural problem: the claimed private adapter brand is not an opaque
+identity. A caller can mint the evidence shape and make the domain treat it as
+adapter-issued proof. This bypasses the central schema-validation authority
+invariant, even though current value constructors duplicate several basic
+shape checks.
+
+DDD impact: the domain factory accepts a caller-created authority token rather
+than only a producer-owned validation observation.  
+SOLID impact: the domain's semantic trust boundary depends on an unowned runtime
+class protocol.  
+Clean Code impact: the security comment and implementation disagree; correctness
+rests on a misleading private-brand assumption.  
+Dependency direction impact: the domain leaks a concrete adapter protocol
+through runtime class naming.  
+Invariant impact: schema-authority and both-validation-before-consumption
+invariants are bypassable.  
+Testability impact: the existing authority guard gives a false sense of closure
+because it omits the exact-name/prototype case.
+
+Why this matters: a valid result must mean that the identifiable schema
+actually executed against the exact input/reference pair. A caller-supplied
+receipt can otherwise promote unvalidated material to a structured contract,
+which is precisely the alternate-authority and fail-closed risk this ticket is
+required to prevent.
+
+Minimum structural correction required: replace the caller-definable
+name/prototype/verifier test with an opaque producer-owned issuance identity
+that cannot be created or altered by consumers; retain exact input/reference
+and current-content checks; add direct tests for exact-name forgery and verifier
+prototype tampering. Do not close this finding based only on the current green
+suite.
+
+```text
+Capability = EXEC schema-validation authority / contract-validity invariant
+Dependency class = INFORMATIONAL (local implementation obligation; no external capability)
+Local closure blocking = YES
+Local acceptance requires productive capability = NO
+Completion evidence timing = LOCAL_TICKET
+Dependency class reclassification required = NO
+Upstream dependency classification preserved = YES
+Suggested local/integrated blocking effects = BLOCKS_LOCAL_EXECUTION: NO; BLOCKS_LOCAL_CLOSURE: YES; BLOCKS_TICKET_DONE: YES; BLOCKS_INTEGRATED_PROOF: YES; BLOCKS_SPEC_FINAL_CONFORMANCE: YES
+Primary route = IMPLEMENTATION_REMEDIATION
+```
+
+## IDC-MAJOR-002 — Approved validation port is closed by a hidden concrete-adapter proof protocol
+
+Severity: MAJOR  
+Category: `DIP_VIOLATION / OCP_VIOLATION / LSP_VIOLATION / TESTABILITY_REGRESSION / INVALID_COMPONENT_BOUNDARY_CHANGE`
+
+Ticket: `EXEC-001-TICKET-001`  
+Implementation Design: `docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design.md`  
+Audit Target HEAD: `c3375bf9675629262ed500857b41a9636971efc0`
+
+Designed responsibility/component: `ExecSchemaValidationPort` is the real
+schema-mechanics variation boundary, used by the application service and a
+deterministic local harness; the selected schema adapter is replaceable behind
+that port.
+
+Approved design:
+
+- the application depends on the narrow port rather than infrastructure;
+- the schema adapter translates the selected mechanism into port outcomes;
+- OCP/DIP pass at the actual schema-mechanics seam;
+- the local harness remains independently testable without broad infrastructure.
+
+Actual implementation: `SchemaValidationResult.evidence` is optional at the
+TypeScript port (`src/domain/exec-schema.ts:12-17`), but
+`normalizedValidationResult` requires a successful result to contain evidence
+(`src/application/exec-contract.ts:45-55`), and the domain accepts only the
+hidden `CanonicalSchemaValidationEvidence` runtime protocol. That class is
+unexported and issued only in `src/infrastructure/exec-schema-validator.ts:34-77`.
+An independent schema adapter or deterministic fake can implement the declared
+method and return `valid: true`, but cannot produce a recognized successful
+result. The only demonstrated alternate adapter (`tests/exec-001-ticket-001.test.ts:229-237`)
+merely delegates to the canonical TypeBox adapter.
+
+Repository evidence: the port's static dependency direction looks inward, but
+its success semantics are coupled to one unexported infrastructure class. The
+application therefore has a nominal abstraction whose valid implementation set
+is narrower than its declared contract.
+
+Structural problem: the implementation collapses the approved adapter/test
+seam into a decorator around `JsonSchemaExecValidator`. A replacement engine,
+contract-level fake, or future adapter cannot be behaviorally substituted
+without importing or reproducing an inaccessible concrete evidence protocol.
+
+DDD impact: schema-engine mechanics leak into the domain's authority
+recognition rather than remaining behind the port.  
+SOLID impact: OCP, LSP, and DIP are materially violated at the approved
+variation boundary.  
+Clean Code impact: the port contract is incomplete and its required success
+proof is implicit.  
+Dependency direction impact: a semantic dependency on infrastructure is hidden
+behind a domain helper.  
+Invariant impact: attempting to preserve the authority invariant creates a
+non-replaceable and currently forgeable proof mechanism.  
+Testability impact: independent local adapter/fake testing is regressed; the
+current alternate-adapter test proves delegation only.
+
+Why this matters: the design explicitly identifies the schema-mechanics port as
+the one concrete variation point. Closing that port prevents legitimate
+adapter substitution and makes the boundary harder to test without broadening
+infrastructure coupling. It also makes future schema-library replacement a
+material redesign rather than a local adapter change.
+
+Minimum structural correction required: define an explicit, producer-authenticated
+success contract that preserves the approved port and permits an independently
+implemented adapter/test harness, while preventing caller-created evidence from
+minting schema authority. Add a non-delegating adapter/fake witness and an
+architecture guard for the complete port contract, or re-approve a narrower
+non-polymorphic design upstream before relying on this closed seam.
+
+```text
+Capability = EXEC schema-validation port / local contract harness
+Dependency class = INFORMATIONAL (local implementation obligation; no external capability)
+Local closure blocking = YES
+Local acceptance requires productive capability = NO
+Completion evidence timing = LOCAL_TICKET
+Dependency class reclassification required = NO
+Upstream dependency classification preserved = YES
+Suggested local/integrated blocking effects = BLOCKS_LOCAL_EXECUTION: NO; BLOCKS_LOCAL_CLOSURE: YES; BLOCKS_TICKET_DONE: YES; BLOCKS_INTEGRATED_PROOF: YES; BLOCKS_SPEC_FINAL_CONFORMANCE: YES
+Primary route = IMPLEMENTATION_REMEDIATION
 ```
 
 ## 27. Metrics
@@ -673,39 +692,33 @@ RESPONSIBILITIES:
 
 COMPONENTS:
 - DESIGNED: 9
-- PRESERVED: 8
-- LOCALLY_ADAPTED: 1
+- PRESERVED: 7
+- LOCALLY_ADAPTED: 2
 - COLLAPSED: 0
 - UNJUSTIFIED_SPLITS: 0
 - MISSING: 0
 - UNPLANNED: 0
-- UNJUSTIFIED_COMPONENT_COLLAPSES: 0
-- UNJUSTIFIED_COMPONENT_SPLITS: 0
-- MISSING_REQUIRED_COMPONENTS: 0
-- UNPLANNED_STRUCTURAL_COMPONENTS: 0
 
 DDD:
 - AGGREGATE_BOUNDARY_VIOLATIONS: 0
 - DOMAIN_INVARIANT_BYPASSES: 1
 - UNENFORCED_INVARIANTS: 0
-- INVARIANT_PLACEMENT_DEVIATIONS: 0
+- INVARIANT_PLACEMENT_DEVIATIONS: 1
 - DOMAIN_RULE_DUPLICATION: 0
 - ANEMIC_DOMAIN_MODEL_INTRODUCED: NO
 - FAT_APPLICATION_SERVICE_INTRODUCED: NO
-- FAT_INTERFACE_INTRODUCED: NO
-- GOD_COMPONENTS_INTRODUCED: 0
 
 SOLID:
 - SRP_VIOLATIONS: 0
-- OCP_VIOLATIONS: 0
-- LSP_VIOLATIONS: 0
+- OCP_VIOLATIONS: 1
+- LSP_VIOLATIONS: 1
 - ISP_VIOLATIONS: 0
-- DIP_VIOLATIONS: 0
-- UNJUSTIFIED_SOLID_VIOLATIONS: 0
+- DIP_VIOLATIONS: 1
+- UNJUSTIFIED_SOLID_VIOLATIONS: 3
 
 DEPENDENCIES:
-- DEPENDENCY_DIRECTION_VIOLATIONS: 0
-- INFRASTRUCTURE_LEAKAGE_POINTS: 0
+- DEPENDENCY_DIRECTION_VIOLATIONS: 1
+- INFRASTRUCTURE_LEAKAGE_POINTS: 1
 
 UPSTREAM_AUTHORITY:
 - SPEC_IMPLEMENTABILITY_CHECK: PASS
@@ -714,8 +727,8 @@ UPSTREAM_AUTHORITY:
 - LIFECYCLE_AUTHORITY_GAPS: 0
 - PERSISTENCE_SEMANTICS_GAPS: 0
 - CROSS_SPEC_AUTHORITY_GAPS: 0
-- UPSTREAM_AUTHORITY_CONFORMANCE: PASS
-- AUTHORITY_CONSUMPTION_GAPS: 0 blocking; 1 informational productive-availability limitation explicitly preserved
+- UPSTREAM_AUTHORITY_CONFORMANCE: FINDINGS
+- AUTHORITY_CONSUMPTION_GAPS: 0 external
 - PRODUCER_CONSUMER_CONTRACT_ERRORS: 0
 - CAPABILITY_AVAILABILITY_CLASSIFICATION_ERRORS: 0
 - DOWNSTREAM_PROMOTION_WITHOUT_NEW_EVIDENCE: 0
@@ -733,19 +746,9 @@ CLEAN_CODE:
 - OVERENGINEERING_FINDINGS: 0
 - HIDDEN_SIDE_EFFECTS: 0
 - HIDDEN_TEMPORAL_COUPLINGS: 0
-- CLEAR_DOMAIN_NAMING: FINDINGS (misleading internal handoff boundary)
-- COHESIVE_METHODS: PASS
-- EXPLICIT_SIDE_EFFECTS: PASS
-- EXPLICIT_MUTATION_BOUNDARIES: PASS
-- BOOLEAN_MODE_SWITCHES: 0
-- LONG_PARAMETER_LISTS: 0
-- MAGIC_VALUES: 0
-- DEEP_NESTING: 0
-- COMMENT_DEPENDENT_CORRECTNESS: 1
-- UNNECESSARY_MUTABILITY: 0
 
 TESTABILITY:
-- TESTABILITY_REGRESSIONS: 0
+- TESTABILITY_REGRESSIONS: 1
 - MISSING_STRUCTURAL_TESTS: 1
 
 DESIGN_DEVIATIONS:
@@ -760,75 +763,55 @@ SELF_CHECK:
 
 FINDINGS:
 - CRITICAL: 1
-- MAJOR: 0
+- MAJOR: 1
 - MINOR: 0
 - INFO: 0
 ```
 
 ## 28. Re-audit Reconciliation
 
-This is the first independent audit of the pinned target pair under this
-artifact; no sibling specialist audit artifact was consumed. The current
-remediation record was inspected as an implementation note and claims that
-its prior stale-evidence finding and caller-verifier finding were remediated.
+```text
+RE_AUDIT_TARGET = c3375bf9675629262ed500857b41a9636971efc0
+PREVIOUS_SPECIALIST_FINDINGS_CONSUMED = 0
+CURRENT_FINDING_CLASSIFICATION = independent current-target findings
+IDC-CRITICAL-001 = REMEDIATION_INTRODUCED / STILL_PRESENT in the pinned evidence recognizer
+IDC-MAJOR-002 = NEWLY_APPLICABLE current-target design-seam finding
+REMEDIATION_REGRESSION_SEARCH = COMPLETE
+REMEDIATION_INTRODUCED_STRUCTURAL_REGRESSIONS = 1 authority-recognizer regression
+NEW_UNRELATED_STRUCTURAL_FINDINGS = 0
+```
 
-- The stale genuine-evidence problem is **RESOLVED** for the inspected
-  manifestations: content fingerprints and current own-enumerable data-field
-  checks reject post-validation mutation and inherited replacement.
-- The prior caller-defined verifier/prototype manifestations are **RESOLVED**
-  on the directly tested domain-factory and injected-port paths.
-- The same authority root remains **STILL_PRESENT** through the newly exposed
-  default handoff. Because the default export is introduced by the remediation
-  design, IDC-CRITICAL-001 is additionally classified
-  `REMEDIATION_INTRODUCED`.
-- The remediation self-check claim of zero caller-supplied authority bypasses
-  is not confirmed; it is a **FALSE_PASS**.
-- The separate ticket/index bookkeeping finding described by the remediation
-  record is outside this design-conformance artifact and does not alter the
-  structural result above.
-
-No remediation, code change, test change, state transition, commit, branch,
-merge, remote, or publication operation was performed by this audit.
+The target's current implementation includes a remediation-era replacement of
+an earlier evidence handoff. This audit evaluates the current code, not the
+prior audit conclusion: the replacement removes the earlier public registration
+surface but leaves a caller-definable exact-name/prototype recognizer and an
+implicit concrete-adapter dependency.
 
 ## 29. Specialist Completeness Proof
 
-- The pinned ticket, approved Implementation Design, ticket-set audit, shared
-  authority-completeness contract, and finding-completion contract were loaded.
-- ADR-0003, Portfolio O-016, SPEC-EXEC-001 envelope requirements,
-  Implementation Plan EXEC-IMP-01, local authority-consumption records, and
-  the design witness matrix were checked for current applicable authority.
-- The target HEAD, baseline HEAD, clean repository state, target fingerprint,
-  and implementation diff were recorded.
-- Every designed responsibility and component was compared with its actual
-  implementation home and classified.
-- The domain model, aggregate applicability, invariant placement, value-object
-  semantics, application-service scope, persistence/lifecycle exclusions,
-  cross-spec boundary, SOLID dimensions, dependency graph, clean-code risks,
-  and failure/recovery placement were independently reviewed.
-- All four direct witness rows were reconciled with the 21 focused runtime
-  tests and the executable import-graph/generic-consumer guards. The missing
-  caller-mintable handoff witness was identified.
-- The identity-ledger claim was adversarially tested at runtime. Importing the
-  default handoff and calling `accept` on a forged frozen receipt produced a
-  consumable `StructuredExecutionEnvelope`, proving the critical escape.
-- Recorded design deviations, implementation notes, remediation claims, and
-  structural self-check claims were independently classified.
-- The full audit continued after the critical finding; no other critical,
-  major, minor, or informational structural finding was discovered.
-- Only this specialist artifact is written. No production code, tests, ticket
-  state, upstream authority, Git state, commits, branches, remotes, or
-  publication state was changed.
-
 ```text
-DESIGN_CONFORMANCE_AUDIT_COMPLETE
-SPECIALIST_DESIGN_FINDINGS
-CRITICAL_FINDINGS = 1
-MAJOR_FINDINGS = 0
-MINOR_FINDINGS = 0
-INFO_FINDINGS = 0
+DESIGN_LOADED_COMPLETELY = YES
+UPSTREAM_AUTHORITY_CHECKED = YES
+ACTUAL_PRODUCTION_DIFF_RECONSTRUCTED = YES
+ACTUAL_TEST_DIFF_RECONSTRUCTED = YES
+RESPONSIBILITY_BY_RESPONSIBILITY_AUDIT = COMPLETE
+COMPONENT_BY_COMPONENT_AUDIT = COMPLETE
+DOMAIN_MODEL_AUDIT = COMPLETE
+AGGREGATE_BOUNDARY_AUDIT = COMPLETE (NOT_APPLICABLE)
+INVARIANT_BY_INVARIANT_AUDIT = COMPLETE
+CROSS_SPEC_SEAM_AUDIT = COMPLETE
+SOLID_AUDIT = COMPLETE
+DEPENDENCY_DIRECTION_AUDIT = COMPLETE
+PERSISTENCE_LIFECYCLE_RECOVERY_AUDIT = COMPLETE (APPLICABILITY RECORDED)
+CLEAN_CODE_AUDIT = COMPLETE
+TESTABILITY_AND_WITNESS_AUDIT = COMPLETE
+DESIGN_DEVIATION_AUDIT = COMPLETE
+STRUCTURAL_SELF_CHECK_VERIFIED = YES
+FULL_AUDIT_CONTINUED_AFTER_FINDINGS = YES
+NO_CODE_OR_TEST_REMEDIATION_PERFORMED = YES
 ```
 
-AUDIT_TARGET_HEAD: fdb26aabd8e54e6fc9034962233678c729507a9a
-AUDIT_TARGET_STATE_FINGERPRINT: 7b71716af32059ee6c2dd952c858cbb34973fc14e1aaf7d80c5bdd23a1f4d8de
+AUDIT_TARGET_HEAD: c3375bf9675629262ed500857b41a9636971efc0
+AUDIT_TARGET_STATE_FINGERPRINT: 8a923cb179405b34582cd6dfafe168750ce897d3b75e4fddb0c00c04d22d8740
 DOMAIN_AUDIT_COMPLETE: YES
 SPECIALIST_RESULT: SPECIALIST_DESIGN_FINDINGS
