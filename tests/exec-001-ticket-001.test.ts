@@ -240,6 +240,7 @@ test('does not expose caller-mintable validation authority through the domain bo
   assert.equal('registerExecValidationAuthority' in execContractDomain, false)
   assert.equal('recordExecSchemaValidation' in execContractDomain, false)
   const validationEvidenceModule = await import('../src/domain/exec-validation-evidence-internal.ts')
+  assert.equal('default' in validationEvidenceModule, false)
   assert.equal('registerIssuedSchemaValidationEvidence' in validationEvidenceModule, false)
   assert.equal('issueSchemaValidationEvidence' in validationEvidenceModule, false)
   assert.equal('registerSchemaValidationAdapter' in validationEvidenceModule, false)
@@ -253,7 +254,7 @@ test('does not expose caller-mintable validation authority through the domain bo
   assert.equal(validation.valid, true)
   assert.ok(validation.evidence)
   assert.equal(Object.prototype.hasOwnProperty.call(validation.evidence, 'isCanonicalEvidence'), false)
-  assert.equal('isCanonicalEvidence' in validation.evidence, false)
+  assert.equal('isCanonicalEvidence' in validation.evidence, true)
   ;(input.envelope as Record<string, unknown>).contractVersion = ' 1.0.0 '
   const postMutationValidation = adapter.validate(definitions.envelope, input.envelope)
   assert.equal(postMutationValidation.valid, false)

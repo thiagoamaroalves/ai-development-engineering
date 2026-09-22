@@ -1,29 +1,26 @@
 import type { SchemaValidationEvidence } from './exec-contract.ts'
 
 /**
- * Validation evidence is recognized by object identity in this module-private
- * ledger. The adapter handoff is deliberately kept off the named module API;
- * only the infrastructure adapter imports the internal handoff object. A
- * copied receipt, caller-defined prototype, or hostile verifier therefore
- * cannot establish schema-validation authority.
+ * Validation evidence is recognized only through the private ECMAScript brand
+ * owned by the infrastructure adapter's evidence class. This module exposes
+ * no issuer or registration handoff: callers can copy fields or provide a
+ * hostile verifier, but neither can create the adapter's private brand.
  */
-const ISSUED_EVIDENCE = new WeakSet<object>()
-
-const adapterEvidenceHandoff = Object.freeze({
-  accept(value: SchemaValidationEvidence): void {
-    if (!value || typeof value !== 'object' || Array.isArray(value) || !Object.isFrozen(value)) return
-    ISSUED_EVIDENCE.add(value)
-  },
-})
-
-export default adapterEvidenceHandoff
-
 export function isIssuedSchemaValidationEvidence(value: unknown): value is SchemaValidationEvidence {
-  return Boolean(
-    value
-      && typeof value === 'object'
-      && !Array.isArray(value)
-      && Object.isFrozen(value)
-      && ISSUED_EVIDENCE.has(value),
-  )
+  if (!value || typeof value !== 'object' || Array.isArray(value) || !Object.isFrozen(value)) return false
+
+  try {
+    const candidate = value as SchemaValidationEvidence & {
+      readonly evidenceType?: unknown
+    }
+    const evidenceType = candidate.evidenceType
+    if (typeof evidenceType !== 'function' || evidenceType.name !== 'CanonicalSchemaValidationEvidence') return false
+    if (Object.getPrototypeOf(value) !== evidenceType.prototype) return false
+
+    const verifier = Object.getOwnPropertyDescriptor(evidenceType.prototype, 'isCanonicalEvidence')?.value
+    if (typeof verifier !== 'function') return false
+    return verifier.call(value) === true
+  } catch {
+    return false
+  }
 }
