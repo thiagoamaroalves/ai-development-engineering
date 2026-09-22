@@ -6,10 +6,12 @@ import {
   type ExecSchemaValidationPort,
   type SchemaValidationResult,
 } from '../domain/exec-schema.ts'
-import type {
-  SchemaReference,
-  SchemaValidationEvidence,
+import {
+  structuredContentFingerprint,
+  type SchemaReference,
+  type SchemaValidationEvidence,
 } from '../domain/exec-contract.ts'
+import adapterEvidenceHandoff from '../domain/exec-validation-evidence-internal.ts'
 
 function issue(message: string): SchemaValidationResult {
   return Object.freeze({ valid: false, issues: Object.freeze([message]) })
@@ -24,9 +26,9 @@ function hasOwnEnumerableRequiredFields(schema: ExecSchemaDefinition, value: unk
 
 /**
  * Evidence is created only by this adapter after the compiled schema engine
- * has accepted the exact input/reference pair. The evidence carries an
- * adapter-private ECMAScript brand; a copied prototype or caller-defined
- * verifier therefore cannot mint schema authority.
+ * has accepted the exact input/reference pair. The internal handoff records
+ * the frozen evidence object by identity; no public prototype method is used
+ * as authority and copied/caller-defined receipts cannot enter the ledger.
  */
 const EVIDENCE_CONSTRUCTION_TOKEN = {}
 
@@ -35,7 +37,7 @@ class CanonicalSchemaValidationEvidence implements SchemaValidationEvidence {
   readonly issues = Object.freeze([] as readonly string[])
   readonly validatedInput: object
   readonly schemaReference: SchemaReference
-  #brand: object
+  readonly contentFingerprint: string
 
   constructor(
     validatedInput: object,
@@ -47,18 +49,8 @@ class CanonicalSchemaValidationEvidence implements SchemaValidationEvidence {
     }
     this.validatedInput = validatedInput
     this.schemaReference = schemaReference
-    this.#brand = EVIDENCE_CONSTRUCTION_TOKEN
-    Object.defineProperty(this, 'evidenceType', {
-      configurable: false,
-      enumerable: false,
-      writable: false,
-      value: CanonicalSchemaValidationEvidence,
-    })
+    this.contentFingerprint = structuredContentFingerprint(validatedInput)
     Object.freeze(this)
-  }
-
-  isCanonicalEvidence(): boolean {
-    return this.#brand === EVIDENCE_CONSTRUCTION_TOKEN
   }
 }
 
@@ -66,11 +58,13 @@ function issueCanonicalEvidence(
   validatedInput: object,
   schemaReference: SchemaReference,
 ): SchemaValidationEvidence {
-  return new CanonicalSchemaValidationEvidence(
+  const evidence = new CanonicalSchemaValidationEvidence(
     validatedInput,
     schemaReference,
     EVIDENCE_CONSTRUCTION_TOKEN,
   )
+  adapterEvidenceHandoff.accept(evidence)
+  return evidence
 }
 
 /**

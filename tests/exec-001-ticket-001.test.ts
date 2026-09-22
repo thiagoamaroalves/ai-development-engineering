@@ -253,7 +253,7 @@ test('does not expose caller-mintable validation authority through the domain bo
   assert.equal(validation.valid, true)
   assert.ok(validation.evidence)
   assert.equal(Object.prototype.hasOwnProperty.call(validation.evidence, 'isCanonicalEvidence'), false)
-  assert.equal(typeof (validation.evidence as { readonly isCanonicalEvidence?: unknown }).isCanonicalEvidence, 'function')
+  assert.equal('isCanonicalEvidence' in validation.evidence, false)
   ;(input.envelope as Record<string, unknown>).contractVersion = ' 1.0.0 '
   const postMutationValidation = adapter.validate(definitions.envelope, input.envelope)
   assert.equal(postMutationValidation.valid, false)
@@ -289,6 +289,27 @@ test('rejects forged evidence and runtime-created canonical-looking references',
     Object.create(Object.getPrototypeOf(canonicalValidation.evidence)),
     canonicalValidation.evidence,
   )
+  class CallerDefinedEvidence {
+    isCanonicalEvidence(): boolean {
+      return true
+    }
+  }
+  const callerDefinedEvidence = Object.assign(
+    Object.create(CallerDefinedEvidence.prototype),
+    {
+      valid: true as const,
+      issues: [],
+      validatedInput: input.envelope as object,
+      schemaReference: definitions.envelope.reference,
+    },
+  )
+  Object.defineProperty(callerDefinedEvidence, 'evidenceType', {
+    configurable: false,
+    enumerable: false,
+    writable: false,
+    value: CallerDefinedEvidence,
+  })
+  Object.freeze(callerDefinedEvidence)
 
   assert.throws(
     () => StructuredExecutionEnvelope.create(
@@ -311,6 +332,14 @@ test('rejects forged evidence and runtime-created canonical-looking references',
       input.envelope as never,
       definitions.envelope.reference,
       copiedEvidence,
+    ),
+    /explicit successful schema validation evidence/,
+  )
+  assert.throws(
+    () => StructuredExecutionEnvelope.create(
+      input.envelope as never,
+      definitions.envelope.reference,
+      callerDefinedEvidence as never,
     ),
     /explicit successful schema validation evidence/,
   )
@@ -337,6 +366,30 @@ test('rejects forged evidence and runtime-created canonical-looking references',
       evidence: forgedEvidence(schema.reference, value as object),
     }),
   }
+  const callerDefinedPort: ExecSchemaValidationPort = {
+    validate: (schema, value) => {
+      const evidence = Object.assign(
+        Object.create(CallerDefinedEvidence.prototype),
+        {
+          valid: true as const,
+          issues: [],
+          validatedInput: value as object,
+          schemaReference: schema.reference,
+        },
+      )
+      Object.defineProperty(evidence, 'evidenceType', {
+        configurable: false,
+        enumerable: false,
+        writable: false,
+        value: CallerDefinedEvidence,
+      })
+      return {
+        valid: true,
+        issues: [],
+        evidence: Object.freeze(evidence) as never,
+      }
+    },
+  }
   const result = new ValidateExecContract(forgedPort).validate(input)
   assert.equal(result.status, 'INVALID')
   if (result.status !== 'INVALID') return
@@ -345,6 +398,95 @@ test('rejects forged evidence and runtime-created canonical-looking references',
   assert.equal(result.failure.noApproval, true)
   assert.equal(result.failure.noCheckpoint, true)
   assert.equal(result.failure.noEffect, true)
+
+  const callerDefinedResult = new ValidateExecContract(callerDefinedPort).validate(input)
+  assert.equal(callerDefinedResult.status, 'INVALID')
+  if (callerDefinedResult.status === 'INVALID') {
+    assert.equal(callerDefinedResult.failure.code, 'CONTRACT_INVALID')
+    assert.equal('value' in callerDefinedResult, false)
+  }
+})
+
+test('rejects stale genuine evidence after envelope or payload current-content mutation', () => {
+  const input = validInput()
+  const envelope = input.envelope as Record<string, unknown>
+  const payload = input.payload as Record<string, unknown>
+  const definitions = new ExecContractSchemaDefinitions()
+  const adapter = new JsonSchemaExecValidator()
+  const envelopeValidation = adapter.validate(definitions.envelope, envelope)
+  const payloadValidation = adapter.validate(definitions.payload, payload)
+  assert.equal(envelopeValidation.valid, true)
+  assert.equal(payloadValidation.valid, true)
+  if (!envelopeValidation.valid || !payloadValidation.valid
+    || !envelopeValidation.evidence || !payloadValidation.evidence) return
+
+  const stalePort: ExecSchemaValidationPort = {
+    validate: (schema) => ({
+      valid: true,
+      issues: [],
+      evidence: schema.reference === definitions.envelope.reference
+        ? envelopeValidation.evidence
+        : payloadValidation.evidence,
+    }),
+  }
+  const originalExecutionId = Object.getOwnPropertyDescriptor(Object.prototype, 'executionId')
+  const originalData = Object.getOwnPropertyDescriptor(Object.prototype, 'data')
+  try {
+    envelope.executionId = 'mutated-but-schema-valid'
+    const staleValidEnvelope = new ValidateExecContract(stalePort).validate(input)
+    assert.equal(staleValidEnvelope.status, 'INVALID')
+    envelope.executionId = 'execution-001'
+
+    delete envelope.executionId
+    Object.defineProperty(Object.prototype, 'executionId', {
+      configurable: true,
+      enumerable: false,
+      writable: true,
+      value: 'inherited-forgery',
+    })
+    const staleEnvelope = new ValidateExecContract(stalePort).validate(input)
+    assert.equal(staleEnvelope.status, 'INVALID')
+    if (staleEnvelope.status === 'INVALID') assert.equal(staleEnvelope.failure.code, 'CONTRACT_INVALID')
+
+    Object.defineProperty(envelope, 'executionId', {
+      configurable: true,
+      enumerable: true,
+      writable: true,
+      value: 'execution-001',
+    })
+    payload.data = { changed: true }
+    const staleValidPayload = new ValidateExecContract(stalePort).validate(input)
+    assert.equal(staleValidPayload.status, 'INVALID')
+    payload.data = { result: 'structured' }
+
+    delete payload.data
+    Object.defineProperty(Object.prototype, 'data', {
+      configurable: true,
+      enumerable: false,
+      writable: true,
+      value: { inherited: true },
+    })
+    const stalePayload = new ValidateExecContract(stalePort).validate(input)
+    assert.equal(stalePayload.status, 'INVALID')
+    if (stalePayload.status === 'INVALID') assert.equal(stalePayload.failure.code, 'CONTRACT_INVALID')
+  } finally {
+    if (originalExecutionId) Object.defineProperty(Object.prototype, 'executionId', originalExecutionId)
+    else delete (Object.prototype as Record<string, unknown>).executionId
+    if (originalData) Object.defineProperty(Object.prototype, 'data', originalData)
+    else delete (Object.prototype as Record<string, unknown>).data
+    Object.defineProperty(envelope, 'executionId', {
+      configurable: true,
+      enumerable: true,
+      writable: true,
+      value: 'execution-001',
+    })
+    Object.defineProperty(payload, 'data', {
+      configurable: true,
+      enumerable: true,
+      writable: true,
+      value: { result: 'structured' },
+    })
+  }
 })
 
 test('normalizes malformed adapter results and thrown values to fail-closed results', () => {

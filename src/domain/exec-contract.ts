@@ -28,6 +28,7 @@ export interface SchemaValidationEvidence {
   readonly issues: readonly string[]
   readonly validatedInput: object
   readonly schemaReference: SchemaReference
+  readonly contentFingerprint: string
 }
 
 export class ExecContractDomainError extends Error {
@@ -144,6 +145,25 @@ function cloneAndFreeze(value: unknown): unknown {
     return Object.freeze(copy)
   }
   throw new ExecContractDomainError('Structured values must contain JSON data only.')
+}
+
+function stableSerialized(value: unknown): string {
+  if (value === null) return 'null'
+  if (typeof value === 'string') return JSON.stringify(value)
+  if (typeof value === 'boolean') return value ? 'true' : 'false'
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) throw new ExecContractDomainError('Structured values must contain finite JSON numbers.')
+    return JSON.stringify(value)
+  }
+  if (Array.isArray(value)) return `[${value.map((item) => stableSerialized(item)).join(',')}]`
+  if (isPlainObject(value)) {
+    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableSerialized(value[key])}`).join(',')}}`
+  }
+  throw new ExecContractDomainError('Structured values must contain JSON data only.')
+}
+
+export function structuredContentFingerprint(value: unknown): string {
+  return stableSerialized(cloneAndFreeze(value))
 }
 
 function requiredObject(value: unknown, label: string): JsonObject {
@@ -306,6 +326,43 @@ function isCanonicalSchemaReference(value: unknown, schemaId: string): value is 
   return isSchemaReference(value) && value === canonical
 }
 
+const ENVELOPE_REQUIRED_FIELDS = Object.freeze([
+  'schemaId',
+  'schemaVersion',
+  'contractVersion',
+  'executionId',
+  'activityId',
+  'agentAssignmentId',
+  'artifactCycleId',
+  'attemptId',
+  'executionRound',
+  'executionStatus',
+  'functionalVerdict',
+  'checkpoints',
+  'artifacts',
+  'evidence',
+  'findings',
+  'requestedEffects',
+  'errors',
+] as const)
+
+const PAYLOAD_REQUIRED_FIELDS = Object.freeze([
+  'schemaId',
+  'schemaVersion',
+  'capabilityId',
+  'data',
+] as const)
+
+function hasCurrentOwnDataFields(
+  value: object,
+  requiredFields: readonly string[],
+): boolean {
+  return requiredFields.every((field) => {
+    const descriptor = Object.getOwnPropertyDescriptor(value, field)
+    return Boolean(descriptor?.enumerable && 'value' in descriptor)
+  })
+}
+
 function isSchemaValidationEvidence(
   value: unknown,
   schema: SchemaReference,
@@ -315,12 +372,18 @@ function isSchemaValidationEvidence(
     || value.valid !== true
     || value.validatedInput !== input
     || value.schemaReference !== schema
+    || typeof value.contentFingerprint !== 'string'
+    || value.contentFingerprint !== structuredContentFingerprint(input)
     || !Array.isArray(value.issues)
     || !value.issues.every((issue) => typeof issue === 'string')) {
     return false
   }
   return Object.keys(value).every((key) =>
-    key === 'valid' || key === 'issues' || key === 'validatedInput' || key === 'schemaReference')
+    key === 'valid'
+      || key === 'issues'
+      || key === 'validatedInput'
+      || key === 'schemaReference'
+      || key === 'contentFingerprint')
 }
 
 export interface StructuredExecutionEnvelopeInput extends JsonObject {
@@ -400,6 +463,9 @@ export class StructuredExecutionEnvelope {
     if (!isSchemaValidationEvidence(validation, schema, input)) {
       throw new ExecContractDomainError('Envelope construction requires explicit successful schema validation evidence.')
     }
+    if (!hasCurrentOwnDataFields(input, ENVELOPE_REQUIRED_FIELDS)) {
+      throw new ExecContractDomainError('Envelope required schema properties must remain own enumerable data fields.')
+    }
     if (!Object.prototype.hasOwnProperty.call(input, 'schemaId')
       || !Object.prototype.hasOwnProperty.call(input, 'schemaVersion')
       || input.schemaId !== schema.schemaId
@@ -447,6 +513,9 @@ export class StructuredCapabilityPayload {
     }
     if (!isSchemaValidationEvidence(validation, schema, input)) {
       throw new ExecContractDomainError('Payload construction requires explicit successful schema validation evidence.')
+    }
+    if (!hasCurrentOwnDataFields(input, PAYLOAD_REQUIRED_FIELDS)) {
+      throw new ExecContractDomainError('Payload required schema properties must remain own enumerable data fields.')
     }
     if (!Object.prototype.hasOwnProperty.call(input, 'schemaId')
       || !Object.prototype.hasOwnProperty.call(input, 'schemaVersion')
