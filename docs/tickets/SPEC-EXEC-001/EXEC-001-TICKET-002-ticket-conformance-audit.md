@@ -1,6 +1,6 @@
-# Ticket Conformance Audit — EXEC-001-TICKET-002
+# EXEC-001-TICKET-002 — Ticket Conformance Audit
 
-## 1. Audit mode and subject
+## 1. Audit subject and mode
 
 ```text
 AUDIT_SKILL = audit-ticket-conformance
@@ -8,333 +8,437 @@ AUDIT_MODE = READ_ONLY; INDEPENDENT; ADVERSARIAL; TICKET_SCOPED; SPEC_FIRST; GAP
 TICKET_ID = EXEC-001-TICKET-002
 TICKET_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-002-version-registry-catalogs-capabilities.md
 TICKET_STATUS = VALIDATION_REQUIRED
-IMPLEMENTATION_UNIT = EXEC-IMP-02 — Version, registry resolution, catalogs and capability extensibility
-IMPLEMENTATION_BASELINE = 8f62b283b1dbf487911c7c459db95cadc25ff101
-CURRENT_HEAD = c450df1c4523a841484cbf1acb8cd1ab57621017
-AUDIT_TARGET_HEAD = c450df1c4523a841484cbf1acb8cd1ab57621017
-AUDIT_TARGET_STATE_FINGERPRINT = d91db0e8d277c66499d9d4fd5dc0a05818aeb7d39faf1303876abc8e6d165192
+IMPLEMENTATION_UNIT = EXEC-IMP-02
+GAP_IDS = GAP-004, GAP-006, GAP-008, GAP-009, GAP-010, GAP-011
+REQUIREMENT_IDS = EXEC-VERSION-001, EXEC-VERSION-002, EXEC-REGISTRY-001, EXEC-REGISTRY-002, EXEC-REGISTRY-003, EXEC-CAPABILITY-001, EXEC-CAPABILITY-002
+ACCEPTANCE_IDS = AC-EXEC-003, AC-EXEC-004, AC-EXEC-005, AC-EXEC-007, AC-EXEC-008, AC-EXEC-009, AC-EXEC-010, AC-EXEC-011, AC-EXEC-012
+ADR_PATHS = docs/adrs/ADR-0003-versioned-skill-contracts.md; docs/adrs/ADR-0010-repository-configuration-and-legacy-migration.md
+SPEC_PATH = docs/specs/SPEC-EXEC-001-skill-contracts-and-capability-registry.md
+GAP_MATRIX_PATH = docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md
+IMPLEMENTATION_PLAN_PATH = docs/specs/implementation-plans/SPEC-EXEC-001-implementation-plan.md
+PLAN_AUDIT_PATH = docs/specs/implementation-plans/audits/SPEC-EXEC-001-implementation-plan-audit.md
+TICKET_AUDIT_PATH = docs/tickets/SPEC-EXEC-001/implementation-ticket-audit.md
+IMPLEMENTATION_BASELINE = 8f62b283b1dbf487911c7c459db95cadc25ff101 (ticket execution record)
+CURRENT_HEAD = 6f8ea7170f21f94d36f30893cc5622040fa4ba5b
+AUDIT_TARGET_HEAD = 6f8ea7170f21f94d36f30893cc5622040fa4ba5b
+AUDIT_TARGET_STATE_FINGERPRINT = 732a233bb6949d3b9da4192284f83e31564828ba5962ba43c2f25eff1ee66668
+CHANGED_FILES = 15 ticket-declared implementation/evidence files; target-wave delta from IMPLEMENTATION_BASELINE is 6 implementation/remediation files
+WORKTREE_OVERLAY = NONE; git status clean at pinned HEAD
 ```
 
-The pinned HEAD was present before evidence collection and the working tree
-remained clean afterward. The supplied state fingerprint is recorded as the
-semantic audit basis. No production code, tests, ticket state, authority,
-Git state, commit, branch, remote, or publication state was changed.
+The accepted ADR authority, conformant `SPEC-EXEC-001`, validated Gap Matrix and
+its audit, conformant Implementation Plan and Plan Audit, and conformant ticket
+set audit were available. The primary ticket and approved Implementation Design
+were inspected. Sibling specialist audit contents were not read. No production
+code, tests, authority, ticket state, Git state, commit, branch, remote or
+publication state was changed.
 
-### Required inputs
+## 2. Traceability and authority
 
-| Input | Value |
-|---|---|
-| Gap IDs | `GAP-004`, `GAP-006`, `GAP-008`, `GAP-009`, `GAP-010`, `GAP-011` |
-| Requirement IDs | `EXEC-VERSION-001`, `EXEC-VERSION-002`, `EXEC-REGISTRY-001`, `EXEC-REGISTRY-002`, `EXEC-REGISTRY-003`, `EXEC-CAPABILITY-001`, `EXEC-CAPABILITY-002` |
-| Acceptance IDs | `AC-EXEC-003`, `AC-EXEC-004`, `AC-EXEC-008`, `AC-EXEC-009`, `AC-EXEC-010`, `AC-EXEC-011`, `AC-EXEC-012`; contributor to `AC-EXEC-005`, `AC-EXEC-007` |
-| ADR paths | `docs/adrs/ADR-0003-versioned-skill-contracts.md` (primary accepted authority); related ownership/boundary ADRs are consumed by the approved SPEC and Plan |
-| SPEC path | `docs/specs/SPEC-EXEC-001-skill-contracts-and-capability-registry.md` |
-| Gap Matrix path | `docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md` |
-| Gap Matrix audit path | `docs/specs/gap-matrices/audits/SPEC-EXEC-001-implementation-gap-matrix-audit.md` |
-| Implementation Plan path | `docs/specs/implementation-plans/SPEC-EXEC-001-implementation-plan.md` |
-| Plan audit path | `docs/specs/implementation-plans/audits/SPEC-EXEC-001-implementation-plan-audit.md` |
-| Ticket-set audit path | `docs/tickets/SPEC-EXEC-001/implementation-ticket-audit.md` |
-| Changed files | The pinned checkpoint delta contains 16 files; all are classified in §4 |
+```text
+TRACEABILITY = TRACEABILITY_CONFORMANT
+ADR-0003 = ACCEPTED, revision 3; owns O-017 and O-020 semantics
+SPEC-EXEC-001 = revision 3; conformant audit; owns the cited requirements
+GAP_MATRIX = conformant; cited six active Gaps are owned by EXEC-IMP-02
+IMPLEMENTATION_PLAN = conformant; EXEC-IMP-02 is the cited unit
+PLAN_AUDIT = IMPLEMENTATION_PLAN_CONFORMANT
+TICKET_SET_AUDIT = IMPLEMENTATION_TICKETS_CONFORMANT
+IMPLEMENTATION_DESIGN = IMPLEMENTATION_DESIGN_READY; auxiliary, not authority
+```
 
-## 2. Traceability and execution eligibility
+The ticket belongs to `SPEC-EXEC-001`, its Unit exists, and every cited Gap,
+Requirement, Acceptance and upstream path resolves. The ticket's authority
+chain is:
 
-### Traceability
+```text
+ADR-0003/O-017,O-020
+  -> SPEC-EXEC-001 requirements
+  -> GAP-004,006,008,009,010,011
+  -> EXEC-IMP-02
+  -> EXEC-001-TICKET-002
+  -> registry implementation and direct witnesses
+```
 
-`TRACEABILITY_CONFORMANT`.
+The related ADR-0010 reference is used only for repository/bootstrap boundary
+context; the implementation does not take ownership of repository enablement.
+No authority hole prevented this audit.
 
-The ticket resolves to `SPEC-EXEC-001`, unit `EXEC-IMP-02`, the six validated
-Gaps, seven requirements, and the seven locally owned acceptance criteria.
-`ADR-0003` revision 3 is accepted. The SPEC, Gap Matrix, Gap Matrix audit,
-Implementation Plan, Plan audit, and ticket-set audit are present and
-conformant at their recorded authority gates. The ticket-set audit records the
-one-to-one unit mapping, ownership, local closure, acceptance allocation, and
-predecessor release. No orphan, invalid, foreign, or invented reference was
-found.
+## 3. Execution eligibility
 
-### Execution eligibility
+TICKET-001 is recorded as `DONE` with local closure before TICKET-002 execution.
+The historical `INITIAL_DAG_STATE = BLOCKED` correctly records that TICKET-002
+was not initially executable; the implementation began after its predecessor
+was complete and the ticket-set gate released the Unit.
 
 ```text
 UPSTREAM_AUTHORITY_COMPLETE = YES
-PREDECESSOR_EXEC-001-TICKET-001 = DONE before implementation
+INTERNAL_PREDECESSOR_TICKET-001_COMPLETE = YES
+REQUIRED_FOR_LOCAL_EXECUTION_CAPABILITIES_PRODUCTIVELY_AVAILABLE = YES (none required)
+REQUIRED_FOR_LOCAL_CLOSURE_CAPABILITIES_PRODUCTIVELY_AVAILABLE = YES (none foreign required)
 LOCAL_ACCEPTANCE_PROVABLE_NOW = YES
 LOCAL_COMPLETION_EVIDENCE_PRODUCIBLE_NOW = YES
-REQUIRED_FOR_LOCAL_EXECUTION_CAPABILITIES_PRODUCTIVELY_AVAILABLE = NOT_APPLICABLE (none)
-REQUIRED_FOR_LOCAL_CLOSURE_CAPABILITIES_PRODUCTIVELY_AVAILABLE = NOT_APPLICABLE (none)
+NO_UNRESOLVED_EXECUTION_BLOCKER_AT_START = YES
 EXECUTION_READY_AT_START = TRUE
 EXECUTION_ELIGIBILITY = EXECUTION_ELIGIBILITY_CONFIRMED
 ```
 
-The ticket's `INITIAL_DAG_STATE = BLOCKED` and `EXECUTION_READY = FALSE` are
-historical planning fields. The predecessor was finalized before this unit's
-implementation, and the ticket-set audit independently records the released
-TICKET-002 readiness. The current `STATUS = VALIDATION_REQUIRED` is the
-post-implementation validation state, not an execution-start claim.
+Capability records were independently reconciled as follows:
 
-Foreign capabilities are preserved as integrated-only and do not contradict
-local readiness:
+| Capability | Authority / contract | Local testability | Productive availability | Dependency class | Local closure blocking | Local acceptance requires productive capability | Closure owner | Evidence timing | Classification action |
+|---|---|---:|---:|---|---:|---:|---|---|---|
+| `DOM-EXEC-IDENTITY-SNAPSHOT` | DEFINED / DEFINED | NO | NO | `REQUIRED_FOR_INTEGRATED_PROOF` | NO | NO | integrated checkpoint / DOM owner | integrated proof | `UPSTREAM_DEPENDENCY_CLASSIFICATION_PRESERVED = YES` |
+| `REPO-EXEC-NORMAL-CATALOG` | DEFINED / DEFINED | NO | NO | `REQUIRED_FOR_INTEGRATED_PROOF` | NO | NO | integrated checkpoint / REPO owner | integrated proof | `UPSTREAM_DEPENDENCY_CLASSIFICATION_PRESERVED = YES` |
+| `UNIT-EXEC-REGISTRY-FIXTURE` | DEFINED / DEFINED | YES | NO; fixture only | `INFORMATIONAL` | NO | NO | local ticket | local contract witness | preserved; no productive promotion |
 
-| Capability | Authority / contract | Local testability | Productive availability | Dependency class | Local acceptance requires productive capability | Local closure blocking | Classification result |
-|---|---|---:|---:|---|---:|---:|---|
-| `DOM-EXEC-IDENTITY-SNAPSHOT` | DEFINED / DEFINED | NO | NO | `REQUIRED_FOR_INTEGRATED_PROOF` | NO | NO | preserved; integrated follow-up only |
-| `REPO-EXEC-NORMAL-CATALOG` | DEFINED / DEFINED | NO | NO | `REQUIRED_FOR_INTEGRATED_PROOF` | NO | NO | preserved; integrated follow-up only |
-| Unit registry fixture | DEFINED / DEFINED | YES | NO (fixture only) | `INFORMATIONAL` | NO | NO | local contract evidence only |
+The unavailable DOM and REPO producers are explicitly integrated-only in the
+Plan and ticket. A fixture is not treated as a productive producer. No
+availability contradiction exists and no dependency-class reclassification is
+supported or proposed:
 
 ```text
-UPSTREAM_DEPENDENCY_CLASSIFICATION_PRESERVED = YES
 DEPENDENCY_CLASS_RECLASSIFICATION_REQUIRED = NO
+LOCAL_CLOSURE_BLOCKING = NO for the integrated-only capabilities
+INTEGRATED_FOLLOWUP_REQUIRED = YES
+INTEGRATED_FOLLOWUP_OWNER = DOM/REPO producer owners at the integrated checkpoint
 INTEGRATED_ONLY_AVAILABILITY_BLOCKING_LOCAL_DONE = 0
 ```
 
-No unavailable capability was silently promoted to a local blocker, and no
-fixture was treated as productive availability. Physical CAS/concurrent
-publication remains an integrated PLAT concern and is not a local ticket
-closure dependency.
-
-## 3. Reconstructed canonical implementation contract
+## 4. Reconstructed canonical implementation contract
 
 ### Required local behavior
 
-1. Parse and expose semantic-version major/minor/patch meaning; resolve only
-   explicit supported versions and return `INCOMPATIBLE_CAPABILITY` for an
-   unsupported version without aliasing or conversion.
-2. Resolve a complete stage/skill/capability mapping deterministically from an
-   immutable catalog basis, including schemas, artifacts, verdicts, and roles.
-3. Keep NORMAL repository-scoped and BOOTSTRAP system-scoped, with separate
-   source/revision authority; reject a non-allowlisted bootstrap capability as
-   `INCOMPATIBLE_CAPABILITY` before normal work.
-4. Preserve `UNKNOWN_CAPABILITY` versus `INCOMPATIBLE_CAPABILITY` and fail
-   closed on malformed or unverified resolution material.
-5. Register and resolve a schema-valid synthetic capability through the common
-   registry path while publishing a new basis and leaving the frozen basis
-   unchanged.
+1. Parse and expose SemVer major/minor/patch semantics, preserving valid
+   prerelease/build structure and exact decimal comparison.
+2. Resolve only explicit `SupportedVersionSet` membership; unsupported
+   versions return `INCOMPATIBLE_CAPABILITY` without alias or silent conversion.
+3. Resolve a complete registered mapping deterministically for the requested
+   frozen scope/basis, including stage, skill/capability, semantic version,
+   input/output schemas, artifacts, allowed verdicts and roles.
+4. Keep NORMAL catalogs repository-scoped and BOOTSTRAP catalogs independently
+   system-scoped, with distinct source boundaries and revisions.
+5. Apply the bootstrap allowlist before any normal catalog/work path; a normal
+   capability in BOOTSTRAP returns `INCOMPATIBLE_CAPABILITY` with no approval or
+   mutation.
+6. Preserve `UNKNOWN_CAPABILITY` versus `INCOMPATIBLE_CAPABILITY`.
+7. Register a schema-valid synthetic capability through the common immutable
+   registry path, returning a new basis without mutating the frozen basis.
+8. Reject caller-supplied basis, forged scope/schema, copied/untrusted source
+   receipt, alternate resolver and fixture promotion at the productive
+   application boundary.
+
+Local fixtures are authorized contract witnesses only. Productive DOM/REPO
+issuers, physical persistence, CAS, recovery, execution lifecycle, effects,
+transport/UI/OPS mappings and REPO enablement are not implemented by this
+Ticket.
 
 ### Integration behavior
 
-The implementation exposes narrow DOM execution-basis, REPO NORMAL-catalog,
-and independent system-bootstrap source seams. It verifies producer-issued
-receipts, source kind, scope, source label, and exact catalog revision. It
-contributes the registry contract to downstream snapshot and failure owners;
-it does not claim productive DOM/REPO availability.
+The application exposes separate consumer-shaped DOM execution-basis,
+repository NORMAL-catalog and system BOOTSTRAP source seams. It verifies source
+receipt provenance, source kind, scope and exact catalog revision before the
+canonical resolver path. This is a contract contribution for later integrated
+proof, not a claim of productive foreign availability.
 
-### Does not implement
+### Expected repository impact
 
-DOM `RepositoryId` or lifecycle; REPO configuration/enablement; session or
-scheduler behavior; physical persistence, recovery, or CAS; effects; transport,
-UI, or OPS mappings; registry semantic reconstruction owned by TICKET-003.
-The implementation does not add a legacy registry writer or a silent conversion
-path.
+The ticket-authorized surface is the registry domain boundary, application
+orchestration and source ports, composition wiring, direct registry tests,
+architecture/import guards, and the eight ticket evidence files. No foreign
+authority, persistence technology, transport, prototype or generic delegation
+registry is added.
 
-### Normative authority and expected impact
+## 5. Changed-file classification and scope
 
-The contract is anchored in ADR-0003, SPEC §§12.1 and 13, Gap Matrix rows
-GAP-004/006/008/009/010/011, Plan unit EXEC-IMP-02, and the approved design
-§§2–4, 7, 9, 13, 16–20. Expected impact is the EXEC registry/version/catalog
-boundary, narrow source seams, direct tests, and local evidence only.
+The ticket-declared implementation/evidence surface contains 15 files:
 
-## 4. Changed-file classification and scope
+| File | Classification | Scope evidence |
+|---|---|---|
+| `src/domain/exec-registry.ts` | `DIRECT_TICKET_IMPLEMENTATION` | SemVer, support sets, entries, bases, policies, outcomes and immutable registration |
+| `src/application/exec-registry.ts` | `DIRECT_TICKET_IMPLEMENTATION` | Resolve/register orchestration and source provenance checks |
+| `src/application/exec-registry-ports.ts` | `REQUIRED_SHARED_SUPPORT` | Narrow DOM/REPO/BOOTSTRAP source seams and fixture separation |
+| `src/composition/exec-registry.ts` | `REQUIRED_SHARED_SUPPORT` | Registry use-case wiring |
+| `tests/exec-001-ticket-002.test.ts` | `REQUIRED_TEST_CHANGE` | Direct positive, negative, isolation and no-mutation witnesses |
+| `tests/exec-registry-import-boundary-loader.mjs` | `REQUIRED_TEST_CHANGE` | Productive graph import boundary |
+| `tests/fixtures/exec-registry-forbidden-import.mjs` | `REQUIRED_TEST_CHANGE` | Negative architecture guard fixture |
+| `docs/tickets/SPEC-EXEC-001/evidence/TICKET-002/AC-EXEC-003-semver.md` | `AUTHORIZED_GENERATED_ARTIFACT` | Required AC evidence |
+| `docs/tickets/SPEC-EXEC-001/evidence/TICKET-002/AC-EXEC-005-registry-contribution.md` | `AUTHORIZED_GENERATED_ARTIFACT` | Required contributor evidence |
+| `docs/tickets/SPEC-EXEC-001/evidence/TICKET-002/AC-EXEC-007-registry-contribution.md` | `AUTHORIZED_GENERATED_ARTIFACT` | Required contributor evidence |
+| `docs/tickets/SPEC-EXEC-001/evidence/TICKET-002/AC-EXEC-008-deterministic-resolution.md` | `AUTHORIZED_GENERATED_ARTIFACT` | Required AC evidence |
+| `docs/tickets/SPEC-EXEC-001/evidence/TICKET-002/AC-EXEC-009-catalog-isolation.md` | `AUTHORIZED_GENERATED_ARTIFACT` | Required AC evidence |
+| `docs/tickets/SPEC-EXEC-001/evidence/TICKET-002/AC-EXEC-010-bootstrap-allowlist.md` | `AUTHORIZED_GENERATED_ARTIFACT` | Required AC evidence |
+| `docs/tickets/SPEC-EXEC-001/evidence/TICKET-002/AC-EXEC-011-failure-distinction.md` | `AUTHORIZED_GENERATED_ARTIFACT` | Required AC evidence |
+| `docs/tickets/SPEC-EXEC-001/evidence/TICKET-002/AC-EXEC-012-registry-extensibility.md` | `AUTHORIZED_GENERATED_ARTIFACT` | Required AC evidence |
 
-The pinned checkpoint commit (`c450df1`) changes 16 files. The complete
-implementation surface was also inspected, including the previously established
-`src/application/exec-registry-ports.ts` and `src/composition/exec-registry.ts`
-seams. The target delta is entirely authorized.
-
-| Classification | Files |
-|---|---:|
-| `DIRECT_TICKET_IMPLEMENTATION` | 2 — `src/domain/exec-registry.ts`, `src/application/exec-registry.ts` |
-| `REQUIRED_SHARED_SUPPORT` | 0 in the pinned checkpoint delta; authenticated schema support in `src/domain/exec-contract.ts` was inspected as an already established shared seam |
-| `REQUIRED_TEST_CHANGE` | 3 — `tests/exec-001-ticket-002.test.ts`, `tests/exec-registry-import-boundary-loader.mjs`, `tests/fixtures/exec-registry-forbidden-import.mjs` |
-| `REQUIRED_MIGRATION` | 0 |
-| `AUTHORIZED_GENERATED_ARTIFACT` | 11 — the remediation checkpoint, implementation-remediation record, ticket execution record, and eight required TICKET-002 evidence snapshots |
-| `UNRELATED_CHANGE` | 0 in the pinned checkpoint delta |
-| `SCOPE_EXPANSION` | 0 |
-| `FOREIGN_SCOPE_CHANGE` | 0 |
+The target wave additionally contains authorized ticket/remediation/checkpoint
+and specialist-audit workflow artifacts. They are not production scope and are
+classified as workflow-owned generated artifacts, not unrelated product
+changes. Their contents were not used as evidence here.
 
 ```text
-CHANGED_FILES_TOTAL = 16
-IN_SCOPE_FILES = 16
+CHANGED_FILES_TOTAL = 15 implementation/evidence files in ticket scope
+TARGET_WAVE_DELTA_FILES_FROM_IMPLEMENTATION_BASELINE = 6
+IN_SCOPE_FILES = 15
 UNRELATED_FILES = 0
 SCOPE_EXPANSION_FILES = 0
 FOREIGN_SCOPE_FILES = 0
+AUTHORIZED_GENERATED_ARTIFACTS_IN_TICKET_SCOPE = 8
+DIRECT_TICKET_IMPLEMENTATION_FILES = 2
+REQUIRED_SHARED_SUPPORT_FILES = 2
+REQUIRED_TEST_CHANGE_FILES = 3
 ```
 
-The required import-boundary loader is test-owned architecture support, not a
-production dependency. No storage, transport, lifecycle, alternate registry,
-or foreign authority implementation was introduced.
+## 6. Required behavior coverage
 
-## 5. Required behavior coverage
-
-| Required behavior | Evidence | Result |
+| Required behavior | Executable evidence | Result |
 |---|---|---|
-| Semantic version parsing, major/minor/patch classification, and exact explicit support sets | `src/domain/exec-registry.ts:90–203`; tests `parses semantic versions...` and `resolves only authenticated explicit supported versions...` | `IMPLEMENTED` |
-| Complete deterministic mapping for a frozen basis | `RegistryEntry`, `CatalogBasis`, and `RegistryResolutionService` at `src/domain/exec-registry.ts:304–483, 578–623`; tests `resolves a complete registered mapping...` and `selects the exact compatible version...` | `IMPLEMENTED` |
-| Duplicate/conflict rejection and frozen-basis immutability | `CatalogBasis.register` at `src/domain/exec-registry.ts:461–468`; tests `rejects duplicate and conflicting registration...`, `rejects unsafe catalog revision progression...`, and synthetic registration | `IMPLEMENTED` |
-| Independent NORMAL/BOOTSTRAP scope and source authority | `src/domain/exec-registry.ts:234–259`; `src/application/exec-registry.ts:75–153`; tests `keeps NORMAL repositories isolated...` and `rejects matching-source forgery...` | `IMPLEMENTED` |
-| Bootstrap allowlist and before-work rejection | `BootstrapAllowlistPolicy` at `src/domain/exec-registry.ts:562–567`; tests `keeps BOOTSTRAP independent and rejects normal capabilities before work` | `IMPLEMENTED` |
-| Distinct unknown/incompatible outcomes and fail-closed malformed source/result handling | `src/domain/exec-registry.ts:578–623`; application receipt verification at `src/application/exec-registry.ts:131–167`; tests `distinguishes unknown from every known incompatibility...` and malformed/untrusted source tests | `IMPLEMENTED` |
-| Common-path synthetic capability extensibility without frozen-basis mutation | `RegistryEntry.create` and `CatalogBasis.register`; test `registers a synthetic capability through the common domain registry path` | `IMPLEMENTED` |
-| Does-not-implement boundaries | Import guard, narrow ports, no infrastructure/prototype/transport imports, and composition-only wiring | `IMPLEMENTED_WITHOUT_SCOPE_LEAKAGE` |
+| SemVer major/minor/patch meaning and exact comparison | `SemanticVersion.parse`, `compare`, `changeFrom`; focused test covers core changes, build-only change and large decimal components | `IMPLEMENTED` |
+| Explicit supported-set resolution with no approximation | `SupportedVersionSet`; exact membership and unsupported resolution tests | `IMPLEMENTED` |
+| Complete deterministic registry mapping | `RegistryEntry`, `CatalogBasis`, `RegistryResolutionService`; forward/reverse registration-order tests assert stage, IDs, versions, schemas, artifacts, verdicts and roles | `IMPLEMENTED` |
+| NORMAL/BOOTSTRAP separation | `CatalogScope`, separate source kinds, scope/revision checks, two-repository and bootstrap tests | `IMPLEMENTED` |
+| Bootstrap allowlist and no normal work on rejection | `BootstrapAllowlistPolicy`; normal capability rejection and zero normal-source/work reads | `IMPLEMENTED` |
+| Unknown/incompatible distinction | identity lookup before stage/schema/version compatibility; direct canonical-code assertions | `IMPLEMENTED` |
+| Synthetic common-path extensibility and frozen-basis preservation | `CatalogBasis.register` plus synthetic resolution through the same entry/basis path | `IMPLEMENTED` |
+| Caller/fixture/source authority protection | authenticated instance/proof ledgers, source-receipt checks and forgery/alternate-adapter negative tests | `IMPLEMENTED` |
+| Productive DOM/REPO integrated consumption | narrow seams and fail-closed rejection of local fixtures; productive foreign producers intentionally unavailable and integrated-only | `IMPLEMENTED` as local seam; integrated proof deferred by authorized dependency class |
+| Architecture boundary | source inspection and loader guard reject infrastructure/prototype/transport/generic-bucket imports | `IMPLEMENTED` |
 
-No required behavior is partial, missing, or contradictory.
+No required local behavior is missing or contradictory. The absence of a
+productive DOM/REPO issuer is not scope leakage: the ticket and Plan classify
+those capabilities as `REQUIRED_FOR_INTEGRATED_PROOF`.
 
-## 6. Gap closure
+## 7. Gap closure
 
 | Gap | Validated delta | Implementation evidence | Residual | Result |
 |---|---|---|---|---|
-| `GAP-004` | Productive semver meaning and explicit supported-set enforcement were absent | `SemanticVersion`, `SupportedVersionSet`, `VersionCompatibilityPolicy`; focused tests and AC-EXEC-003 evidence | Productive cross-SPEC basis remains an integrated dependency, not this Gap's local semantic closure | `GAP_CLOSED` |
-| `GAP-006` | Deterministic frozen-basis stage/capability registry was absent | `RegistryEntry`, immutable `CatalogBasis`, resolver, source-bound application seam; AC-EXEC-008 evidence | Physical producer/CAS proof is outside this unit and retained for integrated proof | `GAP_CLOSED` |
-| `GAP-008` | Independent NORMAL and BOOTSTRAP catalogs were absent | `CatalogScope`, independent source kinds, receipt verification, isolation tests; AC-EXEC-009 evidence | Productive DOM/REPO producers remain integrated-only | `GAP_CLOSED` |
-| `GAP-009` | Bootstrap allowlist and normal-capability rejection were absent | `BOOTSTRAP_CAPABILITY_CATEGORIES`, `BootstrapAllowlistPolicy`, no-normal-source-read witness; AC-EXEC-010 evidence | Actual onboarding/enablement remains REPO-owned | `GAP_CLOSED` |
-| `GAP-010` | Compatible capability resolution and canonical unknown/incompatible outcomes were absent | Resolver result codes and direct distinction tests; AC-EXEC-011 evidence | Downstream structured failure mapping remains TICKET-004-owned | `GAP_CLOSED` |
-| `GAP-011` | Common registry extensibility without frozen-basis mutation was absent | Authenticated `RegistryEntry`, common `CatalogBasis.register`, synthetic-path test; AC-EXEC-012 evidence | Productive source publication/CAS remains integrated-only | `GAP_CLOSED` |
+| `GAP-004` | SemVer semantics and explicit supported sets were absent | `SemanticVersion`, `SupportedVersionSet`, focused tests and AC-EXEC-003 evidence | No local residual; integrated producer not required for this Gap | `GAP_CLOSED` |
+| `GAP-006` | Deterministic frozen-basis registry mapping was absent | Complete `RegistryEntry`/`CatalogBasis` and deterministic resolution tests | Physical persistence is outside TICKET-002 | `GAP_CLOSED` |
+| `GAP-008` | Independent NORMAL and BOOTSTRAP catalogs were absent | `CatalogScope`, separate source kinds, source/scope/revision guards and isolation tests | Productive sources remain integrated-only as authorized | `GAP_CLOSED` |
+| `GAP-009` | Bootstrap allowlist and normal-capability rejection were absent | `BootstrapAllowlistPolicy`, rejection/no-work test and canonical outcome | No local residual | `GAP_CLOSED` |
+| `GAP-010` | Capability resolution and canonical outcome distinction were absent | Resolver identity/stage/schema/version ordering and outcome tests | No local residual | `GAP_CLOSED` |
+| `GAP-011` | Common registry extensibility was absent | Synthetic `RegistryEntry` registration/resolution and old-basis immutability tests | Productive source publication remains integrated-owned | `GAP_CLOSED` |
 
-All six active ticket-owned Gaps are closed. No new contradiction or residual
-local Gap was introduced.
+```text
+GAPS_TOTAL = 6
+GAPS_CLOSED = 6
+ACTIVE_TICKET_GAPS_NOT_CLOSED = 0
+```
 
-## 7. Requirement conformance
+## 8. Requirement conformance
 
 | Requirement | Required behavior | Evidence | Result |
 |---|---|---|---|
-| `EXEC-VERSION-001` | Observable semver major/minor/patch meaning | `SemanticVersion`, `classifySemanticVersionChange`, focused semver test | `CONFORMANT` |
-| `EXEC-VERSION-002` | Explicit supported set; unsupported capability version is `INCOMPATIBLE_CAPABILITY` without alias/conversion; malformed schema/request is fail-closed | `SupportedVersionSet`, resolver failure path, focused negative tests | `CONFORMANT` |
-| `EXEC-REGISTRY-001` | Deterministic complete mapping of stage, capability, skill, versions, schemas, artifacts, verdicts, and roles | `RegistryEntry`, basis resolver, complete mapping assertions | `CONFORMANT` |
-| `EXEC-REGISTRY-002` | Independent NORMAL and BOOTSTRAP catalog source/version authority | Authenticated source kinds, scope binding, isolation and substitution negatives | `CONFORMANT` |
-| `EXEC-REGISTRY-003` | Bootstrap allowlist rejects normal capability before normal work | Allowlist policy and normal-source non-invocation witness | `CONFORMANT` |
-| `EXEC-CAPABILITY-001` | Compatible resolution and distinct unknown/incompatible canonical codes | Resolver and AC-EXEC-011 evidence | `CONFORMANT` |
-| `EXEC-CAPABILITY-002` | Schema-valid synthetic capability uses common registry and does not mutate frozen basis | Common `RegistryEntry`/`CatalogBasis` path and no-mutation assertions | `CONFORMANT` |
+| `EXEC-VERSION-001` | Observable SemVer major/minor/patch meaning | Domain value object and focused tests | `CONFORMANT` |
+| `EXEC-VERSION-002` | Explicit supported set; unsupported capability version is incompatible without alias/conversion | `SupportedVersionSet`, resolver and negative tests | `CONFORMANT` |
+| `EXEC-REGISTRY-001` | Deterministic complete mapping for frozen basis | Complete entry fields and registration-order-independent resolution | `CONFORMANT` |
+| `EXEC-REGISTRY-002` | NORMAL and BOOTSTRAP have independent source/scope/version authority | Separate source abstractions and scope/revision isolation tests | `CONFORMANT` |
+| `EXEC-REGISTRY-003` | Bootstrap allowlist rejects normal capability before normal work | Allowlist policy and no-normal-read witness | `CONFORMANT` |
+| `EXEC-CAPABILITY-001` | Known compatible resolution and distinct unknown/incompatible codes | Direct result-code assertions | `CONFORMANT` |
+| `EXEC-CAPABILITY-002` | Schema-valid synthetic capability uses common registry without frozen-basis mutation | Synthetic registration/resolution and no-mutation assertions | `CONFORMANT` |
 
 ```text
-REQUIREMENTS = 7
+REQUIREMENTS_TOTAL = 7
 REQUIREMENTS_CONFORMANT = 7
+REQUIREMENTS_PARTIAL = 0
+REQUIREMENTS_NON_CONFORMANT = 0
 ```
 
-## 8. Acceptance criteria
+## 9. Acceptance criteria
 
 | Acceptance criterion | Objective evidence | Result |
 |---|---|---|
-| `AC-EXEC-003` | Focused test: semantic components, exact comparison, change classification; AC-EXEC-003 evidence | `SATISFIED` |
-| `AC-EXEC-004` | Explicit support-set membership rejects `2.0.0` with `INCOMPATIBLE_CAPABILITY`; invalid request/schema path is fail-closed; AC-EXEC-003 and AC-EXEC-007 evidence | `SATISFIED` |
-| `AC-EXEC-008` | Complete entry fields and order-independent exact resolution; AC-EXEC-008 evidence | `SATISFIED` |
-| `AC-EXEC-009` | NORMAL repository isolation, independent BOOTSTRAP source, source/scope/revision substitution rejection; AC-EXEC-009 evidence | `SATISFIED` |
-| `AC-EXEC-010` | Non-allowlisted NORMAL category in BOOTSTRAP returns `INCOMPATIBLE_CAPABILITY`; normal-work source is not read; AC-EXEC-010 evidence | `SATISFIED` |
-| `AC-EXEC-011` | Missing capability returns `UNKNOWN_CAPABILITY`; known unsupported version/schema returns `INCOMPATIBLE_CAPABILITY`; AC-EXEC-011 evidence | `SATISFIED` |
-| `AC-EXEC-012` | Synthetic schema-authenticated entry resolves through the same common path and old basis remains unchanged; AC-EXEC-012 evidence | `SATISFIED` |
+| `AC-EXEC-003` | SemVer component/change classification, build-only `NONE`, and large-component comparison in focused tests | `SATISFIED` |
+| `AC-EXEC-004` | Explicit support-set membership; unsupported request returns `INCOMPATIBLE_CAPABILITY` without fallback | `SATISFIED` |
+| `AC-EXEC-008` | Complete entry mapping, deterministic order, duplicate/conflict rejection, incomplete-entry rejection and no mutation | `SATISFIED` |
+| `AC-EXEC-009` | Independent NORMAL repositories and BOOTSTRAP source/scope; cross-source/substitution rejection | `SATISFIED` |
+| `AC-EXEC-010` | Normal BOOTSTRAP request returns `INCOMPATIBLE_CAPABILITY`; normal work/source path is not reached | `SATISFIED` |
+| `AC-EXEC-011` | Unknown capability returns `UNKNOWN_CAPABILITY`; known version/schema incompatibility returns `INCOMPATIBLE_CAPABILITY` | `SATISFIED` |
+| `AC-EXEC-012` | Synthetic schema-authenticated entry resolves through common path; old basis remains unchanged | `SATISFIED` |
 
 ```text
-ACCEPTANCE_CRITERIA = 7
+ACCEPTANCE_CRITERIA_TOTAL = 7
 ACCEPTANCE_CRITERIA_SATISFIED = 7
+ACCEPTANCE_CRITERIA_PARTIALLY_SATISFIED = 0
+ACCEPTANCE_CRITERIA_NOT_SATISFIED = 0
+ACCEPTANCE_CRITERIA_UNSUPPORTED = 0
+ACCEPTANCE_CRITERIA_BLOCKED = 0
 ```
 
-## 9. Acceptance obligations
-
-The ticket is a contributor to AC-EXEC-005 and AC-EXEC-007; those final proof
-owners remain TICKET-005 and TICKET-004 respectively. The local contributions
-are independently evidenced and do not claim downstream ownership.
+## 10. Acceptance obligations
 
 | Acceptance | Implementation evidence | Supporting test evidence | Result |
 |---|---|---|---|
-| `AC-EXEC-003` | Semver value object and change classifier | Focused test, 23/23 | `DIRECTLY_CONFORMANT` |
-| `AC-EXEC-004` | Explicit supported-set and incompatible outcome | Focused negative tests and AC-EXEC-003 evidence | `DIRECTLY_CONFORMANT` |
-| `AC-EXEC-008` | Complete deterministic registry entry resolution | Mapping/order tests, 23/23 | `DIRECTLY_CONFORMANT` |
-| `AC-EXEC-009` | Scope/source/revision isolation and immutable bases | Isolation and substitution tests, 23/23 | `DIRECTLY_CONFORMANT` |
-| `AC-EXEC-010` | Bootstrap category policy and before-work boundary | Allowlist and non-invocation test, 23/23 | `DIRECTLY_CONFORMANT` |
-| `AC-EXEC-011` | Unknown/incompatible result distinction | Canonical outcome test, 23/23 | `DIRECTLY_CONFORMANT` |
-| `AC-EXEC-012` | Common registry synthetic registration path | Synthetic/no-mutation test, 23/23 | `DIRECTLY_CONFORMANT` |
-| `AC-EXEC-005` | New basis publication and prior-basis immutability contribution | Frozen-basis and duplicate/conflict tests; AC-EXEC-005 evidence | `CROSS_SPEC_CONFORMANT` |
-| `AC-EXEC-007` | Local incompatible/fail-closed classification contribution | Failure classification tests; AC-EXEC-007 evidence | `CROSS_SPEC_CONFORMANT` |
+| `AC-EXEC-003` | `SemanticVersion` and explicit support-set implementation | 24 focused tests; AC-EXEC-003 evidence | `DIRECTLY_CONFORMANT` |
+| `AC-EXEC-004` | Exact unsupported-version failure path | focused resolver/support-set tests; AC-EXEC-003 evidence covers shared witness | `DIRECTLY_CONFORMANT` |
+| `AC-EXEC-005` | New immutable basis and unchanged prior basis; no registry mutation path | frozen-basis tests; AC-EXEC-005 contribution evidence | `CROSS_SPEC_CONFORMANT` |
+| `AC-EXEC-007` | Canonical incompatible/unknown contribution and no-success failure flags | outcome tests; AC-EXEC-007 contribution evidence | `CROSS_SPEC_CONFORMANT` |
+| `AC-EXEC-008` | Complete deterministic mapping and no-mutation rejection | focused tests and AC-EXEC-008 evidence | `DIRECTLY_CONFORMANT` |
+| `AC-EXEC-009` | Scope/source/revision separation and substitution rejection | isolation tests and AC-EXEC-009 evidence | `DIRECTLY_CONFORMANT` |
+| `AC-EXEC-010` | Allowlist policy and no normal-work path | bootstrap tests and AC-EXEC-010 evidence | `DIRECTLY_CONFORMANT` |
+| `AC-EXEC-011` | Distinct canonical failure codes | outcome tests and AC-EXEC-011 evidence | `DIRECTLY_CONFORMANT` |
+| `AC-EXEC-012` | Common registration/resolution path and frozen-basis immutability | synthetic test and AC-EXEC-012 evidence | `DIRECTLY_CONFORMANT` |
 
-No acceptance obligation is unsupported. The two cross-spec results explicitly
-retain their downstream final proof owners.
+The two contributor obligations retain their declared final proof owners
+(TICKET-005 for AC-EXEC-005 and TICKET-004 for AC-EXEC-007). TICKET-002 does
+not claim their foreign/full final proof.
 
-## 10. Completion evidence
+## 11. Completion evidence
 
-| Required evidence item | Repository evidence | Classification |
+Ticket §19 requires six local evidence files: AC-EXEC-003, AC-EXEC-008,
+AC-EXEC-009, AC-EXEC-010, AC-EXEC-011 and AC-EXEC-012. All six are present.
+Their semantic assertions were independently reproduced at the pinned target:
+
+```text
+FOCUSED_TEST = 24 passed, 0 failed, 0 skipped
+FULL_NPM_TEST = 72 passed, 0 failed, 0 skipped
+TYPECHECK = PASS
+GOVERNANCE_GUARD = PASS
+SKILL_MIRROR_GUARD = PASS
+```
+
+| Evidence item | Classification | Verification |
 |---|---|---|
-| Production code | Domain registry, application orchestration, source ports and composition root; target code inspected | `PRESENT_AND_VERIFIED` |
-| Automated tests | Focused TICKET-002 suite 23/23; package suite 71/71; TICKET-001 regression 21/21 | `PRESENT_AND_VERIFIED` |
-| Local completion evidence | Eight required evidence snapshots under `evidence/TICKET-002/`, with commands, assertions, target and outputs | `PRESENT_AND_VERIFIED` |
-| Integration evidence as contract contribution | AC-EXEC-005/007 contribution records and preserved DOM/REPO integrated-only handoffs | `PRESENT_AND_VERIFIED` |
-| Legacy/cutover evidence for local scope | `NEW_CANONICAL_PATH`/`CUTOVER` declarations, explicit no-alias/no-conversion behavior, and no legacy registry writer in the changed implementation | `PRESENT_AND_VERIFIED` |
-| Conformance evidence | Approved design, ticket execution record, checkpoint record, typecheck and governance/architecture guards | `PRESENT_AND_VERIFIED` |
+| AC-EXEC-003 semver evidence | `PRESENT_BUT_WEAK` | Behavior reproduced; persisted file still reports 23 focused tests and earlier target metadata |
+| AC-EXEC-008 deterministic resolution evidence | `PRESENT_BUT_WEAK` | Persisted output reports 24/72, but target and post-remediation metadata precede the pinned target |
+| AC-EXEC-009 catalog isolation evidence | `PRESENT_BUT_WEAK` | Behavior reproduced; persisted file reports 23 focused tests and earlier target metadata |
+| AC-EXEC-010 bootstrap evidence | `PRESENT_BUT_WEAK` | Behavior reproduced; persisted file reports 23 focused tests and earlier target metadata |
+| AC-EXEC-011 failure distinction evidence | `PRESENT_BUT_WEAK` | Behavior reproduced; persisted file reports 23 focused tests and earlier target metadata |
+| AC-EXEC-012 extensibility evidence | `PRESENT_BUT_WEAK` | Behavior reproduced; persisted file reports 23 focused tests and earlier target metadata |
+
+The contribution evidence for AC-EXEC-005 and AC-EXEC-007 is also present and
+has the same stale campaign metadata. This is a localized non-blocking evidence
+quality finding, not missing behavior. Integration evidence is present as the
+authorized contract contribution; productive DOM/REPO evidence is not due at
+local closure. Legacy/cutover evidence is present for the local immutable new
+basis path and no silent legacy registry write.
 
 ```text
 COMPLETION_EVIDENCE_REQUIRED = 6
-COMPLETION_EVIDENCE_VERIFIED = 6
+COMPLETION_EVIDENCE_VERIFIED = 6 by independent current execution; persisted exact metadata is weak
 COMPLETION_EVIDENCE_MISSING = 0
+INTEGRATION_EVIDENCE = PRESENT_AS_CONTRACT_CONTRIBUTION
+LEGACY_TRANSITION_EVIDENCE = PRESENT_FOR_LOCAL_SCOPE
+CONFORMANCE_EVIDENCE = PRESENT (this independent audit)
 ```
 
-Audit execution independently reproduced:
-
-```text
-node --experimental-strip-types --test tests/exec-001-ticket-002.test.ts = 23 passed, 0 failed, 0 skipped
-node --experimental-strip-types --test tests/exec-001-ticket-001.test.ts = 21 passed, 0 failed, 0 skipped
-npm test = 71 passed, 0 failed, 0 skipped
-npm run typecheck = PASS
-npm run verify:audit-governance = PASS
-npm run verify:skill-mirror = PASS
-```
-
-## 11. Scope creep and status accuracy
+## 12. Scope creep and status accuracy
 
 ```text
 SCOPE_CREEP = NONE
 UNAUTHORIZED_SCOPE_EXPANSION = NO
 SPECULATIVE_FEATURE = NO
 FOREIGN_SCOPE_IMPLEMENTATION = NO
-STATUS_ACCURACY = STATUS_CORRECT
-TICKET_STATUS = VALIDATION_REQUIRED
+NECESSARY_INTERNAL_REFACTOR = YES where provenance and immutable-basis guards were required
+REQUIRED_SHARED_SUPPORT = YES for source ports/composition/import guards
 ```
 
-The implementation adds only the authorized EXEC version/registry/catalog
-boundary, its approved source seams, local tests, and evidence. It does not
-implement DOM, REPO, PLAT, transport, lifecycle, or effect behavior. The
-current validation-required status accurately reflects that independent audit
-is pending. `TICKET_LOCAL_CLOSURE = YES` is consistent with all local witnesses
-being executable now; integrated-only capabilities do not contradict it.
-
-## 12. Findings
-
-No CRITICAL, MAJOR, MINOR, or INFO conformance finding was identified.
-
-The absence of productive DOM/REPO producers is an explicitly authorized
-integrated-only dependency record, not a local implementation defect:
+The implementation does not add DOM identity/lifecycle, REPO enablement,
+physical persistence/CAS/recovery, runtime effects, transport, UI/OPS
+projection, or a second registry authority. Source provenance guards are
+necessary to preserve the authorized producer/consumer boundary, not scope
+expansion.
 
 ```text
-INTEGRATED_HANDOFF_RECORD = YES
-HANDOFF_CATEGORY = CAPABILITY_AVAILABILITY_CONTRADICTION
-SPECIALIST_FINDING_ID = NONE (not a local conformance finding)
-CAPABILITY = DOM-EXEC-IDENTITY-SNAPSHOT; REPO-EXEC-NORMAL-CATALOG
-DEPENDENCY_CLASS = REQUIRED_FOR_INTEGRATED_PROOF
+STATUS_RESULT = STATUS_CORRECT
+STATUS = VALIDATION_REQUIRED
+STATUS_ACCURACY_REASON = Implementation is present and locally tested, but independent ticket validation is still required; ticket is not marked DONE.
+STATUS_INCONSISTENT_WITH_AVAILABILITY = NO
+TICKET_LOCAL_CLOSURE = YES
+```
+
+The ticket's stale implementation head and test counters are reported below as
+evidence weakness; they do not change the current status or the authorized
+integrated-only availability classification.
+
+## 13. Findings
+
+### CONF-MINOR-001 — Completion evidence campaign metadata is stale
+
+```text
+FINDING_STATUS = OPEN
+FINDING_CATEGORY = COMPLETION_EVIDENCE_STALENESS
+SEVERITY = MINOR
+TICKET = EXEC-001-TICKET-002
+GAP_IDS = GAP-004, GAP-006, GAP-008, GAP-009, GAP-010, GAP-011
+REQUIREMENT_IDS = EXEC-VERSION-001, EXEC-VERSION-002, EXEC-REGISTRY-001, EXEC-REGISTRY-002, EXEC-REGISTRY-003, EXEC-CAPABILITY-001, EXEC-CAPABILITY-002
+ACCEPTANCE_IDS = AC-EXEC-003, AC-EXEC-004, AC-EXEC-005, AC-EXEC-007, AC-EXEC-008, AC-EXEC-009, AC-EXEC-010, AC-EXEC-011, AC-EXEC-012
+CAPABILITY = UNIT-EXEC-REGISTRY-FIXTURE / ticket-local completion evidence
+DEPENDENCY_CLASS = INFORMATIONAL
 LOCAL_CLOSURE_BLOCKING = NO
 LOCAL_ACCEPTANCE_REQUIRES_PRODUCTIVE_CAPABILITY = NO
-CLOSURE_OWNERSHIP = INTEGRATED_CHECKPOINT
-COMPLETION_EVIDENCE_TIMING = INTEGRATED_CHECKPOINT
+CLOSURE_OWNERSHIP = LOCAL_TICKET
+COMPLETION_EVIDENCE_TIMING = LOCAL_CLOSURE
 DEPENDENCY_CLASS_RECLASSIFICATION_REQUIRED = NO
 UPSTREAM_DEPENDENCY_CLASSIFICATION_PRESERVED = YES
 BLOCKS_LOCAL_EXECUTION = NO
 BLOCKS_LOCAL_CLOSURE = NO
 BLOCKS_TICKET_DONE = NO
-BLOCKS_INTEGRATED_PROOF = YES
-BLOCKS_SPEC_FINAL_CONFORMANCE = YES
-PRIMARY_ROUTE = IMPLEMENTATION_PLAN_REVALIDATION / owning integrated checkpoint
-DOWNSTREAM_CHECKPOINT = CP-EXEC-01
-DOWNSTREAM_OWNER = DOM/REPO producers with EXEC consumer owner
-OPEN_INTEGRATED_FINDING_TRACEABILITY = COMPLETE
+BLOCKS_INTEGRATED_PROOF = NO
+BLOCKS_SPEC_FINAL_CONFORMANCE = NO
+PRIMARY_ROUTE = TICKET_REVALIDATION
+DOWNSTREAM_CHECKPOINT = NONE
+DOWNSTREAM_OWNER = EXEC-001-TICKET-002 validation/finalization
+OPEN_INTEGRATED_FINDING_TRACEABILITY = NOT_APPLICABLE
+Systemic pattern = YES
 ```
 
-This record does not convert the integrated handoff into a specialist finding
-or a local completion gate. The consolidator owns canonical `BLOCKS_*` values.
+**Normative authority:** Ticket §19 requires file-addressed executed local
+completion evidence; ticket §27 requires the implementation/test record to
+describe the completed target; the pinned target and current repository are the
+source of audit evidence.
 
-## 13. Required summary
+**Repository evidence:** The current focused command produced 24/24 tests and
+`npm test` produced 72/72. AC-EXEC-003, AC-EXEC-005, AC-EXEC-007,
+AC-EXEC-009, AC-EXEC-010, AC-EXEC-011 and AC-EXEC-012 evidence files still
+report 23 focused tests, 71 full tests and earlier remediation/target metadata.
+AC-EXEC-008 reports 24/72 but cites earlier audit and post-remediation heads.
+Ticket §27 likewise reports 23 focused, 71 full and `IMPLEMENTATION_HEAD =
+8f62...`, while the pinned audit target is `6f8...`.
+
+**Problem:** Persisted evidence is behaviorally corroborated but does not
+identify the pinned audit target and current execution counts consistently.
+
+**Impact:** A later reader cannot reproduce the evidence campaign from each
+file's metadata alone. Current execution independently verifies all local
+witnesses, so this does not invalidate the implementation or block local
+closure.
+
+**Minimum correction required:** Refresh the ticket execution record and all
+affected evidence metadata with the pinned target head/state fingerprint and
+current command counts, preserving the existing test assertions and declared
+integrated-only handoffs.
+
+**Suggested blocking effect:** no local or integrated completion block; route to
+ticket evidence revalidation. This is not a capability availability
+contradiction and does not reclassify any dependency.
+
+## 14. Shared completion/readiness invariants
 
 ```text
-Audit: .pi/runtime/workflow-audits/72e54edf-031a-436b-9c04-82f31bc2a04b/conformance-EXEC-001-TICKET-002-ticket-conformance-audit.md
+INTEGRATED_ONLY_AVAILABILITY_BLOCKING_LOCAL_DONE = 0
+LOCAL_CLOSURE_FINDINGS_NOT_BLOCKING_DONE = 0
+FINDING_SEVERITY_USED_AS_SOLE_COMPLETION_GATE = 0
+OPEN_INTEGRATED_FINDING_LOST_FROM_TRACEABILITY = 0
+SPECIALIST_CANNOT_SILENTLY_PROMOTE_INTEGRATED_DEPENDENCY_TO_LOCAL_BLOCKER = TRUE
+CONSOLIDATOR_CANNOT_DERIVE_LOCAL_BLOCKING_FROM_SEVERITY_ALONE = TRUE
+LOCAL_DONE_GATE_USES_LOCAL_CLOSURE_SCOPE = TRUE
+INTEGRATED_PROOF_GATE_USES_INTEGRATED_DEPENDENCY_SCOPE = TRUE
+```
+
+No open integrated-only availability record was converted into a local finding.
+The DOM/REPO capability handoffs remain explicitly traceable to their owning
+integrated checkpoints and retain `REQUIRED_FOR_INTEGRATED_PROOF`.
+
+## 15. Required summary
+
+```text
+Audit: .pi/runtime/workflow-audits/8afcffa6-75bd-4fb1-a141-5abda712aaf2/conformance-EXEC-001-TICKET-002-ticket-conformance-audit.md
 
 Specialist:
 TICKET_CONFORMANCE
 
 Ticket: EXEC-001-TICKET-002
 
-Changed files: 16
+Changed files: 15
 
 Gaps: 6
 
@@ -356,7 +460,7 @@ NO
 Findings:
 CRITICAL=0
 MAJOR=0
-MINOR=0
+MINOR=1
 INFO=0
 
 Domain audit complete:
@@ -366,8 +470,8 @@ Specialist result:
 SPECIALIST_CONFORMANCE_PASS
 ```
 
-AUDIT_TARGET_HEAD: c450df1c4523a841484cbf1acb8cd1ab57621017
-AUDIT_TARGET_STATE_FINGERPRINT: d91db0e8d277c66499d9d4fd5dc0a05818aeb7d39faf1303876abc8e6d165192
-AUDIT_WAVE_ID: 72e54edf-031a-436b-9c04-82f31bc2a04b
+AUDIT_TARGET_HEAD: 6f8ea7170f21f94d36f30893cc5622040fa4ba5b
+AUDIT_TARGET_STATE_FINGERPRINT: 732a233bb6949d3b9da4192284f83e31564828ba5962ba43c2f25eff1ee66668
+AUDIT_WAVE_ID: 8afcffa6-75bd-4fb1-a141-5abda712aaf2
 DOMAIN_AUDIT_COMPLETE: YES
 SPECIALIST_RESULT: SPECIALIST_CONFORMANCE_PASS
