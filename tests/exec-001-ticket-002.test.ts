@@ -10,12 +10,14 @@ import {
   CatalogBasis,
   CatalogRevision,
   CatalogScope,
+  ExecRegistryDomainError,
   RegistryEntry,
   RegistryResolutionService,
   SemanticVersion,
   SupportedVersionSet,
   classifySemanticVersionChange,
   createCatalogBasisFixture,
+  createProducerBoundCatalogBasisProof,
   isRegistryFailure,
   isRegistryResolutionBoundToRequest,
   isRegistryResolution,
@@ -155,6 +157,18 @@ test('rejects non-string registry categories without coercion', () => {
   } as never), /allowed string/)
 })
 
+test('rejects an incomplete entry before basis construction or mutation', () => {
+  const basis = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-a') })
+  const before = registryBasisIdentity(basis)
+  const incomplete = entryInput() as Record<string, unknown>
+  delete incomplete.allowedRoles
+  const isContractInvalid = (error: unknown): boolean => error instanceof ExecRegistryDomainError && error.code === 'CONTRACT_INVALID'
+  assert.throws(() => RegistryEntry.create(incomplete as never), isContractInvalid)
+  assert.throws(() => basis.register(incomplete as never), isContractInvalid)
+  assert.equal(registryBasisIdentity(basis), before)
+  assert.equal(basis.entries.length, 0)
+})
+
 test('resolves only authenticated explicit supported versions without alias or approximation', () => {
   const supported = SupportedVersionSet.create(['1.2.3', '1.3.0'])
   assert.equal(supported.has('1.2.3'), true)
@@ -185,9 +199,10 @@ test('resolves a complete registered mapping deterministically and preserves fro
   const basis = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-a'), source: 'repo-a-config' })
   const registered = basis.register(entry())
   const resolver = new RegistryResolutionService()
-  const result = resolver.resolve(registered, request())
-  assert.equal(isRegistryResolution(result), true)
-  if (!isRegistryResolution(result)) return
+  const result = resolver.resolveContractFixture(registered, request())
+  assert.equal(isRegistryResolution(result), false)
+  assert.equal(result.status, 'RESOLVED')
+  if (result.status !== 'RESOLVED') return
   assert.equal(result.entry.stage, 'PLAN')
   assert.equal(result.entry.skillContractId, 'skill.contract')
   assert.equal(result.entry.capabilityId, 'capability.registry')
@@ -219,7 +234,7 @@ test('selects the exact compatible version independently of registration order',
     .register(first)
 
   for (const basis of [forward, reverse]) {
-    const result = resolver.resolve(basis, request({ semanticVersion: '2.0.0' }))
+    const result = resolver.resolveContractFixture(basis, request({ semanticVersion: '2.0.0' }))
     assert.equal(result.status, 'RESOLVED')
     if (result.status === 'RESOLVED') {
       assert.equal(result.entry.semanticVersion.value, '2.0.0')
@@ -228,7 +243,7 @@ test('selects the exact compatible version independently of registration order',
     }
   }
 
-  const unsupported = resolver.resolve(forward, request({ semanticVersion: '3.0.0' }))
+  const unsupported = resolver.resolveContractFixture(forward, request({ semanticVersion: '3.0.0' }))
   assert.equal(unsupported.status, 'FAILED')
   if (unsupported.status === 'FAILED') assert.equal(unsupported.code, 'INCOMPATIBLE_CAPABILITY')
 
@@ -237,7 +252,7 @@ test('selects the exact compatible version independently of registration order',
       semanticVersion: '1.0.0',
       supportedVersions: SupportedVersionSet.create(['1.0.0', '1.5.0']),
     }))
-  const supportedOnly = resolver.resolve(supportedOnlyBasis, request({ semanticVersion: '1.5.0' }))
+  const supportedOnly = resolver.resolveContractFixture(supportedOnlyBasis, request({ semanticVersion: '1.5.0' }))
   assert.equal(supportedOnly.status, 'RESOLVED')
   if (supportedOnly.status === 'RESOLVED') {
     assert.equal(supportedOnly.entry.semanticVersion.value, '1.0.0')
@@ -268,8 +283,8 @@ test('keeps NORMAL repositories isolated and rejects cross-scope source substitu
   const first = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-a') }).register(entry())
   const second = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-b') }).register(entry())
   const resolver = new RegistryResolutionService()
-  const firstResult = resolver.resolve(first, request())
-  const secondResult = resolver.resolve(second, request())
+  const firstResult = resolver.resolveContractFixture(first, request())
+  const secondResult = resolver.resolveContractFixture(second, request())
   assert.equal(firstResult.status, 'RESOLVED')
   assert.equal(secondResult.status, 'RESOLVED')
   assert.notEqual(first.scope.repositoryId, second.scope.repositoryId)
@@ -293,7 +308,7 @@ test('keeps BOOTSTRAP independent and rejects normal capabilities before work', 
   const bootstrap = createCatalogBasisFixture({ scope: CatalogScope.bootstrap(), source: 'SYSTEM_BOOTSTRAP_CATALOG' })
     .register(entry({ category: 'NORMAL' }))
   const resolver = new RegistryResolutionService()
-  const result = resolver.resolve(bootstrap, request())
+  const result = resolver.resolveContractFixture(bootstrap, request())
   assert.equal(result.status, 'FAILED')
   if (result.status !== 'FAILED') return
   assert.equal(result.code, 'INCOMPATIBLE_CAPABILITY')
@@ -327,7 +342,7 @@ test('keeps BOOTSTRAP independent and rejects normal capabilities before work', 
 
   const onboarding = createCatalogBasisFixture({ scope: CatalogScope.bootstrap(), source: 'SYSTEM_BOOTSTRAP_CATALOG' })
     .register(entry({ category: 'DISCOVERY', capabilityId: 'capability.discover' }))
-  const onboardingResult = resolver.resolve(onboarding, request({ capabilityId: 'capability.discover' }))
+  const onboardingResult = resolver.resolveContractFixture(onboarding, request({ capabilityId: 'capability.discover' }))
   assert.equal(onboardingResult.status, 'RESOLVED')
 })
 
@@ -335,13 +350,16 @@ test('distinguishes unknown from every known incompatibility with canonical outc
   const supportedEntry = entry({ supportedVersions: SupportedVersionSet.create(['1.2.3']) })
   const basis = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-a') }).register(supportedEntry)
   const resolver = new RegistryResolutionService()
-  const unknown = resolver.resolve(basis, request({ capabilityId: 'not-registered' }))
-  const incompatibleVersion = resolver.resolve(basis, request({ semanticVersion: '2.0.0' }))
-  const incompatibleSchema = resolver.resolve(basis, request({ schema: SchemaReference.create({ schemaId: 'other-input', version: '1.0.0' }) }))
-  assert.equal(isRegistryFailure(unknown), true)
-  assert.equal(isRegistryFailure(incompatibleVersion), true)
-  assert.equal(isRegistryFailure(incompatibleSchema), true)
-  if (!isRegistryFailure(unknown) || !isRegistryFailure(incompatibleVersion) || !isRegistryFailure(incompatibleSchema)) return
+  const unknown = resolver.resolveContractFixture(basis, request({ capabilityId: 'not-registered' }))
+  const incompatibleVersion = resolver.resolveContractFixture(basis, request({ semanticVersion: '2.0.0' }))
+  const incompatibleSchema = resolver.resolveContractFixture(basis, request({ schema: SchemaReference.create({ schemaId: 'other-input', version: '1.0.0' }) }))
+  assert.equal(isRegistryFailure(unknown), false)
+  assert.equal(isRegistryFailure(incompatibleVersion), false)
+  assert.equal(isRegistryFailure(incompatibleSchema), false)
+  assert.equal(unknown.status, 'FAILED')
+  assert.equal(incompatibleVersion.status, 'FAILED')
+  assert.equal(incompatibleSchema.status, 'FAILED')
+  if (unknown.status !== 'FAILED' || incompatibleVersion.status !== 'FAILED' || incompatibleSchema.status !== 'FAILED') return
   assert.equal(unknown.code, 'UNKNOWN_CAPABILITY')
   assert.equal(incompatibleVersion.code, 'INCOMPATIBLE_CAPABILITY')
   assert.equal(incompatibleSchema.code, 'INCOMPATIBLE_CAPABILITY')
@@ -353,7 +371,7 @@ test('registers a synthetic capability through the common domain registry path',
   const basis = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-a'), source: 'REPO_NORMAL_CATALOG' })
   const synthetic = entry({ capabilityId: 'capability.synthetic', semanticVersion: '3.0.0' })
   const registered = basis.register(synthetic)
-  const resolved = new RegistryResolutionService().resolve(registered, request({
+  const resolved = new RegistryResolutionService().resolveContractFixture(registered, request({
     capabilityId: 'capability.synthetic',
     semanticVersion: '3.0.0',
   }))
@@ -442,7 +460,7 @@ test('rejects caller-selected repository authority and ignores caller support-se
   assert.equal(wrongRepository.status, 'FAILED')
   if (wrongRepository.status === 'FAILED') assert.equal(wrongRepository.code, 'CONTRACT_INVALID')
 
-  const callerSupportSet = new RegistryResolutionService().resolve(basis, {
+  const callerSupportSet = new RegistryResolutionService().resolveContractFixture(basis, {
     ...request(),
     supportedVersions: SupportedVersionSet.create(['9.9.9']),
   } as never)
@@ -468,24 +486,25 @@ test('rejects caller-created fixture authority from productive registration with
   assert.equal(registryBasisIdentity(basis), before)
 })
 
-test('authenticates resolver output and binds it to the requested basis and contract', () => {
+test('rejects local fixture authority and keeps fixture resolution untrusted', () => {
   const basis = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-a') }).register(entry())
   const resolver = new RegistryResolutionService()
-  const result = resolver.resolve(basis, request())
+  const result = resolver.resolveContractFixture(basis, request())
   assert.equal(Object.isFrozen(result), true)
-  assert.throws(() => Object.assign(result as object, { requestedVersion: SemanticVersion.parse('9.9.9') }), TypeError)
-  assert.equal(isRegistryResolutionBoundToRequest(result, basis, request()), true)
-  assert.equal(isRegistryResolutionBoundToRequest(result, basis, request({ capabilityId: 'other-capability' })), false)
-  assert.equal(isRegistryResolutionBoundToRequest(result, basis, request({ semanticVersion: '2.0.0' })), false)
-  const forgedSchema = Object.create(SchemaReference.prototype) as SchemaReference
-  Object.assign(forgedSchema, { schemaId: inputSchema.schemaId, version: inputSchema.version })
-  assert.equal(isRegistryResolutionBoundToRequest(result, basis, request({ schema: forgedSchema })), false)
+  assert.throws(() => resolver.resolve(basis, request(), undefined as never), /producer-bound catalog basis proof/)
+  assert.throws(() => resolver.resolve(basis, request(), {
+    authority: 'PRODUCER_BOUND_CATALOG_BASIS',
+    basis,
+  } as never), /producer-bound catalog basis proof/)
+  assert.throws(() => createProducerBoundCatalogBasisProof(basis), /producer-bound catalog basis/)
+  assert.equal(isRegistryResolution(result), false)
+  assert.equal(isRegistryResolutionBoundToRequest(result, basis, request()), false)
   assert.equal(isRegistryResolutionBoundToRequest({ ...result } as never, basis, request()), false)
   assert.equal(isRegistryResolution({ status: 'RESOLVED' } as never), false)
   assert.equal(isRegistryFailure({ status: 'FAILED' } as never), false)
 
   const otherBasis = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-b') }).register(entry())
-  const otherResult = resolver.resolve(otherBasis, request())
+  const otherResult = resolver.resolveContractFixture(otherBasis, request())
   assert.equal(isRegistryResolutionBoundToRequest(otherResult, basis, request()), false)
 })
 

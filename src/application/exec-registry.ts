@@ -2,7 +2,8 @@ import {
   CatalogBasis,
   CatalogRevision,
   CatalogScope,
-  createCatalogBasisFixture,
+  createProducerBoundCatalogBasisProof,
+  createRegistryFailureContext,
   ExecRegistryDomainError,
   RegistryEntry,
   RegistryResolutionService,
@@ -10,6 +11,8 @@ import {
   isAuthenticatedCatalogScope,
   isAuthenticatedRegistryResolutionService,
   isRegistryResolutionBoundToRequest,
+  type CatalogBasisAuthorityProof,
+  type RegistryFailureContext,
   type RegistryRegistrationResult,
   type RegistryResolutionRequest,
   type RegistryResolutionResult,
@@ -59,10 +62,10 @@ export class ResolveExecCapability {
 
   resolve(input: ResolveExecCapabilityInput): RegistryResolutionResult {
     try {
-      const basis = this.selectBasis(input)
-      const result = this.resolver.resolve(basis, input)
-      if (!isRegistryResolutionBoundToRequest(result, basis, input)) {
-        return this.resolver.failure(basis, 'CONTRACT_INVALID', 'Resolver returned an unverified or request-mismatched result.')
+      const selected = this.selectBasis(input)
+      const result = this.resolver.resolve(selected.basis, input, selected.authorityProof)
+      if (!isRegistryResolutionBoundToRequest(result, selected.basis, input)) {
+        return this.resolver.failure(selected.basis, 'CONTRACT_INVALID', 'Resolver returned an unverified or request-mismatched result.')
       }
       return result
     } catch (error) {
@@ -72,7 +75,10 @@ export class ResolveExecCapability {
     }
   }
 
-  private selectBasis(input: ResolveExecCapabilityInput): CatalogBasis {
+  private selectBasis(input: ResolveExecCapabilityInput): {
+    readonly basis: CatalogBasis
+    readonly authorityProof: CatalogBasisAuthorityProof
+  } {
     if (!input || typeof input !== 'object') {
       throw new ExecRegistryDomainError('A complete resolution context is required.')
     }
@@ -116,13 +122,13 @@ export class ResolveExecCapability {
     const normalBasis = this.assertAuthorizedBasis(
       this.normalCatalog,
       this.normalCatalog.read(),
-      executionBasis.scope,
-      executionBasis.catalogRevision,
+      executionBasis.basis.scope,
+      executionBasis.basis.catalogRevision,
       'REPO_NORMAL_CATALOG',
       NORMAL_CATALOG_SOURCE,
     )
-    if (!normalBasis.scope.equals(executionBasis.scope)
-      || !normalBasis.catalogRevision.equals(executionBasis.catalogRevision)) {
+    if (!normalBasis.basis.scope.equals(executionBasis.basis.scope)
+      || !normalBasis.basis.catalogRevision.equals(executionBasis.basis.catalogRevision)) {
       throw new ExecRegistryDomainError('NORMAL catalog is not bound to the DOM execution basis.')
     }
     return normalBasis
@@ -135,7 +141,7 @@ export class ResolveExecCapability {
     requestedRevision: CatalogRevision,
     expectedKind: CatalogBasisSourceKind,
     expectedSource: string,
-  ): CatalogBasis {
+  ): { readonly basis: CatalogBasis; readonly authorityProof: CatalogBasisAuthorityProof } {
     if (!isProducerIssuedCatalogBasisReceipt(source, receipt, expectedKind)) {
       throw new ExecRegistryDomainError('Catalog source returned unverified material.')
     }
@@ -150,10 +156,10 @@ export class ResolveExecCapability {
     if (basis.source !== expectedSource) {
       throw new ExecRegistryDomainError(`Catalog source must be issued by ${expectedSource}.`)
     }
-    return basis
+    return { basis, authorityProof: createProducerBoundCatalogBasisProof(basis) }
   }
 
-  private failureBasis(input: unknown): CatalogBasis {
+  private failureBasis(input: unknown): RegistryFailureContext {
     let scope: CatalogScope | undefined
     try {
       if (typeof input === 'object' && input !== null) {
@@ -163,7 +169,7 @@ export class ResolveExecCapability {
     } catch {
       // A malformed caller object must still receive a structured failure.
     }
-    return createCatalogBasisFixture({ scope: scope ?? CatalogScope.bootstrap(), source: 'EXEC_FAILURE_CONTEXT' })
+    return createRegistryFailureContext({ scope, source: 'EXEC_FAILURE_CONTEXT' })
   }
 }
 
