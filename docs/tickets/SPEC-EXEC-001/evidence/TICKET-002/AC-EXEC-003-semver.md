@@ -3,9 +3,12 @@
 ```text
 STATUS = SATISFIED
 TEST = tests/exec-001-ticket-002.test.ts
-ASSERTIONS = SemanticVersion components, prerelease/build parsing, NONE/PATCH/MINOR/MAJOR classification
+COMMAND = node --experimental-strip-types --test tests/exec-001-ticket-002.test.ts
+EXECUTED_OUTPUT = 12 tests, 12 passed, 0 failed, 0 skipped
+ASSERTIONS = major/minor/patch components, exact large numeric comparison, build-only NONE, NONE/PATCH/MINOR/MAJOR classification
 RESULT = PASS
-FOCUSED_TICKET_TESTS = 10/10
+REPOSITORY_GATE = npm test = 60 passed, 0 failed
+TYPECHECK = npm run typecheck = PASS
 ```
 
-`SemanticVersion` parses strict semantic versions and exposes major, minor and patch components. `SupportedVersionSet` performs exact membership only; no range, major approximation, alias, or conversion is used.
+The value object preserves exact decimal comparison for large components and treats SemVer build-only changes as `NONE`. Supported-version membership remains an explicit exact set with no range, alias, approximation, or conversion.

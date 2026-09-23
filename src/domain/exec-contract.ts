@@ -214,6 +214,14 @@ export class SchemaReference {
   }
 }
 
+/**
+ * Runtime provenance check for authority-bearing schema references. `instanceof`
+ * alone is insufficient because callers can forge a matching prototype.
+ */
+export function isAuthenticatedSchemaReference(value: unknown): value is SchemaReference {
+  return typeof value === 'object' && value !== null && SCHEMA_REFERENCE_INSTANCES.has(value)
+}
+
 export interface ContractSchemaReferenceSnapshot {
   readonly schemaId: string
   readonly version: string

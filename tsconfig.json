@@ -9,5 +9,13 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": [".pi/extensions/**/*.ts"]
+  "include": [
+    ".pi/extensions/**/*.ts",
+    "src/domain/exec-contract.ts",
+    "src/domain/exec-registry.ts",
+    "src/application/exec-registry.ts",
+    "src/application/exec-registry-ports.ts",
+    "src/composition/exec-registry.ts",
+    "tests/exec-001-ticket-002.test.ts"
+  ]
 }

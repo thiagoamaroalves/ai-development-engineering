@@ -3,8 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --experimental-strip-types --test .pi/extensions/workflow-orchestrator/test/*.test.ts",
-    "typecheck": "tsc --noEmit"
+    "test": "node --experimental-strip-types --test .pi/extensions/workflow-orchestrator/test/*.test.ts tests/exec-001-ticket-001.test.ts tests/exec-001-ticket-002.test.ts",
+    "typecheck": "tsc --noEmit",
+    "verify:skill-mirror": "node tools/verify-skill-mirror.mjs",
+    "verify:audit-governance": "node tools/verify-audit-governance-contracts.mjs"
   },
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "0.85.1",

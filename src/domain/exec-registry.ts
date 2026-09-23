@@ -1,4 +1,5 @@
 import {
+  isAuthenticatedSchemaReference,
   isSemanticVersion,
   SchemaReference,
 } from './exec-contract.ts'
@@ -68,10 +69,23 @@ function schemaKey(schema: SchemaReference): string {
 }
 
 function assertSchemaReference(value: unknown, label: string): asserts value is SchemaReference {
-  if (!(value instanceof SchemaReference)) {
-    throw new ExecRegistryDomainError(`${label} must be a schema reference.`)
+  if (!isAuthenticatedSchemaReference(value)) {
+    throw new ExecRegistryDomainError(`${label} must be an authenticated schema reference.`)
   }
 }
+
+function compareUnsignedDecimal(left: string, right: string): -1 | 0 | 1 {
+  const normalizedLeft = left.replace(/^0+(?=\d)/, '')
+  const normalizedRight = right.replace(/^0+(?=\d)/, '')
+  if (normalizedLeft.length !== normalizedRight.length) return normalizedLeft.length < normalizedRight.length ? -1 : 1
+  if (normalizedLeft === normalizedRight) return 0
+  return normalizedLeft < normalizedRight ? -1 : 1
+}
+
+const CATALOG_SCOPE_INSTANCES = new WeakSet<object>()
+const SUPPORTED_VERSION_SET_INSTANCES = new WeakSet<object>()
+const REGISTRY_ENTRY_INSTANCES = new WeakSet<object>()
+const CATALOG_BASIS_INSTANCES = new WeakSet<object>()
 
 export type SemanticVersionChange = 'NONE' | 'MAJOR' | 'MINOR' | 'PATCH'
 
@@ -82,12 +96,18 @@ export class SemanticVersion {
   readonly patch: number
   readonly prerelease: readonly string[]
   readonly build: readonly string[]
+  private readonly majorDigits: string
+  private readonly minorDigits: string
+  private readonly patchDigits: string
 
-  private constructor(value: string, major: number, minor: number, patch: number, prerelease: readonly string[], build: readonly string[]) {
+  private constructor(value: string, majorDigits: string, minorDigits: string, patchDigits: string, prerelease: readonly string[], build: readonly string[]) {
     this.value = value
-    this.major = major
-    this.minor = minor
-    this.patch = patch
+    this.majorDigits = majorDigits
+    this.minorDigits = minorDigits
+    this.patchDigits = patchDigits
+    this.major = Number(majorDigits)
+    this.minor = Number(minorDigits)
+    this.patch = Number(patchDigits)
     this.prerelease = Object.freeze([...prerelease])
     this.build = Object.freeze([...build])
     Object.freeze(this)
@@ -99,22 +119,22 @@ export class SemanticVersion {
     if (!match) throw new ExecRegistryDomainError('Semantic version is invalid.')
     return new SemanticVersion(
       version,
-      Number(match[1]),
-      Number(match[2]),
-      Number(match[3]),
+      match[1],
+      match[2],
+      match[3],
       match[4] ? match[4].split('.') : [],
       match[5] ? match[5].split('.') : [],
     )
   }
 
   equals(other: SemanticVersion): boolean {
-    return this.value === other.value
+    return this.compare(other) === 0
   }
 
   compare(other: SemanticVersion): -1 | 0 | 1 {
-    for (const [left, right] of [[this.major, other.major], [this.minor, other.minor], [this.patch, other.patch]] as const) {
-      if (left < right) return -1
-      if (left > right) return 1
+    for (const [left, right] of [[this.majorDigits, other.majorDigits], [this.minorDigits, other.minorDigits], [this.patchDigits, other.patchDigits]] as const) {
+      const comparison = compareUnsignedDecimal(left, right)
+      if (comparison !== 0) return comparison
     }
     if (this.prerelease.length === 0 && other.prerelease.length > 0) return 1
     if (this.prerelease.length > 0 && other.prerelease.length === 0) return -1
@@ -126,7 +146,7 @@ export class SemanticVersion {
       if (left === right) continue
       const leftNumeric = /^\d+$/.test(left)
       const rightNumeric = /^\d+$/.test(right)
-      if (leftNumeric && rightNumeric) return Number(left) < Number(right) ? -1 : 1
+      if (leftNumeric && rightNumeric) return compareUnsignedDecimal(left, right)
       if (leftNumeric !== rightNumeric) return leftNumeric ? -1 : 1
       return left < right ? -1 : 1
     }
@@ -135,8 +155,8 @@ export class SemanticVersion {
 
   changeFrom(previous: SemanticVersion): SemanticVersionChange {
     if (this.equals(previous)) return 'NONE'
-    if (this.major !== previous.major) return 'MAJOR'
-    if (this.minor !== previous.minor) return 'MINOR'
+    if (this.majorDigits !== previous.majorDigits) return 'MAJOR'
+    if (this.minorDigits !== previous.minorDigits) return 'MINOR'
     return 'PATCH'
   }
 }
@@ -152,6 +172,7 @@ export class SupportedVersionSet {
   private constructor(versions: readonly SemanticVersion[]) {
     this.versions = Object.freeze([...versions])
     this.values = Object.freeze(versions.map((version) => version.value))
+    SUPPORTED_VERSION_SET_INSTANCES.add(this)
     Object.freeze(this)
   }
 
@@ -193,6 +214,7 @@ export class CatalogScope {
   private constructor(name: CatalogScopeName, repositoryId?: string) {
     this.name = name
     this.repositoryId = repositoryId
+    CATALOG_SCOPE_INSTANCES.add(this)
     Object.freeze(this)
   }
 
@@ -293,6 +315,7 @@ export class RegistryEntry {
     this.allowedRoles = input.allowedRoles
     this.category = input.category
     this.supportedVersions = input.supportedVersions
+    REGISTRY_ENTRY_INSTANCES.add(this)
     Object.freeze(this)
   }
 
@@ -306,6 +329,9 @@ export class RegistryEntry {
       throw new ExecRegistryDomainError('Registry capability category is unknown.')
     }
     const supportedVersions = input.supportedVersions ?? SupportedVersionSet.create([semanticVersion.value])
+    if (!isAuthenticatedSupportedVersionSet(supportedVersions)) {
+      throw new ExecRegistryDomainError('Supported versions must be an authenticated explicit set.')
+    }
     if (!supportedVersions.has(semanticVersion.value)) {
       throw new ExecRegistryDomainError('The entry semantic version must be explicitly supported.')
     }
@@ -326,6 +352,9 @@ export class RegistryEntry {
   }
 
   key(scope: CatalogScope): RegistryEntryKey {
+    if (!isAuthenticatedCatalogScope(scope)) {
+      throw new ExecRegistryDomainError('A catalog scope is required.')
+    }
     return Object.freeze({
       scope,
       skillContractId: this.skillContractId,
@@ -383,18 +412,19 @@ export class CatalogBasis {
     if (new Set(identities).size !== identities.length) {
       throw new ExecRegistryDomainError('Catalog contains duplicate registry entry identity.')
     }
+    CATALOG_BASIS_INSTANCES.add(this)
     Object.freeze(this)
   }
 
   static create(input: CatalogBasisInput): CatalogBasis {
-    if (!input || !(input.scope instanceof CatalogScope)) {
+    if (!input || !isAuthenticatedCatalogScope(input.scope)) {
       throw new ExecRegistryDomainError('A catalog scope is required.')
     }
     const catalogRevision = input.catalogRevision === undefined ? 1 : requiredPositiveInteger(input.catalogRevision, 'Catalog revision')
     const source = input.source === undefined ? input.scope.name : requiredToken(input.source, 'Catalog source')
     const entries = input.entries ?? []
-    if (!Array.isArray(entries) || !entries.every((entry) => entry instanceof RegistryEntry)) {
-      throw new ExecRegistryDomainError('Catalog entries must be registry entries.')
+    if (!Array.isArray(entries) || !entries.every((entry) => isAuthenticatedRegistryEntry(entry))) {
+      throw new ExecRegistryDomainError('Catalog entries must be authenticated registry entries.')
     }
     return new CatalogBasis(input.scope, catalogRevision, source, entries)
   }
@@ -412,10 +442,14 @@ export class CatalogBasis {
     return this.entries.find((entry) => entry.identity(this.scope) === identity)
   }
 
-  findCandidates(input: { readonly skillContractId: string; readonly capabilityId: string; readonly schema: SchemaReference }): readonly RegistryEntry[] {
+  findByCapability(input: { readonly skillContractId: string; readonly capabilityId: string }): readonly RegistryEntry[] {
     return Object.freeze(this.entries.filter((entry) => entry.skillContractId === input.skillContractId
-      && entry.capabilityId === input.capabilityId
-      && entry.acceptsSchema(input.schema)))
+      && entry.capabilityId === input.capabilityId))
+  }
+
+  findCandidates(input: { readonly skillContractId: string; readonly capabilityId: string; readonly schema: SchemaReference }): readonly RegistryEntry[] {
+    assertSchemaReference(input.schema, 'Resolution schema')
+    return Object.freeze(this.findByCapability(input).filter((entry) => entry.acceptsSchema(input.schema)))
   }
 }
 
@@ -465,25 +499,25 @@ export class BootstrapAllowlistPolicy {
 
 export class RegistryResolutionService {
   resolve(basis: CatalogBasis, request: RegistryResolutionRequest): RegistryResolutionResult {
-    if (!(basis instanceof CatalogBasis)) {
+    if (!isAuthenticatedCatalogBasis(basis)) {
       throw new ExecRegistryDomainError('A catalog basis is required.')
     }
     try {
-      if (!request || !(request.schema instanceof SchemaReference) || !(request.supportedVersions instanceof SupportedVersionSet)) {
+      if (!request || !isAuthenticatedSchemaReference(request.schema) || !isAuthenticatedSupportedVersionSet(request.supportedVersions)) {
         return this.failure(basis, 'CONTRACT_INVALID', 'A complete registry resolution request is required.')
       }
       const stage = requiredToken(request.stage, 'Stage')
       const skillContractId = requiredToken(request.skillContractId, 'Skill contract identity')
       const capabilityId = requiredToken(request.capabilityId, 'Capability identity')
-      const candidates = basis.findCandidates({ skillContractId, capabilityId, schema: request.schema })
-      if (candidates.length === 0) return this.failure(basis, 'UNKNOWN_CAPABILITY', 'Capability is not registered in the requested catalog basis.')
-      const stageCandidates = candidates.filter((entry) => entry.stage === stage)
-      if (stageCandidates.length === 0) return this.failure(basis, 'UNKNOWN_CAPABILITY', 'Capability stage is not registered in the requested catalog basis.')
-      const version = request.supportedVersions.resolve(request.semanticVersion)
-      if (!version || !stageCandidates.some((entry) => entry.semanticVersion.value === version.value && entry.supports(version.value))) {
-        return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability version is not explicitly supported by the requested basis.')
-      }
-      const entry = stageCandidates.find((candidate) => candidate.semanticVersion.value === version.value)
+      const identityCandidates = basis.findByCapability({ skillContractId, capabilityId })
+      if (identityCandidates.length === 0) return this.failure(basis, 'UNKNOWN_CAPABILITY', 'Capability is not registered in the requested catalog basis.')
+      const stageCandidates = identityCandidates.filter((entry) => entry.stage === stage)
+      if (stageCandidates.length === 0) return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability stage is not compatible with the requested entry.')
+      const schemaCandidates = stageCandidates.filter((entry) => entry.acceptsSchema(request.schema))
+      if (schemaCandidates.length === 0) return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability schema is not compatible with the requested entry.')
+      const version = VersionCompatibilityPolicy.resolve(schemaCandidates[0], request.semanticVersion, request.supportedVersions)
+      if (!version) return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability version is not explicitly supported by the requested basis.')
+      const entry = schemaCandidates.find((candidate) => candidate.semanticVersion.value === version.value)
       if (!entry) return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability version is not registered for the requested basis.')
       if (!BootstrapAllowlistPolicy.permits(basis.scope, entry)) {
         return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'The bootstrap catalog permits onboarding capabilities only.')
@@ -498,7 +532,10 @@ export class RegistryResolutionService {
     }
   }
 
-  private failure(basis: CatalogBasis, code: Exclude<RegistryFailureCode, 'RESOLVED'>, reason: string): RegistryResolutionFailure {
+  failure(basis: CatalogBasis, code: Exclude<RegistryFailureCode, 'RESOLVED'>, reason: string): RegistryResolutionFailure {
+    if (!isAuthenticatedCatalogBasis(basis)) {
+      throw new ExecRegistryDomainError('A catalog basis is required.')
+    }
     return Object.freeze({ status: 'FAILED' as const, code, basis, reason, noMutation: true as const, noApproval: true as const })
   }
 }
@@ -527,7 +564,24 @@ export function isRegistryResolution(value: RegistryResolutionResult): value is 
 }
 
 export function cloneRegistryEntries(basis: CatalogBasis): readonly RegistryEntry[] {
+  if (!isAuthenticatedCatalogBasis(basis)) throw new ExecRegistryDomainError('A catalog basis is required.')
   return Object.freeze([...basis.entries])
+}
+
+export function isAuthenticatedCatalogScope(value: unknown): value is CatalogScope {
+  return typeof value === 'object' && value !== null && CATALOG_SCOPE_INSTANCES.has(value)
+}
+
+export function isAuthenticatedSupportedVersionSet(value: unknown): value is SupportedVersionSet {
+  return typeof value === 'object' && value !== null && SUPPORTED_VERSION_SET_INSTANCES.has(value)
+}
+
+export function isAuthenticatedRegistryEntry(value: unknown): value is RegistryEntry {
+  return typeof value === 'object' && value !== null && REGISTRY_ENTRY_INSTANCES.has(value)
+}
+
+export function isAuthenticatedCatalogBasis(value: unknown): value is CatalogBasis {
+  return typeof value === 'object' && value !== null && CATALOG_BASIS_INSTANCES.has(value)
 }
 
 export const RegistryCatalog = CatalogBasis
