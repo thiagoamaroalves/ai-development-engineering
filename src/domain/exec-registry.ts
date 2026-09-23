@@ -86,6 +86,8 @@ const CATALOG_SCOPE_INSTANCES = new WeakSet<object>()
 const SUPPORTED_VERSION_SET_INSTANCES = new WeakSet<object>()
 const REGISTRY_ENTRY_INSTANCES = new WeakSet<object>()
 const CATALOG_BASIS_INSTANCES = new WeakSet<object>()
+const REGISTRY_RESOLUTION_SERVICE_INSTANCES = new WeakSet<object>()
+const REGISTRY_RESOLUTION_RESULT_INSTANCES = new WeakSet<object>()
 
 export type SemanticVersionChange = 'NONE' | 'MAJOR' | 'MINOR' | 'PATCH'
 
@@ -503,6 +505,14 @@ export class BootstrapAllowlistPolicy {
 }
 
 export class RegistryResolutionService {
+  constructor() {
+    if (new.target !== RegistryResolutionService) {
+      throw new ExecRegistryDomainError('Registry resolution service substitutions are not authoritative.')
+    }
+    REGISTRY_RESOLUTION_SERVICE_INSTANCES.add(this)
+    Object.freeze(this)
+  }
+
   resolve(basis: CatalogBasis, request: RegistryResolutionRequest): RegistryResolutionResult {
     if (!isAuthenticatedCatalogBasis(basis)) {
       throw new ExecRegistryDomainError('A catalog basis is required.')
@@ -542,7 +552,9 @@ export class RegistryResolutionService {
       if (request.role !== undefined && !entry.acceptsRole(request.role)) {
         return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability role is not supported by the requested entry.')
       }
-      return Object.freeze({ status: 'RESOLVED' as const, code: 'RESOLVED' as const, basis, entry, requestedVersion: version })
+      const result = { status: 'RESOLVED' as const, code: 'RESOLVED' as const, basis, entry, requestedVersion: version }
+      REGISTRY_RESOLUTION_RESULT_INSTANCES.add(result)
+      return Object.freeze(result)
     } catch (error) {
       const reason = error instanceof Error ? error.message : 'Registry resolution request is invalid.'
       return this.failure(basis, 'CONTRACT_INVALID', reason)
@@ -553,7 +565,9 @@ export class RegistryResolutionService {
     if (!isAuthenticatedCatalogBasis(basis)) {
       throw new ExecRegistryDomainError('A catalog basis is required.')
     }
-    return Object.freeze({ status: 'FAILED' as const, code, basis, reason, noMutation: true as const, noApproval: true as const })
+    const result = { status: 'FAILED' as const, code, basis, reason, noMutation: true as const, noApproval: true as const }
+    REGISTRY_RESOLUTION_RESULT_INSTANCES.add(result)
+    return Object.freeze(result)
   }
 }
 
@@ -605,6 +619,35 @@ export function isAuthenticatedRegistryEntry(value: unknown): value is RegistryE
 
 export function isAuthenticatedCatalogBasis(value: unknown): value is CatalogBasis {
   return typeof value === 'object' && value !== null && CATALOG_BASIS_INSTANCES.has(value)
+}
+
+export function isAuthenticatedRegistryResolutionService(value: unknown): value is RegistryResolutionService {
+  return typeof value === 'object' && value !== null && REGISTRY_RESOLUTION_SERVICE_INSTANCES.has(value)
+}
+
+export function isAuthenticatedRegistryResolutionResult(value: unknown): value is RegistryResolutionResult {
+  return typeof value === 'object' && value !== null && REGISTRY_RESOLUTION_RESULT_INSTANCES.has(value)
+}
+
+export function isRegistryResolutionBoundToRequest(
+  value: unknown,
+  basis: CatalogBasis,
+  request: RegistryResolutionRequest,
+): value is RegistryResolutionResult {
+  if (!isAuthenticatedRegistryResolutionResult(value) || value.basis !== basis) return false
+  if (value.status === 'FAILED') return true
+  try {
+    const requestedVersion = SemanticVersion.parse(request.semanticVersion)
+    return value.entry.stage === request.stage
+      && value.entry.skillContractId === request.skillContractId
+      && value.entry.capabilityId === request.capabilityId
+      && value.entry.acceptsSchema(request.schema)
+      && (request.role === undefined || value.entry.acceptsRole(request.role))
+      && value.entry.supports(requestedVersion.value)
+      && value.requestedVersion.equals(requestedVersion)
+  } catch {
+    return false
+  }
 }
 
 export const RegistryCatalog = CatalogBasis

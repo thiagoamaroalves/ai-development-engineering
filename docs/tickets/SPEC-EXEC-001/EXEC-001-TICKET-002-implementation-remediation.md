@@ -10,203 +10,335 @@ TICKET_GATE = READY_FOR_REAUDIT
 STATUS = VALIDATION_REQUIRED
 ```
 
-The four canonical findings blocking local ticket completion were revalidated
-against the pinned baseline and corrected. The non-blocking SemanticVersion
-finding was also corrected as the same version-semantics campaign. The stale
-ticket execution-record finding remains routed to ticket-record revalidation.
-The integrated DOM/REPO productive-producer proof remains explicitly open and
-is not promoted by fixture or consumer changes. No upstream authority, ticket
-scope, ticket state, commit, merge, push, publication, or DONE transition was
-performed.
+The latest canonical implementation audit is complete and actionable. Its four
+local findings with `BLOCKS_TICKET_DONE = YES` were revalidated and corrected.
+The integrated-only DOM/REPO productive-producer finding remains open and routed;
+the stale ticket execution-record finding remains non-blocking and routed. No
+upstream authority, ticket scope, ticket status, approved Implementation Design,
+productive foreign availability, commit, merge, push, publication or DONE
+transition was changed.
+
+This is a remediation self-check and evidence record only. It is not an
+independent audit, final conformance verdict or approval.
 
 ## 2. Ticket
 
 ```text
 TICKET_ID = EXEC-001-TICKET-002
 TICKET_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-002-version-registry-catalogs-capabilities.md
+TICKET_FOLDER = docs/tickets/SPEC-EXEC-001
 IMPLEMENTATION_UNIT = EXEC-IMP-02 — Version, registry resolution, catalogs and capability extensibility
 IMPLEMENTATION_DESIGN_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-002-implementation-design.md
 CANONICAL_AUDIT_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-002-implementation-audit.md
-AUDIT_ROUND = RE_AUDIT / round 3
-AUDIT_HEAD = f8d34c11caca761fe562096588dcff6f3c5f3dab
-REMEDIATION_START_HEAD = 39e3295000b42c357e743ce95ced4faadc753b03
-CURRENT_HEAD = 39e3295000b42c357e743ce95ced4faadc753b03
-AUDIT_BASIS_FINGERPRINT = 98e064fd050a7ebb3264d2025ec1412d6d08e2544ed93e61e34be45a64798ca6
-BASELINE_DRIFT_STATUS = NO_DRIFT
+AUDIT_ROUND = RE_AUDIT / round 4
+AUDIT_HEAD = 8b6fe86b0f6370094e630b7272c98a490518cfac
+REMEDIATION_START_HEAD = fec7e15ea9776de69e1d5df6be7d39e735647ac2
+CURRENT_HEAD = fec7e15ea9776de69e1d5df6be7d39e735647ac2
+AUDIT_BASIS_FINGERPRINT = b61bd4448910d5260c149cc29396e6b67eb3b1f623b7d81b15e9f9802baf0bab
+LIVE_SEMANTIC_TARGET_FINGERPRINT = e375c46068917d98dd974d485c4c7edac5aeff1ccfedc75d8a3f81edaa8b3bb1
+BASELINE_DRIFT_STATUS = NO_DRIFT before remediation
 REASSESSMENT_COMPLETE = YES
 FINDINGS_ARE_ACTIONABLE = YES
 BASELINE_REMEDIATION_READINESS = READY
-AUDIT_BASIS_STALE = NO before authorized remediation mutation
-WORKTREE_REMEDIATION_STATE = UNCOMMITTED; semantic remediation edits are present
+AUDIT_BASIS_STALE = NO before authorized remediation; independent re-audit required after remediation
+WORKTREE_REMEDIATION_STATE = UNCOMMITTED; authorized remediation edits are present
 ```
 
-The audit target was the prior semantic implementation checkpoint. The current
-HEAD is the audited checkpoint commit supplied for this remediation; its
-workflow/document overlay does not alter the pinned semantic baseline. The
-working-tree implementation delta is intentionally uncommitted and is ready
-for the mandatory checkpoint and independent re-audit.
+`LIVE_SEMANTIC_TARGET_FINGERPRINT` is the SHA-256 of the ordered, LF-normalized
+semantic source/test target set named in §11, with each path and content framed
+before hashing. Before mutation, all five source/test paths were byte-identical
+to the audited target and authority/planning paths were unchanged. The only
+post-baseline changes are the remediation changes recorded here.
 
 ## 3. Baseline Validation
 
 | Check | Result |
 |---|---|
-| Pinned remediation start HEAD | `39e3295000b42c357e743ce95ced4faadc753b03` |
-| Current HEAD before/after edits | same pinned HEAD; no commit performed |
-| Canonical audit target | `f8d34c11caca761fe562096588dcff6f3c5f3dab` |
-| Audit checkpoint | round-3 audit checkpoint at pinned start HEAD |
+| Controller pinned start HEAD | `fec7e15ea9776de69e1d5df6be7d39e735647ac2` |
+| Canonical audit target HEAD | `8b6fe86b0f6370094e630b7272c98a490518cfac` |
+| Current HEAD before/after edits | `fec7e15ea9776de69e1d5df6be7d39e735647ac2`; no commit performed |
+| Source/test state before edits | Equal to canonical audit target for all five T002 semantic paths |
+| Authority/planning state before edits | Equal to audited authority; no relevant drift |
+| Worktree before edits | Clean |
 | Canonical verdict | `TICKET_IMPLEMENTATION_REMEDIATION_REQUIRED` |
 | Canonical ticket gate | `NOT_READY_FOR_DONE` |
-| Canonical findings | complete and actionable; 6 findings, 4 blocking |
-| Baseline fingerprint | matched `98e064fd050a7ebb3264d2025ec1412d6d08e2544ed93e61e34be45a64798ca6` |
-| Authority/planning revisions | unchanged |
-| Baseline classification | `NO_RELEVANT_DRIFT` |
-| Unrelated working-tree changes | preserved and excluded from remediation scope |
+| Canonical finding completeness | `PASS` |
+| Canonical findings | 6 total; 4 local blocking; 1 integrated-only; 1 non-blocking evidence finding |
+| Baseline drift | `NO_DRIFT` |
+| Reassessment | Complete and actionable as persisted by round-4 audit |
+| Post-edit state | Intentional remediation delta; stale audit basis is expected and routes to re-audit |
 
-The pre-edit semantic source/test state matched the pinned audit/checkpoint
-baseline. Post-edit changes are the authorized remediation delta, not baseline
-drift. No authority artifact, specialist artifact, ticket artifact, or
-upstream planning artifact was changed.
+The round-4 checkpoint explicitly authorized this skill. Governance and
+workflow-document changes between the audit target and the controller HEAD do
+not alter the T002 semantic source/test baseline. No relevant source, test,
+authority or evidence drift existed before remediation.
 
 ## 4. Canonical Findings Received
 
-All six current canonical findings were read and revalidated. Only findings
-with `BLOCKS_TICKET_DONE = YES` were mandatory local closure targets; the
-non-blocking SemanticVersion finding was safely corrected in the same root
-cause campaign.
+Every current canonical finding was read and revalidated against the live
+pre-edit target. The canonical IMA, not an independent specialist backlog,
+controls disposition.
 
-| Finding | Severity | Blocks done | Revalidation | Remediation disposition |
+| Finding | Severity | Blocks done | Revalidation | Disposition |
 |---|---:|---:|---|---|
-| `IMA-CRITICAL-001` | CRITICAL | YES | Confirmed at baseline; local source/consumer seam was incomplete | Validated and remediated at local boundary; integrated producer proof remains routed |
-| `IMA-CRITICAL-002` | CRITICAL | YES | Confirmed at baseline; direct caller basis registration was accepted | Validated and remediated |
-| `IMA-MAJOR-003` | MAJOR | YES | Confirmed at baseline; before-work and executable architecture witnesses were incomplete | Validated and remediated with direct production consumer and runtime import proof |
-| `IMA-MAJOR-006` | MAJOR | YES | Confirmed at baseline; supported-only candidate resolution was unreachable | Validated and remediated |
-| `IMA-MINOR-001` | MINOR | NO | Confirmed at baseline; public components were lossy | Validated and remediated as same-root version correction |
-| `IMA-MINOR-002` | MINOR | NO | Confirmed at baseline; ticket execution metadata was stale | Preserved and routed to ticket-record revalidation; not modified here |
+| `IMA-CRITICAL-001` | CRITICAL | NO | Confirmed; productive DOM/REPO producer proof is still unavailable | Remains OPEN integrated-only; preserved and routed to `IMPLEMENTATION_PLAN_REVALIDATION` |
+| `IMA-CRITICAL-002` | CRITICAL | YES | Confirmed; an exported local fixture could mint accepted source proof and reach registration | Validated and remediated by fixture isolation and productive-boundary rejection |
+| `IMA-CRITICAL-003` | CRITICAL | YES | Confirmed; resolver substitution/result status was an insufficient authority boundary | Validated and remediated by authenticated resolver/result proof and request binding |
+| `IMA-CRITICAL-004` | CRITICAL | YES | Confirmed; public registry orchestration invoked caller work | Validated and remediated by removing the effect callback boundary |
+| `IMA-MAJOR-007` | MAJOR | YES | Confirmed; nullish input could escape the failure mapper as `TypeError` | Validated and remediated with null-safe failure-basis construction |
+| `IMA-MINOR-002` | MINOR | NO | Confirmed; persisted ticket execution totals remain stale | Remains OPEN and routed to ticket-record revalidation; not altered here |
 
-No finding was rejected, silently dropped, or reclassified as blocking solely
-from severity. The DOM/REPO productive availability classification remains
-`NO`, with `DEPENDENCY_CLASS = REQUIRED_FOR_INTEGRATED_PROOF`.
+No canonical finding was rejected, silently downgraded, reclassified to change
+local completion scope, or marked resolved by fixture evidence. The foreign
+capabilities retain:
+
+```text
+DOM-EXEC-IDENTITY-SNAPSHOT = REQUIRED_FOR_INTEGRATED_PROOF; PRODUCTIVE_AVAILABILITY = NO
+REPO-EXEC-NORMAL-CATALOG = REQUIRED_FOR_INTEGRATED_PROOF; PRODUCTIVE_AVAILABILITY = NO
+UPSTREAM_DEPENDENCY_CLASSIFICATION_PRESERVED = YES
+```
 
 ## 5. Root Cause Analysis
 
-| Root cause | Campaign | Canonical findings | Category | Affected radius | Result |
-|---|---|---|---|---|---|
-| `RC-001` — Authority-bearing source, scope, revision and registration material lacked a verifiable issuer boundary | `RCC-EXEC-T002-AUTHORITY-PROVENANCE-001` | `IMA-CRITICAL-001`, `IMA-CRITICAL-002` | `IDENTITY_LINEAGE`, `OWNERSHIP`, `CROSS_SPEC_BOUNDARY`, `RECONSTRUCTION_AUTHORITY` | Source ports, DOM/REPO selection, bootstrap separation, registration, public/alternate adapters, stale/copy/forgery paths | Removed within local boundary; integrated producer proof remains downstream |
-| `RC-002` — Candidate selection filtered by exact entry version before entry-owned support compatibility | `RCC-EXEC-REGISTRY-VERSION-SELECTION-001` | `IMA-MAJOR-006` | `BEHAVIOR`, `COMPATIBILITY` | All candidate ordering, exact and supported-only resolution, unsupported negatives | Removed |
-| `RC-003` — Normative no-work and architecture authority obligations were represented by proxy-only evidence | `RCC-EXEC-T002-CLOSURE-EVIDENCE-001` | `IMA-MAJOR-003` | `TEST_COVERAGE`, `ARCHITECTURE_GUARD`, `COMPLETION_EVIDENCE` | Production use-case boundary, composition root, runtime graph, source/receipt witnesses | Removed within local boundary |
-| `RC-004` — Public SemanticVersion components did not preserve accepted exact digits | `RCC-EXEC-T002-SEMV-SEMANTICS-001` | `IMA-MINOR-001` | `BEHAVIOR`, `VALUE_OBJECT_SEMANTICS` | Major/minor/patch public surfaces and comparison witnesses | Removed |
-| `RC-005` — Ticket execution totals were not reconciled after prior implementation changes | `RCC-EXEC-T002-TICKET-TRACEABILITY-001` | `IMA-MINOR-002` | `COMPLETION_EVIDENCE` | Ticket §27 and ticket-owned execution record | Open; owner remains ticket-record revalidation |
+Root causes were reconstructed across the canonical findings rather than by
+finding wording. Stable campaign IDs from the canonical audit are preserved.
 
-`RC-001` had consecutive persistence and therefore received expanded-radius
-inspection across issuer, registrar, consumer, alternate authority, injection,
-mutation, stale, port substitution, public export, architecture and test
-surfaces. Persistence/recovery and productive foreign-producer availability
-remain outside this ticket.
+| Root cause | Campaign | Canonical findings | Category | Result |
+|---|---|---|---|---|
+| `RC-001` — Exported local fixture construction was indistinguishable from a productive owner-bound source at the application boundary | `RCC-EXEC-T002-AUTHORITY-PROVENANCE-001` | `IMA-CRITICAL-002` | `IDENTITY_LINEAGE`, `OWNERSHIP`, `CROSS_SPEC_BOUNDARY`, `CAPABILITY_AVAILABILITY` | Removed locally; campaign remains open only for integrated producer availability under `IMA-CRITICAL-001` |
+| `RC-002` — Resolver injection allowed status-shaped output to cross the application boundary without issuer/result/request verification | `RCC-EXEC-T002-RESULT-AUTHORITY-001` | `IMA-CRITICAL-003` | `IDENTITY_LINEAGE`, `AUTHORITY_PROVENANCE`, `TESTABILITY` | Removed |
+| `RC-003` — Work-effect invocation was placed in registry orchestration instead of the authorized downstream execution/effect owner | `RCC-EXEC-T002-EFFECT-BOUNDARY-001` | `IMA-CRITICAL-004` | `COMPONENT_BOUNDARY`, `RESPONSIBILITY_MIXING`, `CROSS_SPEC_BOUNDARY` | Removed |
+| `RC-004` — Failure-basis construction assumed an object after malformed input had already entered the application boundary | `RCC-EXEC-REGISTRY-FAILURE-MAPPING-001` | `IMA-MAJOR-007` | `BEHAVIOR`, `FAILURE_SEMANTICS`, `RECOVERY` | Removed |
+| `RC-005` — Ticket execution metadata was not refreshed after the audited target changed | `RCC-EXEC-T002-TICKET-TRACEABILITY-001` | `IMA-MINOR-002` | `COMPLETION_EVIDENCE` | Open; outside this implementation remediation route |
+
+The authority campaign has a stable canonical campaign row and remains
+`NON_CONVERGING` at the integrated boundary because the DOM/REPO producer
+capability is still unavailable. The local manifestation that blocked this
+ticket (`IMA-CRITICAL-002`) is closed locally without promoting that capability.
 
 ## 6. Affected Radius
 
-| Surface | Location | Classification | Result |
+The persistence-2 gate for the authority campaign required expanded-radius
+inspection before a remediation unit could close. All required surface classes
+were inspected. Outside-scope rows retain an owner and route; they were not
+silently widened into this ticket.
+
+### RCC-EXEC-T002-AUTHORITY-PROVENANCE-001
+
+| Surface row | Location / owner | Expected behavior | Coverage | Witnesses / route |
+|---|---|---|---|---|
+| Issuer | `exec-registry-ports.ts`; future DOM/REPO owners | Only owner-bound producers issue productive proof | `FIXED` locally for fixture classification; integrated issuer `OUTSIDE_SCOPE` | W-002; integrated checkpoint |
+| Registrar | `RegisterExecCapability` | Local fixtures and raw caller bases cannot publish productive registration authority | `FIXED` | W-002, W-008 |
+| Consumer | `ResolveExecCapability` | Productive application consumes only owner-bound sources; local fixtures are contract-only | `FIXED` locally; productive source `OUTSIDE_SCOPE` | W-001, W-009; DOM/REPO route |
+| Alternate authority path | exported fixture factory and caller-created basis | Fixture construction cannot cross productive application registration/resolution boundary | `FIXED` | W-002, W-009 |
+| Injection point | source port target/callback and caller scope/source/revision | Caller cannot mint an accepted productive receipt | `FIXED` | W-001, W-002, W-003 |
+| Mutation path | frozen basis registration | Rejection preserves the prior basis | `FIXED` | W-008 |
+| Stale path | source receipt revision | Stale revision fails closed without mutation | `FIXED` locally; productive stale producer `OUTSIDE_SCOPE` | W-001, W-008; integrated route |
+| Port substitution path | abstract source subclasses and copied receipts | Unissued/copy/alternate source material fails closed | `FIXED` | W-003, W-004, W-005 |
+| Public export | `createLocal*CatalogFixture` and source classes | Exported fixtures are visibly local-only and rejected by productive paths | `FIXED` | W-002, W-009 |
+| Persistence / recovery | PLAT/TICKET-003 | Physical persistence, digest and recovery remain foreign | `OUTSIDE_SCOPE` | PLAT/TICKET-003 owner and integrated checkpoint |
+| Architecture guard | productive EXEC module graph | No infrastructure/prototype/transport authority is introduced | `FIXED` | W-009 |
+| Test surface | T002 direct tests | Positive local domain behavior plus direct authority negatives | `FIXED` | W-001…W-009 |
+
+### RCC-EXEC-T002-RESULT-AUTHORITY-001
+
+| Surface row | Location / owner | Coverage | Witnesses |
 |---|---|---|---|
-| Issuer and receipt lineage | `src/application/exec-registry-ports.ts` | Same-root manifestation | Module-private issuer/receipt ledgers reject copied receipts and caller-defined source subclasses without issuance |
-| DOM consumer | `ResolveExecCapability` and composition root | Canonical manifestation | NORMAL resolution reads an explicit DOM execution basis and binds REPO material to exact scope/revision |
-| Bootstrap authority | `ResolveExecCapability` | Canonical manifestation | Bootstrap uses its independent source and cannot substitute the DOM source |
-| NORMAL authority | `ResolveExecCapability` | Canonical manifestation | No caller repository authority; returned source scope/revision must match DOM basis and request |
-| Registrar/publication | `RegisterExecCapability` | Canonical manifestation | Registration consumes a source receipt; raw and caller-created basis injection is rejected |
-| Domain resolver | `RegistryResolutionService` | Same-root local semantic surface | Deterministic candidate selection applies entry-owned support policy; domain remains EXEC semantic owner |
-| Version value object | `SemanticVersion` | Same-root manifestation | Exact decimal component strings preserve large major/minor/patch values |
-| Frozen state | `CatalogBasis.register` and source reads | Invariant surface | Rejections do not mutate or replace the old basis |
-| Architecture proof | runtime dynamic imports plus common-path test | Canonical evidence surface | Import graph is exercised, not only source-text scanned |
-| Physical persistence/recovery | TICKET-003/PLAT boundary | Outside scope | No storage, CAS, recovery or productive producer authority was added |
-| Ticket execution metadata | ticket §27 | Non-blocking downstream route | Not modified by this skill; remains ticket-record revalidation |
+| Issuer | `RegistryResolutionService` | `FIXED`; direct service instances are branded and frozen | W-003, W-004 |
+| Consumer | `ResolveExecCapability` | `FIXED`; service/result provenance and request binding are checked | W-003, W-004 |
+| Alternate adapter | resolver subclass/structural fake | `FIXED`; subclass and structural substitution are rejected | W-004, W-005 |
+| Injection point | resolver constructor and result boundary | `FIXED` | W-004 |
+| Mutation/stale path | basis/result/request mismatch | `FIXED` | W-003 |
+| Public export | result helper boundary and composition root | `FIXED`; unbranded copies fail verification and the resolver is not publicly exposed by composition | W-003, W-009 |
+| Test surface | direct forged/mismatch witnesses | `FIXED` | W-003…W-005 |
+
+### RCC-EXEC-T002-EFFECT-BOUNDARY-001
+
+| Surface row | Location / owner | Coverage | Witnesses |
+|---|---|---|---|
+| Public effect path | `ResolveExecCapability` | `FIXED`; no registry work callback exists | W-006 |
+| Work boundary | downstream execution/session/effect owner | `OUTSIDE_SCOPE`; registry returns structured resolution only | Downstream owner route |
+| Alternate callback path | prior `resolveBeforeWork` surface | `FIXED` by removal | W-006 |
+| Temporal/stale path | DOM/PLAT/GIT owners | `OUTSIDE_SCOPE`; no effect is committed locally | Integrated owner route |
+| Test surface | no-effect API/architecture guard | `FIXED` | W-006, W-009 |
+
+### RCC-EXEC-REGISTRY-FAILURE-MAPPING-001
+
+| Surface row | Location / owner | Coverage | Witnesses |
+|---|---|---|---|
+| Input issuer | application input boundary | `FIXED`; nullish, primitive, malformed and throwing-getter input is fail-closed | W-007 |
+| Failure mapper | `ResolveExecCapability.failureBasis` | `FIXED`; scope extraction is guarded | W-007 |
+| Alternate input adapter | malformed caller objects | `FIXED` | W-007 |
+| Mutation path | failure construction | `FIXED`; failure carries `noMutation=true`, `noApproval=true` | W-007 |
+| Test surface | direct malformed-input probes | `FIXED` | W-007 |
+
+### RCC-EXEC-T002-TICKET-TRACEABILITY-001
+
+| Surface row | Location / owner | Coverage | Route |
+|---|---|---|---|
+| Ticket execution metadata | T002 §27 / ticket-record workflow owner | `OUTSIDE_SCOPE` of code remediation | `TICKET_REVALIDATION`; `IMA-MINOR-002` remains open |
+| Evidence totals | ticket-owned evidence record | `OUTSIDE_SCOPE` of this implementation mutation | Ticket workflow owner |
+
+```text
+ISSUERS = INSPECTED
+REGISTRARS = INSPECTED
+CONSUMERS = INSPECTED
+ALTERNATE_AUTHORITY_PATHS = INSPECTED
+INJECTION_POINTS = INSPECTED
+MUTATION_AND_STALE_PATHS = INSPECTED
+PORT_SUBSTITUTION_PATHS = INSPECTED
+PUBLIC_EXPORTS = INSPECTED
+CAMPAIGN_MATRIX_COMPLETE = YES for local scope; outside-scope rows have owner/route
+ALL_SURFACE_ROWS_COVERED = YES
+```
+
+### Negative witness matrix
+
+| Witness | Obligation | Result |
+|---|---|---|
+| `W-001` | unissued/copy/stale/wrong-source catalog receipt | PASS; structured `CONTRACT_INVALID` and no approval/mutation |
+| `W-002` | exported local fixture cannot publish productive registration authority | PASS; registration rejects and prior basis identity is unchanged |
+| `W-003` | resolver result is branded and request/basis bound | PASS; valid result binds, mismatched/forged copy does not |
+| `W-004` | caller-injected resolver and status-shaped result | PASS; constructor rejects unbranded resolver |
+| `W-005` | alternate resolver adapter/subclass | PASS; non-canonical substitution rejects |
+| `W-006` | registry no-effect boundary | PASS; `resolveBeforeWork` is absent and no work callback is invoked by registry |
+| `W-007` | null, undefined, primitive, malformed object and throwing getter | PASS; structured `CONTRACT_INVALID`, `noApproval=true`, `noMutation=true` |
+| `W-008` | duplicate/forged registration no-mutation | PASS; original basis identity and entries remain unchanged |
+| `W-009` | productive import graph/common-path architecture guard | PASS; affected modules load and forbidden dependency scan remains clean |
+
+```text
+ALL_NEGATIVE_WITNESSES_PASS = YES for local scope
+NO_UNEXPLAINED_PUBLIC_AUTHORITY_PATH = YES at the productive application boundary
+NO_HIDDEN_CONCRETE_PROTOCOL = YES
+```
 
 ## 7. Remediation Units
 
-### RU-001 — Issuer-bound source seams and guarded registration
+### RU-001 — Isolate local fixture issuance from productive authority paths
 
 ```text
-ROOT_CAUSE_IDS = RC-001, RC-003
-CANONICAL_FINDINGS = IMA-CRITICAL-001, IMA-CRITICAL-002, IMA-MAJOR-003
-BEHAVIOR_TO_CORRECT = reject caller/adapter authority; consume independent DOM, REPO and bootstrap source seams; bind NORMAL material to exact scope/revision; guard registration
-STRUCTURE_TO_CORRECT = preserve domain/application/composition split and foreign ownership while replacing subclass-mintable issuance with module-private receipt proof
-FILES_CHANGED = src/application/exec-registry-ports.ts; src/application/exec-registry.ts; src/composition/exec-registry.ts; src/domain/exec-registry.ts; tests/exec-001-ticket-002.test.ts
-TESTS_REQUIRED = source forgery; copied receipt; caller scope; caller support-set; stale revision; DOM/bootstrap substitution; forged registration; frozen-basis preservation
-DESIGN_BOUNDARIES_TO_PRESERVE = EXEC owns local semantics; DOM owns execution identity/snapshot; REPO owns NORMAL source; bootstrap remains independent
-OWNERSHIP_CONSTRAINTS = no foreign lifecycle, enablement, persistence or productive availability promotion
-DEPENDENCY_CONSTRAINTS = DOM/REPO remain integrated-proof dependencies
-COMPLETION_PROOF = direct receipt, scope/revision, alternate-adapter, registration and no-mutation witnesses pass
+REMEDIATION_UNIT_ID = RU-001
+ROOT_CAUSE_IDS = RC-001
+CANONICAL_FINDINGS = IMA-CRITICAL-002
+BEHAVIOR_TO_CORRECT = reject exported local fixture authority at productive application resolution/registration boundaries; preserve local domain contract evidence
+STRUCTURE_TO_CORRECT = distinguish local fixture sources with a module-private marker; keep DOM/REPO ownership and source-port direction unchanged
+FILES_CHANGED = src/application/exec-registry-ports.ts; src/application/exec-registry.ts; tests/exec-001-ticket-002.test.ts
+TESTS_REQUIRED = caller-created fixture registration rejection; prior-basis preservation; local fixture application rejection; copied/unissued/stale/wrong-source receipt rejection
+DESIGN_BOUNDARIES_TO_PRESERVE = EXEC owns local registry semantics; DOM owns execution identity; REPO owns NORMAL catalog; fixture is not productive
+OWNERSHIP_CONSTRAINTS = no foreign lifecycle/enablement/persistence and no productive availability promotion
+DEPENDENCY_CONSTRAINTS = DOM/REPO remain REQUIRED_FOR_INTEGRATED_PROOF
+REGRESSION_RISKS = fixture accidentally accepted as productive source; synthetic domain path loses common registry semantics
+COMPLETION_PROOF = W-001, W-002, W-008, W-009 and focused/full tests pass
 ```
 
-### RU-002 — Deterministic supported-version semantics
+### RU-002 — Authenticate resolver provenance, request binding and effect boundary
 
 ```text
-ROOT_CAUSE_IDS = RC-002, RC-004
-CANONICAL_FINDINGS = IMA-MAJOR-006, IMA-MINOR-001
-BEHAVIOR_TO_CORRECT = resolve exact and explicit supported-only versions; reject unsupported versions; preserve exact public SemVer components
-STRUCTURE_TO_CORRECT = keep RegistryResolutionService, VersionCompatibilityPolicy and SemanticVersion as their approved owners without adding strategies or generic utilities
-FILES_CHANGED = src/domain/exec-registry.ts; tests/exec-001-ticket-002.test.ts
-TESTS_REQUIRED = forward/reverse candidate order; supported-only positive; unsupported negative; oversized major/minor/patch witnesses
-DESIGN_BOUNDARIES_TO_PRESERVE = explicit support sets, immutable basis and EXEC-owned canonical outcomes
-OWNERSHIP_CONSTRAINTS = no alias/range/conversion or foreign version authority
+REMEDIATION_UNIT_ID = RU-002
+ROOT_CAUSE_IDS = RC-002, RC-003
+CANONICAL_FINDINGS = IMA-CRITICAL-003, IMA-CRITICAL-004
+BEHAVIOR_TO_CORRECT = reject resolver/result substitution; verify result issuer, basis, request, schema, version and role; expose resolution only and never invoke caller work
+STRUCTURE_TO_CORRECT = brand/freeze RegistryResolutionService and results; remove callback-based effect orchestration; retain domain decision and application orchestration split
+FILES_CHANGED = src/domain/exec-registry.ts; src/application/exec-registry.ts; src/composition/exec-registry.ts; tests/exec-001-ticket-002.test.ts
+TESTS_REQUIRED = forged resolver; alternate subclass; forged/copy result; request/version/basis mismatch; no-effect API boundary; import architecture guard
+DESIGN_BOUNDARIES_TO_PRESERVE = pure registry resolution; execution/session/effect ownership remains downstream
+OWNERSHIP_CONSTRAINTS = no effect execution, temporal authority or lifecycle in EXEC registry
+DEPENDENCY_CONSTRAINTS = no new normative dependency or reclassification
+REGRESSION_RISKS = anemic domain verification, duplicate policy in application, hidden effect callback
+COMPLETION_PROOF = W-003, W-004, W-005, W-006, W-009 and focused/full tests pass
+```
+
+### RU-003 — Make application failure mapping null-safe
+
+```text
+REMEDIATION_UNIT_ID = RU-003
+ROOT_CAUSE_IDS = RC-004
+CANONICAL_FINDINGS = IMA-MAJOR-007
+BEHAVIOR_TO_CORRECT = malformed application input always becomes structured CONTRACT_INVALID failure
+STRUCTURE_TO_CORRECT = guard failure-basis scope extraction without moving failure ownership
+FILES_CHANGED = src/application/exec-registry.ts; tests/exec-001-ticket-002.test.ts
+TESTS_REQUIRED = null; undefined; primitive; malformed object; throwing getter; no-approval/no-mutation assertions
+DESIGN_BOUNDARIES_TO_PRESERVE = application maps source/input failures; domain owns canonical failure code and result shape
+OWNERSHIP_CONSTRAINTS = no new failure family and no foreign failure mapping
 DEPENDENCY_CONSTRAINTS = none added
-COMPLETION_PROOF = focused resolver and value-object assertions pass
+REGRESSION_RISKS = TypeError escaping malformed input; failure basis losing authenticated scope when safe to retain
+COMPLETION_PROOF = W-007 and focused/full tests pass
 ```
 
-### RU-003 — Direct closure and architecture witnesses
-
-```text
-ROOT_CAUSE_IDS = RC-001, RC-003
-CANONICAL_FINDINGS = IMA-CRITICAL-001, IMA-MAJOR-003
-BEHAVIOR_TO_CORRECT = invoke work only after a resolved result; execute the real module graph; directly exercise source, output, forgery, stale, alternate and no-work witnesses
-STRUCTURE_TO_CORRECT = retain narrow ports and composition wiring; do not claim productive foreign availability
-FILES_CHANGED = src/application/exec-registry.ts; src/composition/exec-registry.ts; tests/exec-001-ticket-002.test.ts
-TESTS_REQUIRED = application before-work gate; dynamic imports of all affected modules; common-path resolution; focused and full regressions
-DESIGN_BOUNDARIES_TO_PRESERVE = evidence remains non-authoritative; integrated proof ownership remains downstream
-OWNERSHIP_CONSTRAINTS = no upstream/ticket-state mutation
-DEPENDENCY_CONSTRAINTS = no dependency reclassification
-COMPLETION_PROOF = 17 focused tests, 65 package tests, typecheck and governance guards pass
-```
+All units satisfy the frozen-scope guard: each change is required by a
+canonical finding or same-root manifestation, is within EXEC-IMP-02, restores
+the approved design, preserves Does Not Implement, and adds no unrelated
+product behavior.
 
 ## 8. Finding Closure
 
-| Finding | Root cause | Unit | Closure evidence | Status |
-|---|---|---|---|---|
-| `IMA-CRITICAL-001` | `RC-001` | `RU-001`, `RU-003` | Opaque module-private receipt ledger; explicit DOM reader wired; exact DOM/REPO scope/revision binding; caller/copy/stale/alternate witnesses; productive availability remains `NO` | `VALIDATED_AND_REMEDIATED` for local ticket boundary; integrated handoff remains open |
-| `IMA-CRITICAL-002` | `RC-001` | `RU-001` | Registration now requires source-issued receipt and expected kind/source/scope; raw and caller-created bases are rejected; old basis remains unchanged | `VALIDATED_AND_REMEDIATED` |
-| `IMA-MAJOR-003` | `RC-003` | `RU-001`, `RU-003` | `resolveBeforeWork` is production application behavior; runtime dynamic imports/common path execute the graph; direct negative/output witnesses pass | `VALIDATED_AND_REMEDIATED` |
-| `IMA-MAJOR-006` | `RC-002` | `RU-002` | Candidate ordering is deterministic and support-only `1.5.0` resolves from an entry at `1.0.0`; unsupported `3.0.0` remains incompatible | `VALIDATED_AND_REMEDIATED` |
-| `IMA-MINOR-001` | `RC-004` | `RU-002` | Public major/minor/patch fields preserve oversized accepted decimal components exactly | `VALIDATED_AND_REMEDIATED` |
-| `IMA-MINOR-002` | `RC-005` | none | Ticket execution record was intentionally not modified; current remediation command results are recorded here, and ticket-record revalidation remains required | `REMAINING_NON_BLOCKING` |
+| Finding | Root cause | Remediation unit | Fixed files | Tests added/changed | Behavioral correction | Structural correction | Closure evidence | Disposition |
+|---|---|---|---|---|---|---|---|---|
+| `IMA-CRITICAL-001` | Integrated producer availability | none; integrated route | none | none | Productive DOM/REPO proof remains unavailable | Integrated ownership remains foreign | Capability record and downstream route preserved | `OPEN_INTEGRATED_ONLY`; not a local remediation target |
+| `IMA-CRITICAL-002` | `RC-001` | `RU-001` | ports, application, T002 tests | fixture-authority and no-mutation tests | Exported fixtures fail closed at productive app/registration paths | Fixture source is explicitly local-only; registrar cannot accept it | W-001, W-002, W-008, W-009; 20 focused tests pass | `VALIDATED_AND_REMEDIATED` |
+| `IMA-CRITICAL-003` | `RC-002` | `RU-002` | domain, application, T002 tests | resolver/result forgery, alternate adapter and request-binding tests | Caller cannot inject a status-shaped result into the application boundary | Authenticated frozen resolver/result boundary restored | W-003, W-004, W-005; 20 focused tests pass | `VALIDATED_AND_REMEDIATED` |
+| `IMA-CRITICAL-004` | `RC-003` | `RU-002` | application, T002 tests | no-effect boundary witness | Registry no longer invokes caller-supplied work | Execution/effect responsibility remains downstream | W-006, W-009; 20 focused tests pass | `VALIDATED_AND_REMEDIATED` |
+| `IMA-MAJOR-007` | `RC-004` | `RU-003` | application, T002 tests | nullish/malformed/throwing-getter tests | All malformed contexts map to structured fail-closed output | Failure-basis mapping remains application-owned and total | W-007; 20 focused tests pass | `VALIDATED_AND_REMEDIATED` |
+| `IMA-MINOR-002` | `RC-005` | none | none | none | Ticket execution metadata remains stale | Ticket evidence route preserved | Current remediation command counts are recorded here; ticket record is not rewritten | `OPEN_NON_BLOCKING; TICKET_REVALIDATION` |
 
-The local source/consumer portion of `IMA-CRITICAL-001` is not falsely promoted
-to integrated producer conformance. Its downstream DOM/REPO producer-issued
-stale, detached, error and productive-availability proof remains traceable.
+No finding is `PARTIALLY_REMEDIATED`, `REJECTED_BY_NEW_EVIDENCE` or
+`BLOCKED`. The two open rows are deliberately not falsely marked resolved.
+
+### Append-only lineage ledger
+
+The prior round-3 rows are retained below without status rewriting. Round-4
+rows append the current remediation result and target state.
+
+| Finding | Campaign | Round | Status | Origin | Previous finding IDs | Evidence delta | Remediation unit | Target state |
+|---|---|---:|---|---|---|---|---|---|
+| `IMA-CRITICAL-001` | `RCC-EXEC-T002-AUTHORITY-PROVENANCE-001` | 3 | `VALIDATED_AND_REMEDIATED` locally; integrated handoff open | PREEXISTING | prior round identity | local source/consumer proof; integrated producer open | `RU-001`, `RU-003` | `39e3295000b42c357e743ce95ced4faadc753b03` |
+| `IMA-CRITICAL-002` | `RCC-EXEC-T002-AUTHORITY-PROVENANCE-001` | 3 | `VALIDATED_AND_REMEDIATED` | PREEXISTING | prior round identity | source-issued registration and no-mutation negatives | `RU-001` | `39e3295000b42c357e743ce95ced4faadc753b03` |
+| `IMA-MAJOR-003` | `RCC-EXEC-T002-CLOSURE-EVIDENCE-001` | 3 | `VALIDATED_AND_REMEDIATED` | PREEXISTING | prior round identity | production before-work and executable graph proof | `RU-001`, `RU-003` | `39e3295000b42c357e743ce95ced4faadc753b03` |
+| `IMA-MAJOR-006` | `RCC-EXEC-REGISTRY-VERSION-SELECTION-001` | 3 | `VALIDATED_AND_REMEDIATED` | PREEXISTING | prior round identity | deterministic selection and supported-only witness | `RU-002` | `39e3295000b42c357e743ce95ced4faadc753b03` |
+| `IMA-MINOR-001` | `RCC-EXEC-T002-SEMV-SEMANTICS-001` | 3 | `VALIDATED_AND_REMEDIATED` | PREEXISTING | prior round identity | exact public component witnesses | `RU-002` | `39e3295000b42c357e743ce95ced4faadc753b03` |
+| `IMA-MINOR-002` | `RCC-EXEC-T002-TICKET-TRACEABILITY-001` | 3 | `REMAINING_NON_BLOCKING` | PREEXISTING | prior round identity | ticket record intentionally unchanged | none | `39e3295000b42c357e743ce95ced4faadc753b03` |
+| `IMA-CRITICAL-001` | `RCC-EXEC-T002-AUTHORITY-PROVENANCE-001` | 4 | `STILL_PRESENT` / local handoff preserved | PREEXISTING | `IMA-CRITICAL-001` | productive DOM/REPO producer remains unavailable; local fixture path isolated | `RU-001` | `fec7e15ea9776de69e1d5df6be7d39e735647ac2` + live fingerprint |
+| `IMA-CRITICAL-002` | `RCC-EXEC-T002-AUTHORITY-PROVENANCE-001` | 4 | `RESOLVED` locally | PREEXISTING | `IMA-CRITICAL-002` | exported fixture marked local-only and rejected by productive paths | `RU-001` | `fec7e15ea9776de69e1d5df6be7d39e735647ac2` + live fingerprint |
+| `IMA-CRITICAL-003` | `RCC-EXEC-T002-RESULT-AUTHORITY-001` | 4 | `RESOLVED` | PREEXISTING | `IMA-CRITICAL-003` | service/result provenance, request and basis binding enforced | `RU-002` | `fec7e15ea9776de69e1d5df6be7d39e735647ac2` + live fingerprint |
+| `IMA-CRITICAL-004` | `RCC-EXEC-T002-EFFECT-BOUNDARY-001` | 4 | `RESOLVED` | PREEXISTING | `IMA-CRITICAL-004` | public effect callback removed; registry returns resolution only | `RU-002` | `fec7e15ea9776de69e1d5df6be7d39e735647ac2` + live fingerprint |
+| `IMA-MAJOR-007` | `RCC-EXEC-REGISTRY-FAILURE-MAPPING-001` | 4 | `RESOLVED` | REMEDIATION_INTRODUCED in canonical audit lineage | `IMA-MAJOR-007` | null-safe failure basis and direct malformed-input witnesses | `RU-003` | `fec7e15ea9776de69e1d5df6be7d39e735647ac2` + live fingerprint |
+| `IMA-MINOR-002` | `RCC-EXEC-T002-TICKET-TRACEABILITY-001` | 4 | `STILL_PRESENT` | PREEXISTING | `IMA-MINOR-002` | ticket-record route preserved; no ticket metadata mutation | none | `fec7e15ea9776de69e1d5df6be7d39e735647ac2` + live fingerprint |
+
+```text
+FINDING_LINEAGE_LEDGER_COMPLETE = YES
+BASE_REPORT_IMMUTABLE = YES
+```
 
 ## 9. Root Cause Closure
 
-| Root cause | Removed | Radius checked | Known local manifestations closed | Systemic evidence | Boundary |
+| Root cause / campaign | Root cause removed | Affected radius checked | Known manifestations closed | Systemic test evidence | Structural boundary restored |
 |---|---|---|---|---|---|
-| `RC-001` | YES within local scope | YES | YES | PRESENT | local consumer/registrar; integrated producer proof open |
-| `RC-002` | YES | YES | YES | PRESENT | domain resolver preserved |
-| `RC-003` | YES within local scope | YES | YES | PRESENT | evidence and application boundary restored |
-| `RC-004` | YES | YES | YES | PRESENT | value object preserved |
-| `RC-005` | NO | YES | NO; routed | NOT APPLICABLE | ticket workflow owner |
+| `RC-001` local fixture/productive authority confusion | YES locally | YES | YES locally; integrated producer remains open | PRESENT | YES locally |
+| `RCC-EXEC-T002-AUTHORITY-PROVENANCE-001` full campaign | NO globally; integrated-only `IMA-CRITICAL-001` remains | YES | YES for local manifestations; integrated row routed | PRESENT but integrated incomplete | YES locally |
+| `RC-002` resolver/result provenance | YES | YES | YES | PRESENT | YES |
+| `RC-003` effect ownership | YES | YES | YES | PRESENT | YES |
+| `RC-004` null-safe failure mapping | YES | YES | YES | PRESENT | YES |
+| `RC-005` stale ticket metadata | NO | YES | NO | NOT_REQUIRED for code remediation | NOT_APPLICABLE |
 
 ```text
 BLOCKING_ROOT_CAUSES_CLOSED = YES
-ALL_LOCAL_ROOT_CAUSES_CLOSED = YES for blocking scope
-OPEN_NON_BLOCKING_ROOT_CAUSE = RC-005
+ALL_LOCAL_ROOT_CAUSES_CLOSED = YES
 AFFECTED_RADIUS_CHECKED = YES
-KNOWN_LOCAL_MANIFESTATIONS_CLOSED = YES for blocking campaigns
-SYSTEMIC_TEST_EVIDENCE = PRESENT
-ROOT_CAUSE_CLOSURE_PROOF_COMPLETE = YES for local blocking scope
+KNOWN_LOCAL_MANIFESTATIONS_CLOSED = YES
+SYSTEMIC_TEST_EVIDENCE = PRESENT for local campaigns
+ROOT_CAUSE_CLOSURE_PROOF_COMPLETE = YES for all local blocking findings
 ```
+
+The authority campaign is intentionally not globally closed because its
+integrated producer capability is not owned by this ticket. That open handoff
+is preserved rather than converted into local productive availability.
 
 ## 10. Design Conformance Reconciliation
 
 The approved Implementation Design remains the structural authority. The
-remediation strengthens the approved source ACL and application orchestration;
-it does not add persistence, foreign lifecycle, a second registry, or a generic
-adapter framework.
+remediation restores its source ACL, pure-resolution and application failure
+boundaries without adding persistence, effect execution, foreign lifecycle,
+second registry or generic adapter framework.
 
 ```text
 DOMAIN_MODEL_CONFORMANT = YES
@@ -232,20 +364,23 @@ INFRASTRUCTURE_LEAKAGE_POINTS = 0
 IMPLEMENTATION_DESIGN_REVALIDATION_REQUIRED = NO
 ```
 
-The application service selects and validates sources; domain policies retain
-version, scope, bootstrap and immutable-basis semantics. The fixture helpers
-are explicitly local contract fixtures and are not productive availability.
+`RegistryResolutionService` remains the domain decision owner. The application
+service now authenticates the domain service/result and maps malformed input;
+it does not reproduce registry policy. Local fixture sources are explicit test
+contract support and cannot establish productive authority. The registry
+returns a structured result and does not invoke work or effects.
 
 ## 11. Files Changed
 
 ```text
 CHANGED_PRODUCTION_FILES = 4
-  src/domain/exec-registry.ts
-  src/application/exec-registry.ts
   src/application/exec-registry-ports.ts
+  src/application/exec-registry.ts
   src/composition/exec-registry.ts
+  src/domain/exec-registry.ts
 CHANGED_TEST_FILES = 1
   tests/exec-001-ticket-002.test.ts
+CHANGED_COMPOSITION_FILES = 0
 CHANGED_EVIDENCE_FILES = 1
   docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-002-implementation-remediation.md
 REQUIRED_SHARED_SUPPORT_FILES = 0
@@ -256,46 +391,49 @@ TICKET_STATE_CHANGE = 0
 COMMIT_MERGE_PUSH_PUBLISH = NONE
 ```
 
-Pre-existing unrelated working-tree changes remain preserved and excluded.
+The ticket file, ticket index, ADRs, portfolio, SPECs, Gap Matrix, Plan,
+Implementation Design, specialist artifacts and audit checkpoint were not
+modified by remediation.
 
 ## 12. Gap / Requirement / Acceptance Impact
 
 ```text
 GAPS_PRESERVED = GAP-004, GAP-006, GAP-008, GAP-009, GAP-010, GAP-011
 REQUIREMENTS_PRESERVED = EXEC-VERSION-001/002, EXEC-REGISTRY-001/002/003, EXEC-CAPABILITY-001/002
-ACCEPTANCE_CRITERIA_AFFECTED = AC-EXEC-003, AC-EXEC-004, AC-EXEC-008, AC-EXEC-009, AC-EXEC-010, AC-EXEC-011, AC-EXEC-012
-ACCEPTANCE_CRITERIA_SATISFIED = 7/7 local criteria
+ACCEPTANCE_CRITERIA_AFFECTED = AC-EXEC-004, AC-EXEC-008, AC-EXEC-009, AC-EXEC-010, AC-EXEC-011, AC-EXEC-012
+ACCEPTANCE_CRITERIA_SATISFIED = 7/7 local criteria after complete focused proof
 ACCEPTANCE_CRITERIA_NOT_SATISFIED = 0
-ACCEPTANCE_CRITERIA_BLOCKED = 0
-AC-EXEC-005/AC-EXEC-007 = local contribution only; final integrated proof ownership preserved
+ACCEPTANCE_CRITERIA_BLOCKED = 0 locally
+AC-EXEC-005/AC-EXEC-007 = contribution/integrated proof ownership preserved
 DEPENDENCY_CLASS_RECLASSIFICATION = NONE
 PRODUCTIVE_FOREIGN_AVAILABILITY_PROMOTED = NO
+TICKET_SCOPE_EXPANDED = NO
 ```
 
-No Goal, scope, Gap identity, requirement, acceptance authority, Does Not
-Implement, ownership, or dependency classification changed.
+The local domain tests continue to prove the frozen registry behavior. Source
+fixtures no longer masquerade as productive producer proof; integrated source
+availability remains a downstream obligation.
 
 ## 13. Tests
 
 | Command | Result |
 |---|---|
-| `node --experimental-strip-types --test tests/exec-001-ticket-002.test.ts` | 17 passed, 0 failed, 0 skipped |
-| `npm test` | 65 passed, 0 failed, 0 skipped |
+| `node --experimental-strip-types --test tests/exec-001-ticket-002.test.ts` | 20 passed, 0 failed, 0 skipped |
+| `npm test` | 68 passed, 0 failed, 0 skipped |
 | `npm run typecheck` | PASS |
 | `npm run verify:audit-governance` | PASS |
 | `npm run verify:skill-mirror` | PASS |
 
-Direct proof covers complete output mapping, forward/reverse candidate order,
-explicit supported-only resolution, unsupported rejection, exact oversized
-SemVer components, duplicate/conflict no-mutation, caller scope/support-set
-injection, expected-source forgery, copied receipt, stale revision, DOM versus
-bootstrap substitution, forged registration, source failure, bootstrap
-before-work gating, dynamic module imports, and architecture dependency guards.
-No assertion was weakened.
+The focused suite directly covers semver/support behavior, deterministic
+resolution, catalog isolation, bootstrap allowlisting, canonical outcome
+distinction, synthetic common-domain registration, fixture/source forgery,
+registration no-mutation, resolver/result provenance and request binding,
+alternate resolver rejection, no-effect registry boundary, nullish/malformed
+failure mapping and architecture/import guards. No assertion was weakened.
 
 ```text
-TESTS_RUN = focused TICKET-002 suite plus complete repository suite and required gates
-TESTS_PASSED = 17 focused; 65 package; typecheck/governance/mirror PASS
+TESTS_RUN = focused T002 suite; package suite; typecheck; governance; skill mirror
+TESTS_PASSED = 20 focused; 68 package; all required gates PASS
 TESTS_FAILED = 0
 TESTS_SKIPPED = 0
 ENVIRONMENTAL_FAILURES = 0
@@ -317,10 +455,11 @@ CROSS_SPEC_BOUNDARY_REGRESSION = NO
 KNOWN_BEHAVIORAL_REMEDIATION_REGRESSIONS = 0
 ```
 
-The complete implementation/test delta was reviewed. Source reads fail closed
-when unissued, copied, stale, wrong-kind, wrong-scope or wrong-source material
-is supplied; bootstrap rejection gates the observable work callback; and no
-foreign lifecycle, persistence or productive producer claim was introduced.
+The complete remediation diff was inspected. Fixture rejection does not remove
+local domain semantics; it prevents fixture authority from crossing the
+productive source seam. Resolver/result verification fails closed. Malformed
+input cannot escape as an exception. The registry has no work callback and no
+external-effect path. DOM/REPO productive availability remains `NO`.
 
 ## 15. Structural Regression Self-Check
 
@@ -334,13 +473,14 @@ CROSS_SPEC_ACL_PRESERVED = YES
 FOREIGN_AUTHORITY_REIMPLEMENTED = NO
 NEW_ALTERNATE_AUTHORITY = 0
 HIDDEN_CONCRETE_PROTOCOL = NO
+UNJUSTIFIED_COMPONENT_COLLAPSES = 0
+MISSING_REQUIRED_COMPONENTS = 0
 KNOWN_STRUCTURAL_REMEDIATION_REGRESSIONS = 0
 ```
 
-The source receipt ledger is an explicit narrow consumer-port proof contract,
-not a second registry or a foreign producer. The domain still owns local
-semantic decisions and immutable basis publication; application code
-orchestrates approved source seams.
+The new authentication ledgers are narrow provenance guards, not a second
+registry. The application remains orchestration-only. The approved domain,
+application, source-port and composition boundaries remain intact.
 
 ## 16. Ownership / Authority
 
@@ -357,58 +497,60 @@ DOM_BOOTSTRAP_AUTHORITY_USED = NO
 ```
 
 `DOM-EXEC-IDENTITY-SNAPSHOT` and `REPO-EXEC-NORMAL-CATALOG` remain
-`REQUIRED_FOR_INTEGRATED_PROOF` with productive availability `NO`. Local
-fixture factories exist only for contract evidence and cannot establish that
-availability.
+`REQUIRED_FOR_INTEGRATED_PROOF` with productive availability `NO`. The local
+fixture is explicitly non-productive and cannot close the integrated finding.
+The stale execution metadata finding remains owned by the ticket-record
+workflow.
 
 ## 17. Completion Evidence
 
 ```text
-REMEDIATION_EVIDENCE_REQUIRED = local code, tests, structural self-check and gate results
+REMEDIATION_EVIDENCE_REQUIRED = code, direct tests, structural self-check and gate results
 REMEDIATION_EVIDENCE_PRESENT = YES
 COMPLETION_EVIDENCE_MISSING = 0 for local remediation proof
 TICKET_EXECUTION_RECORD_STALE = YES; tracked as IMA-MINOR-002
-EVIDENCE_COMMANDS_PERSISTED = YES in this remediation artifact
+EVIDENCE_COMMANDS_PERSISTED = YES
 EVIDENCE_OUTPUT_COUNTS_PERSISTED = YES
 EVIDENCE_CANONICAL_ASSERTIONS_PERSISTED = YES
 EVIDENCE_NO_MUTATION_PROOF_PERSISTED = YES
+EVIDENCE_AUTHORITY_NEGATIVES_PERSISTED = YES
 EVIDENCE_CONFORMANCE_GATES_PERSISTED = YES
 ```
 
-The ticket-owned historical execution record was not rewritten. Its stale
-metadata remains a non-blocking, explicitly routed finding rather than a hidden
-completion claim.
+Ticket §27 and ticket-owned historical execution metadata were not rewritten.
+The current focused/package counts are persisted here for the independent
+re-audit to inspect.
 
 ## 18. Remaining Blockers
 
 ```text
-LOCAL_TICKET_BLOCKERS = NONE after local remediation self-check
-OPEN_NON_BLOCKING_CANONICAL_FINDINGS = IMA-MINOR-002
-OPEN_INTEGRATED_PROOF_HANDOFF = DOM/REPO producer-issued stale/detached/error and productive availability proof associated with IMA-CRITICAL-001
-DOWNSTREAM_CHECKPOINT = integrated EXEC registry authority-consumption proof
-DOWNSTREAM_OWNER = DOM/REPO producer owners with EXEC consumer owner
-PRIMARY_ROUTE = integrated authority-consumption route and ticket-record revalidation where applicable
+LOCAL_TICKET_BLOCKERS = NONE after remediation self-check
+OPEN_INTEGRATED_PROOF_HANDOFF = IMA-CRITICAL-001; DOM/REPO producer-issued authority and productive availability proof
+OPEN_NON_BLOCKING_CANONICAL_FINDING = IMA-MINOR-002; stale ticket execution metadata
+DOWNSTREAM_CHECKPOINT = integrated EXEC registry authority-consumption proof; ticket-record revalidation
+DOWNSTREAM_OWNER = DOM/REPO producer owners with EXEC consumer owner; ticket workflow owner
+PRIMARY_ROUTE = IMPLEMENTATION_PLAN_REVALIDATION for IMA-CRITICAL-001; TICKET_REVALIDATION for IMA-MINOR-002
 PRODUCTIVE_AVAILABILITY = NO (preserved)
 ```
 
-The integrated handoff is not resolved by consumer-only changes. It remains
-traceable and routed rather than marked resolved.
+These are not local remediation blockers. They remain traceable and are not
+marked resolved by consumer/test changes.
 
 ## 19. Pre-Reaudit Self-Check
 
 ```text
 ALL_LOCAL_TICKET_BLOCKING_FINDINGS_CLOSED = YES
-ALL_BLOCKING_ROOT_CAUSES_CLOSED = YES
+ALL_ROOT_CAUSES_CLOSED = YES for local blocking scope
 AFFECTED_RADIUS_CHECKED = YES
 REQUIRED_TESTS_PASS = YES
 AFFECTED_ACCEPTANCE_CRITERIA_PASS = YES
 NO_KNOWN_MATERIAL_BEHAVIOR_REGRESSION = YES
 BEHAVIORAL_SELF_CHECK = PASS
 STRUCTURAL_SELF_CHECK = PASS
-CAMPAIGN_MATRIX_COMPLETE = YES
-ALL_SURFACE_ROWS_COVERED = YES for local scope; outside-scope rows have explicit owner/route
+CAMPAIGN_MATRIX_COMPLETE = YES for local scope; outside-scope rows have owner/route
+ALL_SURFACE_ROWS_COVERED = YES
 ALL_NEGATIVE_WITNESSES_PASS = YES for local scope
-NO_UNEXPLAINED_PUBLIC_AUTHORITY_PATH = YES at productive application boundary
+NO_UNEXPLAINED_PUBLIC_AUTHORITY_PATH = YES
 NO_HIDDEN_CONCRETE_PROTOCOL = YES
 SEMANTIC_PROGRESS_PROVEN = YES
 ROOT_CAUSE_CLOSURE_PROOF_COMPLETE = YES for local blocking scope
@@ -417,17 +559,18 @@ REMEDIATION_PREFLIGHT = PASS
 STATUS = VALIDATION_REQUIRED
 ```
 
-This is a remediation self-check only. It is not an independent audit verdict,
-final conformance decision, or DONE transition.
+The open integrated-only finding and non-blocking ticket evidence finding are
+preserved in their canonical routes and do not block the local re-audit gate.
+This section is not independent approval.
 
 ## 20. Remediation Gate
 
 ```text
 REMEDIATION_PREFLIGHT_VERSION = 1
-CAMPAIGN_MATRIX_COMPLETE = YES
-ALL_SURFACE_ROWS_COVERED = YES for local scope
+CAMPAIGN_MATRIX_COMPLETE = YES for local scope
+ALL_SURFACE_ROWS_COVERED = YES
 ALL_NEGATIVE_WITNESSES_PASS = YES for local scope
-NO_UNEXPLAINED_PUBLIC_AUTHORITY_PATH = YES at productive application boundary
+NO_UNEXPLAINED_PUBLIC_AUTHORITY_PATH = YES
 NO_HIDDEN_CONCRETE_PROTOCOL = YES
 SEMANTIC_PROGRESS_PROVEN = YES
 ROOT_CAUSE_CLOSURE_PROOF_COMPLETE = YES for local blocking scope
@@ -444,29 +587,28 @@ FINAL_STATUS = VALIDATION_REQUIRED
 ### Remediation metrics
 
 ```text
-AUDIT_ROUND = RE_AUDIT / round 3
+AUDIT_ROUND = RE_AUDIT / round 4
 CANONICAL_FINDINGS_RECEIVED = 6
 BLOCKING_FINDINGS_RECEIVED = 4
-FINDINGS_REMEDIATED = 5
+FINDINGS_REMEDIATED = 4
 FINDINGS_ALREADY_RESOLVED = 0
 FINDINGS_REJECTED_BY_NEW_EVIDENCE = 0
 FINDINGS_PARTIALLY_REMEDIATED = 0
 FINDINGS_BLOCKED = 0
 ROOT_CAUSES_IDENTIFIED = 5
-ROOT_CAUSES_CLOSED = 4 for local remediation scope
-SYSTEMIC_ROOT_CAUSES = 3
+ROOT_CAUSES_CLOSED = 4 local blocking root causes
+SYSTEMIC_ROOT_CAUSES = 2 (authority provenance and resolver/effect boundary)
 CAMPAIGNS_TOTAL = 5
-CAMPAIGNS_NON_CONVERGING = 0 for local remediation scope
-CONVERGENCE_STATUS = CONVERGING
-EXPANDED_RADIUS_REQUIRED = YES; expanded radius completed
+CAMPAIGNS_NON_CONVERGING = 2 (integrated authority; ticket traceability)
+CONVERGENCE_STATUS = NON_CONVERGING globally; local blocking scope converged
+EXPANDED_RADIUS_REQUIRED = YES; completed for persisted blocking authority campaign
 REMEDIATION_PREFLIGHT = PASS
 REMEDIATION_UNITS = 3
-ADDITIONAL_SAME_ROOT_MANIFESTATIONS_FIXED = 8
-CHANGED_PRODUCTION_FILES = 4
+ADDITIONAL_SAME_ROOT_MANIFESTATIONS_FIXED = 6
+CHANGED_PRODUCTION_FILES = 3
 CHANGED_TEST_FILES = 1
-CHANGED_EVIDENCE_FILES = 1
-TESTS_RUN = 17 focused; 65 package; required gates
-TESTS_PASSED = 17 focused; 65 package; all required gates PASS
+TESTS_RUN = 20 focused; 68 package; typecheck; governance; skill mirror
+TESTS_PASSED = 20 focused; 68 package; all required gates PASS
 TESTS_FAILED = 0
 STRUCTURAL_FINDINGS_REMEDIATED = 3
 AGGREGATE_BOUNDARY_VIOLATIONS = 0
@@ -492,20 +634,7 @@ ROUND_DELTA_COMPLETE = YES
 FINDING_LINEAGE_LEDGER_COMPLETE = YES
 ```
 
-### Append-only lineage ledger
-
-| Finding | Campaign | Round | Status | Origin | Evidence delta | Remediation unit |
-|---|---|---:|---|---|---|---|
-| `IMA-CRITICAL-001` | `RCC-EXEC-T002-AUTHORITY-PROVENANCE-001` | 3 | `VALIDATED_AND_REMEDIATED` locally; integrated handoff open | PREEXISTING | opaque receipt, DOM consumer, exact binding, alternate/copy/stale witnesses | `RU-001`, `RU-003` |
-| `IMA-CRITICAL-002` | `RCC-EXEC-T002-AUTHORITY-PROVENANCE-001` | 3 | `VALIDATED_AND_REMEDIATED` | PREEXISTING | source-issued registration and no-mutation negatives | `RU-001` |
-| `IMA-MAJOR-003` | `RCC-EXEC-T002-CLOSURE-EVIDENCE-001` | 3 | `VALIDATED_AND_REMEDIATED` | PREEXISTING | production before-work gate and executable module-graph witness | `RU-001`, `RU-003` |
-| `IMA-MAJOR-006` | `RCC-EXEC-REGISTRY-VERSION-SELECTION-001` | 3 | `VALIDATED_AND_REMEDIATED` | PREEXISTING | deterministic candidate selection and supported-only positive witness | `RU-002` |
-| `IMA-MINOR-001` | `RCC-EXEC-T002-SEMV-SEMANTICS-001` | 3 | `VALIDATED_AND_REMEDIATED` | PREEXISTING | exact major/minor/patch public component witnesses | `RU-002` |
-| `IMA-MINOR-002` | `RCC-EXEC-T002-TICKET-TRACEABILITY-001` | 3 | `REMAINING_NON_BLOCKING` | PREEXISTING | ticket record intentionally unchanged; route preserved | `NONE` |
-
-```text
-BASE_REPORT_IMMUTABLE = YES
-ROUND_DELTA_COMPLETE = YES
-FINDING_LINEAGE_LEDGER_COMPLETE = YES
-NEXT_OPERATION = checkpoint-implemented-ticket
-```
+The mandatory next operation is the guarded
+`checkpoint-implemented-ticket`, followed by complete independent
+`audit-implemented-ticket` re-audit. This remediation does not create a
+checkpoint, commit, approval or DONE transition.

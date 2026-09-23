@@ -41,6 +41,7 @@ export abstract class NormalCatalogSource {
 }
 
 const AUTHENTICATED_SOURCE_INSTANCES = new WeakSet<object>()
+const LOCAL_FIXTURE_SOURCES = new WeakSet<object>()
 const ISSUED_RECEIPTS = new WeakMap<object, WeakSet<object>>()
 const SOURCE_KINDS = new WeakMap<object, CatalogBasisSourceKind>()
 
@@ -60,6 +61,7 @@ function createLocalSourceFixture(
 ): CatalogBasisSource {
   const source = target ?? {}
   AUTHENTICATED_SOURCE_INSTANCES.add(source)
+  LOCAL_FIXTURE_SOURCES.add(source)
   ISSUED_RECEIPTS.set(source, new WeakSet<object>())
   SOURCE_KINDS.set(source, kind)
   Object.defineProperty(source, 'read', {
@@ -108,6 +110,17 @@ export function isAuthenticatedCatalogBasisSource(value: unknown): value is Cata
   return typeof value === 'object'
     && value !== null
     && AUTHENTICATED_SOURCE_INSTANCES.has(value)
+}
+
+/**
+ * Local fixtures are contract witnesses only. They are deliberately excluded
+ * from productive application authority paths; integrated producers must issue
+ * their own owner-bound receipts at the later cross-SPEC boundary.
+ */
+export function isLocalCatalogBasisFixture(value: unknown): boolean {
+  return typeof value === 'object'
+    && value !== null
+    && LOCAL_FIXTURE_SOURCES.has(value)
 }
 
 export function isProducerIssuedCatalogBasisReceipt(

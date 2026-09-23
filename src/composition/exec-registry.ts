@@ -7,7 +7,6 @@ import type {
 import { RegistryResolutionService } from '../domain/exec-registry.ts'
 
 export interface ExecRegistryComposition {
-  readonly resolver: RegistryResolutionService
   readonly resolve: ResolveExecCapability
   readonly register: RegisterExecCapability
 }
@@ -19,7 +18,6 @@ export function createExecRegistry(
 ): ExecRegistryComposition {
   const resolver = new RegistryResolutionService()
   return Object.freeze({
-    resolver,
     resolve: new ResolveExecCapability(resolver, bootstrapCatalog, normalCatalog, executionBasisReader),
     register: new RegisterExecCapability(),
   })
