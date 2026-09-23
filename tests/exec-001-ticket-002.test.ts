@@ -12,16 +12,20 @@ import {
   SemanticVersion,
   SupportedVersionSet,
   classifySemanticVersionChange,
+  createCatalogBasisFixture,
   isRegistryFailure,
   isRegistryResolution,
   registryBasisIdentity,
-  registerRegistryEntry,
 } from '../src/domain/exec-registry.ts'
 import { ResolveExecCapability } from '../src/application/exec-registry.ts'
 import {
   AuthenticatedBootstrapCatalogSource,
   ExecutionCatalogBasisReader,
   NormalCatalogSource,
+  createLocalBootstrapCatalogFixture,
+  createLocalExecutionCatalogBasisFixture,
+  createLocalNormalCatalogFixture,
+  type CatalogBasisSourceReceipt,
 } from '../src/application/exec-registry-ports.ts'
 import { createExecRegistry } from '../src/composition/exec-registry.ts'
 import { SchemaReference } from '../src/domain/exec-contract.ts'
@@ -73,41 +77,35 @@ function request(overrides: Partial<{
 }
 
 class FixtureBootstrapSource extends AuthenticatedBootstrapCatalogSource {
-  private readonly basis: CatalogBasis
-
   constructor(basis: CatalogBasis) {
     super()
-    this.basis = basis
+    createLocalBootstrapCatalogFixture(() => basis, this)
   }
 
-  read() {
-    return this.issue(this.basis)
+  read(): CatalogBasisSourceReceipt {
+    throw new Error('fixture source was not initialized')
   }
 }
 
 class FixtureNormalSource extends NormalCatalogSource {
-  private readonly basis: CatalogBasis
-
   constructor(basis: CatalogBasis) {
     super()
-    this.basis = basis
+    createLocalNormalCatalogFixture(() => basis, this)
   }
 
-  read() {
-    return this.issue(this.basis)
+  read(): CatalogBasisSourceReceipt {
+    throw new Error('fixture source was not initialized')
   }
 }
 
 class FixtureDomExecutionSource extends ExecutionCatalogBasisReader {
-  private readonly basis: CatalogBasis
-
   constructor(basis: CatalogBasis) {
     super()
-    this.basis = basis
+    createLocalExecutionCatalogBasisFixture(() => basis, this)
   }
 
-  read() {
-    return this.issue(this.basis)
+  read(): CatalogBasisSourceReceipt {
+    throw new Error('fixture source was not initialized')
   }
 }
 
@@ -115,11 +113,19 @@ function scopedRequest(scope: CatalogScope, overrides: Parameters<typeof request
   return { ...request(overrides), scope, catalogRevision: 2 }
 }
 
+function domBasisFor(basis: CatalogBasis): CatalogBasis {
+  return createCatalogBasisFixture({
+    scope: basis.scope,
+    catalogRevision: basis.catalogRevision,
+    source: 'DOM_EXECUTION_BASIS',
+  })
+}
+
 test('parses semantic versions and preserves exact change semantics', () => {
   const version = SemanticVersion.parse('1.2.3-beta.1+build.7')
-  assert.equal(version.major, 1)
-  assert.equal(version.minor, 2)
-  assert.equal(version.patch, 3)
+  assert.equal(version.major, '1')
+  assert.equal(version.minor, '2')
+  assert.equal(version.patch, '3')
   assert.deepEqual(version.prerelease, ['beta', '1'])
   assert.deepEqual(version.build, ['build', '7'])
   assert.equal(classifySemanticVersionChange('1.2.3', '1.2.4'), 'PATCH')
@@ -131,6 +137,9 @@ test('parses semantic versions and preserves exact change semantics', () => {
   const large = SemanticVersion.parse('1.2.9007199254740993')
   const larger = SemanticVersion.parse('1.2.9007199254740994')
   assert.equal(large.compare(larger), -1)
+  assert.equal(SemanticVersion.parse('9007199254740993.2.3').major, '9007199254740993')
+  assert.equal(SemanticVersion.parse('1.9007199254740993.3').minor, '9007199254740993')
+  assert.equal(SemanticVersion.parse('1.2.9007199254740993').patch, '9007199254740993')
   assert.equal(larger.changeFrom(large), 'PATCH')
 })
 
@@ -161,7 +170,7 @@ function entryInput() {
 }
 
 test('resolves a complete registered mapping deterministically and preserves frozen basis', () => {
-  const basis = CatalogBasis.create({ scope: CatalogScope.normal('repo-a'), source: 'repo-a-config' })
+  const basis = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-a'), source: 'repo-a-config' })
   const registered = basis.register(entry())
   const resolver = new RegistryResolutionService()
   const result = resolver.resolve(registered, request())
@@ -190,10 +199,10 @@ test('selects the exact compatible version independently of registration order',
   const first = entry({ semanticVersion: '1.0.0' })
   const second = entry({ semanticVersion: '2.0.0' })
   const resolver = new RegistryResolutionService()
-  const forward = CatalogBasis.create({ scope: CatalogScope.normal('repo-a') })
+  const forward = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-a') })
     .register(first)
     .register(second)
-  const reverse = CatalogBasis.create({ scope: CatalogScope.normal('repo-a') })
+  const reverse = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-a') })
     .register(second)
     .register(first)
 
@@ -210,10 +219,22 @@ test('selects the exact compatible version independently of registration order',
   const unsupported = resolver.resolve(forward, request({ semanticVersion: '3.0.0' }))
   assert.equal(unsupported.status, 'FAILED')
   if (unsupported.status === 'FAILED') assert.equal(unsupported.code, 'INCOMPATIBLE_CAPABILITY')
+
+  const supportedOnlyBasis = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-a') })
+    .register(entry({
+      semanticVersion: '1.0.0',
+      supportedVersions: SupportedVersionSet.create(['1.0.0', '1.5.0']),
+    }))
+  const supportedOnly = resolver.resolve(supportedOnlyBasis, request({ semanticVersion: '1.5.0' }))
+  assert.equal(supportedOnly.status, 'RESOLVED')
+  if (supportedOnly.status === 'RESOLVED') {
+    assert.equal(supportedOnly.entry.semanticVersion.value, '1.0.0')
+    assert.equal(supportedOnly.requestedVersion.value, '1.5.0')
+  }
 })
 
 test('rejects duplicate and conflicting registration without mutating the frozen basis', () => {
-  const basis = CatalogBasis.create({ scope: CatalogScope.normal('repo-a') }).register(entry())
+  const basis = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-a') }).register(entry())
   const before = registryBasisIdentity(basis)
   assert.throws(() => basis.register(entry()), /same immutable key/)
   assert.throws(() => basis.register(entry({ stage: 'RUN' })), /same immutable key/)
@@ -222,8 +243,8 @@ test('rejects duplicate and conflicting registration without mutating the frozen
 })
 
 test('keeps NORMAL repositories isolated and rejects cross-scope source substitution', () => {
-  const first = CatalogBasis.create({ scope: CatalogScope.normal('repo-a') }).register(entry())
-  const second = CatalogBasis.create({ scope: CatalogScope.normal('repo-b') }).register(entry())
+  const first = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-a') }).register(entry())
+  const second = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-b') }).register(entry())
   const resolver = new RegistryResolutionService()
   const firstResult = resolver.resolve(first, request())
   const secondResult = resolver.resolve(second, request())
@@ -234,7 +255,9 @@ test('keeps NORMAL repositories isolated and rejects cross-scope source substitu
   assert.equal(first.findByIdentity(first.entries[0].identity(first.scope)), first.entries[0])
   assert.equal(second.findByIdentity(second.entries[0].identity(second.scope)), second.entries[0])
 
-  const useCase = new ResolveExecCapability(new RegistryResolutionService(), undefined, new FixtureNormalSource(first))
+  const normalSource = new FixtureNormalSource(first)
+  const domSource = new FixtureDomExecutionSource(domBasisFor(first))
+  const useCase = new ResolveExecCapability(new RegistryResolutionService(), undefined, normalSource, domSource)
   const substituted = useCase.resolve(scopedRequest(CatalogScope.normal('repo-b')))
   assert.equal(substituted.status, 'FAILED')
   if (substituted.status === 'FAILED') {
@@ -245,7 +268,7 @@ test('keeps NORMAL repositories isolated and rejects cross-scope source substitu
 })
 
 test('keeps BOOTSTRAP independent and rejects normal capabilities before work', () => {
-  const bootstrap = CatalogBasis.create({ scope: CatalogScope.bootstrap(), source: 'SYSTEM_BOOTSTRAP_CATALOG' })
+  const bootstrap = createCatalogBasisFixture({ scope: CatalogScope.bootstrap(), source: 'SYSTEM_BOOTSTRAP_CATALOG' })
     .register(entry({ category: 'NORMAL' }))
   const resolver = new RegistryResolutionService()
   const result = resolver.resolve(bootstrap, request())
@@ -256,13 +279,21 @@ test('keeps BOOTSTRAP independent and rejects normal capabilities before work', 
   assert.equal(result.noMutation, true)
   let normalWorkCalls = 0
   const normalWork = () => { normalWorkCalls += 1 }
-  const resultBeforeWork = result as { readonly status: string }
-  if (resultBeforeWork.status === 'RESOLVED') normalWork()
+  const useCase = new ResolveExecCapability(
+    new RegistryResolutionService(),
+    new FixtureBootstrapSource(bootstrap),
+  )
+  const resultBeforeWork = useCase.resolveBeforeWork({
+    ...request(),
+    scope: CatalogScope.bootstrap(),
+    catalogRevision: 2,
+  }, normalWork)
+  assert.equal(resultBeforeWork.status, 'FAILED')
   assert.equal(normalWorkCalls, 0)
   assert.equal(BootstrapAllowlistPolicy.permits(bootstrap.scope, bootstrap.entries[0]), false)
   assert.deepEqual(BOOTSTRAP_CAPABILITY_CATEGORIES, ['DISCOVERY', 'VALIDATION', 'MIGRATION', 'AUDIT', 'REMEDIATION'])
 
-  const onboarding = CatalogBasis.create({ scope: CatalogScope.bootstrap(), source: 'SYSTEM_BOOTSTRAP_CATALOG' })
+  const onboarding = createCatalogBasisFixture({ scope: CatalogScope.bootstrap(), source: 'SYSTEM_BOOTSTRAP_CATALOG' })
     .register(entry({ category: 'DISCOVERY', capabilityId: 'capability.discover' }))
   const onboardingResult = resolver.resolve(onboarding, request({ capabilityId: 'capability.discover' }))
   assert.equal(onboardingResult.status, 'RESOLVED')
@@ -270,7 +301,7 @@ test('keeps BOOTSTRAP independent and rejects normal capabilities before work', 
 
 test('distinguishes unknown from every known incompatibility with canonical outcomes', () => {
   const supportedEntry = entry({ supportedVersions: SupportedVersionSet.create(['1.2.3']) })
-  const basis = CatalogBasis.create({ scope: CatalogScope.normal('repo-a') }).register(supportedEntry)
+  const basis = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-a') }).register(supportedEntry)
   const resolver = new RegistryResolutionService()
   const unknown = resolver.resolve(basis, request({ capabilityId: 'not-registered' }))
   const incompatibleVersion = resolver.resolve(basis, request({ semanticVersion: '2.0.0' }))
@@ -287,20 +318,13 @@ test('distinguishes unknown from every known incompatibility with canonical outc
 })
 
 test('registers a synthetic capability through the common source-selected path', () => {
-  const basis = CatalogBasis.create({ scope: CatalogScope.normal('repo-a'), source: 'REPO_NORMAL_CATALOG' })
+  const basis = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-a'), source: 'REPO_NORMAL_CATALOG' })
   const synthetic = entry({ capabilityId: 'capability.synthetic', semanticVersion: '3.0.0' })
   let currentBasis = basis
-  class MutableNormalSource extends NormalCatalogSource {
-    constructor() {
-      super()
-    }
-
-    read() {
-      return this.issue(currentBasis)
-    }
-  }
-  const composition = createExecRegistry(undefined, new MutableNormalSource())
-  const registration = composition.register.register(basis, synthetic)
+  const normalSource = createLocalNormalCatalogFixture(() => currentBasis)
+  const domSource = createLocalExecutionCatalogBasisFixture(() => domBasisFor(currentBasis))
+  const composition = createExecRegistry(undefined, normalSource, domSource)
+  const registration = composition.register.register(normalSource, synthetic)
   currentBasis = registration.basis
   assert.equal(registration.status, 'REGISTERED')
   assert.equal(registration.basis.entries.length, 1)
@@ -315,7 +339,7 @@ test('registers a synthetic capability through the common source-selected path',
 })
 
 test('rejects direct basis injection, forged scope and forged schema authority', () => {
-  const validBasis = CatalogBasis.create({ scope: CatalogScope.bootstrap(), source: 'SYSTEM_BOOTSTRAP_CATALOG' }).register(entry({ category: 'DISCOVERY' }))
+  const validBasis = createCatalogBasisFixture({ scope: CatalogScope.bootstrap(), source: 'SYSTEM_BOOTSTRAP_CATALOG' }).register(entry({ category: 'DISCOVERY' }))
   const source = new FixtureBootstrapSource(validBasis)
   const useCase = new ResolveExecCapability(new RegistryResolutionService(), source)
   const direct = useCase.resolve({
@@ -338,7 +362,7 @@ test('rejects direct basis injection, forged scope and forged schema authority',
 
 test('rejects matching-source forgery, copied receipts and the DOM bootstrap substitute', () => {
   const scope = CatalogScope.bootstrap()
-  const basis = CatalogBasis.create({ scope, source: 'SYSTEM_BOOTSTRAP_CATALOG' })
+  const basis = createCatalogBasisFixture({ scope, source: 'SYSTEM_BOOTSTRAP_CATALOG' })
     .register(entry({ category: 'DISCOVERY', capabilityId: 'capability.discover' }))
   const requestForScope = scopedRequest(scope, { capabilityId: 'capability.discover' })
 
@@ -347,6 +371,20 @@ test('rejects matching-source forgery, copied receipts and the DOM bootstrap sub
   } as never).resolve(requestForScope)
   assert.equal(matchingSourceForgery.status, 'FAILED')
   if (matchingSourceForgery.status === 'FAILED') assert.equal(matchingSourceForgery.code, 'CONTRACT_INVALID')
+
+  class CallerDefinedSource extends AuthenticatedBootstrapCatalogSource {
+    constructor() {
+      super()
+    }
+
+    read(): CatalogBasisSourceReceipt {
+      return { basis } as never
+    }
+  }
+  const callerDefinedSource = new ResolveExecCapability(new RegistryResolutionService(), new CallerDefinedSource())
+    .resolve(requestForScope)
+  assert.equal(callerDefinedSource.status, 'FAILED')
+  if (callerDefinedSource.status === 'FAILED') assert.equal(callerDefinedSource.code, 'CONTRACT_INVALID')
 
   const legitimateSource = new FixtureBootstrapSource(basis)
   const issued = legitimateSource.read()
@@ -369,10 +407,11 @@ test('rejects matching-source forgery, copied receipts and the DOM bootstrap sub
 })
 
 test('rejects caller-selected repository authority and ignores caller support-set authority', () => {
-  const basis = CatalogBasis.create({ scope: CatalogScope.normal('repo-a'), source: 'REPO_NORMAL_CATALOG' })
+  const basis = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-a'), source: 'REPO_NORMAL_CATALOG' })
     .register(entry())
   const source = new FixtureNormalSource(basis)
-  const useCase = new ResolveExecCapability(new RegistryResolutionService(), undefined, source)
+  const domSource = new FixtureDomExecutionSource(domBasisFor(basis))
+  const useCase = new ResolveExecCapability(new RegistryResolutionService(), undefined, source, domSource)
 
   const wrongRepository = useCase.resolve(scopedRequest(CatalogScope.normal('caller-selected-repository')))
   assert.equal(wrongRepository.status, 'FAILED')
@@ -387,7 +426,7 @@ test('rejects caller-selected repository authority and ignores caller support-se
 })
 
 test('rejects forged registration material without changing the prior basis', () => {
-  const basis = CatalogBasis.create({ scope: CatalogScope.normal('repo-a'), source: 'REPO_NORMAL_CATALOG' })
+  const basis = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-a'), source: 'REPO_NORMAL_CATALOG' })
     .register(entry())
   const before = registryBasisIdentity(basis)
   const forgedEntry = Object.create(RegistryEntry.prototype) as RegistryEntry
@@ -396,7 +435,10 @@ test('rejects forged registration material without changing the prior basis', ()
   assert.equal(registryBasisIdentity(basis), before)
 
   const forgedBasis = Object.create(CatalogBasis.prototype) as CatalogBasis
-  assert.throws(() => registerRegistryEntry(forgedBasis, entry()), /catalog basis/)
+  const composition = createExecRegistry()
+  assert.throws(() => composition.register.register(forgedBasis as never, entry()), /read/)
+  const callerCreatedBasis = createCatalogBasisFixture({ scope: CatalogScope.normal('caller-owned'), source: 'REPO_NORMAL_CATALOG' })
+  assert.throws(() => composition.register.register(callerCreatedBasis as never, entry()), /read/)
   assert.equal(registryBasisIdentity(basis), before)
 })
 
@@ -417,7 +459,7 @@ test('maps unavailable, untrusted and wrong-source adapters to structured fail-c
   assert.equal(untrusted.status, 'FAILED')
   if (untrusted.status === 'FAILED') assert.equal(untrusted.code, 'CONTRACT_INVALID')
 
-  const wrongSourceBasis = CatalogBasis.create({ scope, source: 'untrusted-source' }).register(entry({ category: 'DISCOVERY', capabilityId: 'capability.discover' }))
+  const wrongSourceBasis = createCatalogBasisFixture({ scope, source: 'untrusted-source' }).register(entry({ category: 'DISCOVERY', capabilityId: 'capability.discover' }))
   const wrongSource = new ResolveExecCapability(new RegistryResolutionService(), new FixtureBootstrapSource(wrongSourceBasis))
     .resolve(requestForScope)
   assert.equal(wrongSource.status, 'FAILED')
@@ -425,17 +467,20 @@ test('maps unavailable, untrusted and wrong-source adapters to structured fail-c
 })
 
 test('uses authorized application source seams without moving foreign ownership into domain', () => {
-  const bootstrapBasis = CatalogBasis.create({ scope: CatalogScope.bootstrap(), source: 'SYSTEM_BOOTSTRAP_CATALOG' })
+  const bootstrapBasis = createCatalogBasisFixture({ scope: CatalogScope.bootstrap(), source: 'SYSTEM_BOOTSTRAP_CATALOG' })
     .register(entry({ category: 'DISCOVERY', capabilityId: 'capability.discover' }))
   let bootstrapReads = 0
   class CountingBootstrapSource extends AuthenticatedBootstrapCatalogSource {
     constructor() {
       super()
+      createLocalBootstrapCatalogFixture(() => {
+        bootstrapReads += 1
+        return bootstrapBasis
+      }, this)
     }
 
-    read() {
-      bootstrapReads += 1
-      return this.issue(bootstrapBasis)
+    read(): CatalogBasisSourceReceipt {
+      throw new Error('fixture source was not initialized')
     }
   }
   const useCase = new ResolveExecCapability(
@@ -466,4 +511,31 @@ test('productive registry graph has no infrastructure, prototype, transport or g
     assert.doesNotMatch(source, /from\s+['"][^'\"]*(?:react|database|filesystem|http)[^'\"]*['"]/i, sourceFile)
     assert.equal(dirname(sourceFile).startsWith(resolve('src')), true)
   }
+})
+
+test('exec registry architecture guard imports the real graph and exercises the common path', async () => {
+  const [domain, application, ports, composition] = await Promise.all([
+    import('../src/domain/exec-registry.ts'),
+    import('../src/application/exec-registry.ts'),
+    import('../src/application/exec-registry-ports.ts'),
+    import('../src/composition/exec-registry.ts'),
+  ])
+  assert.equal(typeof domain.RegistryResolutionService, 'function')
+  assert.equal(typeof application.ResolveExecCapability, 'function')
+  assert.equal(typeof ports.createLocalNormalCatalogFixture, 'function')
+  assert.equal(typeof composition.createExecRegistry, 'function')
+
+  const basis = createCatalogBasisFixture({
+    scope: CatalogScope.normal('runtime-guard'),
+    source: 'REPO_NORMAL_CATALOG',
+  }).register(entry({ capabilityId: 'capability.runtime-guard' }))
+  const normalSource = createLocalNormalCatalogFixture(() => basis)
+  const domSource = createLocalExecutionCatalogBasisFixture(() => domBasisFor(basis))
+  const registry = composition.createExecRegistry(undefined, normalSource, domSource)
+  const result = registry.resolve.resolve({
+    ...request({ capabilityId: 'capability.runtime-guard' }),
+    scope: CatalogScope.normal('runtime-guard'),
+    catalogRevision: 2,
+  })
+  assert.equal(result.status, 'RESOLVED')
 })

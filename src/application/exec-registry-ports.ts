@@ -8,73 +8,103 @@ export type CatalogBasisSourceKind =
   | 'SYSTEM_BOOTSTRAP_CATALOG'
   | 'REPO_NORMAL_CATALOG'
 
+/**
+ * An opaque producer receipt. The runtime provenance ledger is intentionally
+ * module-private; callers can transport a receipt but cannot mint or copy one.
+ */
 export interface CatalogBasisSourceReceipt {
   readonly basis: CatalogBasis
 }
 
-const AUTHENTICATED_SOURCE_INSTANCES = new WeakSet<object>()
-const ISSUED_RECEIPTS = new WeakMap<object, WeakSet<object>>()
-const SOURCE_KINDS = new WeakMap<object, CatalogBasisSourceKind>()
-
-/**
- * A source receipt is producer-issued evidence, not a source-name assertion.
- * The private receipt ledger makes copied result shapes and expected-marker
- * bases unusable at the consumer boundary.
- */
-abstract class AuthenticatedCatalogBasisSource {
-  protected constructor(kind: CatalogBasisSourceKind) {
-    AUTHENTICATED_SOURCE_INSTANCES.add(this)
-    ISSUED_RECEIPTS.set(this, new WeakSet<object>())
-    SOURCE_KINDS.set(this, kind)
-  }
-
-  protected issue(basis: CatalogBasis): CatalogBasisSourceReceipt {
-    if (!isAuthenticatedCatalogBasis(basis)) {
-      throw new TypeError('A catalog source can issue only an authenticated basis.')
-    }
-    const receipt = Object.freeze({ basis })
-    ISSUED_RECEIPTS.get(this)?.add(receipt)
-    return receipt
-  }
+type CatalogBasisSource = {
+  readonly read: () => CatalogBasisSourceReceipt
 }
 
-/**
- * Consumer-shaped port for DOM-owned execution/snapshot basis material. It is
- * intentionally distinct from the independent system bootstrap catalog.
- */
-export abstract class ExecutionCatalogBasisReader extends AuthenticatedCatalogBasisSource {
-  protected constructor() {
-    super('DOM_EXECUTION_BASIS')
-  }
-
+/** Consumer-shaped port for DOM-owned execution/snapshot basis material. */
+export abstract class ExecutionCatalogBasisReader {
+  protected constructor() {}
   abstract read(): CatalogBasisSourceReceipt
 }
 
-/**
- * Independent system-scoped bootstrap catalog producer. DOM identity and
- * snapshot material must not become the bootstrap catalog authority.
- */
-export abstract class AuthenticatedBootstrapCatalogSource extends AuthenticatedCatalogBasisSource {
-  protected constructor() {
-    super('SYSTEM_BOOTSTRAP_CATALOG')
-  }
-
+/** Independent system-scoped bootstrap catalog producer. */
+export abstract class AuthenticatedBootstrapCatalogSource {
+  protected constructor() {}
   abstract read(): CatalogBasisSourceReceipt
 }
 
 export type BootstrapCatalogSource = AuthenticatedBootstrapCatalogSource
 
 /** Consumer-shaped port for the repository-owned enabled NORMAL catalog. */
-export abstract class NormalCatalogSource extends AuthenticatedCatalogBasisSource {
-  protected constructor() {
-    super('REPO_NORMAL_CATALOG')
-  }
-
-  /** The producer selects canonical repository identity; callers provide no ID. */
+export abstract class NormalCatalogSource {
+  protected constructor() {}
   abstract read(): CatalogBasisSourceReceipt
 }
 
-export function isAuthenticatedCatalogBasisSource(value: unknown): value is AuthenticatedCatalogBasisSource {
+const AUTHENTICATED_SOURCE_INSTANCES = new WeakSet<object>()
+const ISSUED_RECEIPTS = new WeakMap<object, WeakSet<object>>()
+const SOURCE_KINDS = new WeakMap<object, CatalogBasisSourceKind>()
+
+function issue(source: object, basis: CatalogBasis): CatalogBasisSourceReceipt {
+  if (!isAuthenticatedCatalogBasis(basis)) {
+    throw new TypeError('A catalog source can issue only an authenticated basis.')
+  }
+  const receipt = Object.freeze({ basis })
+  ISSUED_RECEIPTS.get(source)?.add(receipt)
+  return receipt
+}
+
+function createLocalSourceFixture(
+  kind: CatalogBasisSourceKind,
+  readBasis: () => CatalogBasis,
+  target?: object,
+): CatalogBasisSource {
+  const source = target ?? {}
+  AUTHENTICATED_SOURCE_INSTANCES.add(source)
+  ISSUED_RECEIPTS.set(source, new WeakSet<object>())
+  SOURCE_KINDS.set(source, kind)
+  Object.defineProperty(source, 'read', {
+    configurable: false,
+    enumerable: false,
+    writable: false,
+    value: () => issue(source, readBasis()),
+  })
+  return source as CatalogBasisSource
+}
+
+/**
+ * Local contract fixture for the DOM-owned execution/snapshot basis. This is
+ * deliberately named as fixture support: it proves the consumer contract but
+ * never claims productive DOM availability. The optional target exists only
+ * for tests that use the documented port class shape.
+ */
+export function createLocalExecutionCatalogBasisFixture(
+  readBasis: () => CatalogBasis,
+  target?: object,
+): ExecutionCatalogBasisReader {
+  return createLocalSourceFixture('DOM_EXECUTION_BASIS', readBasis, target) as ExecutionCatalogBasisReader
+}
+
+/** Local contract fixture for the independent system bootstrap catalog. */
+export function createLocalBootstrapCatalogFixture(
+  readBasis: () => CatalogBasis,
+  target?: object,
+): AuthenticatedBootstrapCatalogSource {
+  return createLocalSourceFixture('SYSTEM_BOOTSTRAP_CATALOG', readBasis, target) as AuthenticatedBootstrapCatalogSource
+}
+
+/**
+ * Local contract fixture for repository-owned NORMAL catalog material. The
+ * producer selects repository identity through the basis; callers do not pass
+ * a repository identifier to the source.
+ */
+export function createLocalNormalCatalogFixture(
+  readBasis: () => CatalogBasis,
+  target?: object,
+): NormalCatalogSource {
+  return createLocalSourceFixture('REPO_NORMAL_CATALOG', readBasis, target) as NormalCatalogSource
+}
+
+export function isAuthenticatedCatalogBasisSource(value: unknown): value is CatalogBasisSource {
   return typeof value === 'object'
     && value !== null
     && AUTHENTICATED_SOURCE_INSTANCES.has(value)

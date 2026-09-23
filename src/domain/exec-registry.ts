@@ -91,9 +91,10 @@ export type SemanticVersionChange = 'NONE' | 'MAJOR' | 'MINOR' | 'PATCH'
 
 export class SemanticVersion {
   readonly value: string
-  readonly major: number
-  readonly minor: number
-  readonly patch: number
+  /** Exact decimal components; numeric coercion would lose valid SemVer values. */
+  readonly major: string
+  readonly minor: string
+  readonly patch: string
   readonly prerelease: readonly string[]
   readonly build: readonly string[]
   private readonly majorDigits: string
@@ -105,9 +106,9 @@ export class SemanticVersion {
     this.majorDigits = majorDigits
     this.minorDigits = minorDigits
     this.patchDigits = patchDigits
-    this.major = Number(majorDigits)
-    this.minor = Number(minorDigits)
-    this.patch = Number(patchDigits)
+    this.major = majorDigits
+    this.minor = minorDigits
+    this.patch = patchDigits
     this.prerelease = Object.freeze([...prerelease])
     this.build = Object.freeze([...build])
     Object.freeze(this)
@@ -416,7 +417,8 @@ export class CatalogBasis {
     Object.freeze(this)
   }
 
-  static create(input: CatalogBasisInput): CatalogBasis {
+  /** Explicit local-contract fixture construction; not a producer authority. */
+  static createFixture(input: CatalogBasisInput): CatalogBasis {
     if (!input || !isAuthenticatedCatalogScope(input.scope)) {
       throw new ExecRegistryDomainError('A catalog scope is required.')
     }
@@ -524,8 +526,14 @@ export class RegistryResolutionService {
       } catch {
         return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability version is not a supported semantic version.')
       }
-      const entry = schemaCandidates.find((candidate) => candidate.semanticVersion.value === requestedVersion.value)
-      if (!entry) return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability version is not registered for the requested basis.')
+      const orderedCandidates = [...schemaCandidates].sort((left, right) => {
+        const versionOrder = left.semanticVersion.compare(right.semanticVersion)
+        if (versionOrder !== 0) return versionOrder
+        return left.identity(basis.scope).localeCompare(right.identity(basis.scope))
+      })
+      const entry = orderedCandidates.find((candidate) => candidate.semanticVersion.value === requestedVersion.value)
+        ?? orderedCandidates.find((candidate) => candidate.supports(requestedVersion.value))
+      if (!entry) return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability version is not explicitly supported by the requested basis.')
       const version = VersionCompatibilityPolicy.resolve(entry, requestedVersion.value)
       if (!version) return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability version is not explicitly supported by the requested basis.')
       if (!BootstrapAllowlistPolicy.permits(basis.scope, entry)) {
@@ -556,10 +564,14 @@ export interface RegistryRegistrationResult {
   readonly entry: RegistryEntry
 }
 
-export function registerRegistryEntry(basis: CatalogBasis, entry: RegistryEntry): RegistryRegistrationResult {
-  if (!isAuthenticatedCatalogBasis(basis)) throw new ExecRegistryDomainError('A catalog basis is required.')
-  if (!isAuthenticatedRegistryEntry(entry)) throw new ExecRegistryDomainError('A registry entry is required.')
-  return Object.freeze({ status: 'REGISTERED' as const, code: 'REGISTERED' as const, basis: basis.register(entry), entry })
+/**
+ * Construct a basis for deterministic local contract evidence. Productive
+ * registration must obtain its basis through an authenticated source port; the
+ * fixture constructor is intentionally explicit so it cannot be mistaken for
+ * producer-owned authority.
+ */
+export function createCatalogBasisFixture(input: CatalogBasisInput): CatalogBasis {
+  return CatalogBasis.createFixture(input)
 }
 
 export function registryBasisIdentity(basis: CatalogBasis): string {

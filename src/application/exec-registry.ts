@@ -1,6 +1,7 @@
 import {
   CatalogBasis,
   CatalogScope,
+  createCatalogBasisFixture,
   ExecRegistryDomainError,
   RegistryEntry,
   RegistryResolutionService,
@@ -8,13 +9,14 @@ import {
   type RegistryRegistrationResult,
   type RegistryResolutionRequest,
   type RegistryResolutionResult,
-  registerRegistryEntry,
 } from '../domain/exec-registry.ts'
 import {
   NORMAL_CATALOG_SOURCE,
   SYSTEM_BOOTSTRAP_CATALOG_SOURCE,
   type BootstrapCatalogSource,
   type CatalogBasisSourceKind,
+  type CatalogBasisSourceReceipt,
+  type ExecutionCatalogBasisReader,
   type NormalCatalogSource,
   isProducerIssuedCatalogBasisReceipt,
 } from './exec-registry-ports.ts'
@@ -32,15 +34,18 @@ export class ResolveExecCapability {
   private readonly resolver: RegistryResolutionService
   private readonly bootstrapCatalog?: BootstrapCatalogSource
   private readonly normalCatalog?: NormalCatalogSource
+  private readonly executionBasisReader?: ExecutionCatalogBasisReader
 
   constructor(
     resolver: RegistryResolutionService,
     bootstrapCatalog?: BootstrapCatalogSource,
     normalCatalog?: NormalCatalogSource,
+    executionBasisReader?: ExecutionCatalogBasisReader,
   ) {
     this.resolver = resolver
     this.bootstrapCatalog = bootstrapCatalog
     this.normalCatalog = normalCatalog
+    this.executionBasisReader = executionBasisReader
   }
 
   resolve(input: ResolveExecCapabilityInput): RegistryResolutionResult {
@@ -52,6 +57,17 @@ export class ResolveExecCapability {
       const reason = error instanceof Error ? error.message : 'Catalog source failure.'
       return this.resolver.failure(basis, 'CONTRACT_INVALID', reason)
     }
+  }
+
+  /**
+   * Local application boundary used to prove the bootstrap fail-before-work
+   * invariant. Work is invoked only after a resolved capability is returned;
+   * the registry itself still owns no external effect or lifecycle semantics.
+   */
+  resolveBeforeWork(input: ResolveExecCapabilityInput, work: () => void): RegistryResolutionResult {
+    const result = this.resolve(input)
+    if (result.status === 'RESOLVED') work()
+    return result
   }
 
   private selectBasis(input: ResolveExecCapabilityInput): CatalogBasis {
@@ -81,18 +97,31 @@ export class ResolveExecCapability {
     if (input.repositoryId !== undefined && input.repositoryId !== input.scope.repositoryId) {
       throw new ExecRegistryDomainError('The requested RepositoryId does not match the requested NORMAL scope.')
     }
-    if (!this.normalCatalog) {
-      throw new ExecRegistryDomainError('An authorized normal catalog source is required.')
+    if (!this.executionBasisReader || !this.normalCatalog) {
+      throw new ExecRegistryDomainError('Authorized DOM execution basis and normal catalog sources are required.')
     }
-    const receipt = this.normalCatalog.read()
-    return this.assertAuthorizedBasis(
-      this.normalCatalog,
-      receipt,
+
+    const executionBasis = this.assertAuthorizedBasis(
+      this.executionBasisReader,
+      this.executionBasisReader.read(),
       input.scope,
       input.catalogRevision,
+      'DOM_EXECUTION_BASIS',
+      'DOM_EXECUTION_BASIS',
+    )
+    const normalBasis = this.assertAuthorizedBasis(
+      this.normalCatalog,
+      this.normalCatalog.read(),
+      executionBasis.scope,
+      executionBasis.catalogRevision,
       'REPO_NORMAL_CATALOG',
       NORMAL_CATALOG_SOURCE,
     )
+    if (!normalBasis.scope.equals(executionBasis.scope)
+      || normalBasis.catalogRevision !== executionBasis.catalogRevision) {
+      throw new ExecRegistryDomainError('NORMAL catalog is not bound to the DOM execution basis.')
+    }
+    return normalBasis
   }
 
   private assertAuthorizedBasis(
@@ -121,12 +150,42 @@ export class ResolveExecCapability {
 
   private failureBasis(input: Partial<ResolveExecCapabilityInput>): CatalogBasis {
     const scope = isAuthenticatedCatalogScope(input.scope) ? input.scope : CatalogScope.bootstrap()
-    return CatalogBasis.create({ scope, source: 'EXEC_FAILURE_CONTEXT' })
+    return createCatalogBasisFixture({ scope, source: 'EXEC_FAILURE_CONTEXT' })
   }
 }
 
 export class RegisterExecCapability {
-  register(basis: CatalogBasis, entry: RegistryEntry): RegistryRegistrationResult {
-    return registerRegistryEntry(basis, entry)
+  register(source: NormalCatalogSource, entry: RegistryEntry): RegistryRegistrationResult {
+    return this.registerFromSource(source, entry, 'REPO_NORMAL_CATALOG', NORMAL_CATALOG_SOURCE)
+  }
+
+  registerBootstrap(source: BootstrapCatalogSource, entry: RegistryEntry): RegistryRegistrationResult {
+    return this.registerFromSource(source, entry, 'SYSTEM_BOOTSTRAP_CATALOG', SYSTEM_BOOTSTRAP_CATALOG_SOURCE)
+  }
+
+  private registerFromSource(
+    source: { readonly read: () => CatalogBasisSourceReceipt },
+    entry: RegistryEntry,
+    expectedKind: CatalogBasisSourceKind,
+    expectedSource: string,
+  ): RegistryRegistrationResult {
+    const receipt = source.read()
+    if (!isProducerIssuedCatalogBasisReceipt(source, receipt, expectedKind)) {
+      throw new ExecRegistryDomainError('Catalog source returned unverified material.')
+    }
+    const basis = receipt.basis
+    if (basis.source !== expectedSource) {
+      throw new ExecRegistryDomainError(`Catalog source must be issued by ${expectedSource}.`)
+    }
+    if ((expectedKind === 'REPO_NORMAL_CATALOG' && basis.scope.name !== 'NORMAL')
+      || (expectedKind === 'SYSTEM_BOOTSTRAP_CATALOG' && basis.scope.name !== 'BOOTSTRAP')) {
+      throw new ExecRegistryDomainError('Catalog source returned material for an incompatible scope.')
+    }
+    return Object.freeze({
+      status: 'REGISTERED' as const,
+      code: 'REGISTERED' as const,
+      basis: basis.register(entry),
+      entry,
+    })
   }
 }
