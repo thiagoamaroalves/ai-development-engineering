@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit Component SPEC Conformance"
+  short_description: "Audit component SPEC conformance"
+  default_prompt: "Use $audit-component-spec-conformance to audit a component SPEC and produce the conformance report."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit Architecture Boundaries"
+  short_description: "Audit ownership and architecture boundaries"
+  default_prompt: "Use $audit-architecture-boundaries to independently audit an implemented ticket for architecture and ownership-boundary violations."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit SPEC Portfolio Decomposition"
+  short_description: "Audit SPEC portfolio boundaries before component generation"
+  default_prompt: "Use $audit-spec-portfolio-decomposition to independently audit a SPEC portfolio decomposition before generating component specifications."

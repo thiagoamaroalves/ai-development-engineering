@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit Component Implementation Plan"
+  short_description: "Audit a component implementation plan independently"
+  default_prompt: "Audit a component Implementation Plan read-only and adversarially for authority, coverage, ownership, closure, proof, DAG, and issue-decomposition readiness."

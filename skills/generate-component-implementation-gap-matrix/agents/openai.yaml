@@ -1,0 +1,4 @@
+interface:
+  display_name: "Generate Component Implementation Gap Matrix"
+  short_description: "Build a component implementation gap matrix"
+  default_prompt: "Use $generate-component-implementation-gap-matrix to build the component implementation Gap Matrix."

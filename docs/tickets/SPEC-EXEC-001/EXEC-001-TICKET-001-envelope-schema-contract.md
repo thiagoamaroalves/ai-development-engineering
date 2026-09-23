@@ -10,6 +10,7 @@ INITIAL_DAG_STATE: READY
 EXECUTION_READY: FALSE
 BLOCKED_BY: NONE
 DEPENDS_ON: NONE
+UNBLOCKS: EXEC-001-TICKET-002, EXEC-001-TICKET-004, EXEC-001-TICKET-006
 ```
 
 ## 2. Source Traceability
@@ -32,7 +33,7 @@ Approved owner: `EXEC-001 / CANONICAL_OWNER`. Primary owning specification/domai
 
 ## 5. Gap / Requirement / Acceptance Coverage
 
-`GAP-001`; `EXEC-ENVELOPE-001`, `EXEC-ENVELOPE-002`; `AC-EXEC-001`, `AC-EXEC-002`; final proof owner: this ticket. Integrated consumers are contributors only at later checkpoints.
+`GAP-001`; `EXEC-ENVELOPE-001`, `EXEC-ENVELOPE-002`; `AC-EXEC-001`, `AC-EXEC-002`; contributor to `AC-EXEC-006`; final proof owner: this ticket. Integrated consumers are contributors only at later checkpoints.
 
 ## 6. Implementation Unit
 
@@ -70,7 +71,7 @@ No productive EXEC schema/runtime was found. `prototype/src/mockDomain.ts` and p
 
 ## 13. Dependencies
 
-Internal: none. Cross-SPEC: none for local closure; downstream BACKEND/OPS/UI mappings are integrated-proof-only. `UNBLOCKS: EXEC-001-TICKET-002`.
+Internal: none. Cross-SPEC: none for local closure; downstream BACKEND/OPS/UI mappings are integrated-proof-only. `UNBLOCKS: EXEC-001-TICKET-002, EXEC-001-TICKET-004, EXEC-001-TICKET-006`.
 
 ## 14. Blocking Conditions
 
@@ -138,7 +139,7 @@ Both are `TESTABLE: YES` and `LOCALLY_PROVABLE: YES`.
 
 ## 17. Acceptance / Proof Role
 
-`CONTRIBUTOR: YES` to downstream integrated contract checkpoints. `LOCAL_ACCEPTANCE_OWNER: YES`; `FINAL_PROOF_OWNER: YES` for AC-EXEC-001 and AC-EXEC-002.
+`CONTRIBUTOR: YES` to AC-EXEC-006 and downstream integrated contract checkpoints. `LOCAL_ACCEPTANCE_OWNER: YES`; `FINAL_PROOF_OWNER: YES` for AC-EXEC-001 and AC-EXEC-002.
 
 ## 18. Required Tests
 
@@ -217,8 +218,7 @@ DOMAIN_RULE_DUPLICATION = 0
 
 - `src/domain/exec-contract.ts`
 - `src/domain/exec-schema.ts`
-- `src/domain/exec-validation-authority.ts`
-- `src/domain/exec-validation-authority-internal.ts`
+- `src/domain/exec-validation-evidence-internal.ts`
 - `src/application/exec-contract.ts`
 - `src/infrastructure/exec-schema-validator.ts`
 - `src/composition/exec-contract.ts`
@@ -236,26 +236,31 @@ AC-EXEC-002 = SATISFIED
 production_code = PRESENT
 automated_tests = PRESENT
 local_completion_evidence = PRESENT
+EVIDENCE_PATHS = docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-001-envelope-schema.md; docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-001-structured-consumption.md; docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-002-required-fields.md; docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-002-fail-closed.md
 integration_evidence = PRESENT_AS_CONTRACT_CONTRIBUTION
 legacy_transition_evidence = NOT_APPLICABLE
 conformance_evidence = PRESENT
+LOCAL_COMPLETION_EVIDENCE_CURRENT = YES
+LOCAL_WITNESSES_EXECUTABLE_AT_CLOSURE = YES
+LOCAL_TICKET_DONE_ALLOWED = YES
+TICKET_GATE = READY_FOR_DONE
 ```
 
 ### Test execution
 
 ```text
-FOCUSED_TICKET_TEST = PASS (17/17; node --experimental-strip-types --test tests/exec-001-ticket-001.test.ts)
-REPOSITORY_REGRESSION = PASS (npm test, 23/23; generic workflow-orchestrator suite only)
-FOCUSED_SOURCE_TYPECHECK = PASS (explicit strict tsc includes tests/exec-001-ticket-001.test.ts and all seven touched production files)
+FOCUSED_TICKET_TEST = PASS (21/21; node --experimental-strip-types --test tests/exec-001-ticket-001.test.ts)
+REPOSITORY_REGRESSION = PASS (npm test, 25/25; generic workflow-orchestrator suite only)
+FOCUSED_SOURCE_TYPECHECK = PASS (explicit strict tsc includes tests/exec-001-ticket-001.test.ts and all six touched production files)
 PACKAGE_TYPECHECK = PASS (npm run typecheck; scope is .pi/extensions/**/*.ts and does not include this ticket source)
-TESTS_RUN = 40
-TESTS_PASSED = 40
+TESTS_RUN = 46
+TESTS_PASSED = 46
 TESTS_FAILED = 0
 TESTS_SKIPPED = 0
 ENVIRONMENTAL_FAILURES = 0
 ```
 
-No design deviation was required. Independent validation was the next gate at implementation completion; local finalization is recorded below.
+No design deviation was required. Independent ticket-set re-audit remains the next gate; this record does not self-close the inherited evidence finding.
 
 ## 28. Local Finalization
 

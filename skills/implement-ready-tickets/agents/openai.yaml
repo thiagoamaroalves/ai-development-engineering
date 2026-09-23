@@ -1,0 +1,4 @@
+interface:
+  display_name: "Implement Ready Tickets"
+  short_description: "Implement audited READY tickets using approved designs"
+  default_prompt: "Implement only currently READY tickets using the approved implementation design, required tests, structural self-checks, and truthful status transitions."

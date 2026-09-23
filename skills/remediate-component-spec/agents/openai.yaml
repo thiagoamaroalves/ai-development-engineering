@@ -1,0 +1,4 @@
+interface:
+  display_name: "Remediate Component SPEC"
+  short_description: "Remediate a non-conformant component specification"
+  default_prompt: "Use $remediate-component-spec to remediate the target component SPEC from validated CSC findings and prepare it for independent re-audit."

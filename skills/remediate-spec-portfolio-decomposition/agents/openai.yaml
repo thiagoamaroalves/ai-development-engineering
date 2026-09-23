@@ -1,0 +1,4 @@
+interface:
+  display_name: "Remediate SPEC Portfolio Decomposition"
+  short_description: "Remediate audited SPEC portfolio decompositions"
+  default_prompt: "Use $remediate-spec-portfolio-decomposition to remediate the latest audited SPEC portfolio decomposition."

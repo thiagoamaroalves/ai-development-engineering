@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Ticket Implementation"
+  short_description: "Design the code structure for one implementation ticket"
+  default_prompt: "Produce a bounded, implementation-ready code design for one conformant ticket while preserving architecture, ownership, invariants, dependency direction, and testability."

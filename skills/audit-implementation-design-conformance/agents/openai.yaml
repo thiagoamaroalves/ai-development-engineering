@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit Implementation Design Conformance"
+  short_description: "Audit code against an approved implementation design"
+  default_prompt: "Audit the implemented ticket against its approved Implementation Design, verifying DDD, SOLID, dependency direction, invariants, boundaries, testability, deviations, and structural self-check claims."

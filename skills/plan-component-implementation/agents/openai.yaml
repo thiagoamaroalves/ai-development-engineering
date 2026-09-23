@@ -1,0 +1,4 @@
+interface:
+  display_name: "Plan Component Implementation"
+  short_description: "Plan validated component implementation gaps"
+  default_prompt: "Create a dependency-ordered, locally closable Implementation Plan from a conformant component Gap Matrix."

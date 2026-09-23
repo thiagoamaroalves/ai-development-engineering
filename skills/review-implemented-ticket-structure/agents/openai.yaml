@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review Implemented Ticket Structure"
+  short_description: "Review and minimally correct implemented ticket structure"
+  default_prompt: "Review the implemented ticket code against its approved design and minimally correct structural defects."

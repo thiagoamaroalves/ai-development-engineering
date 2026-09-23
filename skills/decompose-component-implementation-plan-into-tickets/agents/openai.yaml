@@ -1,0 +1,4 @@
+interface:
+  display_name: "Decompose Component Implementation Plan Into Tickets"
+  short_description: "Decompose a conformant implementation plan into tickets"
+  default_prompt: "Convert a conformant component Implementation Plan into traceable, locally closable ticket artifacts while preserving dependencies, ownership, proof, and initial status."

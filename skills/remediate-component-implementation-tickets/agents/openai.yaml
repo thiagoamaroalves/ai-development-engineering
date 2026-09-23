@@ -1,0 +1,4 @@
+interface:
+  display_name: "Remediate Component Implementation Tickets"
+  short_description: "Remediate an audited component ticket set"
+  default_prompt: "Remediate only validated ticket-audit findings while preserving upstream authority, plan boundaries, ticket-local closure, blockers, DAG, and proof ownership."

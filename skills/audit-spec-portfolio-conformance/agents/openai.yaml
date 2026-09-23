@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit SPEC Portfolio Conformance"
+  short_description: "Audit cross-SPEC portfolio conformance"
+  default_prompt: "Use $audit-spec-portfolio-conformance to audit a materialized SPEC portfolio against accepted ADRs and its approved decomposition."

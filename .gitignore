@@ -2,7 +2,8 @@
 /docs/**/.history/
 /.codex/
 /.history/
-/skills/
+# skills/ is the canonical, versioned skill source. .codex/skills/ is a generated
+# compatibility mirror maintained by tools/verify-skill-mirror.mjs.
 /.pi/
 /node_modules/
 /docs/**/evidences/

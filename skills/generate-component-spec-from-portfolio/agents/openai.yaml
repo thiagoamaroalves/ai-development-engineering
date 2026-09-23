@@ -1,0 +1,4 @@
+interface:
+  display_name: "Generate Component SPEC from Portfolio"
+  short_description: "Generate governed component specifications"
+  default_prompt: "Use $generate-component-spec-from-portfolio to generate one component SPEC from an approved portfolio decomposition."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Remediate Component Implementation Plan"
+  short_description: "Remediate an audited component implementation plan"
+  default_prompt: "Remediate only validated plan-audit findings while preserving authority, Gap Matrix semantics, local closure, DAG, proof ownership, and issue-decomposition boundaries."

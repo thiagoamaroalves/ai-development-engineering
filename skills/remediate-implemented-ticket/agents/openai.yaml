@@ -1,0 +1,4 @@
+interface:
+  display_name: "Remediate Implemented Ticket"
+  short_description: "Remediate audited ticket implementation defects"
+  default_prompt: "Remediate canonical IMA findings in one implemented ticket through root-cause code and test changes, preserving approved design and returning the ticket to VALIDATION_REQUIRED."

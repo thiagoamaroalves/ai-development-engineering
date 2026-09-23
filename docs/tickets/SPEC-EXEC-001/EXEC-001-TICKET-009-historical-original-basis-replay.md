@@ -27,7 +27,7 @@ ADR `ADR-0003`; Portfolio `O-021`; SPEC `EXEC-HISTORY-001`; Gap Matrix `GAP-015`
 
 ## 5. Gap / Requirement / Acceptance Coverage
 
-`GAP-015`; `EXEC-HISTORY-001`; `AC-EXEC-016`; final proof owner: this ticket.
+`GAP-015`; `EXEC-HISTORY-001`; `AC-EXEC-016`; contributor and final proof owner: this ticket.
 
 ## 6. Implementation Unit
 
@@ -119,7 +119,7 @@ Preserve original repository/catalog identity, schema, versions, hashes, commits
 
 ## 17. Acceptance / Proof Role
 
-`LOCAL_ACCEPTANCE_OWNER: YES`; `FINAL_PROOF_OWNER: YES` for AC-EXEC-016. Contributes to CP-EXEC-03.
+`CONTRIBUTOR: YES` to AC-EXEC-016. `LOCAL_ACCEPTANCE_OWNER: YES`; `FINAL_PROOF_OWNER: YES` for AC-EXEC-016. Contributes to CP-EXEC-03.
 
 ## 18. Required Tests
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit Component Implementation Tickets"
+  short_description: "Audit component implementation tickets independently"
+  default_prompt: "Audit generated component tickets read-only for traceability, ownership, local closure, dependencies, blockers, proof ownership, and implementation readiness."

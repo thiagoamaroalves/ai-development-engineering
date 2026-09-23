@@ -1,0 +1,4 @@
+interface:
+  display_name: "Consolidate Implementation Audit"
+  short_description: "Consolidate specialist implementation audit evidence"
+  default_prompt: "Consolidate independent ticket, behavior, design, and architecture audit evidence into one canonical IMA finding set and verdict."

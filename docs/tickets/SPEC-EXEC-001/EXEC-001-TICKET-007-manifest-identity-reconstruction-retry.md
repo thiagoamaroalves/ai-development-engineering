@@ -27,7 +27,7 @@ ADR `ADR-0003`, `ADR-0001`, `ADR-0006`; Portfolio `O-018`, `O-021`; SPEC `EXEC-M
 
 ## 5. Gap / Requirement / Acceptance Coverage
 
-`GAP-014`; `EXEC-MANIFEST-004`; `AC-EXEC-020`; contributor to `AC-EXEC-018`; final proof owner for AC-EXEC-018 and AC-EXEC-020.
+`GAP-014`; `EXEC-MANIFEST-004`; `AC-EXEC-020`; contributor to `AC-EXEC-016` and `AC-EXEC-018`; final proof owner for AC-EXEC-018 and AC-EXEC-020.
 
 ## 6. Implementation Unit
 
@@ -116,7 +116,7 @@ Both are locally provable after TICKET-003/006.
 
 ## 17. Acceptance / Proof Role
 
-`LOCAL_ACCEPTANCE_OWNER: YES`; `FINAL_PROOF_OWNER: YES` for AC-EXEC-018 and AC-EXEC-020. Contributes to CP-EXEC-02 and CP-EXEC-04.
+`CONTRIBUTOR: YES` to AC-EXEC-016. `LOCAL_ACCEPTANCE_OWNER: YES`; `FINAL_PROOF_OWNER: YES` for AC-EXEC-018 and AC-EXEC-020. Contributes to CP-EXEC-02 and CP-EXEC-04.
 
 ## 18. Required Tests
 

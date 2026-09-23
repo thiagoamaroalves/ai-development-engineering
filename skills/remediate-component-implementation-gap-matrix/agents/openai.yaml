@@ -1,0 +1,4 @@
+interface:
+  display_name: "Remediate Component Implementation Gap Matrix"
+  short_description: "Remediate an audited component implementation gap matrix"
+  default_prompt: "Remediate only validated Gap Matrix findings, preserving authority, ownership, evidence, gap identity, and baseline boundaries."

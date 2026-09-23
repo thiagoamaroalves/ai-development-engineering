@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit Ticket Conformance"
+  short_description: "Audit ticket conformance against its authorized contract"
+  default_prompt: "Use $audit-ticket-conformance to independently audit an implemented ticket against its authorized contract."

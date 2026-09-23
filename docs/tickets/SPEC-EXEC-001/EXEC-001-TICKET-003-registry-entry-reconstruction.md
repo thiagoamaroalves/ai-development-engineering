@@ -27,7 +27,7 @@ ADR `ADR-0003`, `ADR-0010`, and consumed `DOM-ID-001`; Portfolio `O-020`; SPEC `
 
 ## 5. Gap / Requirement / Acceptance Coverage
 
-`GAP-007`; `EXEC-REGISTRY-004`; `AC-EXEC-019`; conformance `C-EXEC-018`, `C-EXEC-020`; this ticket is Final Proof Owner.
+`GAP-007`; `EXEC-REGISTRY-004`; `AC-EXEC-019`; contributor to `AC-EXEC-016`; conformance `C-EXEC-018`, `C-EXEC-020`; this ticket is Final Proof Owner.
 
 ## 6. Implementation Unit
 
@@ -105,12 +105,12 @@ RESULT = AUTHORITY_CONSUMPTION_GAP for unavailable productive DOM/PLAT producers
 | NORMATIVE_BEHAVIOR | NORMATIVE_VERB | CONCRETE_OPERATION_COMMAND_OR_QUERY | STATE_OR_TRANSITION_AFFECTED | DIRECT_POSITIVE_TEST | DIRECT_NEGATIVE_OR_ISOLATION_TEST | EXPECTED_EVIDENCE_FILE | ACCEPTANCE_OWNER | REQUIRED_PRODUCER_OR_CAPABILITY | AUTHORITY_STATUS | CONTRACT_STATUS | LOCAL_TESTABILITY | PRODUCTIVE_AVAILABILITY | DEPENDENCY_CLASS | WITNESS_EXECUTABLE_AT_LOCAL_CLOSURE | EVIDENCE_TYPE |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Scoped registry identity | create/lookup/rehydrate | C-EXEC-018 / AC-EXEC-019 | catalog entry/basis | two NORMAL repositories resolve only locally; BOOTSTRAP independent | foreign RepositoryId/key substitution rejected | `docs/tickets/SPEC-EXEC-001/evidence/TICKET-003/AC-EXEC-019-scoped-identity.md` | EXEC-001-TICKET-003 | local reconstruction fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
-| Semantic reconstruction | rehydrate | C-EXEC-020 | registry basis | valid source/digest/reference/revision material rehydrates | detached, corrupt, cross-repository or skipped/out-of-order material rejects `CONTRACT_INVALID`; no mutation | `docs/tickets/SPEC-EXEC-001/evidence/TICKET-003/AC-EXEC-020-reconstruction-rejection.md` | EXEC-001-TICKET-007 | local reconstruction fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Semantic reconstruction | rehydrate | C-EXEC-020 / AC-EXEC-019 | registry basis | valid source/digest/reference/revision material rehydrates | detached, corrupt, cross-repository or skipped/out-of-order material rejects `CONTRACT_INVALID`; no mutation | `docs/tickets/SPEC-EXEC-001/evidence/TICKET-003/AC-EXEC-019-reconstruction-rejection.md` | EXEC-001-TICKET-003 | local reconstruction fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
 | Stale registry basis | rehydrate/reject | C-EXEC-020 / AC-EXEC-019 | registry basis | frozen `CatalogRevision` material rehydrates | current, newer or foreign-revision material presented for the frozen basis rejects `CONTRACT_INVALID`; no mutation | `docs/tickets/SPEC-EXEC-001/evidence/TICKET-003/AC-EXEC-019-stale-basis.md` | EXEC-001-TICKET-003 | local reconstruction fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
 | Inconsistent registry material | rehydrate/reject | C-EXEC-020 / AC-EXEC-019 | registry basis | matching source, digest, references and revision rehydrate | source, digest, reference or revision inconsistency rejects `CONTRACT_INVALID`; no mutation | `docs/tickets/SPEC-EXEC-001/evidence/TICKET-003/AC-EXEC-019-inconsistent-material.md` | EXEC-001-TICKET-003 | local reconstruction fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
 | Canonical capability outcomes | resolve/reject | C-EXEC-018/020 / AC-EXEC-019 | resolution result | known compatible material resolves | unknown capability yields `UNKNOWN_CAPABILITY`; known incompatible version/schema/role/basis yields `INCOMPATIBLE_CAPABILITY`; codes remain distinct | `docs/tickets/SPEC-EXEC-001/evidence/TICKET-003/AC-EXEC-019-capability-outcomes.md` | EXEC-001-TICKET-003 | local reconstruction fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
-| Continuity and immutability | preserve/reject | catalog revision operation | scoped catalog basis | contiguous revision remains stable | duplicate/conflict/out-of-order cannot mutate existing basis | `docs/tickets/SPEC-EXEC-001/evidence/TICKET-003/AC-EXEC-020-continuity.md` | EXEC-001-TICKET-007 | local reconstruction fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
-| Failure isolation | reject | invalid material path | registry state | valid material remains unchanged | partial mutation never occurs on rejection | `docs/tickets/SPEC-EXEC-001/evidence/TICKET-003/AC-EXEC-020-no-mutation.md` | EXEC-001-TICKET-007 | EXEC-001-TICKET-003 | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Continuity and immutability | preserve/reject | C-EXEC-020 / AC-EXEC-019 | scoped catalog basis | contiguous revision remains stable | duplicate/conflict/out-of-order cannot mutate existing basis | `docs/tickets/SPEC-EXEC-001/evidence/TICKET-003/AC-EXEC-019-continuity.md` | EXEC-001-TICKET-003 | local reconstruction fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Failure isolation | reject | C-EXEC-020 / AC-EXEC-019 | registry state | valid material remains unchanged | partial mutation never occurs on rejection | `docs/tickets/SPEC-EXEC-001/evidence/TICKET-003/AC-EXEC-019-no-mutation.md` | EXEC-001-TICKET-003 | local reconstruction fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
 
 ## 15. Implementation Constraints
 
@@ -125,7 +125,7 @@ Both are locally testable after TICKET-002.
 
 ## 17. Acceptance / Proof Role
 
-`LOCAL_ACCEPTANCE_OWNER: YES`; `FINAL_PROOF_OWNER: YES` for AC-EXEC-019. Contributes reconstruction evidence to AC-EXEC-020 and CP-EXEC-02.
+`CONTRIBUTOR: YES` to AC-EXEC-016. `LOCAL_ACCEPTANCE_OWNER: YES`; `FINAL_PROOF_OWNER: YES` for AC-EXEC-019. Contributes reconstruction evidence to CP-EXEC-02; TICKET-007 owns final AC-EXEC-020 proof.
 
 ## 18. Required Tests
 
@@ -133,7 +133,7 @@ Two-RepositoryId isolation; NORMAL/BOOTSTRAP scope; duplicate create; wrong atta
 
 ## 19. Completion Evidence
 
-Evidence files under `docs/tickets/SPEC-EXEC-001/evidence/TICKET-003/` for AC-EXEC-019 reconstruction and AC-EXEC-020 rejection, stale-basis, inconsistent-material, capability-outcome, continuity and no-mutation witnesses, containing identity/reconstruction field assertions and executed tests. Local evidence is producible after TICKET-002.
+Evidence files under `docs/tickets/SPEC-EXEC-001/evidence/TICKET-003/` for AC-EXEC-019 reconstruction, stale-basis, inconsistent-material, capability-outcome, continuity and no-mutation witnesses, containing identity/reconstruction field assertions and executed tests. Local evidence is producible after TICKET-002.
 
 ## 20. Completion Gate
 

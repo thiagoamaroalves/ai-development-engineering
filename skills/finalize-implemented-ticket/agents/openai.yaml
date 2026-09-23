@@ -1,0 +1,4 @@
+interface:
+  display_name: "Finalize Implemented Ticket"
+  short_description: "Finalize a locally ready audited ticket"
+  default_prompt: "Finalize an audited implemented ticket using the local completion gate and preserve integrated-only finding handoffs."

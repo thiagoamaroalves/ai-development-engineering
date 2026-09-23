@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit Implementation Behavior"
+  short_description: "Audit implemented ticket behavior"
+  default_prompt: "Use $audit-implementation-behavior to audit this implemented ticket's runtime behavior and test evidence."

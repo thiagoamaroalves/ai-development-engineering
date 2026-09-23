@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit Implemented Ticket"
+  short_description: "Orchestrate independent audits of implemented tickets"
+  default_prompt: "Orchestrate independent ticket conformance, behavior, design, and architecture audits against one pinned implementation state, then consolidate canonical findings."

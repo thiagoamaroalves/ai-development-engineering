@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit Component Implementation Gap Matrix"
+  short_description: "Audit a component implementation gap matrix independently"
+  default_prompt: "Audit the component Implementation Gap Matrix read-only and adversarially, preserving ADR, portfolio, SPEC, ownership, evidence, baseline, and planning boundaries."
