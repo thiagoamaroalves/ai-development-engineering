@@ -1,10 +1,12 @@
 import {
   CatalogBasis,
+  CatalogRevision,
   CatalogScope,
   createCatalogBasisFixture,
   ExecRegistryDomainError,
   RegistryEntry,
   RegistryResolutionService,
+  isAuthenticatedCatalogRevision,
   isAuthenticatedCatalogScope,
   isAuthenticatedRegistryResolutionService,
   isRegistryResolutionBoundToRequest,
@@ -30,7 +32,7 @@ export interface ResolveExecCapabilityInput extends RegistryResolutionRequest {
   /** Kept only as a consistency assertion for NORMAL requests. */
   readonly repositoryId?: string
   /** The exact frozen basis revision requested by the execution. */
-  readonly catalogRevision: unknown
+  readonly catalogRevision: CatalogRevision
 }
 
 export class ResolveExecCapability {
@@ -52,6 +54,7 @@ export class ResolveExecCapability {
     this.bootstrapCatalog = bootstrapCatalog
     this.normalCatalog = normalCatalog
     this.executionBasisReader = executionBasisReader
+    Object.freeze(this)
   }
 
   resolve(input: ResolveExecCapabilityInput): RegistryResolutionResult {
@@ -119,7 +122,7 @@ export class ResolveExecCapability {
       NORMAL_CATALOG_SOURCE,
     )
     if (!normalBasis.scope.equals(executionBasis.scope)
-      || normalBasis.catalogRevision !== executionBasis.catalogRevision) {
+      || !normalBasis.catalogRevision.equals(executionBasis.catalogRevision)) {
       throw new ExecRegistryDomainError('NORMAL catalog is not bound to the DOM execution basis.')
     }
     return normalBasis
@@ -129,7 +132,7 @@ export class ResolveExecCapability {
     source: object,
     receipt: unknown,
     requestedScope: CatalogScope,
-    requestedRevision: unknown,
+    requestedRevision: CatalogRevision,
     expectedKind: CatalogBasisSourceKind,
     expectedSource: string,
   ): CatalogBasis {
@@ -140,7 +143,8 @@ export class ResolveExecCapability {
     if (!basis.scope.equals(requestedScope)) {
       throw new ExecRegistryDomainError('Catalog source returned material for a different scope.')
     }
-    if (!Number.isSafeInteger(requestedRevision) || requestedRevision !== basis.catalogRevision) {
+    if (!isAuthenticatedCatalogRevision(requestedRevision)
+      || !requestedRevision.equals(basis.catalogRevision)) {
       throw new ExecRegistryDomainError('Catalog source returned a stale or unexpected catalog revision.')
     }
     if (basis.source !== expectedSource) {

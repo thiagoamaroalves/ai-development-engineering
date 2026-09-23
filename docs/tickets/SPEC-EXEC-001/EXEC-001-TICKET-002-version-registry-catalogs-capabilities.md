@@ -176,7 +176,8 @@ Independent ticket audit validates this ticket; completion releases TICKET-003, 
 ```text
 IMPLEMENTATION_STATUS = IMPLEMENTED
 IMPLEMENTATION_UNIT = EXEC-IMP-02
-IMPLEMENTATION_HEAD = d4216ad6f4a87fe7142ccd45d3fd099ef1b92955 (semantic baseline; working-tree implementation)
+IMPLEMENTATION_HEAD = 8f62b283b1dbf487911c7c459db95cadc25ff101 (pinned remediation baseline; uncommitted remediation working tree)
+REMEDIATION_STATE = VALIDATION_REQUIRED; independent re-audit required
 DESIGN_DEVIATIONS = NONE
 IMPLEMENTATION_STRUCTURAL_SELF_CHECK = PASS
 DOMAIN_MODEL_CONFORMANT = YES
@@ -217,6 +218,8 @@ OVERENGINEERING_FINDINGS = 0
 - `src/application/exec-registry-ports.ts`
 - `src/composition/exec-registry.ts`
 - `tests/exec-001-ticket-002.test.ts`
+- `tests/exec-registry-import-boundary-loader.mjs`
+- `tests/fixtures/exec-registry-forbidden-import.mjs`
 - `docs/tickets/SPEC-EXEC-001/evidence/TICKET-002/AC-EXEC-003-semver.md`
 - `docs/tickets/SPEC-EXEC-001/evidence/TICKET-002/AC-EXEC-005-registry-contribution.md`
 - `docs/tickets/SPEC-EXEC-001/evidence/TICKET-002/AC-EXEC-007-registry-contribution.md`
@@ -238,15 +241,17 @@ AC-EXEC-011 = SATISFIED
 AC-EXEC-012 = SATISFIED
 AC-EXEC-005 = SATISFIED_AS_LOCAL_CONTRIBUTION; FINAL_PROOF_OWNER = TICKET-005
 AC-EXEC-007 = SATISFIED_AS_LOCAL_CONTRIBUTION; FINAL_PROOF_OWNER = TICKET-004
-TESTS_RUN = 31
-TESTS_PASSED = 31
+TESTS_RUN = 71
+TESTS_PASSED = 71
 TESTS_FAILED = 0
 TESTS_SKIPPED = 0
 ENVIRONMENTAL_FAILURES = 0
-FOCUSED_TICKET_TESTS = 10/10
+FOCUSED_TICKET_TESTS = 23/23
 TICKET-001_REGRESSION = 21/21
-ROOT_REGRESSION = 27/27
+ROOT_REGRESSION = 71/71
 TYPECHECK = PASS
+GOVERNANCE_GUARD = PASS
+SKILL_MIRROR_GUARD = PASS
 ```
 
 ### Completion evidence
@@ -258,7 +263,7 @@ local_completion_evidence = PRESENT
 integration_evidence = PRESENT_AS_CONTRACT_CONTRIBUTION
 legacy_transition_evidence = PRESENT_FOR_LOCAL_SCOPE
 conformance_evidence = PRESENT
-REMAINING_BLOCKERS = NONE
+REMAINING_BLOCKERS = IMA-CRITICAL-001 and IMA-MAJOR-011 integrated-proof handoffs; independent re-audit required
 NEXT_STATUS = VALIDATION_REQUIRED
 VALIDATION_GATE = INDEPENDENT_TICKET_AUDIT_REQUIRED
 ```

@@ -1,11 +1,14 @@
 import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
 import { readFileSync, existsSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import test from 'node:test'
 import {
   BOOTSTRAP_CAPABILITY_CATEGORIES,
   BootstrapAllowlistPolicy,
   CatalogBasis,
+  CatalogRevision,
   CatalogScope,
   RegistryEntry,
   RegistryResolutionService,
@@ -111,7 +114,7 @@ class FixtureDomExecutionSource extends ExecutionCatalogBasisReader {
 }
 
 function scopedRequest(scope: CatalogScope, overrides: Parameters<typeof request>[0] = {}) {
-  return { ...request(overrides), scope, catalogRevision: 2 }
+  return { ...request(overrides), scope, catalogRevision: CatalogRevision.create(2) }
 }
 
 function domBasisFor(basis: CatalogBasis): CatalogBasis {
@@ -142,6 +145,14 @@ test('parses semantic versions and preserves exact change semantics', () => {
   assert.equal(SemanticVersion.parse('1.9007199254740993.3').minor, '9007199254740993')
   assert.equal(SemanticVersion.parse('1.2.9007199254740993').patch, '9007199254740993')
   assert.equal(larger.changeFrom(large), 'PATCH')
+})
+
+test('rejects non-string registry categories without coercion', () => {
+  const forgedCategory = { toString: () => 'NORMAL' }
+  assert.throws(() => RegistryEntry.create({
+    ...entryInput(),
+    category: forgedCategory,
+  } as never), /allowed string/)
 })
 
 test('resolves only authenticated explicit supported versions without alias or approximation', () => {
@@ -234,6 +245,16 @@ test('selects the exact compatible version independently of registration order',
   }
 })
 
+test('rejects unsafe catalog revision progression without mutating the frozen basis', () => {
+  const basis = createCatalogBasisFixture({
+    scope: CatalogScope.normal('repo-a'),
+    catalogRevision: Number.MAX_SAFE_INTEGER,
+  })
+  assert.throws(() => basis.register(entry()), /MAX_SAFE_INTEGER/)
+  assert.equal(basis.catalogRevision.value, Number.MAX_SAFE_INTEGER)
+  assert.throws(() => CatalogRevision.create(Number.MAX_SAFE_INTEGER + 1), /safe integer/)
+})
+
 test('rejects duplicate and conflicting registration without mutating the frozen basis', () => {
   const basis = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-a') }).register(entry())
   const before = registryBasisIdentity(basis)
@@ -278,11 +299,29 @@ test('keeps BOOTSTRAP independent and rejects normal capabilities before work', 
   assert.equal(result.code, 'INCOMPATIBLE_CAPABILITY')
   assert.equal(result.noApproval, true)
   assert.equal(result.noMutation, true)
+  let normalWorkReads = 0
+  class NormalWorkBoundary extends NormalCatalogSource {
+    constructor() {
+      super()
+    }
+
+    read(): CatalogBasisSourceReceipt {
+      normalWorkReads += 1
+      throw new Error('normal work must not be reached for bootstrap rejection')
+    }
+  }
   const useCase = new ResolveExecCapability(
     new RegistryResolutionService(),
     new FixtureBootstrapSource(bootstrap),
+    new NormalWorkBoundary(),
   )
-  assert.equal('resolveBeforeWork' in useCase, false)
+  const applicationResult = useCase.resolve({
+    ...request(),
+    scope: CatalogScope.bootstrap(),
+    catalogRevision: CatalogRevision.create(2),
+  })
+  assert.equal(applicationResult.status, 'FAILED')
+  assert.equal(normalWorkReads, 0)
   assert.equal(BootstrapAllowlistPolicy.permits(bootstrap.scope, bootstrap.entries[0]), false)
   assert.deepEqual(BOOTSTRAP_CAPABILITY_CATEGORIES, ['DISCOVERY', 'VALIDATION', 'MIGRATION', 'AUDIT', 'REMEDIATION'])
 
@@ -375,7 +414,7 @@ test('rejects matching-source forgery, copied receipts and the DOM bootstrap sub
   const legitimateSource = new FixtureBootstrapSource(basis)
   const issued = legitimateSource.read()
   const stale = new ResolveExecCapability(new RegistryResolutionService(), legitimateSource)
-    .resolve({ ...requestForScope, catalogRevision: 1 })
+    .resolve({ ...requestForScope, catalogRevision: CatalogRevision.create(1) })
   assert.equal(stale.status, 'FAILED')
   if (stale.status === 'FAILED') assert.equal(stale.code, 'CONTRACT_INVALID')
 
@@ -438,7 +477,12 @@ test('authenticates resolver output and binds it to the requested basis and cont
   assert.equal(isRegistryResolutionBoundToRequest(result, basis, request()), true)
   assert.equal(isRegistryResolutionBoundToRequest(result, basis, request({ capabilityId: 'other-capability' })), false)
   assert.equal(isRegistryResolutionBoundToRequest(result, basis, request({ semanticVersion: '2.0.0' })), false)
+  const forgedSchema = Object.create(SchemaReference.prototype) as SchemaReference
+  Object.assign(forgedSchema, { schemaId: inputSchema.schemaId, version: inputSchema.version })
+  assert.equal(isRegistryResolutionBoundToRequest(result, basis, request({ schema: forgedSchema })), false)
   assert.equal(isRegistryResolutionBoundToRequest({ ...result } as never, basis, request()), false)
+  assert.equal(isRegistryResolution({ status: 'RESOLVED' } as never), false)
+  assert.equal(isRegistryFailure({ status: 'FAILED' } as never), false)
 
   const otherBasis = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-b') }).register(entry())
   const otherResult = resolver.resolve(otherBasis, request())
@@ -451,6 +495,9 @@ test('rejects caller-injected resolver results and alternate resolver adapters',
   assert.throws(() => new ResolveExecCapability({
     resolve: () => ({ status: 'RESOLVED', code: 'RESOLVED' }),
   } as never), /authenticated registry resolver/)
+  const useCase = new ResolveExecCapability(new RegistryResolutionService())
+  assert.equal(Object.isFrozen(useCase), true)
+  assert.throws(() => Object.assign(useCase, { resolver: { resolve: () => ({}) } }), TypeError)
 })
 
 test('maps nullish, malformed and throwing-getter contexts to structured failures', () => {
@@ -520,7 +567,7 @@ test('rejects local fixture source seams at the productive application boundary'
   const result = useCase.resolve({
     ...request({ capabilityId: 'capability.discover' }),
     scope: CatalogScope.bootstrap(),
-    catalogRevision: 2,
+    catalogRevision: CatalogRevision.create(2),
   })
   assert.equal(result.status, 'FAILED')
   if (result.status === 'FAILED') assert.equal(result.code, 'CONTRACT_INVALID')
@@ -542,6 +589,27 @@ test('productive registry graph has no infrastructure, prototype, transport or g
     assert.doesNotMatch(source, /from\s+['"][^'\"]*(?:react|database|filesystem|http)[^'\"]*['"]/i, sourceFile)
     assert.equal(dirname(sourceFile).startsWith(resolve('src')), true)
   }
+})
+
+test('exec registry architecture boundary loader rejects forbidden dependency introduction', () => {
+  const loader = resolve('tests/exec-registry-import-boundary-loader.mjs')
+  execFileSync(process.execPath, [
+    '--experimental-strip-types',
+    '--experimental-loader',
+    pathToFileURL(loader).href,
+    '--input-type=module',
+    '-e',
+    "await import('./src/composition/exec-registry.ts')",
+  ], { cwd: process.cwd(), stdio: 'pipe' })
+  assert.throws(() => execFileSync(process.execPath, [
+    '--experimental-strip-types',
+    '--experimental-loader',
+    pathToFileURL(loader).href,
+    'tests/fixtures/exec-registry-forbidden-import.mjs',
+  ], { cwd: process.cwd(), stdio: 'pipe' }), (error: unknown) => {
+    const failure = error as { readonly stdout?: Buffer | string; readonly stderr?: Buffer | string }
+    return `${failure.stdout ?? ''}${failure.stderr ?? ''}`.includes('forbidden module')
+  })
 })
 
 test('exec registry architecture guard imports the real graph and exercises the common path', async () => {
@@ -567,7 +635,7 @@ test('exec registry architecture guard imports the real graph and exercises the 
   const result = registry.resolve.resolve({
     ...request({ capabilityId: 'capability.runtime-guard' }),
     scope: CatalogScope.normal('runtime-guard'),
-    catalogRevision: 2,
+    catalogRevision: CatalogRevision.create(2),
   })
   assert.equal(result.status, 'FAILED')
   if (result.status === 'FAILED') assert.equal(result.code, 'CONTRACT_INVALID')
