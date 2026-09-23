@@ -430,7 +430,7 @@ export class CatalogBasis {
   }
 
   register(entry: RegistryEntry): CatalogBasis {
-    if (!(entry instanceof RegistryEntry)) throw new ExecRegistryDomainError('A registry entry is required.')
+    if (!isAuthenticatedRegistryEntry(entry)) throw new ExecRegistryDomainError('A registry entry is required.')
     const identity = entry.identity(this.scope)
     if (this.findByIdentity(identity)) {
       throw new ExecRegistryDomainError('A registry entry with the same immutable key already exists.')
@@ -459,7 +459,6 @@ export interface RegistryResolutionRequest {
   readonly capabilityId: unknown
   readonly schema: SchemaReference
   readonly semanticVersion: unknown
-  readonly supportedVersions: SupportedVersionSet
   readonly role?: unknown
 }
 
@@ -483,10 +482,14 @@ export interface RegistryResolutionFailure {
 export type RegistryResolutionResult = ResolvedRegistryCapability | RegistryResolutionFailure
 
 export class VersionCompatibilityPolicy {
-  static resolve(entry: RegistryEntry, requested: unknown, supported: SupportedVersionSet): SemanticVersion | undefined {
-    const requestedVersion = supported.resolve(requested)
-    if (!requestedVersion || !entry.supports(requestedVersion.value)) return undefined
-    return requestedVersion
+  static resolve(entry: RegistryEntry, requested: unknown): SemanticVersion | undefined {
+    let requestedVersion: SemanticVersion
+    try {
+      requestedVersion = SemanticVersion.parse(requested)
+    } catch {
+      return undefined
+    }
+    return entry.supports(requestedVersion.value) ? requestedVersion : undefined
   }
 }
 
@@ -503,7 +506,7 @@ export class RegistryResolutionService {
       throw new ExecRegistryDomainError('A catalog basis is required.')
     }
     try {
-      if (!request || !isAuthenticatedSchemaReference(request.schema) || !isAuthenticatedSupportedVersionSet(request.supportedVersions)) {
+      if (!request || !isAuthenticatedSchemaReference(request.schema)) {
         return this.failure(basis, 'CONTRACT_INVALID', 'A complete registry resolution request is required.')
       }
       const stage = requiredToken(request.stage, 'Stage')
@@ -515,10 +518,16 @@ export class RegistryResolutionService {
       if (stageCandidates.length === 0) return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability stage is not compatible with the requested entry.')
       const schemaCandidates = stageCandidates.filter((entry) => entry.acceptsSchema(request.schema))
       if (schemaCandidates.length === 0) return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability schema is not compatible with the requested entry.')
-      const version = VersionCompatibilityPolicy.resolve(schemaCandidates[0], request.semanticVersion, request.supportedVersions)
-      if (!version) return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability version is not explicitly supported by the requested basis.')
-      const entry = schemaCandidates.find((candidate) => candidate.semanticVersion.value === version.value)
+      let requestedVersion: SemanticVersion
+      try {
+        requestedVersion = SemanticVersion.parse(request.semanticVersion)
+      } catch {
+        return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability version is not a supported semantic version.')
+      }
+      const entry = schemaCandidates.find((candidate) => candidate.semanticVersion.value === requestedVersion.value)
       if (!entry) return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability version is not registered for the requested basis.')
+      const version = VersionCompatibilityPolicy.resolve(entry, requestedVersion.value)
+      if (!version) return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability version is not explicitly supported by the requested basis.')
       if (!BootstrapAllowlistPolicy.permits(basis.scope, entry)) {
         return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'The bootstrap catalog permits onboarding capabilities only.')
       }
@@ -548,6 +557,8 @@ export interface RegistryRegistrationResult {
 }
 
 export function registerRegistryEntry(basis: CatalogBasis, entry: RegistryEntry): RegistryRegistrationResult {
+  if (!isAuthenticatedCatalogBasis(basis)) throw new ExecRegistryDomainError('A catalog basis is required.')
+  if (!isAuthenticatedRegistryEntry(entry)) throw new ExecRegistryDomainError('A registry entry is required.')
   return Object.freeze({ status: 'REGISTERED' as const, code: 'REGISTERED' as const, basis: basis.register(entry), entry })
 }
 

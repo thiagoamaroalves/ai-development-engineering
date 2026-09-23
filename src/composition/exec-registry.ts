@@ -1,5 +1,5 @@
 import { ResolveExecCapability, RegisterExecCapability } from '../application/exec-registry.ts'
-import type { ExecutionCatalogBasisReader, NormalCatalogSource } from '../application/exec-registry-ports.ts'
+import type { BootstrapCatalogSource, NormalCatalogSource } from '../application/exec-registry-ports.ts'
 import { RegistryResolutionService } from '../domain/exec-registry.ts'
 
 export interface ExecRegistryComposition {
@@ -9,13 +9,13 @@ export interface ExecRegistryComposition {
 }
 
 export function createExecRegistry(
-  executionBasis?: ExecutionCatalogBasisReader,
+  bootstrapCatalog?: BootstrapCatalogSource,
   normalCatalog?: NormalCatalogSource,
 ): ExecRegistryComposition {
   const resolver = new RegistryResolutionService()
   return Object.freeze({
     resolver,
-    resolve: new ResolveExecCapability(resolver, executionBasis, normalCatalog),
+    resolve: new ResolveExecCapability(resolver, bootstrapCatalog, normalCatalog),
     register: new RegisterExecCapability(),
   })
 }

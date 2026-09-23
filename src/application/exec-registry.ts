@@ -4,7 +4,6 @@ import {
   ExecRegistryDomainError,
   RegistryEntry,
   RegistryResolutionService,
-  isAuthenticatedCatalogBasis,
   isAuthenticatedCatalogScope,
   type RegistryRegistrationResult,
   type RegistryResolutionRequest,
@@ -12,10 +11,12 @@ import {
   registerRegistryEntry,
 } from '../domain/exec-registry.ts'
 import {
-  EXECUTION_CATALOG_BASIS_SOURCE,
   NORMAL_CATALOG_SOURCE,
-  type ExecutionCatalogBasisReader,
+  SYSTEM_BOOTSTRAP_CATALOG_SOURCE,
+  type BootstrapCatalogSource,
+  type CatalogBasisSourceKind,
   type NormalCatalogSource,
+  isProducerIssuedCatalogBasisReceipt,
 } from './exec-registry-ports.ts'
 
 export interface ResolveExecCapabilityInput extends RegistryResolutionRequest {
@@ -23,20 +24,22 @@ export interface ResolveExecCapabilityInput extends RegistryResolutionRequest {
   readonly scope: CatalogScope
   /** Kept only as a consistency assertion for NORMAL requests. */
   readonly repositoryId?: string
+  /** The exact frozen basis revision requested by the execution. */
+  readonly catalogRevision: unknown
 }
 
 export class ResolveExecCapability {
   private readonly resolver: RegistryResolutionService
-  private readonly executionBasis?: ExecutionCatalogBasisReader
+  private readonly bootstrapCatalog?: BootstrapCatalogSource
   private readonly normalCatalog?: NormalCatalogSource
 
   constructor(
     resolver: RegistryResolutionService,
-    executionBasis?: ExecutionCatalogBasisReader,
+    bootstrapCatalog?: BootstrapCatalogSource,
     normalCatalog?: NormalCatalogSource,
   ) {
     this.resolver = resolver
-    this.executionBasis = executionBasis
+    this.bootstrapCatalog = bootstrapCatalog
     this.normalCatalog = normalCatalog
   }
 
@@ -62,34 +65,58 @@ export class ResolveExecCapability {
       throw new ExecRegistryDomainError('An authenticated catalog scope is required.')
     }
     if (input.scope.name === 'BOOTSTRAP') {
-      if (input.repositoryId !== undefined || !this.executionBasis) {
-        throw new ExecRegistryDomainError('An authorized bootstrap catalog basis reader is required.')
+      if (input.repositoryId !== undefined || !this.bootstrapCatalog) {
+        throw new ExecRegistryDomainError('An authorized system bootstrap catalog source is required.')
       }
-      const basis = this.executionBasis.read()
-      this.assertAuthorizedBasis(basis, input.scope, EXECUTION_CATALOG_BASIS_SOURCE)
-      return basis
+      const receipt = this.bootstrapCatalog.read()
+      return this.assertAuthorizedBasis(
+        this.bootstrapCatalog,
+        receipt,
+        input.scope,
+        input.catalogRevision,
+        'SYSTEM_BOOTSTRAP_CATALOG',
+        SYSTEM_BOOTSTRAP_CATALOG_SOURCE,
+      )
     }
     if (input.repositoryId !== undefined && input.repositoryId !== input.scope.repositoryId) {
       throw new ExecRegistryDomainError('The requested RepositoryId does not match the requested NORMAL scope.')
     }
-    if (!this.normalCatalog || typeof input.scope.repositoryId !== 'string') {
+    if (!this.normalCatalog) {
       throw new ExecRegistryDomainError('An authorized normal catalog source is required.')
     }
-    const basis = this.normalCatalog.read(input.scope.repositoryId)
-    this.assertAuthorizedBasis(basis, input.scope, NORMAL_CATALOG_SOURCE)
-    return basis
+    const receipt = this.normalCatalog.read()
+    return this.assertAuthorizedBasis(
+      this.normalCatalog,
+      receipt,
+      input.scope,
+      input.catalogRevision,
+      'REPO_NORMAL_CATALOG',
+      NORMAL_CATALOG_SOURCE,
+    )
   }
 
-  private assertAuthorizedBasis(basis: unknown, requestedScope: CatalogScope, expectedSource: string): asserts basis is CatalogBasis {
-    if (!isAuthenticatedCatalogBasis(basis)) {
+  private assertAuthorizedBasis(
+    source: object,
+    receipt: unknown,
+    requestedScope: CatalogScope,
+    requestedRevision: unknown,
+    expectedKind: CatalogBasisSourceKind,
+    expectedSource: string,
+  ): CatalogBasis {
+    if (!isProducerIssuedCatalogBasisReceipt(source, receipt, expectedKind)) {
       throw new ExecRegistryDomainError('Catalog source returned unverified material.')
     }
+    const basis = receipt.basis
     if (!basis.scope.equals(requestedScope)) {
       throw new ExecRegistryDomainError('Catalog source returned material for a different scope.')
+    }
+    if (!Number.isSafeInteger(requestedRevision) || requestedRevision !== basis.catalogRevision) {
+      throw new ExecRegistryDomainError('Catalog source returned a stale or unexpected catalog revision.')
     }
     if (basis.source !== expectedSource) {
       throw new ExecRegistryDomainError(`Catalog source must be issued by ${expectedSource}.`)
     }
+    return basis
   }
 
   private failureBasis(input: Partial<ResolveExecCapabilityInput>): CatalogBasis {
