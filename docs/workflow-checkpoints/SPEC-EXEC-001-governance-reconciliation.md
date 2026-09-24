@@ -1,21 +1,12 @@
 CHECKPOINT_KIND = GOVERNANCE_RECONCILIATION_CHECKPOINT
-PARENT_HEAD = eeb906a8f11007ca4fa41e8f0ba5e32daa690567
-PRESERVED_UNSTAGED_RECOVERY_CANDIDATES = docs/specs/audits/SPEC-EXEC-001-component-conformance-audit.md; docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md
+PARENT_HEAD = 8b0424d0aefdd26b94516fedd94413db6cdc3907
+PRESERVED_UNSTAGED_RECOVERY_CANDIDATES = docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md
 HUMAN_PRESERVATION_AUTHORIZATION = YES
 PRESERVATION_SCOPE = EXPLICIT
-ALLOWLIST = .gitignore
-README.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-envelope-schema-contract.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-003-registry-entry-reconstruction.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-004-contract-verdict-failure-semantics.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-006-manifest-completeness-freeze.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-007-manifest-identity-reconstruction-retry.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-009-historical-original-basis-replay.md
-docs/tickets/SPEC-EXEC-001/README.md
-docs/tickets/SPEC-EXEC-001/implementation-ticket-audit.md
-docs/tickets/SPEC-EXEC-001/implementation-ticket-remediation.md
-skills/**
-tools/**
+ALLOWLIST =
+skills/checkpoint-component-gap-matrix-generation/SKILL.md
+skills/checkpoint-component-implementation-plan-generation/SKILL.md
+skills/checkpoint-component-implementation-tickets-generation/SKILL.md
 docs/workflow-checkpoints/SPEC-EXEC-001-governance-reconciliation.md
 EXCLUDED_DIRS = .pi/; .codex/; node_modules/
 TICKET_STATE_MUTATIONS = 0
