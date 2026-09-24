@@ -1,21 +1,16 @@
-# EXEC-001-TICKET-002 — Implementation Design Conformance Audit
+# Implementation Design Conformance Audit — EXEC-001-TICKET-002
 
 ## 1. Specialist Result
 
 ```text
-SPECIALIST_DESIGN_FINDINGS
+SPECIALIST_DESIGN_PASS
 DOMAIN_AUDIT_COMPLETE = YES
-CRITICAL_FINDINGS = 1
-MAJOR_FINDINGS = 0
-MINOR_FINDINGS = 1
-INFO_FINDINGS = 0
 ```
 
-The implementation preserves the approved domain/component decomposition and local
-fixture boundaries, but the owner-issued producer marker can be inherited through a
-caller-invocable basis operation. Completion evidence is also stale relative to the
-pinned target. These are structural audit findings; no remediation or canonical ticket
-verdict is issued here.
+The implementation preserves the approved local design boundaries. The DOM and
+REPO producers remain intentionally unavailable at this target and are retained
+as `REQUIRED_FOR_INTEGRATED_PROOF`; no local closure or productive-availability
+promotion is claimed.
 
 ## 2. Audit Subject
 
@@ -23,21 +18,20 @@ verdict is issued here.
 TICKET_ID = EXEC-001-TICKET-002
 TICKET_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-002-version-registry-catalogs-capabilities.md
 IMPLEMENTATION_DESIGN_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-002-implementation-design.md
-IMPLEMENTATION_UNIT = EXEC-IMP-02 — Version, registry resolution, catalogs and capability extensibility
-TICKET_STATUS = VALIDATION_REQUIRED
-AUDIT_TARGET_HEAD = 6dbff481eaf9bf21ac1aa7ae61f06a32f6dabfa8
-AUDIT_TARGET_STATE_FINGERPRINT = ef07d1b9a20b8529b47f6ace6430da84da76e05ec35d2cb0bdea678314fd481a
-IMPLEMENTATION_BASELINE = d4216ad6f4a87fe7142ccd45d3fd099ef1b92955
-IMPLEMENTATION_HEAD = 6dbff481eaf9bf21ac1aa7ae61f06a32f6dabfa8
-IMPLEMENTATION_STATE_FINGERPRINT = ef07d1b9a20b8529b47f6ace6430da84da76e05ec35d2cb0bdea678314fd481a
-IMPLEMENTATION_DIFF = baseline d4216ad6f4a87fe7142ccd45d3fd099ef1b92955 through pinned target; no working-tree overlay observed before artifact creation
+IMPLEMENTATION_UNIT = EXEC-IMP-02
+AUDIT_TARGET_HEAD = 49b4448ba10ee9aa9d3ce7d47b139de474a482ba
+AUDIT_TARGET_STATE_FINGERPRINT = 7983511cf1e9833261f61e43cdb252de0ed59fb330fcef75d6c03755f24f9a4d
+IMPLEMENTATION_BASELINE = 8f62b283b1dbf487911c7c459db95cadc25ff101 (ticket-recorded remediation baseline)
+IMPLEMENTATION_HEAD = 49b4448ba10ee9aa9d3ce7d47b139de474a482ba
+IMPLEMENTATION_STATE_FINGERPRINT = 7983511cf1e9833261f61e43cdb252de0ed59fb330fcef75d6c03755f24f9a4d
+IMPLEMENTATION_DIFF = pinned target source/test state; no working-tree overlay
 DESIGN_VERDICT = IMPLEMENTATION_DESIGN_READY
 DESIGN_GATE = READY_FOR_IMPLEMENTATION
-DESIGN_BASELINE = approved design at pinned repository state
+DESIGN_BASELINE = ticket/design authority at pinned target; upstream authority unchanged
 ```
 
-The target HEAD matches the supplied pin and the source/test worktree was clean before
-this specialist artifact was written.
+The target HEAD and working tree were checked before audit. The repository was
+clean and remained unchanged during this read-only audit.
 
 ## 3. Audit Mode
 
@@ -55,114 +49,138 @@ INVARIANT_AWARE = YES
 TESTABILITY_AWARE = YES
 EVIDENCE_REQUIRED = YES
 NO_REMEDIATION = YES
-NO_ARCHITECTURE_REDESIGN = YES
 NO_CODE_CHANGES = YES
 NO_TEST_CHANGES = YES
+NO_SELF_APPROVAL = YES
 ```
 
 ## 4. Authority / Design Baseline
 
-The approved design contains the required readiness markers and upstream preconditions:
-`IMPLEMENTATION_DESIGN_READY`, `IMPLEMENTATION_DESIGN_GATE: READY_FOR_IMPLEMENTATION`,
-and `UPSTREAM_AUTHORITY_PRECONDITIONS`.
+ADR-0003 revision 3 is accepted. The portfolio assigns O-017 and O-020 to
+SPEC-EXEC-001. The SPEC owns semantic versioning, explicit supported sets,
+registry mapping, NORMAL/BOOTSTRAP separation, bootstrap allowlisting and
+common capability extensibility. The approved plan unit is EXEC-IMP-02, with
+TICKET-001 as its internal prerequisite.
 
-Authority was reconciled against ADR-0003 revision 3, SPEC-EXEC-001 revision 3, the
-component conformance authority record, Gap Matrix, Implementation Plan, Plan Audit,
-the ticket, and the ticket-set audit. The upstream records preserve:
+The design's authority preconditions were checked against the current authority
+chain:
 
 ```text
 SPEC_IMPLEMENTABILITY_CHECK = PASS
-IDENTITY_AUTHORITY_GAPS = 0
-RECONSTRUCTION_AUTHORITY_GAPS = 0
-LIFECYCLE_AUTHORITY_GAPS = 0
-PERSISTENCE_SEMANTICS_GAPS = 0
-CROSS_SPEC_AUTHORITY_GAPS = 0
-DOM-EXEC-IDENTITY-SNAPSHOT = DEFINED/DEFINED, PRODUCTIVE_AVAILABILITY=NO, REQUIRED_FOR_INTEGRATED_PROOF
-REPO-EXEC-NORMAL-CATALOG = DEFINED/DEFINED, PRODUCTIVE_AVAILABILITY=NO, REQUIRED_FOR_INTEGRATED_PROOF
-UNIT-EXEC-REGISTRY-FIXTURE = DEFINED/DEFINED, LOCAL_TESTABILITY=YES, PRODUCTIVE_AVAILABILITY=NO, INFORMATIONAL
+IDENTITY_CONTRACT_COMPLETE = YES (SPEC-EXEC-001 revision 3 proof)
+RECONSTRUCTION_CONTRACT_COMPLETE = YES (physical reconstruction outside this ticket)
+LIFECYCLE_AUTHORITY_MATRIX = COMPLETE
+DOM-EXEC-IDENTITY-SNAPSHOT = DEFINED/DEFINED, NO/NO, REQUIRED_FOR_INTEGRATED_PROOF
+REPO-EXEC-NORMAL-CATALOG = DEFINED/DEFINED, NO/NO, REQUIRED_FOR_INTEGRATED_PROOF
+LOCAL_CLOSURE = YES for the unit-owned local witnesses
+DOWNSTREAM_PRODUCTIVE_AVAILABILITY_PROMOTION = 0
 ```
 
-The local implementation does not promote either foreign capability. The two productive
-availability gaps remain integrated-proof obligations, not local closure blockers.
+The capability classifications are internally consistent. The two unavailable
+foreign producers do not block local execution or closure because the approved
+plan and ticket classify them only for integrated proof. The local fixture is
+contract evidence, not productive authority.
+
+### Authority provenance and anti-forgery audit
+
+For the producer-bound basis/result proof named by the design:
+
+| Check | Result | Evidence |
+|---|---|---|
+| `ISSUER_IS_AUTHORIZED` | PASS for declared upstream ownership; productive issuer not present locally | DOM/REPO ownership and integrated-only classification are preserved; no local issuer is invented |
+| `PROOF_SCOPE_IS_EXACT` | PASS | `ResolveExecCapability.assertAuthorizedBasis` checks source kind, scope and expected source |
+| `CONSUMER_VERIFIES_PROVENANCE` | PASS for the implemented seam | `isProducerIssuedCatalogBasisReceipt` checks source-owned receipt identity and kind; `createProducerBoundCatalogBasisProof` checks producer-bound basis membership |
+| `INPUT_OR_REFERENCE_BINDING` | PASS | exact `CatalogScope` and `CatalogRevision` are compared before resolution |
+| `MUTATION_OR_STALE_REJECTION` | PASS locally | frozen bases/new-basis publication and exact revision checks reject stale material |
+| `FORGERY_PATH_REJECTED` | PASS | copied receipts, matching-source forgery, forged scope/schema and caller-created bases are rejected by tests |
+| `CALLER_INJECTION_REJECTED` | PASS | caller basis injection and caller-selected repository/support-set authority are rejected/ignored |
+| `ALTERNATE_ADAPTER_CONTRACT` | NOT_APPLICABLE locally; integrated proof required | no productive DOM/REPO adapter exists at this target, and no fixture is promoted |
+
+The implementation does not close the future integrated producer/alternate-adapter
+proof; that is correctly represented as an integrated-only handoff rather than a
+local design or readiness contradiction.
 
 ## 5. Implementation Diff
 
-Actual implementation files compared with the approved design:
+The actual implementation subject is classified as follows:
 
-| File | Classification | Audit result |
+| File | Classification | Evidence |
 |---|---|---|
-| `src/domain/exec-registry.ts` | DESIGN_EXPECTED | Domain value objects, entry, immutable basis, policies, resolver and outcomes are present. |
-| `src/application/exec-registry.ts` | DESIGN_EXPECTED | Resolve/register orchestration and source verification are present. |
-| `src/application/exec-registry-ports.ts` | DESIGN_EXPECTED | Narrow DOM, NORMAL and independent bootstrap source seams plus explicit local fixtures. |
-| `src/composition/exec-registry.ts` | DESIGN_EXPECTED | Composition root wires the domain resolver and use cases. |
-| `tests/exec-001-ticket-002.test.ts` | DESIGN_EXPECTED | Direct semantic, negative, provenance and architecture witnesses. |
-| `tests/exec-registry-import-boundary-loader.mjs` | TICKET_REQUIRED_ADDITION / TEST_SUPPORT | Required productive-graph import guard. |
-| `tests/fixtures/exec-registry-forbidden-import.mjs` | TEST_SUPPORT | Negative architecture-guard fixture. |
-| `docs/tickets/SPEC-EXEC-001/evidence/TICKET-002/*` | DESIGN_EXPECTED | Named completion-evidence surfaces; several records are stale, reported below. |
-| `src/domain/exec-contract.ts`, `src/domain/exec-schema.ts` | UNCHANGED_REUSE | Existing authenticated schema-reference boundary is reused. |
-| Infrastructure, prototype, `.pi`, snapshot, contract and composition modules outside the ticket | UNCHANGED / MUST_NOT_MODIFY | No forbidden production dependency or scope drift was found. |
+| `src/domain/exec-registry.ts` | `DESIGN_EXPECTED` | semantic versions, support sets, scope, entries, immutable bases, policies and resolver |
+| `src/application/exec-registry.ts` | `DESIGN_EXPECTED` | resolve/register orchestration and source verification |
+| `src/application/exec-registry-ports.ts` | `DESIGN_EXPECTED` | narrow DOM, REPO and bootstrap source seams plus local fixtures |
+| `src/composition/exec-registry.ts` | `DESIGN_EXPECTED` | composition-root wiring |
+| `src/domain/exec-contract.ts` | `LOCAL_IMPLEMENTATION_ADAPTATION` | authenticated schema-reference predicate; permitted shared contract reuse |
+| `tests/exec-001-ticket-002.test.ts` | `TEST_SUPPORT` | direct behavior, anti-forgery, immutability and architecture witnesses |
+| `tests/exec-registry-import-boundary-loader.mjs` | `TEST_SUPPORT` | productive graph import guard |
+| `tests/fixtures/exec-registry-forbidden-import.mjs` | `TEST_SUPPORT` | negative import-boundary fixture |
+| `docs/tickets/SPEC-EXEC-001/evidence/TICKET-002/*` | `TICKET_REQUIRED_ADDITION` | acceptance evidence required by ticket/design |
 
-No material unrelated production component was introduced. The
-`AuthenticatedBootstrapCatalogSource` is a necessary local adaptation of the approved
-independent bootstrap boundary, not an unjustified component split.
+No unrelated production dependency, prototype authority, persistence technology,
+transport type, or foreign lifecycle implementation was introduced.
+
+Current execution checks were independently run: `npm test` passed 73/73,
+`npm run typecheck` passed, and the governance and skill-mirror guards passed.
+Some historical evidence files retain earlier test counts/targets; this is a
+traceability observation only and does not change direct current test coverage.
 
 ## 6. Responsibility Conformance
 
-| Responsibility | Designed home | Actual home | Result |
+| Responsibility | Designed Home | Actual Home | Result |
 |---|---|---|---|
-| Parse/compare semantic versions | `SemanticVersion` | `SemanticVersion` | PRESERVED |
-| Resolve explicit support sets | `SupportedVersionSet` / compatibility policy | `SupportedVersionSet` / `VersionCompatibilityPolicy` | PRESERVED |
-| Validate complete entries | `RegistryEntry` | `RegistryEntry.create` | PRESERVED |
-| Maintain immutable catalog basis | `CatalogBasis` | `CatalogBasis` | PRESERVED |
-| Enforce NORMAL/BOOTSTRAP separation | scope, basis, resolver and source seams | `CatalogScope`, `CatalogBasis`, resolver and application source selection | PRESERVED |
-| Enforce bootstrap allowlist | `BootstrapAllowlistPolicy` | `BootstrapAllowlistPolicy` and resolver | PRESERVED |
-| Classify resolution outcomes | resolution service | `RegistryResolutionService` | PRESERVED |
-| Common capability registration | basis and registration use case | `CatalogBasis.register` and `RegisterExecCapability` | PRESERVED, with producer-authority defect described in IDC-CRITICAL-001 |
-| Orchestrate sources and domain | two application use cases and narrow ports | `ResolveExecCapability`, `RegisterExecCapability`, source ports | PRESERVED |
+| Parse/compare semantic versions | `SemanticVersion` | `src/domain/exec-registry.ts::SemanticVersion` | `PRESERVED` |
+| Resolve explicit support sets | `SupportedVersionSet` and compatibility policy | `SupportedVersionSet`, `VersionCompatibilityPolicy` | `PRESERVED` |
+| Validate complete entries | `RegistryEntry` | `RegistryEntry.create` | `PRESERVED` |
+| Maintain immutable catalog basis | `CatalogBasis` | `CatalogBasis.register` and immutable constructor | `PRESERVED` |
+| Enforce NORMAL/BOOTSTRAP separation | `CatalogScope`, basis, resolver | `CatalogScope`, source selection, resolver | `PRESERVED` |
+| Enforce bootstrap allowlist | `BootstrapAllowlistPolicy` | `BootstrapAllowlistPolicy` before resolved result | `PRESERVED` |
+| Classify resolution outcomes | `RegistryResolutionService` | `resolveInternal`/failure paths | `PRESERVED` |
+| Common capability registration | basis/common registry path | `CatalogBasis.register`, `RegisterExecCapability` | `PRESERVED` |
+| Orchestrate sources and domain | application services and narrow ports | `ResolveExecCapability`, `RegisterExecCapability`, source ports | `PRESERVED` |
 
-`MISSING_RESPONSIBILITIES = 0`; `WRONG_RESPONSIBILITY_PLACEMENTS = 0`.
-The provenance-marker escape is an authority-enforcement defect, not evidence that a
-whole responsibility moved to the wrong layer.
+```text
+MISSING_RESPONSIBILITIES = 0
+WRONG_RESPONSIBILITY_PLACEMENTS = 0
+```
 
 ## 7. Component Conformance
 
-| Designed component | Intended responsibility | Actual implementation | Result |
+| Designed Component | Intended Responsibility | Actual Implementation | Result |
 |---|---|---|---|
-| `SemanticVersion` | Parse/compare semver | `src/domain/exec-registry.ts` | PRESERVED |
-| `SupportedVersionSet` | Exact membership | Same domain module | PRESERVED |
-| `CatalogScope` | NORMAL/BOOTSTRAP scope | Same domain module | PRESERVED |
-| `RegistryEntry` | Complete immutable mapping/key | Same domain module | PRESERVED |
-| `CatalogBasis` | Frozen scoped collection/new basis | Same domain module | PRESERVED |
-| `VersionCompatibilityPolicy` | Explicit support policy | Same domain module | PRESERVED |
-| `BootstrapAllowlistPolicy` | Bootstrap restriction | Same domain module | PRESERVED |
-| `RegistryResolutionService` | Lookup/outcome coordination | Same domain module | PRESERVED |
-| `ResolveExecCapability` | Resolution orchestration | `src/application/exec-registry.ts` | PRESERVED |
-| `RegisterExecCapability` | Registration orchestration | Same application module | PRESERVED |
-| `ExecutionCatalogBasisReader` | DOM consumer seam | `src/application/exec-registry-ports.ts` | PRESERVED |
-| `NormalCatalogSource` | REPO NORMAL seam | Same ports module | PRESERVED |
-| Independent bootstrap source | Required by independent bootstrap scope | `AuthenticatedBootstrapCatalogSource` | LOCALLY_ADAPTED, justified |
-| Composition root | Wiring only | `createExecRegistry` | PRESERVED |
-| Local fixture | Contract-only evidence | explicit fixture factories | PRESERVED |
+| `SemanticVersion` | immutable parse/compare/change semantics | domain value object with exact decimal comparison | `PRESERVED` |
+| `SupportedVersionSet` | explicit exact membership | immutable authenticated set | `PRESERVED` |
+| `CatalogScope` | NORMAL/BOOTSTRAP representation | authenticated frozen scope value | `PRESERVED` |
+| `RegistryEntry` | complete immutable mapping | authenticated frozen entry with schema/artifact/verdict/role fields | `PRESERVED` |
+| `CatalogBasis` | frozen collection and new-basis publication | immutable collection, duplicate guard and revision progression | `PRESERVED` |
+| `VersionCompatibilityPolicy` | supported-set classification | domain policy | `PRESERVED` |
+| `BootstrapAllowlistPolicy` | bootstrap allowlist decision | domain policy | `PRESERVED` |
+| `RegistryResolutionService` | complete-key lookup and canonical outcomes | domain service with producer-proof and fixture-only paths | `PRESERVED` |
+| `ResolveExecCapability` | source selection and resolution orchestration | application service | `PRESERVED` |
+| `RegisterExecCapability` | source validation and registration orchestration | application service with NORMAL/bootstrap paths | `PRESERVED` |
+| `ExecutionCatalogBasisReader` | DOM consumer seam | narrow abstract source port | `PRESERVED` |
+| `NormalCatalogSource` | REPO NORMAL consumer seam | narrow abstract source port | `PRESERVED` |
+| Registry composition root | wiring only | `createExecRegistry` | `PRESERVED` |
+| TICKET-002 fixture | local contract evidence only | explicit local fixture factories and untrusted result path | `PRESERVED` |
 
-The bootstrap source is not a material component collapse or speculative abstraction.
-`UNJUSTIFIED_COMPONENT_COLLAPSES = 0`; `UNJUSTIFIED_COMPONENT_SPLITS = 0`;
-`MISSING_REQUIRED_COMPONENTS = 0`; `UNPLANNED_STRUCTURAL_COMPONENTS = 0`.
+```text
+UNJUSTIFIED_COMPONENT_COLLAPSES = 0
+UNJUSTIFIED_COMPONENT_SPLITS = 0
+MISSING_REQUIRED_COMPONENTS = 0
+UNPLANNED_STRUCTURAL_COMPONENTS = 0
+```
+
+The single domain module is permitted by the design's cohesive adjacent-module
+option. Distinct responsibilities remain named and independently testable.
 
 ## 8. Domain Model Conformance
 
-The implementation preserves the approved concepts: immutable semver, explicit support
-sets, scope, complete registry entries, immutable catalog bases, two named policies and
-a domain resolution service. Domain events are not applicable.
-
-`RegistryEntry` remains the aggregate-root-shaped entry and `CatalogBasis` remains the
-immutable consistency collection described by the design. Value concepts retain parsing,
-comparison, membership, scope and revision semantics. Meaningful rules are not moved to
-controllers, infrastructure, generic helpers or external callers.
-
 ```text
-DOMAIN_CONCEPTS = PRESERVED
-AGGREGATE_ROOTS = REGISTRY_ENTRY
-ENTITIES = REGISTRY_ENTRY
+DOMAIN_MODEL_CONFORMANCE = PASS
+DOMAIN_CONCEPTS = SemanticVersion, SupportedVersionSet, CatalogScope,
+  RegistryEntry, CatalogBasis, VersionCompatibilityPolicy,
+  BootstrapAllowlistPolicy, RegistryResolutionService
+AGGREGATE_ROOT = REGISTRY_ENTRY / immutable catalog-basis consistency boundary
+ENTITIES = RegistryEntry
 VALUE_OBJECTS = SemanticVersion, SupportedVersionSet, CatalogScope, CatalogRevision
 DOMAIN_SERVICES = RegistryResolutionService
 DOMAIN_POLICIES = VersionCompatibilityPolicy, BootstrapAllowlistPolicy
@@ -170,81 +188,88 @@ DOMAIN_EVENTS = NOT_APPLICABLE
 ANEMIC_DOMAIN_MODEL_INTRODUCED = NO
 ```
 
-The public basis successor operation does, however, incorrectly preserve producer
-authority for callers; that is recorded as an authority finding rather than an anemic
-model or aggregate-collapse finding.
+Meaningful rules remain in value objects, entry/basis methods and named domain
+policies. Application services coordinate and verify source material; they do
+not decide compatibility, allowlisting or canonical outcomes.
 
 ## 9. Upstream Authority Preconditions Audit
 
-Upstream proof IDs and revisions are present and applicable. The implementation
-recalculates rather than promotes the foreign capability records.
+The implementation preserves the approved authority chain and does not mint
+DOM identity, REPO enablement, lifecycle, persistence, reconstruction or
+foreign outcome authority. `RepositoryId` is used only as an authenticated
+scope value in this local contract boundary; the productive DOM issuer remains
+outside this ticket.
 
-| Proof obligation | Issuer authorized | Exact scope | Consumer verifies | Stale/mutation handling | Forgery rejected | Caller injection rejected | Alternate adapter |
-|---|---|---|---|---|---|---|---|
-| DOM execution identity/basis | YES by upstream contract; no productive issuer at target | YES in design and source checks | YES for source receipt, scope, revision and source kind | YES for requested revision; productive availability remains NO | YES for current fixture/copy paths | PARTIAL: successor producer basis escape, IDC-CRITICAL-001 | NOT_EXECUTABLE_LOCALLY; integrated producer required |
-| REPO NORMAL catalog | YES by upstream contract; no productive issuer at target | YES in design and source checks | YES for receipt, scope, revision and source kind | YES for requested revision; productive availability remains NO | YES for current fixture/copy paths | PARTIAL: successor producer basis escape, IDC-CRITICAL-001 | NOT_EXECUTABLE_LOCALLY; integrated producer required |
-| Local fixture | YES as test-support issuer only | YES for local contract scope | YES; fixture results remain unbranded | YES for fixture revision checks | YES for copied/forged fixture paths | YES for direct fixture-to-productive paths | NOT_APPLICABLE; fixture is not productive |
-
-The upstream authority records are not stale or contradictory. The implementation does
-not invent DOM identity, lifecycle, physical persistence, reconstruction, or REPO
-enablement. The caller-authority check is not fully PASS because a caller possessing an
-authenticated producer basis can derive a new producer-marked successor through the
-public `register` method.
+The implementation correctly keeps the two external capabilities at
+`PRODUCTIVE_AVAILABILITY = NO` and `DEPENDENCY_CLASS = REQUIRED_FOR_INTEGRATED_PROOF`.
+No downstream promotion, fixture promotion, or local-closure contradiction was
+found. Integrated producer evidence and physical persistence/CAS evidence are
+not claimed here.
 
 ```text
-SPEC_IMPLEMENTABILITY_CHECK = PASS
-AUTHORITY_CONSUMPTION_GAPS = 2 expected integrated-only gaps (DOM and REPO productive producers)
-PRODUCER_CONSUMER_CONTRACT_ERRORS = 0 in the normative handoff records
+IDENTITY_AUTHORITY_GAPS = 0
+RECONSTRUCTION_AUTHORITY_GAPS = 0
+LIFECYCLE_AUTHORITY_GAPS = 0
+PERSISTENCE_SEMANTICS_GAPS = 0 local; physical semantics explicitly outside ticket
+CROSS_SPEC_AUTHORITY_GAPS = 0 local; integrated producer availability remains open
+UPSTREAM_AUTHORITY_CONFORMANCE = PASS for local scope
+AUTHORITY_CONSUMPTION_GAPS = 0 classification errors; 2 declared integrated-only unavailable producers
+PRODUCER_CONSUMER_CONTRACT_ERRORS = 0
 CAPABILITY_AVAILABILITY_CLASSIFICATION_ERRORS = 0
 DOWNSTREAM_PROMOTION_WITHOUT_NEW_EVIDENCE = 0
 WITNESSES_NOT_EXECUTABLE_AT_LOCAL_CLOSURE = 0
-TEMPORAL_AUTHORITY_GAPS = 0 for this immutable local operation
-CALLER_SUPPLIED_AUTHORITY_BYPASS = 1
-UPSTREAM_AUTHORITY_CONFORMANCE = FINDINGS
+TEMPORAL_AUTHORITY_GAPS = 0
+CALLER_SUPPLIED_AUTHORITY_BYPASS = 0
 ```
 
 ## 10. Aggregate Boundary Audit
 
-The frozen basis is copied on registration; prior values and entries are not mutated.
-Duplicate identity, incomplete entries, unsupported versions, wrong scope and bootstrap
-allowlist failures are guarded in the domain/application boundary. There is one local
-registration/resolution transition authority and no direct map mutation path.
+`CatalogBasis` is the immutable consistency boundary for scoped entry
+collections; `RegistryEntry` owns complete-entry invariants. Registration is a
+single create-only operation that returns a new basis. Existing bases, entries,
+scopes, revisions and arrays are frozen, and direct map/array mutation is not
+available.
 
 ```text
+AGGREGATE_ROOT = REGISTRY_ENTRY with CatalogBasis immutable collection boundary
+INVARIANTS_PROTECTED = complete entry, scoped identity, unique key, revision progression,
+  catalog separation, allowlist and no-mutation publication
+MUTATION_ENTRY_POINTS = RegistryEntry.create; CatalogBasis.register
+CONSISTENCY_BOUNDARY = one immutable CatalogBasis value
+TRANSACTION_BOUNDARY = one register/resolve operation; physical CAS outside scope
+DURABLE_ENFORCEMENT = NOT_APPLICABLE locally; PLAT/TICKET-003 integrated owner
 AGGREGATE_BOUNDARY_VIOLATIONS = 0
-AGGREGATE_INTERNAL_MUTATION_BYPASSES = 0
+AGGREGATE_INTERNAL_MUTATION_BYPASS = 0
 MULTIPLE_TRANSITION_AUTHORITIES = 0
-INVALID_TRANSACTION_BOUNDARIES = 0
+INVALID_TRANSACTION_BOUNDARY = 0
 ```
-
-The producer-authority marker is an ownership/provenance boundary, not a second
-aggregate mutation authority. Its caller-invocable propagation is the critical finding.
 
 ## 11. Invariant Placement Audit
 
-| Invariant | Designed enforcement | Actual enforcement | Durable enforcement | Test | Result |
+| Invariant | Designed Enforcement | Actual Enforcement | Durable Enforcement | Actual Test | Result |
 |---|---|---|---|---|---|
-| Canonical semver form/components | `SemanticVersion` | `SemanticVersion.parse` and comparison | N/A locally | Direct semver tests | PRESERVED |
-| Explicit supported versions only | support set/policy | `SupportedVersionSet`, policy and resolver | N/A locally | supported/unsupported tests | PRESERVED |
-| Complete registry entry | `RegistryEntry.create` | authenticated schemas, required tokens/lists | TICKET-003/PLAT later | incomplete-entry test | PRESERVED |
-| Unique scoped key/no mutation | `CatalogBasis.register` | identity check, copied basis and revision | physical CAS integrated-only | duplicate/no-mutation tests | PRESERVED locally |
-| NORMAL/BOOTSTRAP isolation | scope/basis/resolver | scope/source/revision checks and separate bootstrap port | integrated source isolation later | isolation tests | PRESERVED |
-| Bootstrap allowlist before normal work | allowlist policy | resolver policy and source selection | REPO enablement foreign | bootstrap tests | PRESERVED locally |
-| Unknown vs incompatible outcomes | resolution service | ordered lookup and canonical codes | N/A locally | distinct outcome tests | PRESERVED |
-| Synthetic common-path registration | basis/resolution | same `RegistryEntry`/`CatalogBasis` path | durability integrated-only | synthetic test | PRESERVED |
-| Frozen basis remains unchanged | immutable values/new publication | frozen objects and copied entries | physical immutability later | old-basis tests | PRESERVED |
-| Producer-issued proof remains owner-issued | source/producer proof contract | marker and proof checks, but public successor propagation | integrated producer required | no producer-successor negative witness | BYPASSABLE; IDC-CRITICAL-001 |
+| canonical semver form/components | `SemanticVersion` | parse and immutable components | N/A locally | semver positive/negative tests | `PRESERVED` |
+| explicit support membership only | set/policy | `SupportedVersionSet`, `VersionCompatibilityPolicy` | N/A locally | unsupported/alias tests | `PRESERVED` |
+| complete mapping entry | `RegistryEntry.create` | authenticated schemas, required fields and unique lists | later physical owner | incomplete-entry test | `PRESERVED` |
+| unique scoped key/no mutation | `CatalogBasis.register` | duplicate identity rejection and returned new basis | physical CAS integrated-only | duplicate/conflict/no-mutation tests | `PRESERVED` |
+| NORMAL/BOOTSTRAP isolation | scope/basis/resolver | source kind, scope, revision and source checks | integrated source owner | isolation/forgery tests | `PRESERVED` |
+| bootstrap allowlist before work | allowlist policy/resolver | rejected before a resolved result; application does not read normal source | REPO enablement remains foreign | bootstrap negative and no-read test | `PRESERVED` |
+| unknown versus incompatible | resolution service | lookup before compatibility filtering | N/A locally | distinct outcome tests | `PRESERVED` |
+| synthetic common path | basis registration/resolution | same `RegistryEntry`/`CatalogBasis` path | frozen-basis durability integrated-only | synthetic test | `PRESERVED` |
+| old basis remains unchanged | immutable basis | frozen objects and new revision | physical immutability integrated-only | old-basis regression tests | `PRESERVED` |
 
-`DOMAIN_INVARIANT_BYPASSES = 0` for the nine local semantic invariants;
-`UNENFORCED_INVARIANTS = 0`; `INVARIANT_PLACEMENT_DEVIATIONS = 1` for the
-producer-provenance invariant.
+```text
+DOMAIN_INVARIANT_BYPASSES = 0
+UNENFORCED_INVARIANTS = 0
+INVARIANT_PLACEMENT_DEVIATIONS = 0
+```
 
 ## 12. Domain Rule Duplication Audit
 
-Compatibility, allowlist, scope, identity, and outcome rules have named homes. The
-constructor duplicate check and registration pre-check are defensive mechanical checks,
-not separate semantic authorities. No independent lifecycle, stale-revision, eligibility,
-or foreign-outcome rule implementation was introduced.
+Compatibility, bootstrap allowlisting, scoped identity, canonical result
+classification and immutable registration each have one semantic home. The
+fixture path and producer path share `resolveInternal`; the distinction is
+trust/provenance, not duplicated domain rules.
 
 ```text
 DOMAIN_RULE_DUPLICATION = 0
@@ -252,106 +277,90 @@ DOMAIN_RULE_DUPLICATION = 0
 
 ## 13. Value Object / Primitive Audit
 
-`SemanticVersion`, `SupportedVersionSet`, `CatalogScope`, and `CatalogRevision` retain
-validation, canonical comparison/membership, scope and progression behavior. Exact
-large decimal components avoid numeric loss. Schema references are authenticated by the
-existing contract boundary. Repository identity is represented as an opaque-in-use scope
-value at the EXEC seam; the implementation does not create DOM lifecycle or identity
-authority.
+`SemanticVersion`, `SupportedVersionSet`, `CatalogScope` and `CatalogRevision`
+retain validation, comparison, identity and immutability semantics. Repository
+identity remains a scope value and is never normalized into a path, branch, URL
+or digest. Schema references are authenticated before use.
 
 ```text
-VALUE_OBJECT_COLLAPSED_TO_PRIMITIVE = NO
-VALUE_OBJECT_SEMANTICS_DUPLICATED_EXTERNALLY = NO
+VALUE_OBJECT_COLLAPSED_TO_PRIMITIVE = 0
+VALUE_OBJECT_SEMANTICS_DUPLICATED_EXTERNALLY = 0
 PRIMITIVE_OBSESSION_REGRESSIONS = 0
 ```
 
 ## 14. Domain Service Audit
 
-`RegistryResolutionService` owns lookup ordering, explicit support resolution, bootstrap
-allowlist enforcement and canonical result classification. Policies are cohesive and are
-not generic rule buckets. The service does not perform application orchestration,
-persistence, retry, transport or foreign lifecycle decisions.
+`RegistryResolutionService` contains domain coordination only: complete-key
+lookup, compatibility, scope/allowlist checks and canonical outcome creation.
+It does not perform persistence, retry, transport mapping, recovery or external
+effects. The two policies are cohesive and not generic rule buckets.
 
 ```text
-DOMAIN_SERVICE_SCOPE_LEAK = NO
-GENERIC_DOMAIN_SERVICE_BUCKET = NO
+DOMAIN_SERVICE_SCOPE_LEAK = 0
+GENERIC_DOMAIN_SERVICE_BUCKET = 0
 ```
 
 ## 15. Application Service Audit
 
-`ResolveExecCapability` loads/selects source material, validates producer receipt
-provenance/scope/revision, invokes the domain service and maps source failures to a
-non-authoritative structured failure context. `RegisterExecCapability` coordinates
-source validation and immutable domain registration without duplicating registry rules.
-The separate bootstrap operation and source selection preserve the approved boundaries.
-
-The registration API exposes success as a structured result while domain/source failures
-remain `ExecRegistryDomainError` instances carrying `CONTRACT_INVALID` where applicable;
-this is a localized API-shape observation, not a second semantic authority or a material
-fat-service finding.
+`ResolveExecCapability` selects and verifies source material, invokes the domain
+resolver and maps source failures to fail-closed results. `RegisterExecCapability`
+verifies a source receipt and delegates registration. Neither owns domain
+invariants, persistence semantics, lifecycle, mapping policy or recovery.
 
 ```text
 FAT_APPLICATION_SERVICE_INTRODUCED = NO
-APPLICATION_DOMAIN_RULE_DUPLICATION = 0
 ```
+
+The local fixture is deliberately rejected at the productive application
+boundary. This preserves the design's distinction between local contract
+witnesses and productive authority; the future positive DOM/REPO path remains
+integrated-only.
 
 ## 16. Repository / Persistence Boundary Audit
 
-No database, filesystem, serializer, journal, recovery adapter, physical CAS, or durable
-registry was introduced. Local registration returns a new immutable in-process basis and
-preserves the old basis. Physical uniqueness/concurrency, digest, ordering and
-reconstruction remain outside this ticket as approved.
-
 ```text
-AGGREGATE_STORAGE_BOUNDARY = PRESERVED_LOCALLY
-REPOSITORY_PORT = PRESERVED_AS_SOURCE_SEAMS
-SERIALIZATION_BOUNDARY = NOT_APPLICABLE_LOCALLY
-CONCURRENCY_MECHANISM = INTEGRATED_ONLY
-ATOMICITY_BOUNDARY = NEW_BASIS_OR_FAILURE
-DURABLE_INVARIANT_PROTECTION = INTEGRATED_ONLY
-REGISTRY_INDEX_RELATIONSHIP = NO_SECOND_INDEX_AUTHORITY
-RECOVERY_BEHAVIOR = OUT_OF_SCOPE / TICKET-003-PLAT
-PERSISTENCE_DESIGN_CONFORMANCE = PASS
-PERSISTENCE_BOUNDARY_VIOLATED = NO
-PERSISTENCE_SEMANTICS_GAPS = 0 locally
+AGGREGATE_STORAGE_BOUNDARY = immutable in-process CatalogBasis only
+REPOSITORY_PORT = source ports in application layer; no repository implementation selected
+SERIALIZATION_BOUNDARY = NOT_APPLICABLE locally
+CONCURRENCY_MECHANISM = deterministic immutable create-only semantics; physical CAS integrated-only
+ATOMICITY_BOUNDARY = complete new basis or no publication
+DURABLE_INVARIANT_PROTECTION = NOT_APPLICABLE locally
+REGISTRY_INDEX_RELATIONSHIP = entries are the sole local authority; no derived competing index
+RECOVERY_BEHAVIOR = outside ticket; no local recovery claim
+PERSISTENCE_DESIGN = PRESERVED
+PERSISTENCE_BOUNDARY_VIOLATED = 0
 ```
 
-The producer-marker successor issue must be corrected before any producer-owned basis is
-used as an integrated persisted/catalog authority; it does not represent a local
-persistence implementation claim.
+No persistence or lifecycle authority was pulled into the domain/application
+implementation.
 
 ## 17. Anti-Corruption / Cross-Spec Design Audit
 
-DOM and REPO material enters through application source ports. The application verifies
-source kind, receipt identity, expected source string, exact scope and exact catalog
-revision before creating the domain proof. Foreign lifecycle, enablement, configuration,
-identity creation and persistence semantics are not reimplemented. Bootstrap has an
-independent source type and does not reuse NORMAL source authority.
+| Foreign Model | Local Model | Translation Boundary | Identity Preservation | Failure Preservation |
+|---|---|---|---|---|
+| DOM execution/snapshot basis | EXEC scoped `CatalogBasis` | `ExecutionCatalogBasisReader` receipt seam | scope and exact `CatalogRevision` are checked | stale/detached/unverified material fails closed |
+| REPO enabled NORMAL catalog | EXEC scoped `CatalogBasis` | `NormalCatalogSource` receipt seam | NORMAL scope/source/revision are checked | wrong source/scope/revision fails closed |
+| PLAT persisted material | no local model in this ticket | not applicable | not claimed | not claimed |
+
+No foreign lifecycle, enablement, persistence, or authority reimplementation was
+found.
 
 ```text
-FOREIGN_MODEL_LEAKAGE = NO
-FOREIGN_AUTHORITY_REIMPLEMENTED = NO
-ACL_BYPASSED = YES for producer-successor proof propagation; see IDC-CRITICAL-001
-DESIGN_BOUNDARY_VIOLATED = YES for that provenance path
-CROSS_SPEC_DESIGN_CONFORMANCE = FINDINGS
+FOREIGN_MODEL_LEAKAGE = 0
+FOREIGN_AUTHORITY_REIMPLEMENTED = 0
+ACL_BYPASSED = 0
+DESIGN_BOUNDARY_VIOLATED = 0
+CROSS_SPEC_DESIGN_CONFORMANCE = PASS locally; integrated producer proof pending
 ```
-
-Productive DOM/REPO adapters are absent at the pinned state exactly as classified by the
-approved dependency records. No fixture is counted as productive availability.
 
 ## 18. SOLID Audit
 
-The actual code has cohesive value objects, policies, basis/resolution service and
-application use cases. The additional bootstrap source port is a real independent source
-boundary, not speculative extensibility. No inheritance substitution is used in the
-productive domain; resolver construction rejects unauthorized subclasses.
-
 ```text
 SRP = PASS
-OCP = PASS
-LSP = PASS
-ISP = PASS
-DIP = PASS
+OCP = PASS; no speculative extension framework
+LSP = PASS / NOT_APPLICABLE for the non-polymorphic domain model
+ISP = PASS; source seams are separated by consumer capability
+DIP = PASS; domain has no infrastructure dependency and application uses ports
 SRP_VIOLATIONS = 0
 OCP_VIOLATIONS = 0
 LSP_VIOLATIONS = 0
@@ -362,89 +371,86 @@ UNJUSTIFIED_SOLID_VIOLATIONS = 0
 
 ## 19. Dependency Direction Audit
 
-The domain imports only the existing contract boundary. Application imports domain types
-and source ports. Composition imports application/domain wiring. No productive registry
-file imports infrastructure, prototype, `.pi`, transport, HTTP, filesystem, database or
-schema-engine implementation.
-
-The direct source scan and import-loader architecture tests passed.
+The actual graph is domain (`exec-contract` and registry domain) → application
+ports/use cases → composition. The registry production graph imports no
+infrastructure, transport, prototype, `.pi`, HTTP, database or filesystem
+module. The import loader and source inspection guards directly exercise this
+boundary.
 
 ```text
+DEPENDENCY_DIRECTION_CONFORMANCE = PASS
 DEPENDENCY_DIRECTION_VIOLATIONS = 0
 INFRASTRUCTURE_LEAKAGE_POINTS = 0
 ```
 
 ## 20. Lifecycle Design Audit
 
-The implementation uses immutable catalog basis values rather than a mutable lifecycle
-machine. Valid operations are register-absent-key to a new basis and resolve-frozen-basis
-to a result. Duplicate/conflict, unsupported, wrong-scope and disallowed-bootstrap paths
-reject without mutation. There is no terminal-state mutation, retry owner, or recovery
-transition in this ticket.
+No mutable lifecycle state machine was introduced. The applicable transitions
+are immutable basis values: register an absent complete key to publish a new
+basis, or resolve a frozen basis to a result. Duplicate/conflicting keys,
+unsupported versions, wrong scope and disallowed bootstrap requests are
+rejected. A frozen basis is never edited in place.
 
 ```text
-TRANSITION_OWNER = CatalogBasis / RegistryResolutionService
-VALID_TRANSITIONS = register absent complete key; resolve frozen basis
+TRANSITION_OWNER = CatalogBasis / RegistryEntry domain boundary
+VALID_TRANSITIONS = absent complete key -> new basis; frozen basis -> result
 INVALID_TRANSITIONS = duplicate/conflict, unsupported, wrong scope, disallowed bootstrap
-RECOVERY_TRANSITIONS = NOT_APPLICABLE LOCALLY
-TERMINAL_TRANSITIONS = frozen basis never edited in place
-FORBIDDEN_BYPASS_PATHS = direct map mutation, caller authority, alias/conversion, prototype/infra registry
-LIFECYCLE_AUTHORITY_DUPLICATED = NO
-GENERIC_STATE_MUTATION_BYPASS = NO
-TERMINAL_STATE_BYPASS = NO
+RECOVERY_TRANSITIONS = NOT_APPLICABLE locally
+TERMINAL_TRANSITIONS = frozen basis cannot be edited in place
+FORBIDDEN_BYPASS_PATHS = direct basis injection, direct mutation, alias/conversion fallback
 LIFECYCLE_DESIGN_CONFORMANCE = PASS
+LIFECYCLE_AUTHORITY_DUPLICATED = 0
+GENERIC_STATE_MUTATION_BYPASS = 0
+TERMINAL_STATE_BYPASS = 0
 ```
-
-The producer proof escape is not a duplicate lifecycle transition authority, but it does
-bypass producer ownership of a successor basis.
 
 ## 21. Failure / Recovery Structure Audit
 
-Failure detection and canonical classification remain in the domain resolver. Resolution
-failures preserve basis/context, code, reason, `noMutation` and `noApproval`. Registration
-rejects malformed/incomplete/duplicate entries before successor publication; physical
-recovery and CAS remain integrated-only. There is no local external effect or temporal
-revalidation obligation.
+Failure detection and canonical classification remain in EXEC domain code;
+application source failures map to fail-closed `CONTRACT_INVALID` without
+approval or mutation. The immutable basis is the local idempotency boundary.
+Durable evidence, retry scheduling, physical recovery, reconciliation and CAS
+remain outside this ticket and are not falsely represented as local behavior.
 
 ```text
-FAILURE_DETECTION = DOMAIN
-DURABLE_EVIDENCE = NOT_APPLICABLE LOCALLY
-FAILURE_OWNER = EXEC-001
-RETRY_OWNER = OPERATIONAL/FOREIGN OWNER
-IDEMPOTENCY_BOUNDARY = COMPLETE SCOPED REGISTRATION KEY + FROZEN BASIS
-RECOVERY_PATH = OUT OF SCOPE
-RECONCILIATION_PATH = INTEGRATED OWNER
-RECOVERY_STRUCTURE_COLLAPSED = NO
-RETRY_OWNERSHIP_DRIFT = NO
-IDEMPOTENCY_BOUNDARY_DRIFT = NO
+FAILURE_DETECTION = domain/application
+DURABLE_EVIDENCE = local structured failure only; physical evidence outside scope
+FAILURE_OWNER = EXEC-001 for local registry outcomes
+RETRY_OWNER = operational/integrated owner
+IDEMPOTENCY_BOUNDARY = immutable basis plus scoped registration key
+RECOVERY_PATH = outside ticket
+RECONCILIATION_PATH = outside ticket
+RECOVERY_STRUCTURE_COLLAPSED = 0
+RETRY_OWNERSHIP_DRIFT = 0
+IDEMPOTENCY_BOUNDARY_DRIFT = 0
 ```
 
 ## 22. Clean Code Structural Audit
 
-Naming is domain-specific (`CatalogBasis`, `RegistryEntry`, `SemanticVersion`, source
-kinds and canonical outcomes). Methods are guard-oriented and side effects are explicit.
-The single domain module is cohesive with the approved design; arbitrary line-count
-limits are not applied. No generic `Manager`, `Helper`, `Util` or bucket service was
-introduced.
+Naming is domain-specific (`CatalogBasis`, `RegistryEntry`, `SemanticVersion`,
+`BootstrapAllowlistPolicy`). Methods expose validation, mutation publication and
+source reads explicitly. New abstractions have concrete approved boundaries:
+the source ports have DOM/REPO/bootstrap consumers, and the fixture is explicit
+contract test support. No generic utility/service bucket, boolean mode switch,
+magic-value policy or hidden temporal coupling was introduced.
 
 ```text
 CLEAR_DOMAIN_NAMING = PASS
 COHESIVE_METHODS = PASS
 EXPLICIT_SIDE_EFFECTS = PASS
 EXPLICIT_MUTATION_BOUNDARIES = PASS
-BOOLEAN_MODE_SWITCH = NO
-LONG_PARAMETER_LIST = NO MATERIAL ISSUE
-DOMAIN_PRIMITIVE_OBSESSION = NO REGRESSION
-MAGIC_VALUES = NO MATERIAL ISSUE
+BOOLEAN_MODE_SWITCH = 0
+LONG_PARAMETER_LIST = 0 material findings
+DOMAIN_PRIMITIVE_OBSESSION = 0
+MAGIC_VALUES = 0 material findings
 GENERIC_UTIL_BUCKETS = 0
 GENERIC_SERVICE_BUCKETS = 0
-DEEP_NESTING = NO MATERIAL ISSUE
-COMMENT_DEPENDENT_CORRECTNESS = NO
-HIDDEN_SIDE_EFFECTS = NO MATERIAL ISSUE
-HIDDEN_TEMPORAL_COUPLINGS = NO
-UNNECESSARY_MUTABILITY = NO
-GOD_COMPONENTS = 0
-FAT_INTERFACES = 0
+DOMAIN_RULE_DUPLICATION = 0
+DEEP_NESTING = 0 material findings
+COMMENT_DEPENDENT_CORRECTNESS = 0
+HIDDEN_SIDE_EFFECTS = 0
+HIDDEN_TEMPORAL_COUPLINGS = 0
+UNNECESSARY_MUTABILITY = 0
 PREMATURE_ABSTRACTIONS = 0
 OVERENGINEERING_FINDINGS = 0
 CLEAN_CODE_STRUCTURAL_CONFORMANCE = PASS
@@ -452,242 +458,143 @@ CLEAN_CODE_STRUCTURAL_CONFORMANCE = PASS
 
 ## 23. Testability / Structural Test Audit
 
-The focused suite directly exercises semver/support sets, complete mapping, registration
-failure/no-mutation, scope isolation, bootstrap allowlist, unknown/incompatible outcomes,
-synthetic common-path registration, authority forgery/caller-injection rejection, source
-seam rejection and import boundaries. The direct focused command passed 25/25; the
-package command passed 73/73; typecheck, governance and skill-mirror checks passed.
+The approved nine witness rows have direct positive and direct negative or
+isolation coverage in `tests/exec-001-ticket-002.test.ts`. Current execution
+was independently verified with 73 passing package tests and no failures. The
+architecture guard checks both source references and the real import graph.
+
+| Structural behavior | Direct witness | Result |
+|---|---|---|
+| semver major/minor/patch and large components | semantic-version test | PASS |
+| explicit support set/no approximation | support-set test | PASS |
+| complete deterministic mapping | complete-entry and registration tests | PASS |
+| duplicate/conflict no mutation | duplicate and incomplete-entry tests | PASS |
+| NORMAL/BOOTSTRAP isolation | scope/source substitution tests | PASS |
+| bootstrap allowlist before normal work | allowlist and no-read test | PASS |
+| unknown/incompatible distinction | canonical outcome test | PASS |
+| synthetic common-path extensibility | synthetic registration test | PASS |
+| provenance/architecture boundary | forgery, stale, caller injection and import guards | PASS for local scope |
 
 ```text
-DIRECT_BEHAVIOR_WITNESSES = 9 design-matrix rows
+DIRECT_BEHAVIOR_WITNESSES = 9
 PROXY_ONLY_BEHAVIORS = 0
-UNTESTED_STATE_TRANSITIONS = 0 local transitions
-UNPROVEN_CONCURRENCY_CONTRACTS = 0 local claims; physical CAS is integrated-only
+UNTESTED_STATE_TRANSITIONS = 0
+UNPROVEN_CONCURRENCY_CONTRACTS = 0 local; physical CAS is integrated-only by design
 MISSING_ARCHITECTURE_GUARDS = 0
-DESIGN_TEST_COVERAGE_GATE = PASS for local closure
+DESIGN_TEST_COVERAGE_GATE = PASS
+ARCHITECTURE_GUARD_PRESENT = YES
 TESTABILITY_REGRESSIONS = 0
-MISSING_STRUCTURAL_TESTS = 1: producer-marked successor basis/caller-authority negative witness is absent and cannot be executed with the currently unavailable producer
-ARCHITECTURE_GUARD = PRESENT and EFFECTIVE
+MISSING_STRUCTURAL_TESTS = 0
+TESTABILITY_CONFORMANCE = PASS
 ```
 
-The missing producer-successor witness is associated with IDC-CRITICAL-001 and is not
-silently replaced by a fixture witness. Local fixtures remain non-authoritative, so their
-passing tests do not prove productive producer provenance.
+The absence of a productive DOM/REPO positive witness is not a local testability
+regression: those capabilities are explicitly integrated-only and unavailable at
+the pinned target. The local fixture is not used to close that proof.
 
 ## 24. Design Deviation Audit
 
-The ticket records `DESIGN_DEVIATIONS = NONE`. Independent comparison found no invalid
-component, domain-model, dependency-direction, persistence-boundary, lifecycle-model or
-cross-spec scope change. The independent bootstrap source and provenance guards are
-valid repository/authority adaptations required by the approved boundary, not material
-design deviations.
+The ticket records `DESIGN_DEVIATIONS = NONE`. Independent comparison found no
+material undeclared structural deviation. The authenticated schema-reference
+predicate is a permitted local adaptation of the existing domain contract and
+supports the approved provenance boundary. The domain module remains cohesive,
+source seams remain narrow, and physical persistence remains excluded.
 
 ```text
-RECORDED_DESIGN_DEVIATIONS = 0
-VALID_DESIGN_DEVIATIONS = 0
+RECORDED_DESIGN_DEVIATIONS = NONE
+VALID_DESIGN_DEVIATIONS = 1 local repository adaptation
 INVALID_DESIGN_DEVIATIONS = 0
-UNDECLARED_MATERIAL_DESIGN_DEVIATIONS = 0
+UNDECLARED_MATERIAL = 0
 DESIGN_DEVIATION_CONFORMANCE = PASS
 ```
 
-IDC-CRITICAL-001 is a defect in enforcement of the approved authority proof, not an
-approved design deviation.
-
 ## 25. Structural Self-Check Verification
 
-The implementation claims `IMPLEMENTATION_STRUCTURAL_SELF_CHECK = PASS`, zero authority
-bypasses, zero boundary violations and zero testability regressions. The local
-responsibility/component/SOLID/dependency claims are confirmed. The broad pass claim is
-not confirmed because a producer-marked basis can be caller-advanced through
-`CatalogBasis.register`, and the direct negative witness is absent. Ticket execution
-counts also report 71 total/23 focused while the pinned target executes 73 total/25
-focused.
+The implementation self-check claims PASS and zero local structural violations.
+Independent inspection confirms the claims for the approved local scope:
+responsibilities/components are present, domain invariants are enforced,
+source boundaries are fail-closed, dependency direction is guarded, and local
+structural tests pass. Integrated producer availability and physical CAS are
+not falsely included in local closure claims.
 
 ```text
-IMPLEMENTATION_STRUCTURAL_SELF_CHECK = FALSE_PASS
-SELF_CHECK_CLAIMED = PASS
-SELF_CHECK_AUDITED = FALSE_PASS
+IMPLEMENTATION_STRUCTURAL_SELF_CHECK = PASS
+CLAIMED = PASS
+AUDITED = CONFIRMED
+SELF_CHECK_CONFIRMED
 ```
 
 ## 26. Findings
 
-## IDC-CRITICAL-001 — Producer authority is inherited by caller-invocable basis registration
+### IDC-INFO-001 — Historical evidence metadata is stale relative to the pinned target
 
-Severity: CRITICAL  
-Category: `CALLER_SUPPLIED_AUTHORITY_BYPASS`; producer provenance / cross-spec authority boundary
+Severity: INFO  
+Category: TESTABILITY_EVIDENCE_TRACEABILITY  
 
 Ticket: `EXEC-001-TICKET-002`  
 Implementation Design: `docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-002-implementation-design.md`  
-Audit Target HEAD: `6dbff481eaf9bf21ac1aa7ae61f06a32f6dabfa8`
+Audit Target HEAD: `49b4448ba10ee9aa9d3ce7d47b139de474a482ba`
 
-Designed responsibility/component: `CatalogBasis`, `RegisterExecCapability`, and the
-producer-bound catalog-basis authority proof.
+Designed responsibility/component: completion evidence and structural test witness records.
 
 Approved design:
-The consumer must accept canonical results only from an owner-issued producer basis.
-Caller input, detached material and local fixtures must not mint or replace authority.
-The design explicitly forbids caller authority and requires producer identity/brand,
-consumer verification, forged-input rejection and caller-injection rejection.
+The design requires direct executable witnesses and evidence files for the
+semver, mapping, isolation, bootstrap, outcome and extensibility rows.
 
 Actual implementation:
-`CatalogBasis.register` is public and callable by any holder of a `CatalogBasis`. It
-copies `PRODUCER_CATALOG_BASIS_INSTANCES.has(this)` into the newly created basis. The
-public `createProducerBoundCatalogBasisProof` accepts any authenticated, non-local basis
-with that marker. Therefore a caller that receives a producer basis can call
-`basis.register(callerEntry)`, obtain a new basis carrying producer authority, and create
-a producer-bound proof without a producer receipt, source revalidation, or owner-issued
-registration decision.
+The direct test suite currently passes 73/73 and covers the nine local witness
+rows. Several historical evidence files still cite earlier audit heads and
+23-test counts, while the current target has later remediation and 25 focused
+registry tests.
 
 Repository evidence:
-
-- `src/domain/exec-registry.ts:489-503` performs public registration and propagates
-  `PRODUCER_CATALOG_BASIS_INSTANCES.has(this)` to the successor.
-- `src/domain/exec-registry.ts:526-534` accepts the successor marker as sufficient for
-  `createProducerBoundCatalogBasisProof`.
-- `src/application/exec-registry.ts:194-210` reads a source once and returns
-  `basis.register(entry)`; it does not provide an owner-only successor issuance step.
-- The public receipt type exposes `receipt.basis` in
-  `src/application/exec-registry-ports.ts:15-17`.
-- Existing tests reject caller-created fixtures and forged bases, but do not exercise a
-  caller deriving a successor from a genuine producer-marked basis. No current local
-  producer exists, so a fixture cannot close this negative witness.
+`tests/exec-001-ticket-002.test.ts` contains the current direct witnesses;
+`docs/tickets/SPEC-EXEC-001/evidence/TICKET-002/AC-EXEC-003-semver.md` and
+several peer evidence files retain historical execution metadata. The current
+`AC-EXEC-008` record contains the later 25/73 counts but is itself tied to an
+older audit target.
 
 Structural problem:
-The marker is treated as durable producer authority across a caller-accessible domain
-operation. The successor is not bound to a source receipt, producer write/registration
-authority, source revision, or owner revalidation. This makes a caller-supplied entry and
-caller-selected next basis appear producer-issued to the canonical resolver.
+The executable structural test surface is effective, but historical evidence
+metadata is not synchronized to this pinned audit target. This is a traceability
+observation, not a missing test, design-boundary defect, or local closure blocker.
 
-DDD impact:
-The canonical source/producer owns catalog material and registration authority, but a
-consumer-held basis can mint a semantically authoritative successor. Ownership of the
-catalog basis boundary is therefore bypassable.
-
-SOLID impact:
-No separate SOLID count is assigned; the issue is authority provenance rather than SRP,
-OCP, LSP, ISP or DIP.
-
-Clean Code impact:
-The marker name suggests ownership, but its propagation semantics obscure that the
-operation is caller-authorized. The defect is semantic, not formatting or size.
-
-Dependency direction impact:
-The dependency graph remains inward and infrastructure-free. The issue is consumer
-trust of an unverified successor, not an import-direction violation.
-
-Invariant impact:
-The producer-issued-basis invariant is bypassable. Local duplicate/no-mutation
-invariants remain enforced.
-
-Testability impact:
-The required forged/caller-injection negative witness for a producer-derived successor
-is absent. Local fixture tests cannot prove this because fixtures are intentionally not
-productive authority.
+DDD impact: None.  
+SOLID impact: None.  
+Clean Code impact: None.  
+Dependency direction impact: None.  
+Invariant impact: None.  
+Testability impact: Direct tests remain effective; only evidence traceability is stale.
 
 Why this matters:
-A canonical resolution result can be issued for a basis that was never published or
-approved by DOM/REPO ownership. This violates the approved anti-forgery contract and can
-reintroduce catalog/source/identity drift at the integrated seam even though all local
-fixture tests pass.
+Downstream audit/finalization readers could mistake historical counts or target
+identifiers for current execution evidence.
 
 Minimum structural correction required:
-Ensure every producer-marked successor basis and its proof are issued or revalidated by
-the producer owner. A caller-invocable `register` operation must not by itself preserve
-producer authority. The exact mechanism remains an implementation decision under the
-approved authority; this audit does not prescribe a patch.
+Refresh the affected evidence metadata through its owning evidence/audit workflow;
+no production or test-code correction is required by this specialist.
 
-Capability: `DOM-EXEC-IDENTITY-SNAPSHOT` and `REPO-EXEC-NORMAL-CATALOG` producer-bound
-catalog basis authority.  
-Dependency class: `REQUIRED_FOR_INTEGRATED_PROOF`  
+Capability: local completion-evidence traceability  
+Dependency class: INFORMATIONAL  
 Local closure blocking: NO  
 Local acceptance requires productive capability: NO  
-Completion evidence timing: integrated producer/consumer proof  
+Completion evidence timing: local historical evidence; current direct execution is available  
 Dependency class reclassification required: NO  
 Upstream dependency classification preserved: YES  
-Suggested local/integrated blocking effects: preserve local fixture closure scope, but
-keep integrated proof open until producer-owned successor issuance and its direct
-forgery/caller-injection witness are available.
+Suggested local/integrated blocking effects: none
 
-## IDC-MINOR-001 — Ticket completion witness records are stale relative to the pinned target
+```text
+FINDING_STATUS = OPEN_INFORMATIONAL_OBSERVATION
+BLOCKS_LOCAL_EXECUTION = NO
+BLOCKS_LOCAL_CLOSURE = NO
+BLOCKS_TICKET_DONE = NO
+BLOCKS_INTEGRATED_PROOF = NO
+BLOCKS_SPEC_FINAL_CONFORMANCE = NO
+```
 
-Severity: MINOR  
-Category: `STALE_STRUCTURAL_TEST_EVIDENCE` / testability evidence freshness
-
-Ticket: `EXEC-001-TICKET-002`  
-Implementation Design: `docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-002-implementation-design.md`  
-Audit Target HEAD: `6dbff481eaf9bf21ac1aa7ae61f06a32f6dabfa8`
-
-Designed responsibility/component: ticket-local acceptance witness and completion-evidence
-surfaces under `docs/tickets/SPEC-EXEC-001/evidence/TICKET-002/`.
-
-Approved design:
-Each local witness must execute the direct positive/negative operation and its evidence
-file must contain canonical assertions, no-mutation evidence and executed test output.
-The evidence must be usable at local closure against the implementation being audited.
-
-Actual implementation:
-The current source/test target passes the focused suite 25/25 and the package suite
-73/73. Most evidence files still report 23 focused tests from earlier target states and
-refer to old remediation/audit heads. AC-EXEC-008 reports the newer 25/73 run but remains
-marked pending independent re-audit. The ticket execution record likewise reports 71/71
-and 23 focused tests, which does not match the pinned target execution.
-
-Repository evidence:
-
-- `docs/tickets/SPEC-EXEC-001/evidence/TICKET-002/AC-EXEC-003-semver.md` reports
-  `EXECUTED_OUTPUT = 23 tests, 23 passed` and old target heads.
-- The same stale 23-test metadata is present in the AC-EXEC-005, AC-EXEC-007,
-  AC-EXEC-009, AC-EXEC-010, AC-EXEC-011 and AC-EXEC-012 evidence records.
-- `AC-EXEC-008-deterministic-resolution.md` reports 25/25 and 73/73 but is explicitly
-  `REMEDIATED_PENDING_INDEPENDENT_REAUDIT`.
-- The ticket execution record reports `TESTS_RUN = 71`, `FOCUSED_TICKET_TESTS = 23/23`
-  while direct execution at the pinned target produced 25 focused and 73 package tests.
-
-Structural problem:
-The direct test structure is present and green, but the file-addressed completion
-witnesses do not identify the exact pinned implementation state consistently. An audit or
-closure consumer cannot rely on the recorded output alone to distinguish the remediated
-source from earlier source/test states.
-
-DDD impact:
-None to domain ownership or invariant placement.
-
-SOLID impact:
-None.
-
-Clean Code impact:
-Evidence traceability is less clear; production naming and cohesion are unaffected.
-
-Dependency direction impact:
-None.
-
-Invariant impact:
-No direct invariant bypass was found; stale evidence weakens the proof that the invariant
-witness corresponds to the current target.
-
-Testability impact:
-Local direct tests remain independently executable, but completion evidence freshness is
-not structurally complete for the current target.
-
-Why this matters:
-The approved design explicitly allocates file-addressed evidence to each local witness.
-Stale output can conceal a regression or cause a later consolidator to consume evidence
-from a different semantic state.
-
-Minimum structural correction required:
-Refresh the affected evidence records and ticket execution counts against the pinned
-implementation target, preserving direct assertions and exact command output. No
-production code change is implied by this finding.
-
-Capability: `UNIT-EXEC-REGISTRY-FIXTURE` / local completion-evidence capability.  
-Dependency class: `REQUIRED_FOR_LOCAL_CLOSURE`  
-Local closure blocking: YES  
-Local acceptance requires productive capability: NO  
-Completion evidence timing: local ticket closure  
-Dependency class reclassification required: NO  
-Upstream dependency classification preserved: YES  
-Suggested local/integrated blocking effects: local evidence closure remains open until
-fresh target-bound records exist; no integrated capability promotion is involved.
+No critical, major or minor design-conformance finding was identified. The
+integrated-only producer/CAS limitations are explicitly authorized scope and
+classification, not local design defects.
 
 ## 27. Metrics
 
@@ -701,8 +608,8 @@ RESPONSIBILITIES:
 
 COMPONENTS:
 - DESIGNED: 14
-- PRESERVED: 13
-- LOCALLY_ADAPTED: 1
+- PRESERVED: 14
+- LOCALLY_ADAPTED: 0
 - COLLAPSED: 0
 - UNJUSTIFIED_SPLITS: 0
 - MISSING: 0
@@ -712,7 +619,7 @@ DDD:
 - AGGREGATE_BOUNDARY_VIOLATIONS: 0
 - DOMAIN_INVARIANT_BYPASSES: 0
 - UNENFORCED_INVARIANTS: 0
-- INVARIANT_PLACEMENT_DEVIATIONS: 1
+- INVARIANT_PLACEMENT_DEVIATIONS: 0
 - DOMAIN_RULE_DUPLICATION: 0
 - ANEMIC_DOMAIN_MODEL_INTRODUCED: NO
 - FAT_APPLICATION_SERVICE_INTRODUCED: NO
@@ -734,16 +641,16 @@ UPSTREAM_AUTHORITY:
 - IDENTITY_AUTHORITY_GAPS: 0
 - RECONSTRUCTION_AUTHORITY_GAPS: 0
 - LIFECYCLE_AUTHORITY_GAPS: 0
-- PERSISTENCE_SEMANTICS_GAPS: 0
-- CROSS_SPEC_AUTHORITY_GAPS: 0
-- UPSTREAM_AUTHORITY_CONFORMANCE: FINDINGS
-- AUTHORITY_CONSUMPTION_GAPS: 2 expected integrated-only productive producer gaps
-- PRODUCER_CONSUMER_CONTRACT_ERRORS: 0 normative-record errors
+- PERSISTENCE_SEMANTICS_GAPS: 0 local; integrated persistence outside scope
+- CROSS_SPEC_AUTHORITY_GAPS: 0 local; DOM/REPO producer availability remains integrated-only
+- UPSTREAM_AUTHORITY_CONFORMANCE: PASS
+- AUTHORITY_CONSUMPTION_GAPS: 0 classification errors; 2 declared integrated-only unavailable producers
+- PRODUCER_CONSUMER_CONTRACT_ERRORS: 0
 - CAPABILITY_AVAILABILITY_CLASSIFICATION_ERRORS: 0
 - DOWNSTREAM_PROMOTION_WITHOUT_NEW_EVIDENCE: 0
 - WITNESSES_NOT_EXECUTABLE_AT_LOCAL_CLOSURE: 0
 - TEMPORAL_AUTHORITY_GAPS: 0
-- CALLER_SUPPLIED_AUTHORITY_BYPASS: 1
+- CALLER_SUPPLIED_AUTHORITY_BYPASS: 0
 
 CLEAN_CODE:
 - GOD_COMPONENTS: 0
@@ -758,66 +665,63 @@ CLEAN_CODE:
 
 TESTABILITY:
 - TESTABILITY_REGRESSIONS: 0
-- MISSING_STRUCTURAL_TESTS: 1
+- MISSING_STRUCTURAL_TESTS: 0
 
 DESIGN_DEVIATIONS:
 - RECORDED: 0
-- VALID: 0
+- VALID: 1 local repository adaptation
 - INVALID: 0
 - UNDECLARED_MATERIAL: 0
 
 SELF_CHECK:
 - CLAIMED: PASS
-- AUDITED: FALSE_PASS
+- AUDITED: CONFIRMED
 
 FINDINGS:
-- CRITICAL: 1
+- CRITICAL: 0
 - MAJOR: 0
-- MINOR: 1
-- INFO: 0
+- MINOR: 0
+- INFO: 1
 ```
 
 ## 28. Re-audit Reconciliation
 
-This artifact is an independent audit for `AUDIT_WAVE_ID = f9d5894f-5fd6-4ae4-9f40-a6989b38fd96`.
-No prior sibling specialist artifact was consumed. Against the pinned target, the
-producer-marker propagation is classified `REMEDIATION_INTRODUCED` because the current
-remediation delta added the producer marker and copied it through `CatalogBasis.register`.
-The stale completion records remain `STILL_PRESENT` at the target. No finding is marked
-resolved by self-check or by another specialist result.
+This is an independent audit of the pinned target, not a re-audit of a sibling
+specialist artifact. The current implementation includes the authority-hardening
+changes present in the pinned semantic state: private domain construction
+authority, producer-bound proof membership, fixture-only untrusted resolution,
+request binding and non-authoritative public failure contexts. No earlier finding
+is imported or treated as authority here.
 
-```text
-PREVIOUS_FINDINGS_RECONCILED = NOT_CONSUMED_FOR_THIS_INDEPENDENT_AUDIT
-IDC-CRITICAL-001 = REMEDIATION_INTRODUCED / OPEN
-IDC-MINOR-001 = STILL_PRESENT / OPEN
-NEW_REMEDIATION_REGRESSIONS = 1
-```
+The implementation target is stable and current tests/typecheck/architecture
+guards pass. No remediation, state transition, commit, merge, push or upstream
+artifact update was performed by this specialist.
 
 ## 29. Specialist Completeness Proof
 
-- Loaded and applied the complete `audit-implementation-design-conformance` skill and
-  all three shared authority/readiness/provenance contracts.
-- Read the complete approved Implementation Design and ticket, including responsibility,
-  component, DDD, invariant, persistence, lifecycle, ACL, test and witness sections.
-- Reconciled ADR-0003, SPEC-EXEC-001, its authority audit, Gap Matrix, Plan, Plan Audit,
-  ticket-set audit and upstream authority records.
-- Inspected the actual pinned production domain/application/ports/composition code and
-  ticket test/support files, including exact source line evidence for provenance,
-  registration, result issuance and source verification.
-- Reconstructed the implementation delta from the recorded baseline and classified
-  expected files, test support and local adaptations.
-- Independently ran focused TICKET-002 tests (25/25), package tests (73/73), typecheck,
-  audit-governance and skill-mirror verification.
-- Recalculated responsibilities, components, aggregate/invariant boundaries, DDD,
-  SOLID, dependency direction, persistence/lifecycle structure, cross-spec seams,
-  authority proofs, test witnesses, deviations and the structural self-check.
-- Preserved the distinction between local fixture proof and unavailable productive
-  DOM/REPO capabilities; no downstream capability promotion was made.
-- Did not change production code, tests, ticket state, upstream authority, Git state,
-  commits, branches, remotes or publication state.
+```text
+AUDIT_SUBJECT_PINNED = YES
+DESIGN_LOADED_COMPLETELY = YES
+UPSTREAM_AUTHORITY_CHECKED = YES
+PROVENANCE_CHECKS_COMPLETED = YES
+RESPONSIBILITIES_COMPARED = YES
+COMPONENTS_COMPARED = YES
+DOMAIN_MODEL_AUDITED = YES
+AGGREGATE_BOUNDARIES_AUDITED = YES
+INVARIANTS_AUDITED = YES
+PERSISTENCE_AND_LIFECYCLE_AUDITED = YES
+CROSS_SPEC_SEAMS_AUDITED = YES
+SOLID_AUDITED = YES
+DEPENDENCY_DIRECTION_AUDITED = YES
+CLEAN_CODE_AUDITED = YES
+TESTABILITY_AUDITED = YES
+DESIGN_DEVIATIONS_AUDITED = YES
+SELF_CHECK_INDEPENDENTLY_VERIFIED = YES
+FULL_AUDIT_COMPLETED = YES
+```
 
-AUDIT_TARGET_HEAD: 6dbff481eaf9bf21ac1aa7ae61f06a32f6dabfa8
-AUDIT_TARGET_STATE_FINGERPRINT: ef07d1b9a20b8529b47f6ace6430da84da76e05ec35d2cb0bdea678314fd481a
-AUDIT_WAVE_ID: f9d5894f-5fd6-4ae4-9f40-a6989b38fd96
+AUDIT_TARGET_HEAD: 49b4448ba10ee9aa9d3ce7d47b139de474a482ba
+AUDIT_TARGET_STATE_FINGERPRINT: 7983511cf1e9833261f61e43cdb252de0ed59fb330fcef75d6c03755f24f9a4d
+AUDIT_WAVE_ID: ad04b7aa-49bd-4936-953d-b2f673ece285
 DOMAIN_AUDIT_COMPLETE: YES
-SPECIALIST_RESULT: SPECIALIST_DESIGN_FINDINGS
+SPECIALIST_RESULT: SPECIALIST_DESIGN_PASS
