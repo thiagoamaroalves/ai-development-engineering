@@ -24,11 +24,15 @@ NO_TICKET_CREATION / NO_SELF_APPROVAL
 Recovery intake:
 
 ```text
-REMEDIATION_RECOVERY_MODE = NONE
-INTERRUPTED_ATTEMPT_DETECTED = NO
-CANDIDATE_STATE_CLASSIFICATION = CLEAN
-CANDIDATE_PATHS = NONE
+REMEDIATION_RECOVERY_MODE = RESUME_OR_RECONCILE
+INTERRUPTED_ATTEMPT_DETECTED = YES
+CANDIDATE_STATE_CLASSIFICATION = COMPLETE_CLAIM_UNVERIFIED
+CANDIDATE_PATHS = docs/specs/implementation-plans/SPEC-EXEC-001-implementation-plan.md; docs/specs/implementation-plans/remediations/SPEC-EXEC-001-implementation-plan-remediation.md
 SOURCE_AUDIT_UNMODIFIED = YES
+ACCEPTED_AUTHORITY_UNMODIFIED = YES
+CANDIDATE_PATHS_SUBSET_OF_REMEDIATION_WRITE_BOUNDARY = YES
+NO_UNAUTHORIZED_PRODUCTION_OR_TEST_CHANGE = YES
+SOURCE_AUDIT_IDENTITY = docs/specs/implementation-plans/audits/SPEC-EXEC-001-implementation-plan-audit.md; SHA-256-LF c444762896934f814fabc177ec8333eca95534d38510595fcef5aa35850aa8cb; verdict IMPLEMENTATION_PLAN_REMEDIATION_REQUIRED; basis feee7dab6ec51acbd08c3d7375a9337e18d2a13a9a522f1d766feb9ea17043da
 ```
 
 ## 3. Subject
@@ -40,17 +44,24 @@ IMPLEMENTATION_PLAN = docs/specs/implementation-plans/SPEC-EXEC-001-implementati
 SOURCE_AUDIT = docs/specs/implementation-plans/audits/SPEC-EXEC-001-implementation-plan-audit.md
 SOURCE_AUDIT_VERDICT = IMPLEMENTATION_PLAN_REMEDIATION_REQUIRED
 SOURCE_AUDIT_HEAD = f0b4cebb5b07271aff77b7fb0e685dd90697a997
+CURRENT_HEAD = a9cb8abb981559f82fbe5dca4d4f311b0382d752
 ```
 
 ## 4. Source Audit and Finding Intake Basis
 
 The source audit is the unchanged canonical authority for this remediation.
-It contains three actionable MAJOR findings and one non-blocking MINOR finding;
-all were revalidated before editing. No producer or audit was rerun.
+It contains three actionable MAJOR findings and one non-blocking MINOR finding.
+Under `RESUME_OR_RECONCILE`, every finding was revalidated against the current
+candidate; each remains confirmed and already remedied by the candidate. No
+producer or independent audit was rerun.
 
 ```text
 ACTIVE_FINDINGS = CIPA-MAJOR-001, CIPA-MAJOR-002, CIPA-MAJOR-003, CIPA-MINOR-001
 FINDINGS_ARE_ACTIONABLE = YES
+CANDIDATE_REVALIDATION_COMPLETE = YES
+CANDIDATE_FINDING_CLASSIFICATION = all four ALREADY_RESOLVED_BY_CURRENT_CANDIDATE
+CANDIDATE_REVALIDATION_RESULT = all four findings CONFIRMED; remediation state ALREADY_REMEDIATED
+UNTRUSTED_COMPLETION_CLAIMS_RECONCILED = YES; Plan gate restored to READY_FOR_IMPLEMENTATION_PLAN_AUDIT and no Plan conformance/issue-decomposition claim emitted
 ```
 
 ## 5. Baseline Validation
@@ -63,30 +74,41 @@ GAP_MATRIX_BASELINE = SHA-256 1497c11cb68f15806c505d21e85c5ddc1ae5edc76ae1263159
 PLAN_BASELINE = SHA-256 93daf8648e1d56bdd26e2435b0034252c7f2892064005305ff5b4c02e4921f37
 SOURCE_AUDIT_SHA256_LF = c444762896934f814fabc177ec8333eca95534d38510595fcef5aa35850aa8cb
 AUDIT_HEAD = f0b4cebb5b07271aff77b7fb0e685dd90697a997
-CURRENT_HEAD = 88120016bf3d1f8ffa231ec52d380945bce5612f
-WORKING_TREE_AT_INTAKE = CLEAN
-POST_REMEDIATION_PLAN_SHA256_LF = a8a9ebc0c11dc24efd97017f845d5c11fa0b00e6fd76e72607c0050e9d5571d0
+CURRENT_HEAD = a9cb8abb981559f82fbe5dca4d4f311b0382d752
+REPOSITORY_BASELINE = source-audit semantic baseline eeb906a8f11007ca4fa41e8f0ba5e32daa690567; no src/tests/package.json drift
+CURRENT_REPOSITORY_BASELINE = a9cb8abb981559f82fbe5dca4d4f311b0382d752; no src/tests/package.json drift; authorized dirty Plan/report overlay recorded separately
+WORKING_TREE_AT_INTAKE = DIRTY_AUTHORIZED_CANDIDATE; SOURCE_AUDIT_BASELINE_CLEAN
+WORKING_TREE_STATE = DIRTY_AUTHORIZED_CANDIDATE; exact paths limited to Plan and plan-local remediation report
+POST_REMEDIATION_PLAN_SHA256_LF = 4d93e4373cfb2ef28155c4c6825cd714b8203cd72bae604b489e5c1846f27194
+AUDIT_BASIS_FINGERPRINT = feee7dab6ec51acbd08c3d7375a9337e18d2a13a9a522f1d766feb9ea17043da
+REMEDIATION_CANDIDATE_FINGERPRINT = 854796cbc5a06b0c4b633a3e2dfad4f2bc618e088bda177e17dd021271e4557e
 ```
 
-The current HEAD adds only the source-audit artifact and its guarded audit
-checkpoint after the audit's pinned HEAD. Authority, Gap Matrix, production
-source, tests and package metadata are unchanged. This is checkpoint/document
-progression, not semantic drift.
+The pinned current HEAD preserves the prior plan candidate, its remediation
+report, the historical remediation checkpoint and governance reconciliation.
+The source audit, accepted authority, Gap Matrix, production source, tests and
+package metadata are unchanged. The candidate differs from the audit basis only
+through authorized Plan/report candidate content and documentary checkpoints;
+this is assessed recovery input, not authority drift.
 
 ```text
 BASELINE_DRIFT_STATUS = DRIFT_ASSESSED
-BASELINE_DRIFT_CLASSIFICATION = NON_SEMANTIC_DOCUMENTARY_CHECKPOINT_DRIFT
+BASELINE_DRIFT_CLASSIFICATION = LOCALIZED_PLAN_DRIFT
+DOCUMENTARY_CHECKPOINT_DRIFT = NON_SEMANTIC; candidate overlay is authorized
 REASSESSMENT_COMPLETE = YES
 BASELINE_REMEDIATION_READINESS = READY
 AUDIT_BASIS_STALE = NO
 AUDIT_BASIS_FINGERPRINT = feee7dab6ec51acbd08c3d7375a9337e18d2a13a9a522f1d766feb9ea17043da
+REMEDIATION_CANDIDATE_FINGERPRINT = 854796cbc5a06b0c4b633a3e2dfad4f2bc618e088bda177e17dd021271e4557e
+REMEDIATION_CANDIDATE_OVERLAY = CONSUMED_UNDER_RESUME_OR_RECONCILE
 REMEDIATION_ENTRY_STATE = IMPLEMENTATION_PLAN_REMEDIATION_ALLOWED
 ```
 
 The source audit's complete `BASELINE_REASSESSMENT_PROOF` is consumed without
-changing its old/current authority records. The live authority and semantic
-repository fingerprint match that proof; the only intervening paths are the
-source audit and its checkpoint.
+changing its old/current authority records. The live authority fingerprint
+matches that proof. The live repository includes the authorized candidate
+overlay, so the interrupted-remediation exception is applied without promoting
+the candidate to a new audit basis or skipping independent re-audit.
 
 ## 6. Authority Context
 
@@ -117,12 +139,20 @@ classifications, severities, exact deltas and owners are preserved.
 
 | Finding | Validation | Root Cause | Plan Change | Evidence | Result |
 |---|---|---|---|---|---|
-| CIPA-MAJOR-001 | CONFIRMED | Full integrated witnesses were represented as local ACs despite unavailable foreign/durable capabilities. | Rewrote IMP-06/07/10/11 local criteria and witness matrices to distinguish locally provable EXEC-owned contributions from plan-level integrated proof; retained original Acceptance IDs and named CP-EXEC-03/04 stages. | Affected unit sections, witness rows, closure/readiness text, §11, §15, §17, §19 and §20. | REMEDIATED |
-| CIPA-MAJOR-002 | CONFIRMED | IMP-07 was final proof owner while IMP-06 was a listed contributor scheduled later. | Added semantic DAG edge `IMP-06 → IMP-07`, made IMP-07 depend on IMP-06, and reordered waves/checkpoint evidence. IMP-07 remains the sole owner. | §13 DAG, §14 waves, §15 CP-EXEC-03, §11 AC-EXEC-015 row. | REMEDIATED |
-| CIPA-MAJOR-003 | CONFIRMED | IMP-10 preceded listed contributor IMP-11 for AC-EXEC-018 and CP-EXEC-05 omitted IMP-11. | Assigned IMP-11 as the sole Final Proof Owner, retained IMP-02/10/11 contributors, added IMP-11 to CP-EXEC-05 and made CP-EXEC-04 evidence a prerequisite. | §11 AC-EXEC-018 row, §15 CP-EXEC-04/05, IMP-10/11 evidence text. | REMEDIATED |
-| CIPA-MINOR-001 | CONFIRMED | Required plan metric dimensions were absent and closure counts reflected the old misallocation. | Added portfolio/proof/rehydration/blocker/capability metrics and reconciled closure, readiness, witness, final-proof, DAG and authority values. | §20 Plan Metrics. | REMEDIATED |
+| CIPA-MAJOR-001 | CONFIRMED; candidate revalidated | Full integrated witnesses were represented as local ACs despite unavailable foreign/durable capabilities. | Current candidate contains the corrected IMP-06/07/10/11 local criteria and witness matrices, separating EXEC-owned local contribution from plan-level integrated proof while retaining the Acceptance IDs and CP-EXEC-03/04 stages. | Affected unit sections, witness rows, closure/readiness text, §11, §15, §17, §19 and §20. | ALREADY_REMEDIATED |
+| CIPA-MAJOR-002 | CONFIRMED; candidate revalidated | IMP-07 was final proof owner while IMP-06 was a listed contributor scheduled later. | Current candidate contains the `IMP-06 → IMP-07` acceptance-order edge, corrected prerequisite, waves and checkpoint evidence; IMP-07 remains the sole owner. | §13 DAG, §14 waves, §15 CP-EXEC-03, §11 AC-EXEC-015 row. | ALREADY_REMEDIATED |
+| CIPA-MAJOR-003 | CONFIRMED; candidate revalidated | IMP-10 preceded listed contributor IMP-11 for AC-EXEC-018 and CP-EXEC-05 omitted IMP-11. | Current candidate assigns IMP-11 as sole Final Proof Owner, retains IMP-02/10/11 contributors, includes IMP-11 in CP-EXEC-05 and consumes CP-EXEC-04 evidence. | §11 AC-EXEC-018 row, §15 CP-EXEC-04/05, IMP-10/11 evidence text. | ALREADY_REMEDIATED |
+| CIPA-MINOR-001 | CONFIRMED; candidate revalidated | Required plan metric dimensions were absent and closure counts reflected the old misallocation. | Current candidate contains the required portfolio/proof/rehydration/blocker/capability metrics and reconciled closure, readiness, witness, final-proof, DAG and authority values. | §20 Plan Metrics. | ALREADY_REMEDIATED |
 
-No finding was rejected, superseded, partially remediated or blocked.
+No finding was rejected, superseded, partially remediated or blocked. The
+existing semantic corrections in the candidate satisfy all four findings, so
+this recovery records them as `ALREADY_REMEDIATED`; no additional unit-boundary
+or authority change was needed. The untrusted Plan completion/readiness claim was
+reconciled by setting the Plan's audit-intake gate to
+`READY_FOR_IMPLEMENTATION_PLAN_AUDIT`; this report separately emits
+`READY_FOR_INDEPENDENT_IMPLEMENTATION_PLAN_REAUDIT` as the mandatory
+independent re-audit handoff. The source audit and historical checkpoint remain
+unchanged.
 
 ## 9. Gap Coverage Changes
 
@@ -178,6 +208,7 @@ contribution witness. Local Completion Evidence is limited to that contribution.
 LOCAL_CLOSURE_CHANGES = 4 unit closure-scope reconciliations
 LOCAL_AC_REQUIRING_DOWNSTREAM = 0
 LOCAL_AC_CONTRADICTING_DOES_NOT_IMPLEMENT = 0
+LOCAL_AC_SCOPE_CONTRADICTIONS = 0
 LOCAL_AC_REQUIRING_UNAVAILABLE_FOREIGN_CAPABILITY = 0
 LOCAL_CLOSURE_WITH_UNAVAILABLE_REQUIRED_CAPABILITY = 0
 WITNESSES_NOT_EXECUTABLE_AT_LOCAL_CLOSURE = 0
@@ -294,8 +325,8 @@ ordering now reconcile.
 ```text
 FINDINGS_RECEIVED = 4
 FINDINGS_CONFIRMED = 4
-FINDINGS_REMEDIATED = 4
-FINDINGS_ALREADY_REMEDIATED = 0
+FINDINGS_REMEDIATED = 0
+FINDINGS_ALREADY_REMEDIATED = 4
 FINDINGS_REJECTED_BY_VALID_EVIDENCE = 0
 FINDINGS_PARTIAL = 0
 FINDINGS_BLOCKED = 0
@@ -310,6 +341,7 @@ GAPS_WITHOUT_PLAN_COVERAGE = 0
 
 IMPLEMENTATION_UNITS = 11
 UNITS_CHANGED = 4
+RECOVERY_RECONCILIATION_SEMANTIC_UNIT_CHANGES = 0
 LOCALLY_CLOSABLE_UNITS = 11
 NON_LOCALLY_CLOSABLE_UNITS = 0
 ISSUE_DECOMPOSITION_READY_UNITS = 11
@@ -335,6 +367,7 @@ CROSS_SPEC_DEPENDENCY_CHANGES = 0
 
 LOCAL_AC_REQUIRING_DOWNSTREAM = 0
 LOCAL_AC_CONTRADICTING_DOES_NOT_IMPLEMENT = 0
+LOCAL_AC_SCOPE_CONTRADICTIONS = 0
 LOCAL_AC_REQUIRING_UNAVAILABLE_FOREIGN_CAPABILITY = 0
 LOCAL_CLOSURE_WITH_UNAVAILABLE_REQUIRED_CAPABILITY = 0
 WITNESSES_NOT_EXECUTABLE_AT_LOCAL_CLOSURE = 0
@@ -393,9 +426,21 @@ ISSUES_CHANGED = NO
 COMPLETE_CURRENT_REMEDIATION_EVIDENCE = YES
 REMEDIATION_REPORT_SOURCE_AUDIT = docs/specs/implementation-plans/audits/SPEC-EXEC-001-implementation-plan-audit.md
 REMEDIATION_REPORT_BASIS = feee7dab6ec51acbd08c3d7375a9337e18d2a13a9a522f1d766feb9ea17043da
-REMEDIATION_REPORT_PLAN_SHA256_LF = a8a9ebc0c11dc24efd97017f845d5c11fa0b00e6fd76e72607c0050e9d5571d0
-REMEDIATION_REPORT_FINDING_LEDGER = COMPLETE; 4/4 findings exactly once
+REMEDIATION_REPORT_PLAN_SHA256_LF = 4d93e4373cfb2ef28155c4c6825cd714b8203cd72bae604b489e5c1846f27194
+REMEDIATION_REPORT_FINDING_LEDGER = COMPLETE; 4/4 findings exactly once; all ALREADY_REMEDIATED
 REMEDIATION_INVARIANTS = PASS
+HISTORICAL_REMEDIATION_CHECKPOINT = docs/workflow-checkpoints/SPEC-EXEC-001-component-implementation-plan-remediation.md; PRESERVED_HISTORY_ONLY; NOT_CURRENT_MARKER
+CANONICAL_ARTIFACT_CONSISTENCY = PASS
+CURRENT_PLAN_STATUS = PROPOSED
+CURRENT_PLAN_VERDICT = NOT_EMITTED_BY_REMEDIATOR; independent Plan audit owns the conformance verdict
+CURRENT_REMEDIATION_VERDICT = COMPONENT_IMPLEMENTATION_PLAN_REMEDIATION_COMPLETE
+CURRENT_IMPLEMENTATION_PLAN_GATE = READY_FOR_IMPLEMENTATION_PLAN_AUDIT
+ISSUE_DECOMPOSITION_GATE = NOT_READY_FOR_ISSUE_DECOMPOSITION; independent Plan re-audit remains required
+CONSISTENCY_FIELDS_CHECKED = STATUS, VERDICT, IMPLEMENTATION_PLAN_GATE, READY_FOR_IMPLEMENTATION_PLAN_AUDIT, READY_FOR_ISSUE_DECOMPOSITION, NEXT_AUTHORIZED_OPERATION
+CONSISTENCY_CONTRADICTIONS = NONE
+ROUTING_DERIVATION = Implementation Plan gate READY_FOR_IMPLEMENTATION_PLAN_AUDIT -> audit-component-implementation-plan
+NEXT_AUTHORIZED_OPERATION = audit-component-implementation-plan
+REMEDIATION_CANDIDATE_FINGERPRINT = 854796cbc5a06b0c4b633a3e2dfad4f2bc618e088bda177e17dd021271e4557e
 GATE = READY_FOR_INDEPENDENT_IMPLEMENTATION_PLAN_REAUDIT
 ```
 

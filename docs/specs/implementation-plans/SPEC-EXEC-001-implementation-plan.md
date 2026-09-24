@@ -41,7 +41,7 @@ GAP_MATRIX_CONFORMANT
 READY_FOR_IMPLEMENTATION_PLAN
 ```
 
-The next independent gate is `READY_FOR_IMPLEMENTATION_PLAN_AUDIT`.
+The generation and audit-intake gate is `READY_FOR_IMPLEMENTATION_PLAN_AUDIT`. The remediation report records `READY_FOR_INDEPENDENT_IMPLEMENTATION_PLAN_REAUDIT` as the mandatory independent re-audit handoff.
 
 ## 2. Planning Authority
 
@@ -1905,5 +1905,5 @@ zero units inventing identity, lifecycle, provenance, ownership, recovery or per
 ```
 
 ```text
-IMPLEMENTATION_PLAN_GATE: REMEDIATION_PENDING_INDEPENDENT_REAUDIT
+IMPLEMENTATION_PLAN_GATE: READY_FOR_IMPLEMENTATION_PLAN_AUDIT
 ```
