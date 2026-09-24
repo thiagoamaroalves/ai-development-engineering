@@ -11,6 +11,8 @@ metadata:
 
 # Checkpoint Component SPEC Audit
 
+Read `../_shared/phase-checkpoint-contract.md` completely before acting.
+
 Create one local checkpoint for the exact current component-SPEC audit baseline.
 This operation preserves audit authority and routing evidence; it does not
 remediate the SPEC, select missing semantics, modify downstream planning, or

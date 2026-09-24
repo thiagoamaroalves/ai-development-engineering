@@ -64,6 +64,12 @@ That operation has its own exact allowlist and local checkpoint protocol; it
 must not be treated as permission to discard, stash, or mix unrelated changes
 into a ticket checkpoint.
 
+Phase-specific checkpoint skills preserve audited and remediated SPEC, Gap
+Matrix, Implementation Plan, and ticket-set baselines before the next mutation
+or independent re-audit. They are not interchangeable with
+`checkpoint-implemented-ticket`; each exact allowlist and canonical next
+operation must be evidenced.
+
 ## Controller rule
 
 For `implement-ready-tickets`, `remediate-implemented-ticket`, and
