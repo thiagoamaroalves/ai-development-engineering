@@ -38,6 +38,11 @@ const requiredContracts = {
     "FINDING_LINEAGE_LEDGER_PATH",
     "FINDING_LINEAGE_LEDGER_COMPLETE",
   ],
+  "canonical-artifact-consistency-contract.md": [
+    "IMPLEMENTATION_PLAN_GATE",
+    "CANONICAL_ARTIFACT_CONSISTENCY = PASS | FAIL",
+    "ROUTING_DERIVATION",
+  ],
 };
 
 const requiredSkillMarkers = {
@@ -77,6 +82,11 @@ const requiredSkillMarkers = {
   "audit-implementation-design-conformance": [
     "authority-provenance-anti-forgery-contract.md",
     "CALLER_INJECTION_REJECTED",
+  ],
+  "checkpoint-component-implementation-plan-remediation": [
+    "canonical-artifact-consistency-contract.md",
+    "verify:canonical-consistency",
+    "CANONICAL_ARTIFACT_CONSISTENCY = PASS",
   ],
 };
 

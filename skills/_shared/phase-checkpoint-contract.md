@@ -16,7 +16,9 @@ A phase checkpoint MUST:
 - reject every staged path outside that allowlist;
 - reject production/test/upstream/downstream files unless the phase skill
   explicitly lists them;
-- run the phase-required validation and `git diff --cached --check`;
+- run the phase-required validation and the canonical artifact consistency
+  check for routing fields before staging;
+- run `git diff --cached --check`;
 - allow intentional two-space Markdown hard breaks only in independent audit
   Markdown artifacts;
 - create exactly one local commit with the phase skill's marker and message;
@@ -42,6 +44,7 @@ PHASE_CHECKPOINT_COMPLETE
 CHECKPOINT_HEAD = <new commit>
 PARENT_HEAD = <parent>
 PRESERVED_PATHS = <count>
+CANONICAL_ARTIFACT_CONSISTENCY = PASS
 NEXT_AUTHORIZED_OPERATION = <canonical next operation>
 ```
 

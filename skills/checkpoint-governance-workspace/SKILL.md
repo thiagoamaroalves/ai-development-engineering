@@ -43,6 +43,7 @@ For the current governance reconciliation, the explicit allowlist is:
 ```text
 .gitignore
 README.md
+package.json
 docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-envelope-schema-contract.md
 docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-003-registry-entry-reconstruction.md
 docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-004-contract-verdict-failure-semantics.md
@@ -75,8 +76,10 @@ current component audit is `PASS — COMPONENT_SPEC_CONFORMANT`, its readiness i
 and Gap Matrix production was interrupted. Candidates are never treated as
 complete.
 
-`skills/**` is the canonical versioned source. `.codex/`, `.pi/`,
-`node_modules/`, production source, tests, and unrelated ticket paths are not
+`skills/**` is the canonical versioned source. `package.json` is included only
+for workflow verification-script registration; it must not contain production
+or ticket behavior changes. `.codex/`, `.pi/`, `node_modules/`, production
+source, tests, and unrelated ticket paths are not
 included. Codex mirror changes remain generated/ignored and are not committed
 by this checkpoint.
 
