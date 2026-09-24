@@ -3,11 +3,35 @@
 Status: PROPOSED
 Planning source: validated component Implementation Gap Matrix
 
-This plan defines HOW the validated EXEC-001 implementation deltas may be closed. It does not redefine ADR, portfolio, component SPEC, upstream contracts, ownership, failure meaning, compatibility/cutover authority, or Gap Matrix classifications. It does not implement code, modify tests, mutate the Gap Matrix, or create tickets.
+This plan defines HOW the validated EXEC-001 implementation deltas may be closed. It does not redefine ADR, portfolio, SPEC, upstream contracts, ownership, failure meaning, compatibility/cutover authority, or Gap Matrix classifications. It does not implement code, modify tests, mutate the Gap Matrix, create tickets, or approve the plan.
+
+```text
+Portfolio: docs/specs/SPEC-PORTFOLIO-001-organization.md
+Portfolio audit: docs/specs/SPEC-PORTFOLIO-001-decomposition-audit.md
+Component SPEC: docs/specs/SPEC-EXEC-001-skill-contracts-and-capability-registry.md
+Component SPEC audit: docs/specs/audits/SPEC-EXEC-001-component-conformance-audit.md
+Validated Gap Matrix: docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md
+Gap Matrix audit: docs/specs/gap-matrices/audits/SPEC-EXEC-001-implementation-gap-matrix-audit.md
+Repository baseline: 6b11695154b73a99e35418bfd952795f2028a3bf; source-audit baseline eeb906a8f11007ca4fa41e8f0ba5e32daa690567
+Current HEAD: dfa70c4ea67bb0bb50c79d01a0e8fb4b135c3998
+Baseline drift: NON_SEMANTIC_DOCUMENTARY_DRIFT; no authority or semantic implementation/test drift
+```
 
 ## 1. Status
 
-Planning is authorized by the latest independent evidence:
+```text
+ARTIFACT_PRODUCTION_RECOVERY = RESUME_OR_RECONCILE
+INTERRUPTED_OUTPUT_ATTEMPT = YES
+OUTPUT_CANDIDATE_CLASSIFICATION = COMPLETE_CLAIM_UNVERIFIED
+OUTPUT_CANDIDATE_PATHS = docs/specs/implementation-plans/SPEC-EXEC-001-implementation-plan.md
+SOURCE_AUTHORITY_AUDIT_UNMODIFIED = YES
+SOURCE_AUTHORITY_VERDICT = GAP_MATRIX_CONFORMANT
+SOURCE_AUTHORITY_READINESS = READY_FOR_IMPLEMENTATION_PLAN
+```
+
+The prior candidate was untrusted because it used SPEC revision 3, an older Gap Matrix basis and a stale Plan audit. It has been reconciled from the current conformant Gap Matrix and its current independent audit. No checkpoint or downstream Plan audit was performed.
+
+Current planning gates:
 
 ```text
 PORTFOLIO_DECOMPOSITION_APPROVED
@@ -17,32 +41,34 @@ GAP_MATRIX_CONFORMANT
 READY_FOR_IMPLEMENTATION_PLAN
 ```
 
-The next independent gate is `READY_FOR_IMPLEMENTATION_PLAN_AUDIT`. This artifact is not an approval and does not authorize issue decomposition before that audit.
+The next independent gate is `READY_FOR_IMPLEMENTATION_PLAN_AUDIT`.
 
 ## 2. Planning Authority
 
-| Artifact | Path | Revision / result | Use |
+| Artifact | Path | Current identity / result | Use |
 |---|---|---|---|
-| Accepted ADR authority | `docs/adrs/ADR-0001-workflow-domain-and-identity.md`; `ADR-0002`; `ADR-0003`; `ADR-0006`; `ADR-0009`; `ADR-0010`; related accepted ADRs | revision 3, `ACCEPTED`, `UNPROCESSED` | architecture and boundaries |
-| Portfolio | `docs/specs/SPEC-PORTFOLIO-001-organization.md` | revision 2 | owners, obligations, dependency direction, failure and compatibility registries |
+| Accepted ADR authority | `docs/adrs/ADR-0001-workflow-domain-and-identity.md` through `ADR-0014-*` | revision 3, `ACCEPTED` | architecture and boundaries |
+| Primary ADR | `docs/adrs/ADR-0003-versioned-skill-contracts.md` | revision 3, `ACCEPTED` | EXEC contracts, versions, registry, manifest |
+| Portfolio | `docs/specs/SPEC-PORTFOLIO-001-organization.md` | revision 2 | ownership, obligations, dependency direction, failure and compatibility registries |
 | Portfolio audit | `docs/specs/SPEC-PORTFOLIO-001-decomposition-audit.md` | `PORTFOLIO_DECOMPOSITION_APPROVED` | independent decomposition approval |
-| Component SPEC | `docs/specs/SPEC-EXEC-001-skill-contracts-and-capability-registry.md` | revision 3, `PROPOSED` | owned behavior and acceptance |
+| Component SPEC | `docs/specs/SPEC-EXEC-001-skill-contracts-and-capability-registry.md` | revision 5, `PROPOSED` | owned behavior and acceptance |
 | Component SPEC audit | `docs/specs/audits/SPEC-EXEC-001-component-conformance-audit.md` | `PASS — COMPONENT_SPEC_CONFORMANT`; `SPEC_IMPLEMENTABILITY_CHECK = PASS` | authority completeness and implementability |
 | Upstream SPEC | `docs/specs/SPEC-DOM-001-workflow-authority-and-governance.md` | revision 4 | canonical DOM identity, snapshot and lifecycle contract |
 | Upstream audit | `docs/specs/audits/SPEC-DOM-001-component-conformance-audit.md` | `PASS — COMPONENT_SPEC_CONFORMANT` | upstream authority proof |
-| Validated Gap Matrix | `docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md` | 17 active gaps, 19 requirements | validated implementation delta |
+| Validated Gap Matrix | `docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md` | 18 active gaps, 19 requirements | validated implementation delta |
 | Gap Matrix audit | `docs/specs/gap-matrices/audits/SPEC-EXEC-001-implementation-gap-matrix-audit.md` | `GAP_MATRIX_CONFORMANT`; `READY_FOR_IMPLEMENTATION_PLAN` | independent matrix validation |
-| Repository plan convention | `docs/specs/implementation-plans/SPEC-DOM-001-implementation-plan.md` | existing convention | section, unit, DAG and metric structure |
+| Source checkpoint | `docs/workflow-checkpoints/SPEC-EXEC-001-component-gap-matrix-conformance.md` | conformance checkpoint, source unchanged | planning handoff |
+| Plan convention | `docs/specs/implementation-plans/SPEC-DOM-001-implementation-plan.md` | repository convention | section, unit, DAG and metric structure |
 
-The authority hierarchy is:
+Authority order:
 
 ```text
 accepted ADR
-  > approved portfolio decomposition
+  > approved SPEC portfolio decomposition
   > conformant component SPEC
   > conformant upstream component SPEC
-  > validated Gap Matrix
-  > repository implementation
+  > validated component Gap Matrix
+  > current repository implementation
   > tests
   > prototype / historical evidence
 ```
@@ -51,156 +77,159 @@ This plan does not redefine ADR, portfolio, SPEC, or Gap Matrix authority.
 
 ## 3. Frozen Baselines
 
+Hashes are LF-normalized where stated by the source audit.
+
 | Baseline | Frozen value |
 |---|---|
-| Portfolio | revision 2; SHA-256 `c449388972279d8add520564a9614cfa236f87b6c8932a70d5bc2d28eef6be86` |
+| Portfolio | `SPEC-PORTFOLIO-001` rev 2; SHA-256 `c449388972279d8add520564a9614cfa236f87b6c8932a70d5bc2d28eef6be86` |
 | Portfolio audit | SHA-256 `120f22d0080ac0640ebbdad7c460df5de2745788cfaea83a1859f2c577168104` |
-| Primary ADR-0003 | revision 3, `ACCEPTED`; SHA-256 `6325234bb9c927a6d2b38886206119c643a05718f6db8cce8df5625653260073` |
-| Related authority ADRs | ADR-0001 `33705082...d06d50`; ADR-0002 `ef9289...e177d9`; ADR-0006 `ab3957...cc6b2`; ADR-0009 `4ab502...5761`; ADR-0010 `874b77...c186`; all revision 3 and accepted |
-| Component SPEC | revision 3; SHA-256 `b55e106c3b2e239f28e3ba3d2a0e75fbb9c840a3697acc2d1f540777b284b053` |
-| Component SPEC audit | current working artifact SHA-256 `d0eea5fc93afcc254d022512b6a8ed9902fe152a885ccfd7f2ac51e609a9a6f1` |
-| Upstream SPEC | SPEC-DOM-001 revision 4; SHA-256 `cb4a21924d9619b8349d6cc239d7998633c402d7ea3d7461c2d4d8498f9a014c` |
+| Component SPEC | `SPEC-EXEC-001` rev 5; SHA-256 `556f4b5ad0b1c8f10d4fd00964d84e1af5bb959724d023eed9bda12a282411b2` |
+| Component SPEC audit | SHA-256 `fae060d0595ceecf81daa56b7a5a9a597d503f974d20bdcd8eb3e6d1fc4add2e` |
+| Upstream SPEC | `SPEC-DOM-001` rev 4; SHA-256 `cb4a21924d9619b8349d6cc239d7998633c402d7ea3d7461c2d4d8498f9a014c` |
 | Upstream audit | SHA-256 `9bbea969820f3705354ee6ca76110039f747d9aa60c84e1a19cae49f01158c15` |
-| Gap Matrix | SHA-256 `c1aac7122a25131608123d2eef20aa3c8962e9985f2042d13f024840e3fdde7c` |
-| Gap Matrix audit | current working artifact SHA-256 `d27facb97a8455fa9a08d74d54281cf8ab8596da1f4fa5ce96159d75d1592962` |
-| Gap Matrix audit basis fingerprint | `c833e06a9a98616a55de16d97420b9937da097c37690f904554831bef726e347` |
-| Repository baseline / current HEAD | `381218d5fbf8d969ee5ae5349b8f65c4cd5af7f9` |
-| Working tree | documentation-dirty: expected SPEC/audit/remediation/Gap Matrix artifacts modified or untracked; no `src`, test, prototype or `.pi` implementation drift |
+| Gap Matrix | SHA-256 `1497c11cb68f15806c505d21e85c5ddc1ae5edc76ae126315958aa4f5d2c19de` |
+| Gap Matrix audit | SHA-256 `d83f85266ca47560b9efb34190d2da2569f7957a0ecae5941c4e1bd3cef11b80` |
+| Gap Matrix audit basis | `HEAD:11e238e8e70ea0a57507eb428df1255b5216abc5; semantic authority/source/test combined SHA-256: 8d0b784c2cb16f189dd990efb07ade80a9d7ba64d0f15cc17e95f94edf830683` |
+| Matrix assessed repository baseline | `6b11695154b73a99e35418bfd952795f2028a3bf` |
+| Source-audit repository baseline | `eeb906a8f11007ca4fa41e8f0ba5e32daa690567` |
+| Current repository HEAD | `dfa70c4ea67bb0bb50c79d01a0e8fb4b135c3998` |
+| Working tree at intake | clean; existing candidate is a tracked untrusted output, not authority |
 
 ## 4. Baseline Drift Assessment
 
 ```text
 AUTHORITY_DRIFT = NO_RELEVANT_DRIFT
 IMPLEMENTATION_DRIFT = NO_RELEVANT_DRIFT
-PLANNING_DRIFT = NO_RELEVANT_DRIFT
-BASELINE_DRIFT_STATUS = NO_RELEVANT_DRIFT
+PLANNING_DRIFT = NON_SEMANTIC_DOCUMENTARY_DRIFT
+BASELINE_DRIFT_STATUS = NON_SEMANTIC_DOCUMENTARY_DRIFT
+SOURCE_AUTHORITY_UNMODIFIED = YES
 ```
 
-The live HEAD equals the validated repository baseline. Current target authority hashes and the Gap Matrix audit basis agree with the planning inputs. Documentation dirtiness is expected evidence material and is not implementation drift. No Gap status requires revalidation; no authority revalidation, matrix regeneration or planning blocker is present.
+The current HEAD is later than the Gap Matrix audit basis only through the conformance checkpoint and related governance documentation. `git diff 6b116951..HEAD` contains no changes under `src`, `tests` or `package.json`; the semantic source/test combined tree remains the audited SHA-256. Accepted ADRs, portfolio ownership/dependencies, component SPEC revision 5, upstream SPEC revision 4, failure ownership and compatibility ownership are unchanged. Therefore no Gap status requires revalidation, no authority revalidation is required, and no Gap Matrix regeneration is permitted or needed.
 
 ## 5. Validated Gap Intake
 
-The matrix contains 17 distinct active gaps covering all 19 requirements. Every gap is carried without reclassification or broadening.
+The current Matrix contains 18 distinct active gaps. Every identity, classification, severity, owner and delta is carried without reclassification or broadening.
 
-| Gap | Requirement(s) | Obligation(s) | Category / severity | Owner | Validated delta |
+| Gap | Requirement(s) | Obligation(s) | Category / severity | Local owner | Validated delta |
 |---|---|---|---|---|---|
-| GAP-001 | EXEC-ENVELOPE-001/002 | O-016 | MISSING / MAJOR | EXEC-001 | Productive common envelope, payload and schema validation are absent. |
-| GAP-002 | EXEC-CONTRACT-001 | O-019 | MISSING / MAJOR | EXEC-001 | Productive invalid JSON/schema fail-closed result is absent. |
-| GAP-003 | EXEC-CONTRACT-002 | O-019 | MISSING / MAJOR | EXEC-001 | Productive unknown/absent verdict rejection is absent. |
-| GAP-004 | EXEC-VERSION-001/002 | O-017 | MISSING / MAJOR | EXEC-001 | Productive semver meaning and explicit supported-set resolution are absent. |
-| GAP-005 | EXEC-SNAPSHOT-001 | O-018 | CONTRADICTORY / MAJOR | EXEC-001 semantic basis; DOM snapshot owner | Caller-selected versions can establish productive snapshot state; authoritative EXEC binding is absent. |
-| GAP-006 | EXEC-REGISTRY-001 | O-020 | MISSING / MAJOR | EXEC-001 | Productive deterministic frozen-basis registry resolution is absent. |
-| GAP-007 | EXEC-REGISTRY-004 | O-020 | MISSING / MAJOR | EXEC-001 with DOM/PLAT boundary | Scoped registry identity, persistence, reconstruction, continuity and invalid-material rejection are absent. |
-| GAP-008 | EXEC-REGISTRY-002 | O-020 | MISSING / MAJOR | EXEC-001 | Independent NORMAL and BOOTSTRAP catalogs are absent. |
-| GAP-009 | EXEC-REGISTRY-003 | O-020 | MISSING / MAJOR | EXEC-001 with REPO consumer | Bootstrap allowlist and normal-capability rejection are absent. |
-| GAP-010 | EXEC-CAPABILITY-001 | O-020 | MISSING / MAJOR | EXEC-001 | Productive compatible/unknown/incompatible capability resolution is absent. |
-| GAP-011 | EXEC-CAPABILITY-002 | O-020 | MISSING / MAJOR | EXEC-001 | Productive registry-only synthetic capability extensibility is absent. |
-| GAP-012 | EXEC-MANIFEST-001 | O-021 | MISSING / MAJOR | EXEC-001 with DOM/PLAT boundary | Complete identity-bound immutable manifest is absent. |
-| GAP-013 | EXEC-MANIFEST-002 | O-021 | MISSING / MAJOR | EXEC-001 with EXEC-002/PLAT boundary | Safe checkpoint and resume-basis declaration is absent. |
-| GAP-014 | EXEC-MANIFEST-004 | O-018/O-021 | MISSING / MAJOR | EXEC-001 with DOM/PLAT boundary | Manifest identity, attachment, digest and semantic rehydration are absent. |
-| GAP-015 | EXEC-HISTORY-001 | O-021 | MISSING / MAJOR | EXEC-001 with PLAT boundary | Original-basis historical replay is absent. |
-| GAP-016 | EXEC-FAILURE-001 | O-019 | MISSING / MAJOR | EXEC-001 with mapping boundaries | Structured failure emission and meaning-preserving mappings are absent. |
-| GAP-017 | EXEC-MANIFEST-003 | O-018/O-021 | MISSING / MAJOR | EXEC-001 with DOM boundary | Started manifest/schema/exact-version freeze and new-attempt cutover are absent. |
+| GAP-001 | `EXEC-CONTRACT-002` | O-019 | `BEHAVIOR_CONTRADICTORY` / MAJOR | EXEC-001 | Unknown non-empty verdict passes generic validation and returns `VALID`; it must produce `VERDICT_UNKNOWN` without approval. |
+| GAP-002 | `EXEC-VERSION-002`, `EXEC-REGISTRY-001`, `EXEC-REGISTRY-004`, `EXEC-CAPABILITY-001` | O-017, O-020 | `BEHAVIOR_CONTRADICTORY` / MAJOR | EXEC-001 | Overlapping supported sets are admitted and a candidate is selected by ordering; overlap must reject with no selection or mutation. |
+| GAP-003 | `EXEC-SNAPSHOT-001` | O-018 | `BEHAVIOR_CONTRADICTORY` / MAJOR | EXEC-001 at DOM boundary | Caller versions establish snapshot basis; exact EXEC authority must supply the basis. |
+| GAP-004 | `EXEC-REGISTRY-001` | O-020 | `BEHAVIOR_PARTIAL` / MAJOR | EXEC-001 | Expected revision, mutation key, atomic publication, idempotency and productive basis are absent. |
+| GAP-005 | `EXEC-REGISTRY-004` | O-020 | `BEHAVIOR_PARTIAL` / MAJOR | EXEC-001 with DOM/PLAT boundary | Semantic persisted reconstruction, digest/source progression and rehydration are absent. |
+| GAP-006 | `EXEC-REGISTRY-002` | O-020 | `DEPENDENCY_INTEGRATION_GAP` / MAJOR | EXEC-001 with REPO/DOM/source boundary | NORMAL and BOOTSTRAP separation exists locally, but owner-issued productive sources are unavailable. |
+| GAP-007 | `EXEC-CAPABILITY-001` | O-020 | `BEHAVIOR_PARTIAL` / MAJOR | EXEC-001 with catalog source boundary | Local outcome distinctions exist, but productive source-bound resolution is unavailable. |
+| GAP-008 | `EXEC-CAPABILITY-002` | O-020 | `BEHAVIOR_PARTIAL` / MAJOR | EXEC-001 with source/publication boundary | Synthetic local registration exists, but productive source publication authority is unavailable. |
+| GAP-009 | `EXEC-MANIFEST-001` | O-021 | `BEHAVIOR_MISSING` / MAJOR | EXEC-001 with DOM/PLAT boundary | No productive complete immutable activity manifest exists. |
+| GAP-010 | `EXEC-MANIFEST-002` | O-021 | `BEHAVIOR_MISSING` / MAJOR | EXEC-001 with EXEC-002/PLAT boundary | No productive checkpoint/resume-basis declaration exists. |
+| GAP-011 | `EXEC-MANIFEST-003` | O-018, O-021 | `BEHAVIOR_MISSING` / MAJOR | EXEC-001 with DOM boundary | No started-basis freeze or new-attempt cutover surface exists. |
+| GAP-012 | `EXEC-MANIFEST-004` | O-018, O-021 | `BEHAVIOR_MISSING` / MAJOR | EXEC-001 with DOM/PLAT boundary | No manifest tuple identity, attachment validator or semantic rehydration exists. |
+| GAP-013 | `EXEC-HISTORY-001` | O-021 | `BEHAVIOR_MISSING` / MAJOR | EXEC-001 with PLAT boundary | No original-basis historical replay surface exists. |
+| GAP-014 | `EXEC-FAILURE-001` | O-019 | `BEHAVIOR_PARTIAL` / MAJOR | EXEC-001 with mapping boundaries | Failure code/family/basis/cause/processing-state and mapping completeness are incomplete. |
+| GAP-015 | `EXEC-REGISTRY-001`, `EXEC-REGISTRY-004` | O-020 | `BEHAVIOR_MISSING` / MAJOR | EXEC-001 with source/PLAT boundary | Expected revision, stale rejection, one-successor rule and idempotent retry are absent. |
+| GAP-016 | `EXEC-REGISTRY-001`, `EXEC-REGISTRY-002`, `EXEC-REGISTRY-004`, `EXEC-CAPABILITY-001` | O-020 | `DEPENDENCY_INTEGRATION_GAP` / MAJOR | EXEC-001 with DOM/REPO/BOOTSTRAP/PLAT boundaries | Owner-issued exact basis material and productive source consumption are absent; fixtures cannot be promoted. |
+| GAP-017 | `EXEC-REGISTRY-001`, `EXEC-REGISTRY-004`, `EXEC-CAPABILITY-002` | O-020 | `BEHAVIOR_CONTRADICTORY` / MAJOR | EXEC-001 with source/publication boundary | Plain `REGISTERED` result claims successor authority without issuer/publication proof. |
+| GAP-018 | `EXEC-ENVELOPE-001` | O-016 | `BEHAVIOR_PARTIAL` / MAJOR | EXEC-001 | Generic payload schema accepts arbitrary object data; capability-specific identifiable schema selection/validation is absent. |
 
 ## 6. Planning Ownership Classification
 
 | Planning type | Gaps | Count | Treatment |
 |---|---|---:|---|
-| LOCAL_IMPLEMENTATION_WORK | GAP-001, GAP-002, GAP-003, GAP-004, GAP-006, GAP-007, GAP-008, GAP-009, GAP-010, GAP-011, GAP-012, GAP-013, GAP-014, GAP-016 | 14 | Implement EXEC-owned semantic contracts and local conformance behavior. |
-| INTEGRATION_OR_CONVERGENCE_WORK | GAP-005, GAP-015, GAP-017 | 3 | Bind or preserve EXEC-owned basis at approved DOM/PLAT boundaries; foreign ownership remains foreign. |
-| CROSS_SPEC_DEPENDENCY | None as a primary gap type | 0 | Explicit prerequisites are recorded separately. |
-| PREEXISTING_FOREIGN_CAPABILITY | None | 0 | No productive foreign EXEC capability closes a target gap. |
-| TEST_OR_CONFORMANCE_WORK | None as a primary gap type | 0 | Evidence is attached to behavior units, not artificial production units. |
-| NO_LOCAL_WORK | None | 0 | Every active gap has a local EXEC contribution. |
+| `LOCAL_IMPLEMENTATION_WORK` | GAP-001, GAP-002, GAP-004, GAP-005, GAP-007, GAP-009, GAP-010, GAP-011, GAP-012, GAP-013, GAP-014, GAP-015, GAP-018 | 13 | Implement or correct EXEC-owned semantic behavior and local contract witnesses. |
+| `CROSS_SPEC_DEPENDENCY` | GAP-006, GAP-016 | 2 | Consume defined owner-issued source contracts; productive producers remain foreign and integrated-proof-only. |
+| `INTEGRATION_OR_CONVERGENCE_WORK` | GAP-003, GAP-008, GAP-017 | 3 | Converge the EXEC-owned contract with approved DOM/source/publication boundaries without transferring ownership. |
+| `PREEXISTING_FOREIGN_CAPABILITY` | none | 0 | No foreign productive EXEC capability closes a target gap. |
+| `TEST_OR_CONFORMANCE_WORK` | none as primary type | 0 | Evidence is attached to the behavior unit, not made into artificial production work. |
+| `NO_LOCAL_WORK` | none | 0 | Every active Gap has a local EXEC contribution or explicit foreign handoff. |
 
 ## 7. Repository Planning Evidence
 
-The matrix and repository inspection establish these planning boundaries:
-
 | Evidence | Planning interpretation |
 |---|---|
-| `src/application/snapshot.ts:19-25,36-43,59-71` | Existing DOM consumer accepts caller `versions`; preserve as the validated contradiction in GAP-005, not as EXEC authority. |
-| `src/domain/snapshot.ts:124-143` | Existing non-empty-string validation is insufficient for authoritative EXEC version resolution. |
-| `.pi/extensions/workflow-orchestrator/subagents-client.ts:52-68` and `full-orchestrator.ts` | Real generic delegation consumer exists, but is not a registry, schema authority or canonical failure producer. |
-| `src/domain/*`, `src/application/*` | Existing productive code is DOM authority/consumer evidence only; no productive EXEC canonical surface was found. |
-| `prototype/src/mockDomain.ts`, `prototype/tests/*` | Scenario/UX evidence only; cannot prove persistence, recovery, registry authority, productive availability or external effects. |
-| Root and prototype test evidence | Existing passes do not close any absent EXEC gap; new direct witnesses are required. |
-| No productive EXEC schemas, registry/catalog, manifest persistence/replay or failure surface | Implementation work is required; physical persistence, context application, transport and projection remain foreign seams. |
+| `src/domain/exec-schema.ts` (`PAYLOAD_SCHEMA_DOCUMENT`) | Generic `data` object is schema-valid but not capability-specific; extend the contract seam without freezing a schema library. |
+| `src/application/exec-contract.ts` (`ValidateExecContract.validate`) | Envelope/payload are validated, but verdict membership and capability-specific schema selection are not performed here. |
+| `src/domain/exec-registry.ts` (`CatalogBasis.register`, `RegistryResolutionService.resolveInternal`) | Local immutable entries and fixtures exist; registration lacks overlap/progression/mutation semantics and resolution sorts/selects candidates. |
+| `src/application/exec-registry.ts` (`ResolveExecCapability`, `RegisterExecCapability`) | Caller basis is rejected and fixtures are rejected at productive seams, but productive DOM/REPO/source issuers and source-bound registration proof are unavailable. |
+| `src/application/snapshot.ts`, `src/domain/snapshot.ts` | Caller `versions` can establish snapshot state; this is the validated contradiction to converge at the EXEC/DOM boundary. |
+| `src/application/exec-registry-ports.ts` and `src/composition/exec-registry.ts` | Source ports and fixture/productive distinction exist; no productive NORMAL/BOOTSTRAP producer is available. |
+| `tests/exec-001-ticket-001.test.ts`, `tests/exec-001-ticket-002.test.ts` | Existing tests prove local schema/registry boundary behavior only; they do not prove capability-specific schemas, overlap rejection, productive source availability, durability, replay or physical CAS. |
+| No productive manifest/checkpoint/replay surface under `src` | New semantic contract seams and direct witnesses are required; PLAT physical persistence remains foreign. |
+| Prototype files and prototype tests | Scenario/history evidence only; not authority or productive availability. |
 
-Expected Repository Impact is planning guidance, not normative design authority. Likely impact is the currently absent EXEC contract/registry/manifest boundary, direct productive tests, and typed integration seams to DOM, PLAT, REPO, EXEC-002, BACKEND, OPS and UI. No class, module, library, schema technology, database, route or protocol is frozen here.
+Expected Repository Impact is planning guidance, not normative design authority. Likely impact is the existing EXEC schema/registry/application seams, the snapshot consumer boundary, a new EXEC manifest/checkpoint/replay semantic surface, and direct productive tests. No class, module, library, database, route or protocol is frozen by this plan.
 
 ## 8. Reuse Assessment
 
-| Surface | Assessment |
-|---|---|
-| Existing DOM snapshot consumer | `REPLACE_CONTRADICTORY_PATH` at the authority boundary only; preserve DOM identity/lifecycle ownership and do not move DOM semantics into EXEC. |
-| Generic delegation runtime | `ADD_INTEGRATION_SEAM`; consume EXEC contracts once available, but do not promote it to registry authority. |
-| Prototype envelope/version/checkpoint-shaped values | `REUSE_UNCHANGED` as scenario evidence only; never promote to production authority. |
-| Productive test harness | `ADD_NEW_CAPABILITY` for direct EXEC contract/registry/manifest witnesses; retain existing unrelated tests. |
-| Physical persistence and recovery | `ADD_INTEGRATION_SEAM`; PLAT owns storage, integrity, ordering and recovery. |
-| Normal repository configuration | `ADD_INTEGRATION_SEAM`; REPO supplies enabled configuration and does not define EXEC semantics. |
-| Session/context application | `ADD_INTEGRATION_SEAM`; EXEC-002 applies context and owns session/assignment behavior. |
-| Backend/OPS/UI mappings | `ADD_INTEGRATION_SEAM`; mappings/projectors preserve canonical failure and basis meaning. |
+| Surface | Assessment | Boundary |
+|---|---|---|
+| Generic envelope/schema validation | `REUSE_AND_EXTEND` | preserve authenticated schema evidence while adding capability-specific schema identity/selection |
+| Generic payload `data` acceptance | `REPLACE_CONTRADICTORY_PATH` | reject structurally generic payloads that lack capability schema authority |
+| Version/registry domain values | `REUSE_AND_EXTEND` | preserve explicit SemVer, immutable values and scoped keys; add overlap/progression/mutation rules |
+| Fixture catalog/source ports | `REUSE_UNCHANGED` for local contract evidence | fixtures remain non-authoritative and never prove productive availability |
+| Productive source boundaries | `ADD_INTEGRATION_SEAM` | consume DOM/REPO/BOOTSTRAP-issued material; do not create foreign authority |
+| Snapshot consumer | `REPLACE_CONTRADICTORY_PATH` at authority seam | caller versions become assertions; DOM identity/lifecycle remain DOM-owned |
+| Manifest/checkpoint/replay | `ADD_NEW_CAPABILITY` | no productive implementation exists; preserve PLAT/EXEC-002 boundaries |
+| Existing tests | `REUSE_AND_EXTEND` | retain passing regression tests and add direct positive/negative witnesses |
 
 ## 9. Implementation Units
 
-Nine units are formed by cohesive semantic and closure boundaries, not mechanically one-per-gap. All units have upstream authority for identity, lifecycle, provenance, persistence meaning and ownership. External capabilities are classified `REQUIRED_FOR_INTEGRATED_PROOF`, so local contract witnesses do not require unavailable productive foreign implementations. For mixed requirements, each unit's acceptance criteria and witness matrix are explicitly the locally owned contribution; the complete cross-SPEC obligation is proved only by the final-proof owner and integration checkpoint shown in §11 and §15.
+Units are formed by coherent semantic and closure boundaries, not mechanically one per Gap. Every unit has validated Gap backing, upstream authority for identity/lifecycle/provenance/persistence meaning/ownership, local acceptance witnesses, and an explicit distinction between local contract evidence and later integrated proof.
 
-### EXEC-IMP-01 — Envelope and schema contract
+### EXEC-IMP-01 — Capability-specific envelope and payload schemas
 
 `UNIT_FORMATION_REASON = SHARED_AUTHORITY + SHARED_COMMAND_BOUNDARY + SHARED_CONFORMANCE`
 
 #### Goal
 
-Make the common envelope and capability payload schema contract validatable with the required structured fields, while keeping text non-authoritative.
+Make the envelope and capability payload validation select identifiable capability-appropriate schema authority, while preserving structured minimum fields and non-authority of human text.
 
 #### Authority and Ownership
 
-- Primary component SPEC: `SPEC-EXEC-001` §§9, 11, 13, 14; `EXEC-ENVELOPE-001/002`.
-- Portfolio obligations: `O-016`; approved ownership role `CANONICAL_OWNER`.
-- Local ownership: envelope/payload contract shape, schema identity and validation result.
-- Cross-spec dependencies: downstream consumers map this contract; they do not define it.
-- Foreign capabilities consumed: none for local closure; integration mappings are integrated-proof-only.
-- Authority Consumption Proof: `ACP-EXEC-01`; accepted ADR-0003 and SPEC requirements deterministically define all local decisions.
+- Primary component SPEC: `SPEC-EXEC-001`, `EXEC-ENVELOPE-001/002`.
+- Portfolio obligation: `O-016`; approved role `CANONICAL_OWNER`.
+- Local ownership: envelope/payload schema identity, capability-specific schema selection, validation result and structured-field requirements.
+- Cross-spec dependencies: downstream consumers map this contract only.
+- Foreign capabilities consumed: none required for local closure.
+- Authority Consumption Proof: target SPEC audit §12 and §17–§18; `SPEC_IMPLEMENTABILITY_CHECK = PASS`.
 - Authority consumption result: `AUTHORITY_CONSUMABLE` for local contract semantics.
-- Availability condition: unit-owned contract harness is locally executable; no productive foreign producer is required for local closure.
+- Availability condition: unit-owned contract harness is executable locally; fixture status is not productive availability.
 
 #### Gap Matrix Coverage
 
-`GAP-001`; requirements `EXEC-ENVELOPE-001`, `EXEC-ENVELOPE-002`; acceptance `AC-EXEC-001`, `AC-EXEC-002`; conformance `C-EXEC-001`, `C-EXEC-002`.
+`GAP-018`; requirement `EXEC-ENVELOPE-001`; regression coverage for implemented `EXEC-ENVELOPE-002`; acceptance `AC-EXEC-001`, `AC-EXEC-002`.
 
 #### Portfolio Obligation Coverage
 
-`O-016`; approved role `CANONICAL_OWNER`.
+`O-016`; `CANONICAL_OWNER`.
 
 #### Validated Delta
 
 ```text
-OBSERVED: no productive identifiable envelope/payload schemas or validator.
-REQUIRED: common envelope and capability payload validate before consumption;
-          minimum fields are structured and text is non-authoritative.
-DELTA:    add the EXEC-owned contract validation boundary and direct witnesses.
+OBSERVED: fixed generic payload schema accepts capabilityId plus arbitrary object data.
+REQUIRED: capability payload is validated against an identifiable capability-appropriate schema before consumption; minimum envelope remains structured.
+DELTA: add capability-specific schema authority and selection without freezing a mechanism.
 ```
 
 #### Required Behavior
 
-`LOCAL_BEHAVIOR`: valid envelope/payload pairs are accepted only through identifiable schemas; missing or text-only fields are rejected. `END_TO_END_CONTRIBUTION`: consumers receive a structured contract they can map without interpreting prose.
+`LOCAL_BEHAVIOR`: valid envelope and capability payload use registered identifiable schemas; a structurally generic but capability-invalid payload is rejected as `CONTRACT_INVALID`. `END_TO_END_CONTRIBUTION`: consumers receive a contract whose payload meaning is not inferred from text or generic shape.
 
 #### Does Not Implement
 
-DOM lifecycle or identity; registry resolution; physical persistence; runtime/session execution; external effects; transport routes; UI/OPS presentation; final cross-SPEC conformance.
+DOM identity/lifecycle; registry resolution; source publication; physical persistence; execution/session runtime; external effects; transport routes; UI/OPS presentation; final cross-SPEC conformance.
 
 #### Repository Evidence
 
-No productive EXEC schema/runtime was found. Prototype-shaped envelope fields are `REUSE_UNCHANGED` as scenario evidence only. Existing generic delegation is `ADD_INTEGRATION_SEAM`, not schema authority.
+`src/domain/exec-schema.ts`, `src/application/exec-contract.ts`, `src/infrastructure/exec-schema-validator.ts`, and `tests/exec-001-ticket-001.test.ts`. Reuse the authenticated validation/result boundary; replace only the generic capability-payload path.
 
 #### Expected Repository Impact
 
-Absent EXEC contract/schema boundary and direct contract tests; downstream mapping seams may consume the result. This is guidance, not normative design.
+EXEC schema definitions, contract validation application seam and direct schema tests. Expected Repository Impact is planning guidance, not normative design authority.
 
 #### Implementation Constraints
 
-Preserve structured minimum fields, schema-identifiable validation, fail-closed semantics, and non-authority of text. Do not select schema technology or freeze physical representation.
+Preserve identifiable schemas, structured minimum fields, fail-closed invalid payload behavior and text non-authority. Do not choose schema library or physical format here.
 
 #### Internal Prerequisites
 
@@ -208,61 +237,59 @@ None.
 
 #### Cross-Spec Prerequisites
 
-None for local closure. BACKEND/OPS/UI mapping contracts are required only at integrated proof.
+None for local closure. Downstream mappings are `REQUIRED_FOR_INTEGRATED_PROOF` only.
 
 #### Producer / Consumer Contract Proof
 
-`PCP-EXEC-01` (full record in §12): unit-owned schema contract is consumed by EXEC failure/verdict and registry units; no foreign productive capability is required for this unit's local witnesses.
+`CAPABILITY_ID = EXEC-SCHEMA-CAPABILITY-PAYLOAD`; `AUTHORITY_OWNER = EXEC-001`; `PRODUCER = EXEC schema authority`; `PRODUCED_CONTRACT = identifiable capability-specific payload schema`; `CONSUMER = EXEC contract validator`; `CONSUMED_CAPABILITY = capability-specific payload validation`; `SEMANTIC_STATUS = DEFINED`; `LOCAL_TESTABILITY = YES`; `PRODUCTIVE_AVAILABILITY = NO` for the fixture harness; `CAPABILITY_SUMMARY_STATUS = CONTRACT_TESTABLE_LOCALLY`; `AVAILABILITY_EVIDENCE = direct schema harness`; `AVAILABILITY_CONDITION = local contract execution`; `DEPENDENCY_CLASS = INFORMATIONAL`; `DEPENDENCY_EDGE = unit-owned`; `PROOF_EVIDENCE = SPEC-EXEC-001 EXEC-ENVELOPE-001 and audit §12`.
 
 #### Capability Availability and Blocking Effect
 
-| Capability | Authority | Contract | Local testability | Productive availability | Dependency class | Blocking effect |
-|---|---|---|---|---|---|---|
-| Unit-owned EXEC schema harness | DEFINED | DEFINED | YES | NO (fixture, not producer) | INFORMATIONAL | none; local witness is contract-level |
+The local harness is testable but is not a productive foreign producer. It has no blocking effect because it is an informational local witness capability.
 
 #### Temporal Authority Preconditions
 
-`NOT_APPLICABLE`: this unit validates immutable contract input and does not observe mutable external authority before committing an effect.
+`NOT_APPLICABLE`; this unit validates immutable contract input and does not observe mutable external authority before committing an effect.
 
 #### Acceptance Criteria
 
-1. Valid envelope and payload are accepted only when both identifiable schemas validate; text-only input is not accepted (`LOCAL_PROVABILITY = YES`).
-2. Missing minimum structured fields are rejected as invalid contract, with no implied approval, checkpoint or effect (`LOCAL_PROVABILITY = YES`).
+1. A valid envelope and capability-specific payload pass their identifiable schemas; a generic payload with capability-invalid data is rejected (`LOCAL_PROVABILITY = YES`).
+2. Missing minimum structured fields or text-only authority produce `CONTRACT_INVALID` and cannot imply approval, checkpoint or effect (`LOCAL_PROVABILITY = YES`).
 
 #### ACCEPTANCE_WITNESS_MATRIX
 
-| Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Evidence | Owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at closure | Evidence type |
+| Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Expected evidence | Acceptance owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at local closure | Evidence type |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Envelope/payload schema validation | validate | C-EXEC-001 / AC-EXEC-001 | result contract | valid pair accepted | text-only or invalid schema rejected | `C-EXEC-001` evidence | EXEC-IMP-01 | unit-owned schema harness | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
-| Minimum structured envelope | reject | C-EXEC-002 / AC-EXEC-002 | result contract | complete fields accepted | missing field yields `CONTRACT_INVALID` | `C-EXEC-002` evidence | EXEC-IMP-01 | unit-owned schema harness | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Capability payload schema selection | validate | `C-EXEC-001` / `AC-EXEC-001` | result contract | valid capability schema accepted | generic-but-capability-invalid payload rejected | schema witness | EXEC-IMP-01 | local schema harness | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Structured envelope minimum | reject | `C-EXEC-002` / `AC-EXEC-002` | result contract | complete fields accepted | missing/text-only input → `CONTRACT_INVALID` | minimum-field witness | EXEC-IMP-01 | local schema harness | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
 
 #### Local Closure
 
-`LOCAL_CLOSURE = YES`. All local criteria and completion evidence are executable with the unit-owned contract harness; no downstream unit or foreign capability is required.
+`LOCAL_CLOSURE = YES`. All local criteria and completion evidence are executable with the local contract harness; no downstream unit or unavailable foreign capability is required.
 
 #### Work Can Start
 
-`WORK_CAN_START = YES`; `EXECUTION_READY = YES` for this unit.
+`WORK_CAN_START = YES`; `EXECUTION_READY = TRUE` for this unit.
 
 #### Shared Closure Boundary
 
-`SHARED_CLOSURE_BOUNDARY = YES` for the two envelope gaps: same EXEC owner, schema/structured-field invariant, command boundary and identical contract-level closure evidence.
+`SHARED_CLOSURE_BOUNDARY = YES` for the schema and structured-envelope facets; no registry or manifest behavior is merged.
 
 #### Required Tests
 
-Direct valid/invalid schema tests, missing-field tests, text-only rejection, non-approval/non-effect assertions and regression tests for the existing generic delegation consumer boundary.
+Direct capability-specific schema positive/negative tests, missing-field tests, text-only rejection, schema identity mismatch, no-approval/no-effect assertions and regression of existing authenticated validation.
 
 #### Legacy / Cutover Impact
 
-`NEW_CANONICAL_PATH`; no legacy EXEC authority exists. Historical/prototype formats are evidence only and are not silently converted.
+`NEW_CANONICAL_PATH`; generic payload acceptance is retired as a contradictory local authority path. No legacy schema is silently converted.
 
 #### Completion Evidence
 
-Passing direct contract witness report for `C-EXEC-001/002`, schema-identifiable validation behavior, and proof that text-only input cannot be consumed as authority. All completion evidence is locally producible.
+Direct `C-EXEC-001/002` witness report, schema identity/selection evidence, generic-payload rejection and passing retained regression tests.
 
 #### Risks
 
-Text fallback, schema identity omission, and accidental promotion of a transport/prototype shape to authority.
+Generic payload fallback, schema identity omission and transport/prototype shape promotion.
 
 #### Issue Decomposition Readiness
 
@@ -274,62 +301,58 @@ Text fallback, schema identity omission, and accidental promotion of a transport
 
 ---
 
-### EXEC-IMP-02 — Version, registry resolution, catalogs and capability extensibility
+### EXEC-IMP-02 — Verdict registry and structured failure semantics
 
-`UNIT_FORMATION_REASON = SHARED_AUTHORITY + SHARED_INVARIANT + SHARED_COMMAND_BOUNDARY + SHARED_CONFORMANCE`
+`UNIT_FORMATION_REASON = SHARED_AUTHORITY + SHARED_CONFORMANCE + SHARED_INTEGRATION_SEAM`
 
 #### Goal
 
-Make semver/support-set interpretation, deterministic frozen-basis resolution, NORMAL/BOOTSTRAP separation, bootstrap allowlisting and registry-only capability extensibility locally true.
+Make unknown verdicts and incomplete contract failures fail closed with structured, meaning-preserving failure data.
 
 #### Authority and Ownership
 
-- Primary component SPEC: `SPEC-EXEC-001` §§12.1, 13, 14; `EXEC-VERSION-001/002`, `EXEC-REGISTRY-001/002/003`, `EXEC-CAPABILITY-001/002`.
-- Portfolio obligations: `O-017`, `O-020`; approved role `CANONICAL_OWNER`.
-- Local ownership: semantic version classification, supported-set result, registry mapping, catalog scope separation, allowlist and common extensibility path.
-- Foreign capabilities: DOM execution basis and REPO enabled configuration are consumed only as integrated proof; no foreign lifecycle or enablement is local.
-- Authority Consumption Proof: `ACP-EXEC-02`; ADR-0003, ADR-0010 and the conformant SPEC define all decisions.
-- Authority consumption result: `AUTHORITY_CONSUMABLE` for local semantics; integrated DOM/REPO availability remains non-blocking.
+- Primary component SPEC: `EXEC-CONTRACT-001/002`, `EXEC-FAILURE-001`.
+- Portfolio obligation: `O-019`; approved role `CANONICAL_OWNER`.
+- Local ownership: `CONTRACT_INVALID`, `VERDICT_UNKNOWN`, code/family/basis/cause/processing-state and no-success semantics.
+- Foreign capabilities consumed: DOM lifecycle rejection and downstream mappings are integrated-proof-only.
+- Authority Consumption Proof: target SPEC audit §§12, 18–21; DOM audit §§21, 28–29.
+- Authority consumption result: local failure semantics consumable; mappings cannot redefine them.
 
 #### Gap Matrix Coverage
 
-`GAP-004`, `GAP-006`, `GAP-008`, `GAP-009`, `GAP-010`, `GAP-011`; requirements `EXEC-VERSION-001/002`, `EXEC-REGISTRY-001/002/003`, `EXEC-CAPABILITY-001/002`; acceptance `AC-EXEC-003`, `AC-EXEC-004`, `AC-EXEC-008`, `AC-EXEC-009`, `AC-EXEC-010`, `AC-EXEC-011`, `AC-EXEC-012`.
+`GAP-001`, `GAP-014`; requirements `EXEC-CONTRACT-002`, `EXEC-FAILURE-001`; implemented `EXEC-CONTRACT-001` is retained as regression evidence; acceptance `AC-EXEC-006`, `AC-EXEC-007`, `AC-EXEC-017`, `AC-EXEC-018`.
 
 #### Portfolio Obligation Coverage
 
-`O-017`, `O-020`; approved role `CANONICAL_OWNER`.
+`O-019`; `CANONICAL_OWNER`.
 
 #### Validated Delta
 
 ```text
-OBSERVED: no productive version authority, registry/catalog resolver,
-          bootstrap catalog/allowlist or extensibility path.
-REQUIRED: explicit semver/support sets, deterministic frozen-basis mapping,
-          independent catalogs, canonical unknown/incompatible outcomes and
-          common registry extensibility.
-DELTA:    add the EXEC-owned registry resolution boundary without moving DOM
-          identity, REPO enablement or consumer mapping ownership.
+OBSERVED: unknown non-empty verdict returns VALID; structured failure lacks complete basis/cause/state mapping.
+REQUIRED: unknown/absent verdict is VERDICT_UNKNOWN and every failure preserves canonical non-success meaning.
+DELTA: add verdict membership/classification and complete structured failure semantics.
 ```
 
 #### Required Behavior
 
-`LOCAL_BEHAVIOR`: resolve complete registered entries against the requested frozen basis; distinguish supported, unknown and incompatible cases; keep NORMAL repository-scoped and BOOTSTRAP system-scoped; reject normal capability in bootstrap; register a synthetic capability through the common path without mutating a frozen basis. `END_TO_END_CONTRIBUTION`: DOM/REPO/EXEC-002/BACKEND consume the same registry contract.
+`LOCAL_BEHAVIOR`: absent/unknown verdict fails as `VERDICT_UNKNOWN`; malformed schema remains `CONTRACT_INVALID`; failure preserves code/family, contract/version/basis, cause, processing state and retryability without approval/effect implication. `END_TO_END_CONTRIBUTION`: DOM/BACKEND/OPS/UI can map the result without changing meaning.
 
 #### Does Not Implement
 
-DOM `RepositoryId` or execution lifecycle; repository onboarding/enablement; sessions, leases or dispatch; physical persistence; external effects; transport/UI/OPS mapping.
+DOM state transition; transport status; logging/UI implementation; effect execution/reconciliation; retry scheduler; foreign failure families.
 
 #### Repository Evidence
 
-No productive registry or semver resolver exists. Prototype catalogs are `REUSE_UNCHANGED` as non-authoritative scenario evidence. Generic delegation is `ADD_INTEGRATION_SEAM` only.
+`src/application/exec-contract.ts`, `src/domain/exec-contract.ts`, `src/domain/exec-schema.ts` and current contract tests. Preserve existing `CONTRACT_INVALID` behavior while closing the unknown-verdict path.
 
 #### Expected Repository Impact
 
-Absent registry, catalog and resolver boundary plus direct registry/version tests. Physical storage and enabled configuration are foreign seams; no concrete mechanism is frozen.
+Contract result/failure types, validator boundary and direct failure tests. Expected Repository Impact is planning guidance, not normative design authority.
 
 #### Implementation Constraints
 
-Preserve complete scoped resolution, explicit support sets, `UNKNOWN_CAPABILITY`, `INCOMPATIBLE_CAPABILITY`, independent catalog authorities, bootstrap allowlist and frozen-basis immutability. No alias or silent conversion.
+No fallback approval, no text authority, no failure-code renaming by consumers, no requested-effect confirmation and no lifecycle transfer.
 
 #### Internal Prerequisites
 
@@ -339,70 +362,61 @@ Preserve complete scoped resolution, explicit support sets, `UNKNOWN_CAPABILITY`
 
 | Owner SPEC | Required capability | Implementation state | Blocking? |
 |---|---|---|---|
-| SPEC-DOM-001 | execution identity/snapshot basis | contract defined; productive integrated runtime unavailable | No for local closure; yes for integrated proof |
-| SPEC-REPO-001 | enabled normal catalog source | boundary defined; productive implementation unavailable | No for local closure; yes for integrated proof |
+| SPEC-DOM-001 | lifecycle rejection/structured verdict boundary | defined, productive runtime unavailable | No; integrated proof only |
+| BACKEND/OPS/UI | meaning-preserving mappings | defined boundary, productive consumers unavailable | No; integrated proof only |
 
 #### Producer / Consumer Contract Proof
 
-`PCP-DOM-EXEC-01` and `PCP-REPO-EXEC-01` (full records in §12). Both are `REQUIRED_FOR_INTEGRATED_PROOF`; local fixtures witness the local registry contract and do not promote foreign productive availability.
+`CAPABILITY_ID = EXEC-CANONICAL-FAILURE`; `AUTHORITY_OWNER = EXEC-001`; `PRODUCER = EXEC contract validator`; `PRODUCED_CONTRACT = structured canonical failure`; `CONSUMER = DOM/BACKEND/OPS/UI mapping boundaries`; `SEMANTIC_STATUS = DEFINED`; `LOCAL_TESTABILITY = YES`; `PRODUCTIVE_AVAILABILITY = NO` for foreign consumers; `DEPENDENCY_CLASS = REQUIRED_FOR_INTEGRATED_PROOF`; `BLOCKING_EFFECT = integrated proof only`; evidence is target audit §§21–29.
 
 #### Capability Availability and Blocking Effect
 
-| Capability ID | Authority | Contract | Local testability | Productive availability | Dependency class | Blocking effect |
-|---|---|---|---|---|---|---|
-| `DOM-EXEC-IDENTITY-SNAPSHOT` | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | integrated proof only |
-| `REPO-EXEC-NORMAL-CATALOG` | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | integrated proof only |
-| Unit-owned registry fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | none |
+Foreign mapping capabilities are `AUTHORITY_STATUS = DEFINED`, `CONTRACT_STATUS = DEFINED`, `LOCAL_TESTABILITY = NO`, `PRODUCTIVE_AVAILABILITY = NO`, `DEPENDENCY_CLASS = REQUIRED_FOR_INTEGRATED_PROOF`; they do not block local closure.
 
 #### Temporal Authority Preconditions
 
-`NOT_APPLICABLE` to local registry resolution; a frozen basis is loaded and compared, but no mutable external effect is committed by this unit. Any external publication/enablement temporal proof remains with its owner.
+`NOT_APPLICABLE` for local failure creation. External effect confirmation remains PLAT/GIT-owned.
 
 #### Acceptance Criteria
 
-1. Semver major/minor/patch meaning and explicit supported sets are observable; unsupported resolution produces `INCOMPATIBLE_CAPABILITY` without alias/conversion.
-2. A registered stage resolves deterministically to capability, skill, versions, schemas, artifacts, veredictos and role constraints.
-3. NORMAL and BOOTSTRAP catalogs remain independently sourced/scoped/versioned; bootstrap rejects normal capability before work.
-4. Unknown/incompatible capability outcomes remain distinct and a schema-valid synthetic capability uses the common registry without mutating frozen bases.
-
-All four criteria have `LOCAL_PROVABILITY = YES`; foreign availability is integrated-only.
+1. Unknown or absent verdict yields `VERDICT_UNKNOWN`, never approval, completion, resume or success (`LOCAL_PROVABILITY = YES`).
+2. Canonical failure preserves code/family, version/basis, cause and processing state; retry cannot convert basis or confirm effect (`LOCAL_PROVABILITY = YES`).
 
 #### ACCEPTANCE_WITNESS_MATRIX
 
-| Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Evidence | Owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at closure | Evidence type |
+| Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Expected evidence | Acceptance owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at local closure | Evidence type |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Semver/support set | classify/resolve | C-EXEC-003/004 | registry basis | compatible minor/patch resolves | unsupported major → `INCOMPATIBLE_CAPABILITY` | C-EXEC-003/004 | EXEC-IMP-02 | registry fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
-| Deterministic mapping | resolve | C-EXEC-004 / AC-EXEC-008 | registry entry | complete entry returned | duplicate/conflict or incomplete entry rejected | C-EXEC-004 | EXEC-IMP-02 | registry fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
-| Catalog isolation/allowlist | isolate/reject | C-EXEC-005/010 | catalog basis | bootstrap onboarding entry resolves | normal capability in bootstrap → `INCOMPATIBLE_CAPABILITY` | C-EXEC-005/010 | EXEC-IMP-02 | catalog fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
-| Capability resolution/extensibility | resolve/register | C-EXEC-010/011/012 | capability basis | known/synthetic capability resolves | unknown/incompatible remain canonical; frozen basis unchanged | C-EXEC-010/011/012 | EXEC-IMP-02 | registry fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Invalid contract failure | reject | `C-EXEC-008` / `AC-EXEC-006` | result processing | valid contract accepted | malformed/schema-invalid → `CONTRACT_INVALID`; no effect | failure witness | EXEC-IMP-02 | local failure harness | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Unknown verdict | reject | `C-EXEC-009` / `AC-EXEC-007` | result processing | registered verdict accepted | absent/unknown → `VERDICT_UNKNOWN` | verdict witness | EXEC-IMP-02 | local failure harness | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Structured failure/retry | emit/retry | `C-EXEC-014/017` / `AC-EXEC-017/018` | contract failure | typed failure retains basis | no fallback approval/conversion/effect confirmation | failure/retry witness | EXEC-IMP-02 | local failure harness | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
 
 #### Local Closure
 
-`LOCAL_CLOSURE = YES`. The unit's local contract fixture supplies all local witness inputs; no downstream unit, enabled repository or productive DOM runtime is required.
+`LOCAL_CLOSURE = YES`. Local failure and retry semantics are directly testable; foreign mapping/effect evidence is integrated-only.
 
 #### Work Can Start
 
-`WORK_CAN_START = NO` until `EXEC-IMP-01` completes; after that prerequisite, `EXECUTION_READY = YES` for this unit.
+`WORK_CAN_START = NO` until `EXEC-IMP-01` completes; then `EXECUTION_READY = TRUE` for this unit.
 
 #### Shared Closure Boundary
 
-`SHARED_CLOSURE_BOUNDARY = YES` for the six gaps: one EXEC registry/version authority, shared resolution invariant and common direct conformance evidence; identity/reconstruction persistence is intentionally split to EXEC-IMP-03.
+`SHARED_CLOSURE_BOUNDARY = YES` for verdict and failure meaning; DOM transition and physical effect ownership remain excluded.
 
 #### Required Tests
 
-Semver classification, explicit supported-set rejection, deterministic mapping, duplicate/conflict no-mutation, normal/bootstrap isolation, bootstrap allowlist, unknown/incompatible distinction, synthetic registry extensibility and frozen-basis preservation.
+Unknown/absent verdict, malformed JSON/schema, structured fields, no approval/checkpoint/effect, retry no-conversion and meaning-preserving mapping contract tests.
 
 #### Legacy / Cutover Impact
 
-`NEW_CANONICAL_PATH` and `CUTOVER`: new semantic versions/catalog revisions create new bases; `LEGACY_COMPATIBILITY` remains a REPO consumer; no legacy registry is silently converted.
+`NEW_CANONICAL_PATH`; no legacy failure format is authority.
 
 #### Completion Evidence
 
-Direct version/registry/catalog/capability witness report for C-EXEC-003/004/005/006/010/011/012 and proof of no frozen-basis mutation. Evidence is locally producible.
+Passing `C-EXEC-008/009/014/017` witnesses, explicit no-success/no-effect assertions and mapping contract records.
 
 #### Risks
 
-Version approximation, normal/bootstrap authority collapse, fallback from unknown capability, category-specific branches and mutable frozen bases.
+Unknown verdict as approval, text fallback, failure meaning loss and requested effect treated as confirmation.
 
 #### Issue Decomposition Readiness
 
@@ -414,130 +428,119 @@ Version approximation, normal/bootstrap authority collapse, fallback from unknow
 
 ---
 
-### EXEC-IMP-03 — Registry entry identity and semantic reconstruction
+### EXEC-IMP-03 — Version semantics, overlap rejection and deterministic resolution
 
-`UNIT_FORMATION_REASON = SHARED_AUTHORITY + SHARED_PERSISTENCE_BOUNDARY + SHARED_INVARIANT`
+`UNIT_FORMATION_REASON = SHARED_AUTHORITY + SHARED_INVARIANT + SHARED_COMMAND_BOUNDARY + SHARED_CONFORMANCE`
 
 #### Goal
 
-Make `REGISTRY_ENTRY` identity, scoped attachment, revision continuity and fail-closed semantic reconstruction locally provable without owning physical storage.
+Make SemVer/support-set semantics and valid-basis resolution deterministic, rejecting overlap before identity selection or mutation.
 
 #### Authority and Ownership
 
-- Primary component SPEC: `SPEC-EXEC-001` §§12.1, 12.3, 12.4 and `EXEC-REGISTRY-004`.
-- Portfolio obligation: `O-020`; approved role `CANONICAL_OWNER`.
-- Local ownership: semantic registry material validation, identity equality, reference attachment, continuity and rejection.
-- Foreign capabilities: DOM supplies NORMAL `RepositoryId`; PLAT supplies physical material/integrity/order.
-- Authority Consumption Proof: `ACP-EXEC-03`; target and DOM identity/reconstruction proofs are complete.
-- Authority consumption result: local semantic authority complete; foreign physical availability is integrated-only.
+- Primary requirements: `EXEC-VERSION-001/002`, `EXEC-REGISTRY-001`, `EXEC-CAPABILITY-001`.
+- Portfolio obligations: `O-017`, `O-020`; `CANONICAL_OWNER`.
+- Local ownership: version classification, disjointness, unique compatible resolution and distinct unknown/incompatible/invalid outcomes.
+- Foreign capabilities consumed: exact DOM basis and source-backed catalogs are integrated-proof-only.
+- Authority Consumption Proof: target SPEC audit §§17–§18 and §24; no unresolved authority gap.
 
 #### Gap Matrix Coverage
 
-`GAP-007`; requirement `EXEC-REGISTRY-004`; acceptance `AC-EXEC-019`; conformance `C-EXEC-018`, `C-EXEC-020`.
+`GAP-002`, `GAP-004`; requirements `EXEC-VERSION-001/002`, `EXEC-REGISTRY-001`, `EXEC-CAPABILITY-001`; acceptance `AC-EXEC-003`, `AC-EXEC-004`, `AC-EXEC-008`, `AC-EXEC-011`.
 
 #### Portfolio Obligation Coverage
 
-`O-020`; approved role `CANONICAL_OWNER`.
+`O-017`, `O-020`; `CANONICAL_OWNER`.
 
 #### Validated Delta
 
 ```text
-OBSERVED: no productive REGISTRY_ENTRY state, scoped key, persistence or
-          semantic rehydration validator.
-REQUIRED: NORMAL/BOOTSTRAP scoped identity, repository binding, continuity,
-          complete references and fail-closed invalid-material behavior.
-DELTA:    add EXEC semantic create/rehydrate validation while consuming DOM
-          identity and PLAT physical material without absorbing either owner.
+OBSERVED: explicit sets exist, but overlapping sets are admitted and resolver sorts/selects a candidate; mutation semantics are incomplete.
+REQUIRED: overlap is CONTRACT_INVALID with no selected identity, precedence or mutation; valid basis resolves one explicit entry.
+DELTA: add overlap validation and deterministic resolution semantics.
 ```
 
 #### Required Behavior
 
-`LOCAL_BEHAVIOR`: create only absent complete scoped entries; rehydrate only validated material; preserve NORMAL `RepositoryId`, BOOTSTRAP system scope, `CatalogRevision`, source, digest, references and continuity; reject duplicate, detached, corrupt, stale, out-of-order, cross-repository or inconsistent material without mutation. `END_TO_END_CONTRIBUTION`: PLAT can supply physical material for integrated replay while EXEC remains semantic owner.
+`LOCAL_BEHAVIOR`: classify semantic versions, reject overlap in either registration order, distinguish unknown/incompatible/invalid basis and resolve a unique complete entry from a valid frozen fixture basis. `END_TO_END_CONTRIBUTION`: later source-bound units consume this semantic resolver without selecting precedence.
 
 #### Does Not Implement
 
-DOM identity creation/resolution; database/serialization/integrity/recovery; repository enablement; registry retirement; downstream mapping.
+DOM identity/snapshot; source publication; physical CAS/durability; manifest; session/runtime; downstream mappings.
 
 #### Repository Evidence
 
-No productive registry persistence or validator; prototype in-memory data cannot prove this gap. Use `ADD_INTEGRATION_SEAM` for DOM/PLAT material and direct semantic tests.
+`src/domain/exec-registry.ts` (`SupportedVersionSet`, `CatalogBasis.register`, `RegistryResolutionService.resolveInternal`) and `tests/exec-001-ticket-002.test.ts`. The ordered-candidate path is the validated contradiction.
 
 #### Expected Repository Impact
 
-Registry identity/reconstruction contract and direct invalid-material/continuity tests; physical persistence interface remains guidance only.
+Registry domain validation and direct SemVer/overlap/resolution tests. Expected Repository Impact is planning guidance, not normative design authority.
 
 #### Implementation Constraints
 
-Canonical NORMAL key includes DOM `RepositoryId`; BOOTSTRAP has no repository identity; create and rehydrate are distinct; aliases cannot replace identity; physical revision/CAS is not domain continuity; failure is `CONTRACT_INVALID` with `MUTATION_ON_FAILURE = NO`.
+No order-based precedence, alias/conversion, last-writer-wins or identity selection on an invalid basis; preserve explicit support sets and canonical failure codes.
 
 #### Internal Prerequisites
 
-`EXEC-IMP-02`.
+`EXEC-IMP-01`.
 
 #### Cross-Spec Prerequisites
 
-| Owner SPEC | Required capability | Implementation state | Blocking? |
-|---|---|---|---|
-| SPEC-DOM-001 | canonical NORMAL `RepositoryId` | contract conformant; productive integration unavailable | No for local closure; yes for integrated proof |
-| SPEC-PLAT-001 | physical persisted material, integrity and ordered recovery evidence | boundary defined; productive implementation unavailable | No for local closure; yes for integrated proof |
+DOM exact basis and NORMAL/BOOTSTRAP source contracts are defined but productive availability is `NO`, dependency class `REQUIRED_FOR_INTEGRATED_PROOF`; no local closure block.
 
 #### Producer / Consumer Contract Proof
 
-`PCP-DOM-EXEC-01` and `PCP-PLAT-EXEC-01` (full records in §12). Both are integrated-proof-only; a local contract fixture is not promoted to productive capability.
+`CAPABILITY_ID = EXEC-REGISTRY-SEMANTIC-RESOLUTION`; `AUTHORITY_OWNER = EXEC-001`; `PRODUCER = EXEC registry semantics`; `PRODUCED_CONTRACT = unique resolution or canonical failure`; `CONSUMER = EXEC source/basis and snapshot units`; `AUTHORITY_STATUS = DEFINED`; `CONTRACT_STATUS = DEFINED`; `SEMANTIC_STATUS = DEFINED`; `LOCAL_TESTABILITY = YES`; `PRODUCTIVE_AVAILABILITY = NO` for foreign producers; `DEPENDENCY_CLASS = REQUIRED_FOR_INTEGRATED_PROOF`; `BLOCKING_EFFECT = integrated proof only`.
 
 #### Capability Availability and Blocking Effect
 
-| Capability ID | Authority | Contract | Local testability | Productive availability | Dependency class | Blocking effect |
-|---|---|---|---|---|---|---|
-| `DOM-EXEC-IDENTITY-SNAPSHOT` | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | integrated proof only |
-| `PLAT-EXEC-PERSISTED-MATERIAL` | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | integrated proof only |
-| Local semantic reconstruction fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | none |
+Local fixtures are contract-level only. DOM/source productive capabilities remain unavailable but are not required for local closure.
 
 #### Temporal Authority Preconditions
 
-`NOT_APPLICABLE`: reconstruction validates a frozen material basis; no mutable external authority is observed before an effect commit.
+`TEMPORAL_AUTHORITY_PROOF` is inherited for later mutation operations; this unit has no external commit point and does not invent revalidation.
 
 #### Acceptance Criteria
 
-1. NORMAL entries resolve only through the complete scoped key with DOM `RepositoryId`; BOOTSTRAP remains independently system-scoped.
-2. Duplicate, detached, corrupt, stale, cross-repository, skipped or inconsistent material rejects as `CONTRACT_INVALID` without mutation; unknown/incompatible capability codes remain canonical.
-
-`LOCAL_PROVABILITY = YES` for both.
+1. SemVer major/minor/patch and explicit support sets are observable; unsupported valid requests produce `INCOMPATIBLE_CAPABILITY` without conversion (`LOCAL_PROVABILITY = YES`).
+2. Overlap in either registration order yields `CONTRACT_INVALID`, no identity selection and no basis mutation (`LOCAL_PROVABILITY = YES`).
+3. Valid complete basis resolves deterministically; unknown, incompatible and invalid outcomes remain distinct (`LOCAL_PROVABILITY = YES`).
 
 #### ACCEPTANCE_WITNESS_MATRIX
 
-| Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Evidence | Owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at closure | Evidence type |
+| Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Expected evidence | Acceptance owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at local closure | Evidence type |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Scoped registry identity | create/lookup/rehydrate | C-EXEC-018 / AC-EXEC-019 | catalog entry/basis | two NORMAL RepositoryIds resolve only locally; BOOTSTRAP resolves independently | foreign scope/key substitution rejected | C-EXEC-018 | EXEC-IMP-03 | local reconstruction fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
-| Reconstruction continuity | rehydrate/reject | C-EXEC-020 | registry basis | valid digest/source/revision material rehydrates | duplicate/detached/corrupt/out-of-order material → `CONTRACT_INVALID`, no mutation | C-EXEC-020 | EXEC-IMP-03 | local reconstruction fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| SemVer/support sets | classify/resolve | `C-EXEC-003` / `AC-EXEC-003` | registry basis | compatible minor/patch classified | incompatible major rejected | version witness | EXEC-IMP-03 | local registry fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Overlap rule | register/resolve | `C-EXEC-021` / `AC-EXEC-004/011` | catalog basis | disjoint sets resolve | overlap both orders → invalid/no mutation | overlap witness | EXEC-IMP-03 | local registry fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Deterministic mapping | resolve | `C-EXEC-004` / `AC-EXEC-008` | registry entry | complete entry returned | duplicate/conflict/order choice rejected | resolution witness | EXEC-IMP-03 | local registry fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
 
 #### Local Closure
 
-`LOCAL_CLOSURE = YES`; semantic reconstruction and all negative witnesses run with deterministic local material. PLAT physical durability is integrated proof only.
+`LOCAL_CLOSURE = YES`; all semantic witnesses run against local contract fixtures. Productive source proof remains integrated-only.
 
 #### Work Can Start
 
-`WORK_CAN_START = NO` until `EXEC-IMP-02` completes. After that, local execution is ready.
+`WORK_CAN_START = NO` until `EXEC-IMP-01` completes; then `EXECUTION_READY = TRUE` for this unit.
 
 #### Shared Closure Boundary
 
-`SHARED_CLOSURE_BOUNDARY = YES` for the identity/reconstruction facets of GAP-007; registry mapping/catalog behavior is deliberately in EXEC-IMP-02 and physical persistence is foreign.
+`SHARED_CLOSURE_BOUNDARY = YES` for version, disjointness and resolution; source publication and mutation concurrency are separate units.
 
 #### Required Tests
 
-Two-repository isolation, NORMAL/BOOTSTRAP scope, duplicate create, wrong attachment, digest/source/schema/reference mismatch, skipped/out-of-order revision, stale/foreign material, no-mutation-on-failure and reconstruction equality/continuity.
+Large SemVer values, major/minor/patch, unsupported requests, overlap both orders, no selected identity/no mutation, duplicate/conflict and unique valid resolution.
 
 #### Legacy / Cutover Impact
 
-`HISTORICAL_REPLAY` owner behavior: frozen scoped basis is preserved. No registry retirement is assigned by ADR-0003.
+`NEW_CANONICAL_PATH`; invalid overlap cannot become a legacy precedence rule; valid new semantic versions create new bases.
 
 #### Completion Evidence
 
-Direct C-EXEC-018/020 report, complete identity/reconstruction field assertions, no-mutation evidence and explicit proof that aliases/CAS do not replace semantic authority. Evidence is locally producible.
+`C-EXEC-003/004/021` witness report, overlap no-mutation proof and unique-resolution assertions.
 
 #### Risks
 
-Repository identity collapse, direct materialization of untrusted data, physical revision mistaken for semantic continuity, and partial mutation on rejection.
+Version approximation, candidate ordering, duplicate authority and invalid basis mutation.
 
 #### Issue Decomposition Readiness
 
@@ -545,130 +548,127 @@ Repository identity collapse, direct materialization of untrusted data, physical
 
 #### Initial DAG State
 
-`BLOCKED`; `BLOCKED_BY = EXEC-IMP-02`.
+`BLOCKED`; `BLOCKED_BY = EXEC-IMP-01`.
 
 ---
 
-### EXEC-IMP-04 — Contract verdict and failure semantics
+### EXEC-IMP-04 — Source-bound NORMAL/BOOTSTRAP catalog consumption
 
-`UNIT_FORMATION_REASON = SHARED_AUTHORITY + SHARED_CONFORMANCE + SHARED_INTEGRATION_SEAM`
+`UNIT_FORMATION_REASON = SHARED_INTEGRATION_SEAM + SHARED_AUTHORITY + SHARED_CONFORMANCE`
 
 #### Goal
 
-Make canonical contract/verdict failures structured, fail closed and meaning-preserving across approved consumer mappings.
+Consume only owner-issued NORMAL and BOOTSTRAP catalog/basis material, preserving scope, source, exact revision and productive-availability distinctions.
 
 #### Authority and Ownership
 
-- Primary component SPEC: `SPEC-EXEC-001` §§13, 14, 15, 16; `EXEC-CONTRACT-001/002`, `EXEC-FAILURE-001`.
-- Portfolio obligations: `O-019`; approved role `CANONICAL_OWNER`.
-- Local ownership: `CONTRACT_INVALID`, `VERDICT_UNKNOWN`, structured failure fields, no-success semantics and retry/basis preservation.
-- Foreign capabilities: BACKEND/OPS/UI mappings and PLAT/effect boundary are consumed only for integrated proof.
-- Authority Consumption Proof: `ACP-EXEC-04`; ADR-0003 and DOM advancement/failure boundaries are sufficient.
-- Authority consumption result: local failure semantics consumable; integrated mappings remain non-blocking locally.
+- Primary requirements: `EXEC-REGISTRY-001/002/004`, `EXEC-CAPABILITY-001`.
+- Portfolio obligation: `O-020`; `CANONICAL_OWNER`.
+- Local ownership: source verification, scope/revision binding and consumption rejection; DOM/REPO/system sources retain material ownership.
+- Authority Consumption Proofs: `DOM-EXEC-IDENTITY-SNAPSHOT`, `EXEC-NORMAL-CATALOG-SOURCE-PROGRESSION`, `EXEC-BOOTSTRAP-CATALOG-SOURCE-PROGRESSION` from current audits.
+- Authority consumption result: contract defined and locally testable where fixtures exist; productive availability remains `NO` and integrated-only.
 
 #### Gap Matrix Coverage
 
-`GAP-002`, `GAP-003`, `GAP-016`; requirements `EXEC-CONTRACT-001`, `EXEC-CONTRACT-002`, `EXEC-FAILURE-001`; acceptance `AC-EXEC-006`, `AC-EXEC-007`, `AC-EXEC-017`, `AC-EXEC-018`.
+`GAP-006`, `GAP-007`, `GAP-016`; acceptance contributions to `AC-EXEC-005`, `AC-EXEC-008`, `AC-EXEC-009`, `AC-EXEC-011`, `AC-EXEC-019`, `AC-EXEC-021`.
 
 #### Portfolio Obligation Coverage
 
-`O-019`; approved role `CANONICAL_OWNER`.
+`O-020`; `CANONICAL_OWNER`.
 
 #### Validated Delta
 
 ```text
-OBSERVED: no productive invalid-contract, unknown-verdict or structured
-          failure result/mapping surface exists.
-REQUIRED: canonical failures preserve code/family, contract/version/basis,
-          cause and processing state and cannot imply success/effect.
-DELTA:    add the EXEC-owned failure result boundary and mapping contract.
+OBSERVED: local fixtures issue receipts, productive seams reject fixtures, and no productive DOM/REPO/BOOTSTRAP issuer is available.
+REQUIRED: exact owner-issued scoped material is consumed; fixtures never become productive authority.
+DELTA: complete the source-bound consumer contract and preserve integrated-only availability.
 ```
 
 #### Required Behavior
 
-`LOCAL_BEHAVIOR`: invalid JSON/schema yields `CONTRACT_INVALID`; absent/unknown verdict yields `VERDICT_UNKNOWN`; failure records preserve non-success, basis and cause; retry policy does not convert version or authorize effects. `END_TO_END_CONTRIBUTION`: BACKEND/OPS/UI preserve canonical meaning.
+`LOCAL_BEHAVIOR`: reject caller/fixture/unverified/detached/wrong-source/wrong-scope/stale basis and accept only a producer-issued basis whose scope and revision match the request. `END_TO_END_CONTRIBUTION`: productive DOM, REPO and BOOTSTRAP producers can later supply evidence without changing EXEC meaning.
 
 #### Does Not Implement
 
-DOM lifecycle transition; transport status selection; logging/UI presentation implementation; effect execution, intent, evidence or confirmation; retry scheduler.
+DOM identity/source; REPO enablement/configuration; system bootstrap production; PLAT persistence; registry semantic ownership beyond consumption validation; scheduler or mappings.
 
 #### Repository Evidence
 
-No productive EXEC failure surface. Generic delegation is a consumer seam only. Use direct failure fixtures and mapping contract tests; do not create a second failure owner.
+`src/application/exec-registry.ts`, `src/application/exec-registry-ports.ts`, `src/composition/exec-registry.ts`; fixture rejection is already explicit. Extend source-bound contract tests without promoting fixtures.
 
 #### Expected Repository Impact
 
-Failure result contract and direct negative tests, with mapping seams for BACKEND/OPS/UI. No transport representation is frozen.
+Source ports/receipts, exact scope/revision binding, consumer validation and integrated handoff tests. Expected Repository Impact is planning guidance, not normative design authority.
 
 #### Implementation Constraints
 
-Fail closed; preserve canonical code/family/retryability/basis/non-success; never map unknown verdict to approval; never treat requested effect as confirmed effect.
+Preserve `AUTHORITY_STATUS`, `CONTRACT_STATUS`, `LOCAL_TESTABILITY`, `PRODUCTIVE_AVAILABILITY` as independent dimensions. No downstream promotion without new producer evidence.
 
 #### Internal Prerequisites
 
-`EXEC-IMP-01`, `EXEC-IMP-02`.
+`EXEC-IMP-03`.
 
 #### Cross-Spec Prerequisites
 
-| Owner SPEC | Required capability | Implementation state | Blocking? |
+| Owner / source | Required capability | Implementation state | Blocking? |
 |---|---|---|---|
-| SPEC-DOM-001 | advancement/lifecycle rejection contract | conformant contract; productive runtime unavailable | No for local closure; integrated proof only |
-| SPEC-BACKEND-001 | meaning-preserving failure mapping | boundary defined; productive mapping unavailable | No for local closure; integrated proof only |
-| SPEC-OPS-001 / SPEC-UI-001 | preserving logging/presentation projections | boundaries defined; productive projections unavailable | No for local closure; integrated proof only |
-| SPEC-PLAT-001 | effect confirmation boundary | boundary defined; productive effect runtime unavailable | No for local closure; integrated proof only |
+| SPEC-DOM-001 | execution identity/snapshot basis | defined; productive availability `NO` | No for local closure; yes for integrated proof |
+| SPEC-REPO-001 | NORMAL enabled catalog source | defined boundary; productive availability `NO` | No for local closure; yes for integrated proof |
+| Independent system source | BOOTSTRAP catalog | defined boundary; productive availability `NO` | No for local closure; yes for integrated proof |
 
 #### Producer / Consumer Contract Proof
 
-`PCP-DOM-EXEC-01`, `PCP-BACKEND-EXEC-01`, `PCP-OPS-EXEC-01`, `PCP-UI-EXEC-01`, and `PCP-PLAT-EXEC-01` (full records in §12). All foreign capabilities are integrated-proof-only.
+For `DOM-EXEC-IDENTITY-SNAPSHOT`: authority owner DOM, producer DOM canonical resolver, produced contract canonical identities/snapshot/exact basis, consumer IMP-04/06, status defined, local testability `NO`, productive availability `NO`, class `REQUIRED_FOR_INTEGRATED_PROOF`, edge `EXEC-001 → DOM-001`, integrated-only blocking.
+
+For `EXEC-CATALOG-SOURCE-PROGRESSION`: authority owner EXEC semantic boundary with NORMAL/BOOTSTRAP producer, produced contract scoped predecessor/successor/digest/SourceSequence material, consumer IMP-04/08/09, local testability `YES` only through fixtures, productive availability `NO`, class `REQUIRED_FOR_INTEGRATED_PROOF`, fixture evidence is not promotion evidence.
 
 #### Capability Availability and Blocking Effect
 
-All listed foreign capabilities have `AUTHORITY_STATUS = DEFINED`, `CONTRACT_STATUS = DEFINED`, `LOCAL_TESTABILITY = NO`, `PRODUCTIVE_AVAILABILITY = NO`, `DEPENDENCY_CLASS = REQUIRED_FOR_INTEGRATED_PROOF`; therefore none blocks local execution or local closure.
+All external capabilities are defined, contract-defined, and unavailable productively. Their dependency class is `REQUIRED_FOR_INTEGRATED_PROOF`; therefore local execution and local closure are not blocked.
 
 #### Temporal Authority Preconditions
 
-`NOT_APPLICABLE` for local failure creation. External effect confirmation and any observe-then-commit operation remain under PLAT/GIT/DOM temporal owners.
+Use the already-authorized `TEMPORAL_AUTHORITY_PROOF` for source observation before mutation. This unit does not invent source revalidation semantics.
 
 #### Acceptance Criteria
 
-1. Invalid JSON/schema and absent/unknown verdict produce their canonical structured failure and cannot imply approval, checkpoint or effect (`LOCAL_PROVABILITY = YES`).
-2. Structured failure preserves code/family, contract/version/basis, cause and processing state; retry cannot convert basis or confirm an effect (`LOCAL_PROVABILITY = YES`).
+1. NORMAL and BOOTSTRAP requests consume only matching owner-issued scope/source/revision material; fixture or caller material is rejected (`LOCAL_PROVABILITY = YES`).
+2. A source-bound basis is required for valid resolution; no foreign producer is silently promoted (`LOCAL_PROVABILITY = YES`; integrated availability remains a separate proof).
 
 #### ACCEPTANCE_WITNESS_MATRIX
 
-| Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Evidence | Owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at closure | Evidence type |
+| Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Expected evidence | Acceptance owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at local closure | Evidence type |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Invalid contract failure | reject | C-EXEC-006 / AC-EXEC-006 | result processing | valid contract accepted | malformed/unknown schema → `CONTRACT_INVALID`; no success/effect | C-EXEC-006 | EXEC-IMP-04 | local failure fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
-| Unknown verdict failure | reject | C-EXEC-007 / AC-EXEC-007 | result processing | registered verdict accepted | absent/unknown → `VERDICT_UNKNOWN`; no approval | C-EXEC-007 | EXEC-IMP-04 | local failure fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
-| Structured failure and retry basis | emit/retry | C-EXEC-014/017 / AC-EXEC-017/018 | contract failure | typed failure preserves basis | no fallback approval, version conversion or effect confirmation | C-EXEC-014/017 | EXEC-IMP-04 | local failure fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Catalog isolation | isolate/resolve | `C-EXEC-005` / `AC-EXEC-009` | catalog basis | NORMAL/BOOTSTRAP scopes remain distinct | wrong scope/source/fixture rejected | source-bound witness | EXEC-IMP-04 | contract fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Source-bound resolution | resolve | `C-EXEC-010/018` / `AC-EXEC-008/011/019` | resolution basis | matching owner-issued basis accepted | detached/stale/wrong-source basis rejected | source contract witness | EXEC-IMP-04 | source fixture | DEFINED | DEFINED | YES | NO | REQUIRED_FOR_INTEGRATED_PROOF | YES | LOCAL_TEST_EVIDENCE |
 
 #### Local Closure
 
-`LOCAL_CLOSURE = YES`; local failure and retry semantics are directly testable. Foreign mappings are integrated-only and are not local closure criteria.
+`LOCAL_CLOSURE = YES` for source-contract consumption and negative witnesses. Productive source integration is an integrated checkpoint obligation, not a local closure dependency.
 
 #### Work Can Start
 
-`WORK_CAN_START = NO` until `EXEC-IMP-01` and `EXEC-IMP-02` complete.
+`WORK_CAN_START = NO` until `EXEC-IMP-03` completes; `EXECUTION_READY = TRUE` after that prerequisite for local contract work.
 
 #### Shared Closure Boundary
 
-`SHARED_CLOSURE_BOUNDARY = YES`: contract rejection and structured failure share O-019, canonical failure fields and local fail-closed evidence. DOM transition and physical effect ownership remains excluded.
+`SHARED_CLOSURE_BOUNDARY = YES` for the source/scope/revision consumption seam. Registration publication authority is split into IMP-05 because it has a different issuer/result closure.
 
 #### Required Tests
 
-Malformed JSON, missing/unknown schema, absent/unknown verdict, structured code/family/basis/cause/state, no approval/checkpoint/effect, retry no-conversion, and mapping-preservation contract tests.
+NORMAL/BOOTSTRAP isolation, fixture rejection, wrong-source/scope/revision, detached/foreign/stale basis, source progression contract and no productive promotion without evidence.
 
 #### Legacy / Cutover Impact
 
-`NEW_CANONICAL_PATH`; incompatible bases require explicit compatible retry/new basis. No legacy failure format is authoritative.
+`NEW_CANONICAL_PATH` and `LEGACY_COMPATIBILITY` as a REPO consumer; no fixture or legacy source is a second authority.
 
 #### Completion Evidence
 
-Passing C-EXEC-006/007/014/017 reports, explicit no-success/no-effect assertions and mapping preservation contract evidence. Evidence is locally producible for this unit's closure.
+Source-bound contract witness report, independent capability dimensions, explicit fixture-versus-productive record and integrated handoff record.
 
 #### Risks
 
-Text fallback, unknown verdict as approval, failure-code renaming, or requested effect being treated as confirmation.
+Fixture promotion, source/scope mismatch, DOM identity substitution and hidden producer dependency.
 
 #### Issue Decomposition Readiness
 
@@ -676,125 +676,242 @@ Text fallback, unknown verdict as approval, failure-code renaming, or requested 
 
 #### Initial DAG State
 
-`BLOCKED`; `BLOCKED_BY = EXEC-IMP-01, EXEC-IMP-02`.
+`BLOCKED`; `BLOCKED_BY = EXEC-IMP-03`.
 
 ---
 
-### EXEC-IMP-05 — Authoritative exact-basis binding at the DOM snapshot boundary
+### EXEC-IMP-05 — Issuer-bound registration and common extensibility
+
+`UNIT_FORMATION_REASON = SHARED_AUTHORITY + SHARED_INTEGRATION_SEAM + SHARED_CONFORMANCE`
+
+#### Goal
+
+Make registration results consumer-verifiable and preserve registry-only extensibility without allowing a detached structural result to claim canonical publication authority.
+
+#### Authority and Ownership
+
+- Primary requirements: `EXEC-REGISTRY-001`, `EXEC-REGISTRY-004`, `EXEC-CAPABILITY-002`.
+- Portfolio obligation: `O-020`; `CANONICAL_OWNER`.
+- Local ownership: registration-result validation and common-path semantic extensibility; source/PLAT own publication and physical durability.
+- Authority Consumption Proof: current target §12.1/§12.4 and producer/consumer records in Gap Matrix §13.
+
+#### Gap Matrix Coverage
+
+`GAP-008`, `GAP-017`; acceptance `AC-EXEC-012`, `AC-EXEC-022` contribution and `AC-EXEC-019` contribution.
+
+#### Portfolio Obligation Coverage
+
+`O-020`; `CANONICAL_OWNER`.
+
+#### Validated Delta
+
+```text
+OBSERVED: local synthetic registration works, but RegistryRegistrationResult is a plain structural result without issuer/publication proof.
+REQUIRED: only issuer-bound, consumer-verifiable registration evidence may authorize a successor; common registry path remains category-independent.
+DELTA: validate publication provenance and preserve source/PLAT ownership.
+```
+
+#### Required Behavior
+
+`LOCAL_BEHAVIOR`: accept only an issuer-bound result whose source, predecessor, successor, revision, payload and publication outcome are validated; synthetic capabilities use the common path. `END_TO_END_CONTRIBUTION`: source and PLAT can provide productive publication proof without EXEC inventing it.
+
+#### Does Not Implement
+
+Physical CAS/durability; source publication; DOM identity/lifecycle; category-specific consumer authorities; transport/UI.
+
+#### Repository Evidence
+
+`src/application/exec-registry.ts` (`RegisterExecCapability`) and `src/domain/exec-registry.ts` (`RegistryRegistrationResult`, `CatalogBasis.register`). Existing fixture rejection is retained; plain detached result is the contradiction.
+
+#### Expected Repository Impact
+
+Registration command/result boundary and direct forged-result/producer-proof tests. Expected Repository Impact is planning guidance, not normative design authority.
+
+#### Implementation Constraints
+
+No structural result promotion, no fixture promotion, no category-specific authority branch and no physical storage meaning invented in EXEC.
+
+#### Internal Prerequisites
+
+`EXEC-IMP-03`, `EXEC-IMP-04`.
+
+#### Cross-Spec Prerequisites
+
+| Owner | Required capability | Implementation state | Blocking? |
+|---|---|---|---|
+| NORMAL/BOOTSTRAP source owner | issuer/publication proof | contract defined; productive source unavailable | No for local contract closure; integrated proof only |
+| SPEC-PLAT-001 | physical atomicity/CAS/durability | boundary defined; unavailable | No for local closure; integrated proof only |
+
+#### Producer / Consumer Contract Proof
+
+`CAPABILITY_ID = EXEC-REGISTRY-REGISTRATION-PUBLICATION`; authority owner EXEC/source boundary; producer authorized source; produced contract issuer-bound predecessor/successor/revision/publication result; consumer EXEC-001; semantic status defined; local testability yes by contract fixture; productive availability no; summary `CONTRACT_TESTABLE_LOCALLY`; class `REQUIRED_FOR_INTEGRATED_PROOF`; blocking effect integrated-only.
+
+#### Capability Availability and Blocking Effect
+
+The local issuer-proof fixture is testable but does not prove productive source/publication availability. No local AC depends on productive availability.
+
+#### Temporal Authority Preconditions
+
+Use target `TEMPORAL_AUTHORITY_PROOF`: initial expected revision, independent source re-observation, drift detection and fail-closed result are already normatively defined. No new revalidation semantics are introduced.
+
+#### Acceptance Criteria
+
+1. A schema-valid synthetic capability uses the common registry semantics without a category-specific authority (`LOCAL_PROVABILITY = YES`).
+2. A detached or forged registration result cannot authorize a successor; only issuer-bound evidence is consumable (`LOCAL_PROVABILITY = YES`).
+
+#### ACCEPTANCE_WITNESS_MATRIX
+
+| Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Expected evidence | Acceptance owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at local closure | Evidence type |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Common-path extensibility | register/resolve | `C-EXEC-006` / `AC-EXEC-012` | registry basis | synthetic capability resolves through common path | category-specific branch rejected; frozen basis unchanged | extensibility witness | EXEC-IMP-05 | local registry fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Registration authority | publish/consume | `C-EXEC-023` / `AC-EXEC-022` | catalog successor | issuer-bound result accepted | forged/detached result rejected | issuer-proof witness | EXEC-IMP-05 | issuer contract fixture | DEFINED | DEFINED | YES | NO | REQUIRED_FOR_INTEGRATED_PROOF | YES | LOCAL_TEST_EVIDENCE |
+
+#### Local Closure
+
+`LOCAL_CLOSURE = YES` for issuer-proof and common-path semantics; physical publication remains integrated-only.
+
+#### Work Can Start
+
+`WORK_CAN_START = NO` until IMP-03 and IMP-04 complete.
+
+#### Shared Closure Boundary
+
+`SHARED_CLOSURE_BOUNDARY = YES` for result provenance and common extensibility; mutation concurrency is a separate unit.
+
+#### Required Tests
+
+Synthetic capability common-path test, category-branch isolation, forged/copy/source-mismatch registration result, successor identity/revision binding and no frozen-basis mutation.
+
+#### Legacy / Cutover Impact
+
+`NEW_CANONICAL_PATH`; detached structural registration results are retired as an alternate authority.
+
+#### Completion Evidence
+
+Issuer-bound result witness, forged-result rejection, common-path extensibility report and explicit integrated-only source/publication handoff.
+
+#### Risks
+
+Plain result authority bypass, source ownership transfer and duplicate category-specific registries.
+
+#### Issue Decomposition Readiness
+
+`ISSUE_READY`; `VALIDATED_GAP_BACKING = YES`; `INDEPENDENT_CLOSURE = YES`.
+
+#### Initial DAG State
+
+`BLOCKED`; `BLOCKED_BY = EXEC-IMP-03, EXEC-IMP-04`.
+
+---
+
+### EXEC-IMP-06 — Exact EXEC basis binding at the DOM snapshot boundary
 
 `UNIT_FORMATION_REASON = SHARED_AUTHORITY + SHARED_INTEGRATION_SEAM + SHARED_CUTOVER`
 
 #### Goal
 
-Ensure exact EXEC versions are obtained from authoritative registry/basis and bound to the immutable DOM snapshot/manifest without allowing caller values to establish canonical basis.
+Bind exact EXEC versions to the immutable DOM snapshot/manifest basis while ensuring caller values are assertions rather than canonical authority.
 
 #### Authority and Ownership
 
-- Primary component SPEC: `SPEC-EXEC-001` §13 `EXEC-SNAPSHOT-001`; DOM `DOM-SNAPSHOT-001` is consumed authority.
-- Portfolio obligation: `O-018`; EXEC-001 owns exact contract/skill basis, DOM owns snapshot identity/state.
-- Local ownership: EXEC basis supply/validation and rejection of caller-established basis.
-- Foreign ownership: DOM snapshot identity/immutability/lifecycle; no DOM implementation is moved here.
-- Authority Consumption Proof: `ACP-DOM-EXEC-01` (full record in §12), with `AUTHORITY_STATUS=DEFINED`, `CONTRACT_STATUS=DEFINED`, `LOCAL_TESTABILITY=NO`, `PRODUCTIVE_AVAILABILITY=NO`, integrated-proof-only.
-- Authority consumption result: `AUTHORITY_CONSUMPTION_GAP` for productive integration only; no local authority gap.
+- Requirement: `EXEC-SNAPSHOT-001`; portfolio obligation `O-018`, `CANONICAL_OWNER`.
+- Local ownership: exact EXEC basis supply/validation and caller-basis rejection.
+- Foreign ownership: DOM snapshot identity/immutability/lifecycle.
+- Authority Consumption Proof: `DOM-EXEC-IDENTITY-SNAPSHOT`, defined but integrated-only unavailable.
 
 #### Gap Matrix Coverage
 
-`GAP-005`; requirement `EXEC-SNAPSHOT-001`; acceptance `AC-EXEC-005`; conformance `C-EXEC-005`, `C-EXEC-012`, `C-EXEC-016`.
+`GAP-003`; acceptance `AC-EXEC-005` and contribution to `AC-EXEC-015/016`.
 
 #### Portfolio Obligation Coverage
 
-`O-018`; approved role `CANONICAL_OWNER` with DOM consumer boundary.
+`O-018`; `CANONICAL_OWNER` with DOM consumer boundary.
 
 #### Validated Delta
 
 ```text
-OBSERVED: caller-supplied versions enter src/application/snapshot.ts and are
-          stored after only non-empty-string validation.
-REQUIRED: authoritative EXEC basis supplies exact versions and caller values
-          cannot establish DOM snapshot/manifest basis.
-DELTA:    add the EXEC consumption/convergence boundary and retire the caller
-          authority path without taking DOM identity/lifecycle ownership.
+OBSERVED: src/application/snapshot.ts maps caller versions into snapshot state without EXEC authority observation.
+REQUIRED: EXEC authority supplies exact versions; caller values cannot establish the basis; later registry changes do not rewrite it.
+DELTA: converge the caller path at the approved EXEC/DOM boundary.
 ```
 
 #### Required Behavior
 
-`LOCAL_BEHAVIOR`: an authority-backed exact-version basis is required for the EXEC contribution; caller-supplied values are assertions only and mismatch fails closed. `END_TO_END_CONTRIBUTION`: DOM snapshot and EXEC manifest retain the same exact basis; later registry changes do not rewrite it.
+`LOCAL_BEHAVIOR`: exact authority-backed basis is required; caller versions are consistency assertions and mismatch fails closed without snapshot mutation. `END_TO_END_CONTRIBUTION`: DOM snapshot and EXEC manifest retain the same exact basis.
 
 #### Does Not Implement
 
-DOM snapshot aggregate/identity/lifecycle; registry semantic authority (EXEC-IMP-02); manifest persistence/reconstruction (EXEC-IMP-06/07); PLAT storage; REPO configuration; downstream transport.
+DOM identity/lifecycle/snapshot aggregate; registry semantics; manifest physical persistence; REPO configuration; downstream transport.
 
 #### Repository Evidence
 
-Existing snapshot path is `REPLACE_CONTRADICTORY_PATH` at the authority seam only. Existing DOM value objects and lifecycle remain foreign authority. No productive EXEC resolver is present.
+`src/application/snapshot.ts`, `src/domain/snapshot.ts`, and current snapshot tests. Existing caller path is replaced only at the authority seam.
 
 #### Expected Repository Impact
 
-EXEC-to-DOM exact-basis consumption seam, caller-authority rejection and direct contradiction/convergence tests. This is planning guidance, not a required file layout.
+EXEC-to-DOM basis consumption seam, caller mismatch rejection and direct convergence tests. Expected Repository Impact is planning guidance, not normative design authority.
 
 #### Implementation Constraints
 
-Caller fields cannot become authority; preserve DOM identity and snapshot lifecycle; use exact supported basis; reject stale/mismatched basis without mutation; no silent version conversion.
+No caller authority, no silent conversion, no DOM identity transfer, no snapshot mutation on rejection and exact frozen basis preservation.
 
 #### Internal Prerequisites
 
-`EXEC-IMP-02`.
+`EXEC-IMP-03`, `EXEC-IMP-04`.
 
 #### Cross-Spec Prerequisites
 
-| Owner SPEC | Required capability | Implementation state | Blocking? |
-|---|---|---|---|
-| SPEC-DOM-001 | canonical snapshot/attempt identity and immutable snapshot state | conformant contract; productive integration unavailable | No for local contract closure; yes for integrated proof |
+DOM identity/snapshot producer is defined but `PRODUCTIVE_AVAILABILITY = NO`, class `REQUIRED_FOR_INTEGRATED_PROOF`; no local closure block because the local binding witness uses a contract fixture.
 
 #### Producer / Consumer Contract Proof
 
-`PCP-DOM-EXEC-01` (full record in §12); the capability is integrated-proof-only and is not promoted by this unit.
+`CAPABILITY_ID = DOM-EXEC-IDENTITY-SNAPSHOT`; authority owner DOM; producer DOM canonical resolver; produced contract identities, snapshot and exact basis; consumer EXEC-IMP-06; semantic status defined; local testability no; productive availability no; dependency class `REQUIRED_FOR_INTEGRATED_PROOF`; edge `EXEC-001 → DOM-001`; integrated-only blocking.
 
 #### Capability Availability and Blocking Effect
 
-`DOM-EXEC-IDENTITY-SNAPSHOT`: DEFINED authority/contract, local testability NO, productive availability NO, `REQUIRED_FOR_INTEGRATED_PROOF`, integrated-only blocking effect. Local contract fixture proves only the consumer contract.
+The local contract fixture proves only binding semantics. No downstream promotion is claimed.
 
 #### Temporal Authority Preconditions
 
-`NOT_APPLICABLE` to local EXEC contract binding. Any mutable authority re-observation before an external effect belongs to the owning DOM/PLAT/GIT operation; this unit does not invent temporal semantics.
+`NOT_APPLICABLE` to local binding; any observe-then-commit effect revalidation remains with the approved owner.
 
 #### Acceptance Criteria
 
-1. Activity start obtains exact versions from the authority-backed EXEC basis, and caller-selected values cannot establish snapshot state; registry mutation after start cannot alter the frozen basis (`LOCAL_PROVABILITY = YES` for the local binding witness).
+1. Exact versions come from the authority-backed EXEC basis; arbitrary caller values cannot establish/change snapshot state and later registry mutation cannot rewrite the frozen basis (`LOCAL_PROVABILITY = YES`).
 
 #### ACCEPTANCE_WITNESS_MATRIX
 
-| Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Evidence | Owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at closure | Evidence type |
+| Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Expected evidence | Acceptance owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at local closure | Evidence type |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Exact authoritative basis binding | resolve/freeze | C-EXEC-005 / AC-EXEC-005 | snapshot/manifest basis | authority returns exact versions and frozen basis is retained | caller arbitrary versions or post-start registry mutation cannot establish/change basis | C-EXEC-005/012/016 | EXEC-IMP-05 | local authority-binding fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Exact basis binding | resolve/freeze | `C-EXEC-005` / `AC-EXEC-005` | snapshot/manifest basis | authority exact basis retained | caller mismatch/post-start registry mutation cannot change basis | basis-binding witness | EXEC-IMP-06 | local binding fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
 
 #### Local Closure
 
-`LOCAL_CLOSURE = YES` for the EXEC binding contribution. The DOM integrated producer is not required for local closure because the local witness uses an explicit contract fixture; it remains required for integrated proof.
+`LOCAL_CLOSURE = YES` for the EXEC contribution. DOM productive runtime remains integrated proof only.
 
 #### Work Can Start
 
-`WORK_CAN_START = NO` until `EXEC-IMP-02` completes.
+`WORK_CAN_START = NO` until IMP-03 and IMP-04 complete.
 
 #### Shared Closure Boundary
 
-`SHARED_CLOSURE_BOUNDARY = YES` for the single caller-basis contradiction. Manifest freeze is independently closed by EXEC-IMP-06 and is not merged here.
+`SHARED_CLOSURE_BOUNDARY = YES` for caller-basis convergence; manifest completeness/freeze is separate.
 
 #### Required Tests
 
-Authority-backed version binding, caller mismatch, arbitrary caller-version rejection, registry mutation after start, basis immutability and no snapshot mutation on rejection.
+Authority-backed versions, caller mismatch, arbitrary caller-version rejection, registry mutation after start, basis immutability and no snapshot mutation.
 
 #### Legacy / Cutover Impact
 
-`CUTOVER`; new incompatible basis uses new DOM attempt/identity; historical snapshots remain unchanged. REPO legacy adaptation remains foreign.
+`CUTOVER`; a changed basis requires a new DOM attempt/identity; historical snapshots remain unchanged.
 
 #### Completion Evidence
 
-Direct C-EXEC-005/012/016 convergence report and no-caller-authority/no-mutation assertions. Evidence is locally producible for this unit's closure.
+`C-EXEC-005/012/016` binding report and no-caller-authority/no-mutation assertions.
 
 #### Risks
 
-Caller-authority bypass, current-registry reinterpretation and accidental DOM ownership transfer.
+Caller-authority bypass, current-registry reinterpretation and DOM ownership transfer.
 
 #### Issue Decomposition Readiness
 
@@ -802,127 +919,120 @@ Caller-authority bypass, current-registry reinterpretation and accidental DOM ow
 
 #### Initial DAG State
 
-`BLOCKED`; `BLOCKED_BY = EXEC-IMP-02`.
+`BLOCKED`; `BLOCKED_BY = EXEC-IMP-03, EXEC-IMP-04`.
 
 ---
 
-### EXEC-IMP-06 — Complete manifest and started-basis freeze
+### EXEC-IMP-07 — Complete immutable manifest and started-basis freeze
 
 `UNIT_FORMATION_REASON = SHARED_AUTHORITY + SHARED_PERSISTENCE_BOUNDARY + SHARED_CUTOVER + SHARED_CONFORMANCE`
 
 #### Goal
 
-Make the complete activity-attempt manifest contract complete before start and immutable after start, including exact schema/version basis and safe linkage to DOM identities.
+Make the activity-attempt manifest complete before start and immutable after start, including exact schema/version basis and DOM attachment references.
 
 #### Authority and Ownership
 
-- Primary component SPEC: `SPEC-EXEC-001` §§12.2, 13, 14, 17; `EXEC-MANIFEST-001`, `EXEC-MANIFEST-003`.
-- Portfolio obligations: `O-018`, `O-021`; approved role `CANONICAL_OWNER`.
-- Local ownership: manifest semantic fields, exact basis, expected schema/version freeze and cutover contract.
+- Requirements: `EXEC-MANIFEST-001`, `EXEC-MANIFEST-003`; obligations `O-018`, `O-021`; `CANONICAL_OWNER`.
+- Local ownership: manifest semantic content, completeness, exact basis and freeze/cutover.
 - Foreign ownership: DOM identity/attempt lifecycle and PLAT durability.
-- Authority Consumption Proof: `ACP-EXEC-06`; target manifest identity/reconstruction proof plus DOM identity proof.
-- Authority consumption result: local semantic authority complete; foreign productive availability is integrated-only.
+- Authority proofs: target manifest identity/reconstruction proofs and DOM audit §§17–23.
 
 #### Gap Matrix Coverage
 
-`GAP-012`, `GAP-017`; requirements `EXEC-MANIFEST-001`, `EXEC-MANIFEST-003`; acceptance `AC-EXEC-013`, `AC-EXEC-015`; conformance `C-EXEC-007`, `C-EXEC-012`.
+`GAP-009`, `GAP-011`; acceptance `AC-EXEC-013`, `AC-EXEC-015`.
 
 #### Portfolio Obligation Coverage
 
-`O-018`, `O-021`; approved role `CANONICAL_OWNER`.
+`O-018`, `O-021`; `CANONICAL_OWNER`.
 
 #### Validated Delta
 
 ```text
-OBSERVED: no productive complete manifest, expected-schema freeze or started
-          exact-version immutability exists.
-REQUIRED: complete manifest is attached before start; started schema/version/
-          manifest basis cannot mutate; a changed basis uses a new attempt.
-DELTA:    add the local immutable manifest contract and freeze/cutover proof.
+OBSERVED: no productive complete manifest or started-basis freeze exists.
+REQUIRED: one complete DOM-bound manifest before start; started schema/version/basis is immutable; changed basis is a new attempt.
+DELTA: add semantic manifest completeness/freeze contract without assigning storage authority.
 ```
 
 #### Required Behavior
 
-`LOCAL_BEHAVIOR`: construct one complete manifest for a DOM activity/attempt with paths, hashes, commits, basis, dependencies, findings, round, attempt, configuration, workdir, expected schema, exact versions and DOM references; after start reject mutation; changed basis is a new attempt/manifest. `END_TO_END_CONTRIBUTION`: EXEC-002/PLAT can apply/recover the frozen basis through their approved boundaries.
+`LOCAL_BEHAVIOR`: create one complete manifest with paths, hashes, commits, basis, dependencies, findings, round, attempt, configuration, workdir, schema and exact versions; reject post-start mutation and require a new attempt for changed basis. `END_TO_END_CONTRIBUTION`: EXEC-002/PLAT can apply/recover the frozen basis.
 
 #### Does Not Implement
 
-DOM identity/lifecycle; registry entry reconstruction (EXEC-IMP-03); physical persistence/recovery; session context application; external effect execution; consumer projections.
+DOM identity/lifecycle; registry reconstruction; physical persistence/recovery; session context; external effects; projections.
 
 #### Repository Evidence
 
-No productive manifest surface exists; prototype manifest values are non-authoritative. This is `ADD_NEW_CAPABILITY` plus typed integration seams, without fixing internal layout.
+No productive manifest under `src`; prototype values are non-authoritative. This is `ADD_NEW_CAPABILITY` plus typed foreign seams.
 
 #### Expected Repository Impact
 
-Manifest semantic boundary and direct completeness/freeze tests; persistence and DOM attachment seams remain foreign guidance.
+Manifest semantic boundary and direct completeness/freeze tests; persistence and DOM attachment remain integration seams. Expected Repository Impact is planning guidance, not normative design authority.
 
 #### Implementation Constraints
 
-Complete pre-start creation; immutable post-start basis; new AttemptId/new manifest for new basis; no path, filename, digest, checkpoint or correlation as identity.
+Complete pre-start creation, immutable post-start basis, new AttemptId for change, no path/digest/checkpoint alias as identity and no historical rewrite.
 
 #### Internal Prerequisites
 
-`EXEC-IMP-01`, `EXEC-IMP-02`.
+`EXEC-IMP-01`, `EXEC-IMP-03`.
 
 #### Cross-Spec Prerequisites
 
-| Owner SPEC | Required capability | Implementation state | Blocking? |
-|---|---|---|---|
-| SPEC-DOM-001 | activity/attempt/cycle identity and lifecycle | conformant contract; productive runtime unavailable | No for local closure; integrated proof only |
-| SPEC-PLAT-001 | durable manifest material and physical integrity/recovery | boundary defined; productive implementation unavailable | No for local closure; integrated proof only |
+DOM identity/attempt and PLAT durability are defined, unavailable productively and `REQUIRED_FOR_INTEGRATED_PROOF` only; no local closure block.
 
 #### Producer / Consumer Contract Proof
 
-`PCP-DOM-EXEC-01` and `PCP-PLAT-EXEC-01` (full records in §12), both integrated-proof-only.
+`CAPABILITY_ID = EXEC-ACTIVITY-MANIFEST`; authority owner EXEC; producer manifest semantic boundary; produced contract complete immutable manifest; consumers DOM/PLAT/EXEC-002; semantic status defined; local testability yes; productive availability no for foreign producers; dependency class integrated-proof-only for foreign capabilities.
 
 #### Capability Availability and Blocking Effect
 
-Foreign identity and physical material capabilities are DEFINED/DEFINED/NO/NO and `REQUIRED_FOR_INTEGRATED_PROOF`; local contract fixture is INFORMATIONAL and does not promote productive availability.
+Local manifest fixture is testable; physical persistence/DOM runtime remain integrated-only and do not block local closure.
 
 #### Temporal Authority Preconditions
 
-`NOT_APPLICABLE` for local manifest construction/freeze. Mutable external authority before effects remains owned by the relevant effect boundary.
+`NOT_APPLICABLE` for local construction/freeze; mutable external authority revalidation remains with the owning boundary.
 
 #### Acceptance Criteria
 
-1. Every started activity has all required manifest fields and exact schema/version references bound to DOM identities (`LOCAL_PROVABILITY = YES` for semantic completeness).
-2. Started manifest/schema/versions cannot mutate; a changed basis creates a new attempt/manifest and leaves history unchanged (`LOCAL_PROVABILITY = YES`).
+1. Every started activity has required manifest fields and exact schema/version references bound to DOM identities (`LOCAL_PROVABILITY = YES`).
+2. Started manifest/schema/version basis cannot mutate; a changed basis creates a new attempt and preserves history (`LOCAL_PROVABILITY = YES`).
 
 #### ACCEPTANCE_WITNESS_MATRIX
 
-| Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Evidence | Owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at closure | Evidence type |
+| Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Expected evidence | Acceptance owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at local closure | Evidence type |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Complete manifest | create/freeze | C-EXEC-007 / AC-EXEC-013 | activity/attempt manifest | complete pre-start manifest accepted | missing required field/identity rejected | C-EXEC-007 | EXEC-IMP-06 | local manifest fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
-| Started-basis immutability | preserve/reject | C-EXEC-012 / AC-EXEC-015 | started manifest | basis remains unchanged | post-start mutation rejected; new basis requires new attempt | C-EXEC-012 | EXEC-IMP-06 | local manifest fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Complete manifest | create/freeze | `C-EXEC-007` / `AC-EXEC-013` | activity/attempt manifest | complete pre-start manifest accepted | missing field/identity rejected | manifest witness | EXEC-IMP-07 | local manifest fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Basis immutability | preserve/reject | `C-EXEC-012` / `AC-EXEC-015` | started manifest | basis remains unchanged | post-start mutation rejected; new attempt required | freeze witness | EXEC-IMP-07 | local manifest fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
 
 #### Local Closure
 
-`LOCAL_CLOSURE = YES`; all completeness and freeze witnesses are local semantic evidence. PLAT persistence and DOM lifecycle are integrated-only.
+`LOCAL_CLOSURE = YES`; semantic completeness and freeze witnesses are local; PLAT durability is integrated-only.
 
 #### Work Can Start
 
-`WORK_CAN_START = NO` until `EXEC-IMP-01` and `EXEC-IMP-02` complete.
+`WORK_CAN_START = NO` until IMP-01 and IMP-03 complete.
 
 #### Shared Closure Boundary
 
-`SHARED_CLOSURE_BOUNDARY = YES` for complete manifest fields and started-basis immutability: same artifact, basis and local closure evidence. Identity/reconstruction and historical replay are intentionally split.
+`SHARED_CLOSURE_BOUNDARY = YES` for complete fields and freeze; identity/reconstruction and replay are separate.
 
 #### Required Tests
 
-Manifest completeness, DOM tuple attachment contract, missing/duplicate fields, pre-start creation, post-start mutation rejection, new-attempt cutover, basis immutability and history preservation.
+Manifest completeness, missing/duplicate field rejection, pre-start creation, post-start freeze, new-attempt cutover and history preservation.
 
 #### Legacy / Cutover Impact
 
-`CUTOVER` and `HISTORICAL_REPLAY`: old started basis is preserved; changed basis is a new attempt/identity; no legacy manifest is silently rewritten.
+`CUTOVER` and `HISTORICAL_REPLAY`; old started basis remains readable and unchanged.
 
 #### Completion Evidence
 
-C-EXEC-007/012 reports, complete field assertions, post-start mutation rejection and new-attempt evidence. All are locally producible.
+`C-EXEC-007/012` reports, complete-field assertions, mutation rejection and new-attempt evidence.
 
 #### Risks
 
-Manifest mutation, basis drift, identity aliasing and physical persistence being mistaken for semantic immutability.
+Manifest mutation, basis drift, identity aliasing and storage meaning leakage.
 
 #### Issue Decomposition Readiness
 
@@ -930,11 +1040,253 @@ Manifest mutation, basis drift, identity aliasing and physical persistence being
 
 #### Initial DAG State
 
-`BLOCKED`; `BLOCKED_BY = EXEC-IMP-01, EXEC-IMP-02`.
+`BLOCKED`; `BLOCKED_BY = EXEC-IMP-01, EXEC-IMP-03`.
 
 ---
 
-### EXEC-IMP-07 — Manifest identity, reconstruction and retry lineage
+### EXEC-IMP-08 — Registry identity and semantic reconstruction
+
+`UNIT_FORMATION_REASON = SHARED_AUTHORITY + SHARED_PERSISTENCE_BOUNDARY + SHARED_INVARIANT`
+
+#### Goal
+
+Make `REGISTRY_ENTRY` identity, scope, source-backed progression and fail-closed reconstruction semantically provable without owning physical storage.
+
+#### Authority and Ownership
+
+- Requirement: `EXEC-REGISTRY-004`; obligation `O-020`; `CANONICAL_OWNER`.
+- Local ownership: semantic create/rehydrate validation, identity, attachment, continuity and invalid-material rejection.
+- Foreign ownership: DOM `RepositoryId`; PLAT material/integrity/order/recovery; catalog sources.
+- Authority proofs: target SPEC audit §§17–20 and current source-bound handoffs.
+
+#### Gap Matrix Coverage
+
+`GAP-005`; acceptance `AC-EXEC-019`, `AC-EXEC-021` and contribution to `AC-EXEC-020`.
+
+#### Portfolio Obligation Coverage
+
+`O-020`; `CANONICAL_OWNER`.
+
+#### Validated Delta
+
+```text
+OBSERVED: scoped in-process entries exist, but persisted material, digest/source progression and semantic rehydration do not.
+REQUIRED: create and rehydrate are distinct; scope, references, progression, continuity and failure are validated before materialization.
+DELTA: add semantic reconstruction while preserving DOM/PLAT/source ownership.
+```
+
+#### Required Behavior
+
+`LOCAL_BEHAVIOR`: NORMAL includes DOM `RepositoryId`, BOOTSTRAP is system-scoped, and only complete source-backed material rehydrates; detached, corrupt, stale, skipped, foreign, overlapping or inconsistent material fails `CONTRACT_INVALID` without mutation. `END_TO_END_CONTRIBUTION`: PLAT supplies physical material and source supplies progression evidence.
+
+#### Does Not Implement
+
+DOM identity creation; physical storage/serialization/CAS/recovery; repository configuration; registry retirement; downstream mapping.
+
+#### Repository Evidence
+
+`src/domain/exec-registry.ts` identity and fixture basis; `src/application/exec-registry.ts` source selection. No productive persisted reconstruction path exists.
+
+#### Expected Repository Impact
+
+Registry semantic rehydration and direct invalid-material/continuity tests; physical persistence remains unfrozen guidance. Expected Repository Impact is planning guidance, not normative design authority.
+
+#### Implementation Constraints
+
+Create differs from rehydrate; canonical keys cannot be aliases; physical revision/CAS is not domain continuity; no untrusted material becomes valid state directly; no mutation on failure.
+
+#### Internal Prerequisites
+
+`EXEC-IMP-03`, `EXEC-IMP-04`.
+
+#### Cross-Spec Prerequisites
+
+DOM `RepositoryId`, source progression and PLAT material are defined, unavailable productively and `REQUIRED_FOR_INTEGRATED_PROOF`; local semantic fixtures provide local witnesses only.
+
+#### Producer / Consumer Contract Proof
+
+`CAPABILITY_ID = EXEC-CATALOG-RECONSTRUCTION`; authority owner EXEC; producers authorized NORMAL/BOOTSTRAP source and PLAT material boundary; produced contract validated scoped basis/progression; consumer EXEC-IMP-08; status defined; local testability yes via fixtures; productive availability no; dependency class integrated-proof-only for foreign producers; no local blocking.
+
+#### Capability Availability and Blocking Effect
+
+Local reconstruction fixtures are contract evidence only. Physical durability and source production remain integrated-only.
+
+#### Temporal Authority Preconditions
+
+Use the target `TEMPORAL_AUTHORITY_PROOF` for expected revision, independent source observation, drift detection and fail-closed result; do not invent a new protocol.
+
+#### Acceptance Criteria
+
+1. NORMAL/BOOTSTRAP identity and references rehydrate only with matching scope, source, digest, progression and continuity (`LOCAL_PROVABILITY = YES`).
+2. Detached, corrupt, stale, skipped, foreign, forged-later or overlapping material fails `CONTRACT_INVALID` with no mutation (`LOCAL_PROVABILITY = YES`).
+
+#### ACCEPTANCE_WITNESS_MATRIX
+
+| Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Expected evidence | Acceptance owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at local closure | Evidence type |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Registry identity | create/lookup/rehydrate | `C-EXEC-018` / `AC-EXEC-019` | catalog entry/basis | scoped NORMAL and BOOTSTRAP identities resolve correctly | cross-repository/wrong-scope substitution rejected | identity witness | EXEC-IMP-08 | reconstruction fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Reconstruction continuity | rehydrate/reject | `C-EXEC-020/022` / `AC-EXEC-021` | registry basis | legitimate source-backed successor rehydrates | forged/skipped/detached/digest mismatch → invalid/no mutation | reconstruction witness | EXEC-IMP-08 | progression fixture | DEFINED | DEFINED | YES | NO | REQUIRED_FOR_INTEGRATED_PROOF | YES | LOCAL_TEST_EVIDENCE |
+
+#### Local Closure
+
+`LOCAL_CLOSURE = YES`; semantic identity/reconstruction evidence is locally executable. PLAT durability remains integrated-only.
+
+#### Work Can Start
+
+`WORK_CAN_START = NO` until IMP-03 and IMP-04 complete.
+
+#### Shared Closure Boundary
+
+`SHARED_CLOSURE_BOUNDARY = YES` for registry identity and reconstruction; mutation concurrency is separate.
+
+#### Required Tests
+
+Two-repository isolation, NORMAL/BOOTSTRAP scope, duplicate create, wrong attachment, digest/source/reference mismatch, skipped/out-of-order/stale/foreign/forged material and no mutation on failure.
+
+#### Legacy / Cutover Impact
+
+`HISTORICAL_REPLAY` ownership is preserved; frozen scoped basis cannot be replaced by current or foreign material.
+
+#### Completion Evidence
+
+`C-EXEC-018/020/022` reports, identity/reconstruction proof, continuity evidence and no-mutation assertions.
+
+#### Risks
+
+Repository identity collapse, direct materialization of untrusted data and numeric revision mistaken for causal authority.
+
+#### Issue Decomposition Readiness
+
+`ISSUE_READY`; `VALIDATED_GAP_BACKING = YES`; `INDEPENDENT_CLOSURE = YES`.
+
+#### Initial DAG State
+
+`BLOCKED`; `BLOCKED_BY = EXEC-IMP-03, EXEC-IMP-04`.
+
+---
+
+### EXEC-IMP-09 — Registry mutation concurrency and idempotent retry
+
+`UNIT_FORMATION_REASON = SHARED_AUTHORITY + SHARED_INVARIANT + SHARED_PERSISTENCE_BOUNDARY + SHARED_CONFORMANCE`
+
+#### Goal
+
+Make registry publication require the expected current revision and deterministic mutation key, producing one semantic successor or no mutation with deterministic stale/idempotent outcomes.
+
+#### Authority and Ownership
+
+- Requirements: `EXEC-REGISTRY-001`, `EXEC-REGISTRY-004`; obligation `O-020`; `CANONICAL_OWNER`.
+- Local ownership: expected-revision semantics, stale/concurrent rejection, one-successor rule and retry reconciliation.
+- Foreign ownership: source publication and PLAT physical CAS/durability.
+- Authority proofs: target SPEC audit §24 and Gap Matrix temporal proof.
+
+#### Gap Matrix Coverage
+
+`GAP-004`, `GAP-015`; acceptance `AC-EXEC-008`, `AC-EXEC-022`.
+
+#### Portfolio Obligation Coverage
+
+`O-020`; `CANONICAL_OWNER`.
+
+#### Validated Delta
+
+```text
+OBSERVED: in-memory register increments revision without expected revision, mutation key, source reconciliation or idempotent retry.
+REQUIRED: expected basis, one semantic successor/no mutation, stale rejection and same-key replay are explicit.
+DELTA: add semantic mutation and retry contract without choosing physical CAS/storage.
+```
+
+#### Required Behavior
+
+`LOCAL_BEHAVIOR`: `ExpectedCatalogRevision` and `RegistryMutationKey` are required; stale/competing/conflicting-key commands fail closed; identical key/payload replays the original result without a second revision; ambiguous retry reconciles by key. `END_TO_END_CONTRIBUTION`: PLAT/source provide physical publication/integrity.
+
+#### Does Not Implement
+
+Physical CAS/journal/database/durability; source publication; DOM lifecycle; external effects; transport.
+
+#### Repository Evidence
+
+`CatalogBasis.register` and `RegisterExecCapability` show the in-memory revision/plain-result path; no mutation command/reconciliation surface exists.
+
+#### Expected Repository Impact
+
+Registry mutation command/result semantics and direct stale/concurrency/idempotency tests. Expected Repository Impact is planning guidance, not normative design authority.
+
+#### Implementation Constraints
+
+One semantic accept/reject decision; no last-writer-wins/merge; physical CAS cannot define domain meaning; last valid basis is preserved on failure.
+
+#### Internal Prerequisites
+
+`EXEC-IMP-03`, `EXEC-IMP-04`, `EXEC-IMP-05`, `EXEC-IMP-08`.
+
+#### Cross-Spec Prerequisites
+
+Source publication and PLAT physical integrity are `REQUIRED_FOR_INTEGRATED_PROOF`, defined but unavailable productively; no local closure block.
+
+#### Producer / Consumer Contract Proof
+
+`CAPABILITY_ID = EXEC-REGISTRY-MUTATION`; authority owner EXEC; producer semantic mutation boundary plus source/PLAT physical producers; produced contract one successor/no mutation and idempotent result; consumer EXEC-IMP-09 and snapshot/manifest consumers; semantic status defined; local testability yes; productive availability no for foreign producers; dependency class integrated-proof-only for foreign capabilities.
+
+#### Capability Availability and Blocking Effect
+
+Fixture mutation witnesses are local contract evidence only. No productive source/CAS promotion is claimed.
+
+#### Temporal Authority Preconditions
+
+`TEMPORAL_AUTHORITY_PROOF = TEMPORAL_AUTHORITY_PROTECTED`, inherited from target SPEC/audit: initial observation, expected revision/digest, independent source re-observation, drift detection, fail-closed behavior and state preservation are already authoritative.
+
+#### Acceptance Criteria
+
+1. Valid mutation publishes one successor; stale/concurrent expected revision fails `CONTRACT_INVALID`/`STALE_CATALOG_BASIS` with no mutation (`LOCAL_PROVABILITY = YES`).
+2. Same mutation key and payload replay the original result without a new revision; conflicting payload fails and ambiguous retry reconciles before retry (`LOCAL_PROVABILITY = YES`).
+
+#### ACCEPTANCE_WITNESS_MATRIX
+
+| Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Expected evidence | Acceptance owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at local closure | Evidence type |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Expected revision/one successor | register/publish | `C-EXEC-023` / `AC-EXEC-022` | catalog revision | valid successor accepted once | stale/concurrent basis → invalid/no mutation | mutation witness | EXEC-IMP-09 | local mutation fixture | DEFINED | DEFINED | YES | NO | REQUIRED_FOR_INTEGRATED_PROOF | YES | LOCAL_TEST_EVIDENCE |
+| Idempotent retry | reconcile/retry | `C-EXEC-023` / `AC-EXEC-022` | mutation result/revision | same key/payload replays original | key payload conflict/ambiguous stale retry rejected | retry witness | EXEC-IMP-09 | local mutation fixture | DEFINED | DEFINED | YES | NO | REQUIRED_FOR_INTEGRATED_PROOF | YES | LOCAL_TEST_EVIDENCE |
+
+#### Local Closure
+
+`LOCAL_CLOSURE = YES`; semantic concurrency/idempotency witnesses are locally executable. Physical CAS/durability is integrated-only.
+
+#### Work Can Start
+
+`WORK_CAN_START = NO` until IMP-03, IMP-04, IMP-05 and IMP-08 complete.
+
+#### Shared Closure Boundary
+
+`SHARED_CLOSURE_BOUNDARY = YES` for stale, successor and retry semantics; physical persistence is outside the unit.
+
+#### Required Tests
+
+Expected revision, two competing successors, stale rejection, no mutation, same-key replay, key/payload conflict, ambiguous-result reconciliation and retained prior basis.
+
+#### Legacy / Cutover Impact
+
+`CUTOVER` and `HISTORICAL_REPLAY`; accepted basis remains immutable and retry cannot reinterpret historical material.
+
+#### Completion Evidence
+
+`C-EXEC-023` direct concurrency/idempotency report, no-mutation proof, stale reason and same-key replay identity/revision evidence.
+
+#### Risks
+
+Last-writer-wins, duplicate revisions, physical CAS promoted to semantics and retry without reconciliation.
+
+#### Issue Decomposition Readiness
+
+`ISSUE_READY`; `VALIDATED_GAP_BACKING = YES`; `INDEPENDENT_CLOSURE = YES`.
+
+#### Initial DAG State
+
+`BLOCKED`; `BLOCKED_BY = EXEC-IMP-03, EXEC-IMP-04, EXEC-IMP-05, EXEC-IMP-08`.
+
+---
+
+### EXEC-IMP-10 — Manifest identity, reconstruction and retry lineage
 
 `UNIT_FORMATION_REASON = SHARED_AUTHORITY + SHARED_PERSISTENCE_BOUNDARY + SHARED_INVARIANT`
 
@@ -944,114 +1296,106 @@ Make one immutable `ACTIVITY_ATTEMPT_MANIFEST` per DOM tuple semantically recons
 
 #### Authority and Ownership
 
-- Primary component SPEC: `SPEC-EXEC-001` §§12.2–12.4, 13, 16; `EXEC-MANIFEST-004`.
-- Portfolio obligations: `O-018`, `O-021`; approved role `CANONICAL_OWNER`.
-- Local ownership: manifest identity, attachment, digest/cardinality validation, semantic rehydration and retry lineage.
-- Foreign capabilities: DOM resolves identity; PLAT supplies physical integrity/recovery; neither is absorbed.
-- Authority Consumption Proof: `ACP-EXEC-07`; target and upstream aggregate proofs are complete.
-- Authority consumption result: local semantic authority complete; productive foreign material remains integrated-proof-only.
+- Requirement: `EXEC-MANIFEST-004`; obligations `O-018`, `O-021`; `CANONICAL_OWNER`.
+- Local ownership: tuple identity, attachment/cardinality, digest/basis validation, rehydration and retry lineage.
+- Foreign ownership: DOM identity and PLAT physical integrity/recovery.
+- Authority proofs: target SPEC audit §§17–§18 and DOM audit §§17–§23.
 
 #### Gap Matrix Coverage
 
-`GAP-014`; requirement `EXEC-MANIFEST-004`; acceptance `AC-EXEC-020` and contribution to `AC-EXEC-018`; conformance `C-EXEC-019`, `C-EXEC-020`.
+`GAP-012`; acceptance `AC-EXEC-018`, `AC-EXEC-020` and contribution to `AC-EXEC-014/016`.
 
 #### Portfolio Obligation Coverage
 
-`O-018`, `O-021`; approved role `CANONICAL_OWNER`.
+`O-018`, `O-021`; `CANONICAL_OWNER`.
 
 #### Validated Delta
 
 ```text
-OBSERVED: no productive manifest identity, digest, attachment validator or
-          semantic rehydration/retry path exists.
-REQUIRED: exactly one immutable manifest per DOM tuple; create differs from
-          rehydrate; detached/stale/corrupt/duplicate material fails closed;
-          retry uses a new AttemptId and manifest.
-DELTA:    add local semantic identity/reconstruction and retry-lineage proof.
+OBSERVED: no productive manifest identity, digest, attachment validator or semantic rehydration/retry path exists.
+REQUIRED: exactly one immutable manifest per DOM tuple; detached/stale/corrupt/duplicate material fails closed; retry uses a new AttemptId.
+DELTA: add local semantic identity/reconstruction and retry-lineage proof.
 ```
 
 #### Required Behavior
 
-`LOCAL_BEHAVIOR`: create exactly once before attempt start; rehydrate only after physical and semantic validation; preserve `(ExecutionId, ActivityId, AttemptId)` and `ArtifactCycleId` lineage; reject detached/corrupt/stale/duplicate material without mutation; retry creates a new attempt identity. `END_TO_END_CONTRIBUTION`: PLAT supplies material and EXEC-002 applies context under their contracts.
+`LOCAL_BEHAVIOR`: create exactly once before start, rehydrate only after semantic/physical validation, preserve `(ExecutionId, ActivityId, AttemptId)` and `ArtifactCycleId` lineage, reject detached/corrupt/stale/duplicate material without mutation and create a new attempt for retry. `END_TO_END_CONTRIBUTION`: PLAT supplies material and EXEC-002 applies context.
 
 #### Does Not Implement
 
-DOM identity creation; PLAT serialization/durability/recovery; EXEC-002 sessions; history replay orchestration; external effects; UI/OPS mapping.
+DOM identity creation; PLAT storage/recovery; EXEC-002 sessions; replay orchestration; external effects; UI/OPS.
 
 #### Repository Evidence
 
-No productive manifest persistence or reconstruction; prototype is in-memory only. Use `ADD_NEW_CAPABILITY` and a typed physical-integrity seam.
+No productive manifest persistence/reconstruction; prototype is transient. This is `ADD_NEW_CAPABILITY` with typed DOM/PLAT seams.
 
 #### Expected Repository Impact
 
-Manifest identity/rehydration boundary and direct reconstruction/retry tests; no physical persistence mechanism is frozen.
+Manifest identity/rehydration semantic boundary and direct reconstruction/retry tests; no physical mechanism is frozen. Expected Repository Impact is planning guidance, not normative design authority.
 
 #### Implementation Constraints
 
-Canonical DOM tuple is authoritative; `ManifestContentRevision=1` is distinct from domain/physical revision; untrusted material cannot become valid state directly; no mutation on failure.
+DOM tuple is authoritative; `ManifestContentRevision=1` is distinct from physical revision; untrusted material cannot become valid state; no mutation on failure.
 
 #### Internal Prerequisites
 
-`EXEC-IMP-03`, `EXEC-IMP-06`.
+`EXEC-IMP-07`, `EXEC-IMP-08`.
 
 #### Cross-Spec Prerequisites
 
-| Owner SPEC | Required capability | Implementation state | Blocking? |
-|---|---|---|---|
-| SPEC-DOM-001 | Execution/Activity/Attempt/ArtifactCycle identity | conformant contract; productive runtime unavailable | No for local closure; integrated proof only |
-| SPEC-PLAT-001 | physical manifest material and integrity/recovery | boundary defined; productive implementation unavailable | No for local closure; integrated proof only |
+DOM tuple and PLAT physical material are defined, unavailable productively, `REQUIRED_FOR_INTEGRATED_PROOF`; local fixture remains contract evidence only.
 
 #### Producer / Consumer Contract Proof
 
-`PCP-DOM-EXEC-01` and `PCP-PLAT-EXEC-01` (full records in §12), integrated-proof-only; local reconstruction fixtures do not promote availability.
+`CAPABILITY_ID = EXEC-MANIFEST-RECONSTRUCTION`; authority owner EXEC/DOM boundary; producers DOM identity and PLAT material; produced contract validated immutable tuple/basis/digest; consumer EXEC-IMP-10; status defined; local testability yes; productive availability no; integrated-only blocking.
 
 #### Capability Availability and Blocking Effect
 
-Foreign capabilities are DEFINED/DEFINED/NO/NO, `REQUIRED_FOR_INTEGRATED_PROOF`, integrated-only blocking. Local fixture is INFORMATIONAL.
+Foreign productive identity/material availability does not block local semantic closure.
 
 #### Temporal Authority Preconditions
 
-`NOT_APPLICABLE` to local identity/reconstruction; retry lineage is a semantic identity rule, not external effect confirmation.
+`NOT_APPLICABLE` to identity/reconstruction; retry lineage is semantic identity, not external effect authorization.
 
 #### Acceptance Criteria
 
-1. One manifest is created/reconstructed for the exact DOM tuple with content revision and digest; attachment and cardinality are validated (`LOCAL_PROVABILITY = YES`).
-2. Detached, stale, corrupt, duplicate or cross-attempt material fails closed without mutation; retry uses a new AttemptId/manifest (`LOCAL_PROVABILITY = YES`).
+1. One manifest is created/reconstructed for the exact DOM tuple with content revision and digest; attachment/cardinality are validated (`LOCAL_PROVABILITY = YES`).
+2. Detached, stale, corrupt or duplicate material fails closed without mutation; retry creates a new AttemptId/manifest (`LOCAL_PROVABILITY = YES`).
 
 #### ACCEPTANCE_WITNESS_MATRIX
 
-| Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Evidence | Owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at closure | Evidence type |
+| Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Expected evidence | Acceptance owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at local closure | Evidence type |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Manifest identity/reconstruction | create/rehydrate | C-EXEC-019 / AC-EXEC-020 | immutable manifest | one DOM tuple creates and rehydrates | duplicate/detached/digest/basis mismatch → `CONTRACT_INVALID` | C-EXEC-019/020 | EXEC-IMP-07 | local reconstruction fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
-| Retry lineage | retry/recreate | C-EXEC-017 / AC-EXEC-018 | attempt/manifest lineage | new AttemptId/new manifest preserves basis | same manifest reuse or current-registry reinterpretation rejected | C-EXEC-017 | EXEC-IMP-07 | local reconstruction fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Manifest identity/rehydration | create/rehydrate | `C-EXEC-019` / `AC-EXEC-020` | immutable manifest | one tuple creates/rehydrates | duplicate/detached/digest/basis mismatch → invalid | manifest reconstruction witness | EXEC-IMP-10 | local reconstruction fixture | DEFINED | DEFINED | YES | NO | REQUIRED_FOR_INTEGRATED_PROOF | YES | LOCAL_TEST_EVIDENCE |
+| Retry lineage | retry/recreate | `C-EXEC-017` / `AC-EXEC-018` | attempt/manifest lineage | new AttemptId preserves basis | same-manifest reuse/current reinterpretation rejected | retry witness | EXEC-IMP-10 | local reconstruction fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
 
 #### Local Closure
 
-`LOCAL_CLOSURE = YES`; semantic identity/reconstruction/retry evidence is locally executable. PLAT durable proof remains integrated-only.
+`LOCAL_CLOSURE = YES`; semantic identity/reconstruction/retry evidence is local. PLAT durable evidence is integrated-only.
 
 #### Work Can Start
 
-`WORK_CAN_START = NO` until `EXEC-IMP-03` and `EXEC-IMP-06` complete.
+`WORK_CAN_START = NO` until IMP-07 and IMP-08 complete.
 
 #### Shared Closure Boundary
 
-`SHARED_CLOSURE_BOUNDARY = YES` for manifest identity, rehydration and retry lineage. Complete field/freeze work and historical replay are separate closure boundaries.
+`SHARED_CLOSURE_BOUNDARY = YES` for identity, attachment, reconstruction and retry lineage; checkpoint/replay declaration is separate.
 
 #### Required Tests
 
-Exact tuple uniqueness, one-manifest cardinality, attachment mismatch, duplicate creation, digest/schema/basis mismatch, stale/current registry separation, no mutation on failure, retry new identity and reconstruction equality.
+Tuple uniqueness, one-manifest cardinality, attachment mismatch, duplicate creation, digest/schema/basis mismatch, current-registry divergence, no mutation on failure and new-AttemptId retry.
 
 #### Legacy / Cutover Impact
 
-`HISTORICAL_REPLAY` and `CUTOVER`: retry/new basis is new identity; original manifest remains immutable and replayable.
+`HISTORICAL_REPLAY` and `CUTOVER`; retry/new basis is new identity and original manifest remains immutable.
 
 #### Completion Evidence
 
-C-EXEC-019/020 reports, identity/reconstruction proof, no-mutation evidence and new-AttemptId retry evidence. All are locally producible.
+`C-EXEC-019/020` reports, identity/reconstruction proof, no-mutation evidence and new-AttemptId evidence.
 
 #### Risks
 
-ManifestId invention, detached material acceptance, duplicate attachment and current-registry reinterpretation.
+Manifest identity invention, detached material acceptance and current-registry reinterpretation.
 
 #### Issue Decomposition Readiness
 
@@ -1059,124 +1403,123 @@ ManifestId invention, detached material acceptance, duplicate attachment and cur
 
 #### Initial DAG State
 
-`BLOCKED`; `BLOCKED_BY = EXEC-IMP-03, EXEC-IMP-06`.
+`BLOCKED`; `BLOCKED_BY = EXEC-IMP-07, EXEC-IMP-08`.
 
 ---
 
-### EXEC-IMP-08 — Safe checkpoint and resume-basis declaration
+### EXEC-IMP-11 — Safe checkpoint and original-basis historical replay
 
-`UNIT_FORMATION_REASON = SHARED_AUTHORITY + SHARED_INTEGRATION_SEAM + SHARED_CONFORMANCE`
+`UNIT_FORMATION_REASON = SHARED_AUTHORITY + SHARED_PERSISTENCE_BOUNDARY + SHARED_CUTOVER + SHARED_CONFORMANCE`
 
 #### Goal
 
-Make safe checkpoints and resumable basis declarations explicit in the manifest/contract while preserving EXEC-002 context application and PLAT physical replay ownership.
+Declare safe checkpoint/resume basis and preserve original manifest/catalog interpretation during historical replay, without owning session application or physical replay.
 
 #### Authority and Ownership
 
-- Primary component SPEC: `SPEC-EXEC-001` §§13, 14, 16; `EXEC-MANIFEST-002`.
-- Portfolio obligation: `O-021`; approved role `CANONICAL_OWNER`.
-- Local ownership: checkpoint declaration and resume-basis contract.
-- Foreign ownership: EXEC-002 applies session context; PLAT replays physical records.
-- Authority Consumption Proof: `ACP-EXEC-08`; target §12.4 and approved foreign boundary contracts are sufficient.
-- Authority consumption result: local contract consumable; foreign availability integrated-only.
+- Requirements: `EXEC-MANIFEST-002`, `EXEC-HISTORY-001`; obligation `O-021`; `CANONICAL_OWNER`.
+- Local ownership: checkpoint declaration, resume-basis contract and original-basis replay guard.
+- Foreign ownership: EXEC-002 context application and PLAT physical replay.
+- Authority proofs: target SPEC §§12.2–§12.4 and current upstream capability records.
 
 #### Gap Matrix Coverage
 
-`GAP-013`; requirement `EXEC-MANIFEST-002`; acceptance `AC-EXEC-014`; conformance `C-EXEC-017`.
+`GAP-010`, `GAP-013`; acceptance `AC-EXEC-014`, `AC-EXEC-016` and contribution to `AC-EXEC-018`.
 
 #### Portfolio Obligation Coverage
 
-`O-021`; approved role `CANONICAL_OWNER`.
+`O-021`; `CANONICAL_OWNER`.
 
 #### Validated Delta
 
 ```text
-OBSERVED: no productive checkpoint declaration or resume-basis surface.
-REQUIRED: manifest declares safe checkpoints and basis; context application and
-          physical replay remain EXEC-002/PLAT responsibilities.
-DELTA:    add the local declaration and owner-preserving handoff contract.
+OBSERVED: no productive checkpoint declaration, resume-basis surface or original-basis replay path exists.
+REQUIRED: absent declaration cannot authorize resume; historical replay uses its original frozen basis even when the current registry differs.
+DELTA: add local declaration and replay-protection semantics while preserving EXEC-002/PLAT ownership.
 ```
 
 #### Required Behavior
 
-`LOCAL_BEHAVIOR`: declare safe checkpoint and exact resume basis; reject resume authorization when declaration/basis is absent. `END_TO_END_CONTRIBUTION`: EXEC-002 applies persisted context and PLAT performs physical replay without EXEC acquiring those responsibilities.
+`LOCAL_BEHAVIOR`: manifest declares safe checkpoint and exact resume basis; missing basis cannot authorize resume; historical replay reproduces original schema/catalog/version/hash/commit/result/checkpoint basis and rejects current-registry reinterpretation. `END_TO_END_CONTRIBUTION`: EXEC-002 applies context and PLAT replays durable records.
 
 #### Does Not Implement
 
-Session/assignment creation; scheduler; physical persistence/recovery; retry policy; lifecycle transition; external effect execution.
+Session/assignment/scheduler; physical persistence/recovery; retry scheduler; DOM lifecycle; external effect; UI/OPS.
 
 #### Repository Evidence
 
-Only prototype checkpoint-shaped data exists. Use `ADD_NEW_CAPABILITY` for declaration semantics and integration seams to EXEC-002/PLAT.
+Only prototype checkpoint/history-shaped values exist. Use new semantic declaration/replay guard with PLAT/EXEC-002 integration seams.
 
 #### Expected Repository Impact
 
-Manifest checkpoint/basis contract and direct declaration/delegation tests; no session or persistence implementation is frozen.
+Manifest checkpoint/replay contract and direct divergence tests; no session or physical storage mechanism is frozen. Expected Repository Impact is planning guidance, not normative design authority.
 
 #### Implementation Constraints
 
-No resume without declared safe checkpoint/basis; transient text/session memory is not authority; preserve EXEC-002/PLAT ownership.
+No resume without declared basis; transient text/session memory is not authority; current registry cannot reinterpret history; no historical mutation.
 
 #### Internal Prerequisites
 
-`EXEC-IMP-06`.
+`EXEC-IMP-07`, `EXEC-IMP-10`.
 
 #### Cross-Spec Prerequisites
 
-| Owner SPEC | Required capability | Implementation state | Blocking? |
+| Owner | Required capability | Implementation state | Blocking? |
 |---|---|---|---|
-| SPEC-EXEC-002 | context application between sessions | boundary defined; productive implementation unavailable | No for local closure; integrated proof only |
-| SPEC-PLAT-001 | physical replay/recovery | boundary defined; productive implementation unavailable | No for local closure; integrated proof only |
+| SPEC-EXEC-002 | apply declared resume context | defined; productive availability `NO` | No for local closure; integrated proof only |
+| SPEC-PLAT-001 | durable replay/recovery material | defined; productive availability `NO` | No for local closure; integrated proof only |
 
 #### Producer / Consumer Contract Proof
 
-`PCP-EXEC2-EXEC-01` and `PCP-PLAT-EXEC-01` (full records in §12), integrated-proof-only.
+`CAPABILITY_ID = EXEC-RESUME-HISTORICAL-BASIS`; authority owner EXEC; producer manifest/basis semantics; produced contract safe checkpoint and original-basis replay guard; consumers EXEC-002/PLAT; semantic status defined; local testability yes; productive availability no for foreign producers; dependency class integrated-proof-only; blocking effect integrated-only.
 
 #### Capability Availability and Blocking Effect
 
-Both foreign capabilities are DEFINED/DEFINED/NO/NO with `REQUIRED_FOR_INTEGRATED_PROOF`; local declaration fixture is INFORMATIONAL.
+Local declaration and frozen-basis fixture witnesses are executable. Context application and durable replay are integrated-only and do not block local closure.
 
 #### Temporal Authority Preconditions
 
-`NOT_APPLICABLE`: no external effect is committed by declaring a checkpoint.
+`NOT_APPLICABLE` to historical interpretation; no observe-then-commit effect is owned here.
 
 #### Acceptance Criteria
 
-1. Manifest declares safe checkpoint and resume basis; absence cannot authorize resume (`LOCAL_PROVABILITY = YES`).
+1. Manifest declares safe checkpoint and exact resume basis; absent declaration cannot authorize resume (`LOCAL_PROVABILITY = YES`).
+2. Historical replay reproduces the original basis even when current registry differs; no silent conversion/reinterpretation occurs (`LOCAL_PROVABILITY = YES`).
 
 #### ACCEPTANCE_WITNESS_MATRIX
 
-| Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Evidence | Owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at closure | Evidence type |
+| Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Expected evidence | Acceptance owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at local closure | Evidence type |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Checkpoint/resume declaration | declare/reject | C-EXEC-017 / AC-EXEC-014 | manifest basis | declared safe checkpoint accepted | absent basis cannot authorize resume | C-EXEC-017 | EXEC-IMP-08 | local declaration fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Checkpoint/resume declaration | declare/reject | `C-EXEC-017` / `AC-EXEC-014` | manifest basis | safe checkpoint accepted | absent basis cannot authorize resume | checkpoint witness | EXEC-IMP-11 | local declaration fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Historical replay | replay/resolve | `C-EXEC-016` / `AC-EXEC-016` | historical manifest/catalog | original basis reproduced | current registry differs but cannot reinterpret/convert | replay witness | EXEC-IMP-11 | local replay fixture | DEFINED | DEFINED | YES | NO | REQUIRED_FOR_INTEGRATED_PROOF | YES | LOCAL_TEST_EVIDENCE |
 
 #### Local Closure
 
-`LOCAL_CLOSURE = YES`; declaration and negative authorization witnesses are local. Context application and physical replay are integrated-only.
+`LOCAL_CLOSURE = YES`; declaration and frozen-basis replay protection are locally testable. Physical replay/context application are integrated-only.
 
 #### Work Can Start
 
-`WORK_CAN_START = NO` until `EXEC-IMP-06` completes.
+`WORK_CAN_START = NO` until IMP-07 and IMP-10 complete.
 
 #### Shared Closure Boundary
 
-`SHARED_CLOSURE_BOUNDARY = YES` for declaration and resume-basis evidence; EXEC-002 context application and PLAT replay are excluded.
+`SHARED_CLOSURE_BOUNDARY = YES`: both gaps operate on the same immutable manifest basis, use the same local fixture-level readiness (`AUTHORITY_STATUS=DEFINED`, `CONTRACT_STATUS=DEFINED`, `LOCAL_TESTABILITY=YES`, `PRODUCTIVE_AVAILABILITY=NO`), have compatible `REQUIRED_FOR_INTEGRATED_PROOF` foreign handoffs, and close with the same local declaration/basis evidence. Physical recovery and session application remain foreign.
 
 #### Required Tests
 
-Safe checkpoint declaration, complete basis, absent declaration rejection, transient-text rejection and owner-preserving handoff contract tests.
+Safe checkpoint declaration, absent basis rejection, transient-text rejection, original-basis replay, current-registry divergence, schema/version/hash/commit preservation and no historical mutation.
 
 #### Legacy / Cutover Impact
 
-`HISTORICAL_REPLAY`: original checkpoint/basis remains attached to its manifest; a changed basis is a new attempt.
+`HISTORICAL_REPLAY`; original manifest/catalog basis is retained; changed basis is a new attempt.
 
 #### Completion Evidence
 
-C-EXEC-017 report, declaration/basis assertions and rejection of resume without declaration. Evidence is locally producible.
+`C-EXEC-016/017` reports, checkpoint/basis assertions, divergence rejection and original-basis preservation.
 
 #### Risks
 
-Transient session memory as authority, checkpoint without basis, and EXEC ownership of context/recovery.
+Transient memory as authority, current-registry reinterpretation and PLAT recovery meaning leakage.
 
 #### Issue Decomposition Readiness
 
@@ -1184,365 +1527,237 @@ Transient session memory as authority, checkpoint without basis, and EXEC owners
 
 #### Initial DAG State
 
-`BLOCKED`; `BLOCKED_BY = EXEC-IMP-06`.
-
----
-
-### EXEC-IMP-09 — Historical original-basis replay protection
-
-`UNIT_FORMATION_REASON = SHARED_AUTHORITY + SHARED_PERSISTENCE_BOUNDARY + SHARED_CUTOVER`
-
-#### Goal
-
-Preserve the original EXEC interpretation during historical replay and prevent the current registry from reinterpreting a frozen manifest/catalog basis.
-
-#### Authority and Ownership
-
-- Primary component SPEC: `SPEC-EXEC-001` §§12.1–12.4, 13, 16, 17; `EXEC-HISTORY-001`.
-- Portfolio obligation: `O-021`; approved role `CANONICAL_OWNER`.
-- Local ownership: original-basis interpretation and replay protection.
-- Foreign ownership: PLAT physical historical material/replay.
-- Authority Consumption Proof: `ACP-EXEC-09`; reconstruction and historical proofs are complete.
-- Authority consumption result: local semantic authority consumable; PLAT productive replay remains integrated-only.
-
-#### Gap Matrix Coverage
-
-`GAP-015`; requirement `EXEC-HISTORY-001`; acceptance `AC-EXEC-016`; conformance `C-EXEC-016`.
-
-#### Portfolio Obligation Coverage
-
-`O-021`; approved role `CANONICAL_OWNER`.
-
-#### Validated Delta
-
-```text
-OBSERVED: no productive historical manifest/catalog replay path exists.
-REQUIRED: original identity, catalog/schema/version/hash/commit/result/checkpoint
-          basis is preserved and current registry cannot reinterpret history.
-DELTA:    add the local replay-basis guard while consuming PLAT replay material.
-```
-
-#### Required Behavior
-
-`LOCAL_BEHAVIOR`: historical query/replay uses the stored original basis and rejects current-registry substitution or silent conversion. `END_TO_END_CONTRIBUTION`: PLAT supplies ordered durable history; EXEC preserves semantic interpretation.
-
-#### Does Not Implement
-
-Physical replay/storage; current registry construction (EXEC-IMP-02); manifest identity construction (EXEC-IMP-07); execution/session runtime; external effects; UI/OPS projection.
-
-#### Repository Evidence
-
-No productive replay surface; prototype history is transient. Use `ADD_INTEGRATION_SEAM` to PLAT and direct frozen-basis replay tests.
-
-#### Expected Repository Impact
-
-Original-basis replay contract and direct current-registry-divergence tests; physical replay mechanism is not frozen.
-
-#### Implementation Constraints
-
-Preserve original repository/catalog identity, schema, versions, hashes, commits, results and checkpoints; reject reinterpretation/conversion; no historical mutation.
-
-#### Internal Prerequisites
-
-`EXEC-IMP-03`, `EXEC-IMP-07`.
-
-#### Cross-Spec Prerequisites
-
-| Owner SPEC | Required capability | Implementation state | Blocking? |
-|---|---|---|---|
-| SPEC-PLAT-001 | ordered durable historical replay material | boundary defined; productive implementation unavailable | No for local closure; integrated proof only |
-
-#### Producer / Consumer Contract Proof
-
-`PCP-PLAT-EXEC-01` (full record in §12), integrated-proof-only.
-
-#### Capability Availability and Blocking Effect
-
-`PLAT-EXEC-PERSISTED-MATERIAL`: DEFINED/DEFINED/NO/NO, `REQUIRED_FOR_INTEGRATED_PROOF`; integrated-only blocker. Local frozen-basis fixture is INFORMATIONAL.
-
-#### Temporal Authority Preconditions
-
-`NOT_APPLICABLE`: replay is historical interpretation, not observe-then-commit effect authority.
-
-#### Acceptance Criteria
-
-1. Replay reproduces the original basis even when the current registry differs; no silent conversion or reinterpretation occurs (`LOCAL_PROVABILITY = YES`).
-
-#### ACCEPTANCE_WITNESS_MATRIX
-
-| Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Evidence | Owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at closure | Evidence type |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Historical original-basis replay | replay/resolve | C-EXEC-016 / AC-EXEC-016 | historical manifest/catalog | original basis reproduced | current registry/version differs but cannot reinterpret/convert | C-EXEC-016 | EXEC-IMP-09 | local replay fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
-
-#### Local Closure
-
-`LOCAL_CLOSURE = YES`; frozen-basis semantic replay protection is locally testable. PLAT durable replay is integrated-only.
-
-#### Work Can Start
-
-`WORK_CAN_START = NO` until `EXEC-IMP-03` and `EXEC-IMP-07` complete.
-
-#### Shared Closure Boundary
-
-`SHARED_CLOSURE_BOUNDARY = YES` for the single historical replay gap; manifest reconstruction is a prerequisite, not a merged concern.
-
-#### Required Tests
-
-Original-basis replay, current-registry divergence, schema/version/hash/commit preservation, silent conversion rejection and historical immutability.
-
-#### Legacy / Cutover Impact
-
-`HISTORICAL_REPLAY` owner; no current registry substitution and no legacy rewrite.
-
-#### Completion Evidence
-
-C-EXEC-016 report and original-basis/divergence assertions. Evidence is locally producible.
-
-#### Risks
-
-Current-registry reinterpretation, historical mutation, and PLAT material being mistaken for EXEC semantic authority.
-
-#### Issue Decomposition Readiness
-
-`ISSUE_READY`; `VALIDATED_GAP_BACKING = YES`; `INDEPENDENT_CLOSURE = YES`.
-
-#### Initial DAG State
-
-`BLOCKED`; `BLOCKED_BY = EXEC-IMP-03, EXEC-IMP-07`.
+`BLOCKED`; `BLOCKED_BY = EXEC-IMP-07, EXEC-IMP-10`.
 
 ## 10. Gap → Plan Traceability
 
-| Gap ID | Requirement | Portfolio obligation | Classification | Severity | Planning type | Implementation unit(s) | Status |
+| Gap ID | Requirement(s) | Portfolio obligation | Classification | Severity | Planning type | Implementation unit(s) | Status |
 |---|---|---|---|---:|---|---|---|
-| GAP-001 | EXEC-ENVELOPE-001/002 | O-016 | MISSING | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-01 | COVERED |
-| GAP-002 | EXEC-CONTRACT-001 | O-019 | MISSING | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-04 | COVERED |
-| GAP-003 | EXEC-CONTRACT-002 | O-019 | MISSING | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-04 | COVERED |
-| GAP-004 | EXEC-VERSION-001/002 | O-017 | MISSING | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-02 | COVERED |
-| GAP-005 | EXEC-SNAPSHOT-001 | O-018 | CONTRADICTORY | MAJOR | INTEGRATION_OR_CONVERGENCE_WORK | EXEC-IMP-05 | COVERED |
-| GAP-006 | EXEC-REGISTRY-001 | O-020 | MISSING | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-02 | COVERED |
-| GAP-007 | EXEC-REGISTRY-004 | O-020 | MISSING | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-03 | COVERED |
-| GAP-008 | EXEC-REGISTRY-002 | O-020 | MISSING | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-02 | COVERED |
-| GAP-009 | EXEC-REGISTRY-003 | O-020 | MISSING | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-02 | COVERED |
-| GAP-010 | EXEC-CAPABILITY-001 | O-020 | MISSING | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-02 | COVERED |
-| GAP-011 | EXEC-CAPABILITY-002 | O-020 | MISSING | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-02 | COVERED |
-| GAP-012 | EXEC-MANIFEST-001 | O-021 | MISSING | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-06 | COVERED |
-| GAP-013 | EXEC-MANIFEST-002 | O-021 | MISSING | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-08 | COVERED |
-| GAP-014 | EXEC-MANIFEST-004 | O-018/O-021 | MISSING | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-07 | COVERED |
-| GAP-015 | EXEC-HISTORY-001 | O-021 | MISSING | MAJOR | INTEGRATION_OR_CONVERGENCE_WORK | EXEC-IMP-09 | COVERED |
-| GAP-016 | EXEC-FAILURE-001 | O-019 | MISSING | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-04 | COVERED |
-| GAP-017 | EXEC-MANIFEST-003 | O-018/O-021 | MISSING | MAJOR | INTEGRATION_OR_CONVERGENCE_WORK | EXEC-IMP-06 | COVERED |
+| GAP-001 | EXEC-CONTRACT-002 | O-019 | BEHAVIOR_CONTRADICTORY | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-02 | COVERED |
+| GAP-002 | EXEC-VERSION-002, EXEC-REGISTRY-001, EXEC-REGISTRY-004, EXEC-CAPABILITY-001 | O-017/O-020 | BEHAVIOR_CONTRADICTORY | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-03 | COVERED |
+| GAP-003 | EXEC-SNAPSHOT-001 | O-018 | BEHAVIOR_CONTRADICTORY | MAJOR | INTEGRATION_OR_CONVERGENCE_WORK | EXEC-IMP-06 | COVERED |
+| GAP-004 | EXEC-REGISTRY-001 | O-020 | BEHAVIOR_PARTIAL | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-03, EXEC-IMP-09 | COVERED |
+| GAP-005 | EXEC-REGISTRY-004 | O-020 | BEHAVIOR_PARTIAL | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-08 | COVERED |
+| GAP-006 | EXEC-REGISTRY-002 | O-020 | DEPENDENCY_INTEGRATION_GAP | MAJOR | CROSS_SPEC_DEPENDENCY | EXEC-IMP-04 | COVERED |
+| GAP-007 | EXEC-CAPABILITY-001 | O-020 | BEHAVIOR_PARTIAL | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-04 | COVERED |
+| GAP-008 | EXEC-CAPABILITY-002 | O-020 | BEHAVIOR_PARTIAL | MAJOR | INTEGRATION_OR_CONVERGENCE_WORK | EXEC-IMP-05 | COVERED |
+| GAP-009 | EXEC-MANIFEST-001 | O-021 | BEHAVIOR_MISSING | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-07 | COVERED |
+| GAP-010 | EXEC-MANIFEST-002 | O-021 | BEHAVIOR_MISSING | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-11 | COVERED |
+| GAP-011 | EXEC-MANIFEST-003 | O-018/O-021 | BEHAVIOR_MISSING | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-07 | COVERED |
+| GAP-012 | EXEC-MANIFEST-004 | O-018/O-021 | BEHAVIOR_MISSING | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-10 | COVERED |
+| GAP-013 | EXEC-HISTORY-001 | O-021 | BEHAVIOR_MISSING | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-11 | COVERED |
+| GAP-014 | EXEC-FAILURE-001 | O-019 | BEHAVIOR_PARTIAL | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-02 | COVERED |
+| GAP-015 | EXEC-REGISTRY-001/004 | O-020 | BEHAVIOR_MISSING | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-09 | COVERED |
+| GAP-016 | EXEC-REGISTRY-001/002/004, EXEC-CAPABILITY-001 | O-020 | DEPENDENCY_INTEGRATION_GAP | MAJOR | CROSS_SPEC_DEPENDENCY | EXEC-IMP-04, EXEC-IMP-08 | COVERED |
+| GAP-017 | EXEC-REGISTRY-001/004, EXEC-CAPABILITY-002 | O-020 | BEHAVIOR_CONTRADICTORY | MAJOR | INTEGRATION_OR_CONVERGENCE_WORK | EXEC-IMP-05 | COVERED |
+| GAP-018 | EXEC-ENVELOPE-001 | O-016 | BEHAVIOR_PARTIAL | MAJOR | LOCAL_IMPLEMENTATION_WORK | EXEC-IMP-01 | COVERED |
 
 ```text
 UNCOVERED_LOCAL_GAPS = 0
-GAPS_WITH_PLAN_COVERAGE = 17
+GAPS_WITH_PLAN_COVERAGE = 18
 GAPS_WITHOUT_PLAN_COVERAGE = 0
 ```
 
 ## 11. Acceptance → Plan Traceability
 
-| Acceptance ID | Requirement(s) | Contributing unit(s) | Final Proof Owner | Local evidence | Final evidence |
+| Acceptance ID | Requirement(s) | Contributing units | Final Proof Owner | Local evidence | Final evidence |
 |---|---|---|---|---|---|
-| AC-EXEC-001 | EXEC-ENVELOPE-001 | EXEC-IMP-01 | EXEC-IMP-01 | schema positive/negative witness | contract conformance report |
-| AC-EXEC-002 | EXEC-ENVELOPE-002 | EXEC-IMP-01 | EXEC-IMP-01 | minimum-field rejection | contract conformance report |
-| AC-EXEC-003 | EXEC-VERSION-001 | EXEC-IMP-02 | EXEC-IMP-02 | semver classification | registry conformance report |
-| AC-EXEC-004 | EXEC-VERSION-002 | EXEC-IMP-02 | EXEC-IMP-02 | supported-set/incompatibility witness | registry conformance report |
-| AC-EXEC-005 | EXEC-SNAPSHOT-001 | EXEC-IMP-02, EXEC-IMP-05 | EXEC-IMP-05 | authority-binding fixture | integrated DOM snapshot/basis evidence |
-| AC-EXEC-006 | EXEC-CONTRACT-001 | EXEC-IMP-01, EXEC-IMP-04 | EXEC-IMP-04 | invalid-contract witness | failure conformance report |
-| AC-EXEC-007 | EXEC-CONTRACT-002 | EXEC-IMP-02, EXEC-IMP-04 | EXEC-IMP-04 | verdict registry/rejection witness | failure conformance report |
-| AC-EXEC-008 | EXEC-REGISTRY-001 | EXEC-IMP-02 | EXEC-IMP-02 | deterministic entry resolution | registry conformance report |
-| AC-EXEC-009 | EXEC-REGISTRY-002 | EXEC-IMP-02 | EXEC-IMP-02 | catalog isolation witness | registry conformance report |
-| AC-EXEC-010 | EXEC-REGISTRY-003 | EXEC-IMP-02 | EXEC-IMP-02 | bootstrap allowlist rejection | registry conformance report |
-| AC-EXEC-011 | EXEC-CAPABILITY-001 | EXEC-IMP-02 | EXEC-IMP-02 | known/unknown/incompatible resolution | registry conformance report |
-| AC-EXEC-012 | EXEC-CAPABILITY-002 | EXEC-IMP-02 | EXEC-IMP-02 | synthetic common-path witness | registry conformance report |
-| AC-EXEC-013 | EXEC-MANIFEST-001 | EXEC-IMP-06 | EXEC-IMP-06 | complete manifest fixture | manifest conformance report |
-| AC-EXEC-014 | EXEC-MANIFEST-002 | EXEC-IMP-06, EXEC-IMP-08 | EXEC-IMP-08 | checkpoint/basis declaration | checkpoint conformance report |
-| AC-EXEC-015 | EXEC-MANIFEST-003 | EXEC-IMP-06 | EXEC-IMP-06 | post-start mutation rejection | manifest conformance report |
-| AC-EXEC-016 | EXEC-HISTORY-001 | EXEC-IMP-03, EXEC-IMP-07, EXEC-IMP-09 | EXEC-IMP-09 | original-basis replay fixture | replay/conformance report |
-| AC-EXEC-017 | EXEC-FAILURE-001 | EXEC-IMP-04 | EXEC-IMP-04 | structured failure witness | failure conformance report |
-| AC-EXEC-018 | EXEC-FAILURE-001 / EXEC-MANIFEST-002 | EXEC-IMP-04, EXEC-IMP-07 | EXEC-IMP-07 | retry no-conversion plus new AttemptId witness | integrated retry/basis evidence |
-| AC-EXEC-019 | EXEC-REGISTRY-004 | EXEC-IMP-03 | EXEC-IMP-03 | two-NORMAL-scope and frozen CatalogRevision witness | registry identity/reconstruction report |
-| AC-EXEC-020 | EXEC-MANIFEST-004 | EXEC-IMP-06, EXEC-IMP-07 | EXEC-IMP-07 | tuple identity/rehydration rejection | manifest identity/reconstruction report |
+| AC-EXEC-001 | EXEC-ENVELOPE-001 | IMP-01 | IMP-01 | capability-specific schema witness | schema conformance report |
+| AC-EXEC-002 | EXEC-ENVELOPE-002 | IMP-01 | IMP-01 | structured minimum rejection | envelope conformance report |
+| AC-EXEC-003 | EXEC-VERSION-001 | IMP-03 | IMP-03 | SemVer witness | version report |
+| AC-EXEC-004 | EXEC-VERSION-002 | IMP-03 | IMP-03 | disjointness/unsupported witness | registry conformance report |
+| AC-EXEC-005 | EXEC-SNAPSHOT-001 | IMP-03, IMP-04, IMP-06 | IMP-06 | authority-binding fixture | integrated DOM basis evidence |
+| AC-EXEC-006 | EXEC-CONTRACT-001 | IMP-01, IMP-02 | IMP-02 | invalid-contract regression/direct witness | failure conformance report |
+| AC-EXEC-007 | EXEC-CONTRACT-002 | IMP-01, IMP-02 | IMP-02 | verdict registry/rejection witness | failure conformance report |
+| AC-EXEC-008 | EXEC-REGISTRY-001 | IMP-03, IMP-04, IMP-05, IMP-09 | IMP-09 | deterministic resolution and mutation witnesses | registry publication report |
+| AC-EXEC-009 | EXEC-REGISTRY-002 | IMP-04 | IMP-04 | NORMAL/BOOTSTRAP isolation | source integration evidence |
+| AC-EXEC-010 | EXEC-REGISTRY-003 | IMP-03, IMP-04 | IMP-04 | bootstrap allowlist witness | catalog conformance report |
+| AC-EXEC-011 | EXEC-CAPABILITY-001 | IMP-03, IMP-04, IMP-08 | IMP-08 | known/unknown/incompatible and source-bound witnesses | capability conformance report |
+| AC-EXEC-012 | EXEC-CAPABILITY-002 | IMP-03, IMP-05 | IMP-05 | common-path synthetic capability | registry extensibility report |
+| AC-EXEC-013 | EXEC-MANIFEST-001 | IMP-07 | IMP-07 | complete manifest fixture | manifest conformance report |
+| AC-EXEC-014 | EXEC-MANIFEST-002 | IMP-07, IMP-11 | IMP-11 | checkpoint/basis declaration | integrated resume evidence |
+| AC-EXEC-015 | EXEC-MANIFEST-003 | IMP-06, IMP-07 | IMP-07 | post-start freeze witness | manifest freeze report |
+| AC-EXEC-016 | EXEC-HISTORY-001 | IMP-10, IMP-11 | IMP-11 | original-basis replay fixture | historical replay evidence |
+| AC-EXEC-017 | EXEC-FAILURE-001 | IMP-02 | IMP-02 | structured failure witness | failure conformance report |
+| AC-EXEC-018 | EXEC-FAILURE-001 / EXEC-MANIFEST-002 | IMP-02, IMP-10, IMP-11 | IMP-10 | retry no-conversion/new AttemptId | retry and integrated recovery evidence |
+| AC-EXEC-019 | EXEC-REGISTRY-004 | IMP-03, IMP-04, IMP-08 | IMP-08 | scope/identity/continuity witness | registry reconstruction evidence |
+| AC-EXEC-020 | EXEC-MANIFEST-004 | IMP-07, IMP-10 | IMP-10 | tuple identity/rehydration rejection | manifest reconstruction evidence |
+| AC-EXEC-021 | EXEC-REGISTRY-004 | IMP-04, IMP-08 | IMP-08 | source-backed progression witness | progression conformance evidence |
+| AC-EXEC-022 | EXEC-REGISTRY-001 / EXEC-REGISTRY-004 | IMP-05, IMP-08, IMP-09 | IMP-09 | expected revision/key/retry witness | mutation concurrency evidence |
 
 ```text
-ACCEPTANCE_OBLIGATIONS = 20
-ACCEPTANCE_WITH_FINAL_PROOF_OWNER = 20
+ACCEPTANCE_OBLIGATIONS = 22
+ACCEPTANCE_WITH_FINAL_PROOF_OWNER = 22
 UNRESOLVED_FINAL_PROOF_OWNERS = 0
 LOCAL_AC_REQUIRING_DOWNSTREAM = 0
 LOCAL_AC_CONTRADICTING_DOES_NOT_IMPLEMENT = 0
 LOCAL_AC_REQUIRING_UNAVAILABLE_FOREIGN_CAPABILITY = 0
 ```
 
-Final Proof Owners are the earliest units that can prove the complete acceptance obligation from local behavior, completed internal prerequisites and explicit contract fixtures. Integrated evidence listed for mixed boundaries is not copied into earlier local criteria.
+The complete cross-SPEC obligations remain integrated checkpoint evidence; no local AC claims foreign productive availability.
 
 ## 12. Cross-Spec Dependencies
 
-The approved normative dependency is exactly `SPEC-EXEC-001 → SPEC-DOM-001`. The other records below are approved implementation/integration boundaries already declared by the target SPEC and portfolio; they do not create new normative edges.
+The approved normative edge is exactly `SPEC-EXEC-001 → SPEC-DOM-001`. The following capability handoffs are explicit implementation/integration boundaries and do not add normative edges.
 
-| Dependency / capability ID | Portfolio owner | Producer | Consumer unit(s) | Required contract | Authority status | Contract status | Semantic status | Local testability | Productive availability | Dependency class | Availability evidence | Blocking? |
+| Capability ID | Portfolio owner / source | Producer | Consumer units | Required contract | Authority | Contract | Semantic | Local testability | Productive availability | Dependency class | Availability evidence | Blocking? |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `DOM-EXEC-IDENTITY-SNAPSHOT` | SPEC-DOM-001 | DOM canonical contract/resolver | IMP-02, IMP-03, IMP-05, IMP-06, IMP-07 | `DOM-ID-001`, `DOM-SNAPSHOT-001`, `DOM-LIFE-001`; RepositoryId and execution/activity/attempt/cycle references | DEFINED | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | SPEC-DOM-001 rev 4 and conformant audit; no productive integrated runtime at HEAD | No; integrated proof only |
-| `REPO-EXEC-NORMAL-CATALOG` | SPEC-REPO-001 | enabled repository configuration source | IMP-02 | repository-scoped NORMAL catalog source/configuration | DEFINED | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | approved portfolio O-055/O-058 and EXEC-001 §12.1/§25; no productive REPO producer at HEAD | No; integrated proof only |
-| `PLAT-EXEC-PERSISTED-MATERIAL` | SPEC-PLAT-001 | journal/checkpoint/physical material producer | IMP-03, IMP-06, IMP-07, IMP-09 | physical material, integrity, ordering and replay; PLAT cannot define EXEC meaning | DEFINED | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | portfolio O-032/O-037 and EXEC-001 §12.4/§19; no productive PLAT producer at HEAD | No; integrated proof only |
-| `EXEC2-EXEC-RESUME-CONTEXT` | SPEC-EXEC-002 | EXEC-002 context applicator | IMP-08 | safe checkpoint basis application between sessions | DEFINED | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | portfolio O-022/O-025 and EXEC-001 §16; no productive EXEC-002 producer at HEAD | No; integrated proof only |
-| `BACKEND-EXEC-FAILURE-MAPPING` | SPEC-BACKEND-001 | BACKEND mapping boundary | IMP-04 | preserve canonical failure code/family/basis/state | DEFINED | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | portfolio O-061 and EXEC-001 §15/§18; no productive mapping at HEAD | No; integrated proof only |
-| `OPS-EXEC-FAILURE-PROJECTION` | SPEC-OPS-001 | OPS projection boundary | IMP-04 | preserve failure meaning in operational records | DEFINED | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | portfolio O-069 and EXEC-001 §15/§18; no productive projection at HEAD | No; integrated proof only |
-| `UI-EXEC-FAILURE-PROJECTION` | SPEC-UI-001 | UI projection boundary | IMP-04 | present failure without changing success/approval meaning | DEFINED | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | portfolio O-073/O-077 and EXEC-001 §15/§18; no productive projection at HEAD | No; integrated proof only |
+| DOM-EXEC-IDENTITY-SNAPSHOT | SPEC-DOM-001 | DOM canonical resolver | IMP-04, IMP-06, IMP-08, IMP-10 | `DOM-ID-001`, `DOM-SNAPSHOT-001`, `DOM-LIFE-001` | DEFINED | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | conformant DOM rev4/audit; no productive runtime | No; integrated proof only |
+| DOM-EXEC-ADVANCEMENT-VERDICT | SPEC-DOM-001 | DOM command/verdict contract | IMP-02, integrated consumers | `DOM-CMD-001`, `DOM-ADV-001`, `DOM-AUDIT-002` | DEFINED | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | conformant DOM audit; no productive runtime | No; integrated proof only |
+| EXEC-NORMAL-CATALOG-SOURCE-PROGRESSION | EXEC-001/REPO boundary | enabled NORMAL source | IMP-04, IMP-08, IMP-09 | scoped source-backed basis/progression | DEFINED | DEFINED | DEFINED | YES (fixture) | NO | REQUIRED_FOR_INTEGRATED_PROOF | fixture/source contract; no productive source | No; integrated proof only |
+| EXEC-BOOTSTRAP-CATALOG-SOURCE-PROGRESSION | EXEC-001/system boundary | independent BOOTSTRAP source | IMP-04, IMP-08 | system-scoped basis/progression | DEFINED | DEFINED | DEFINED | YES (fixture) | NO | REQUIRED_FOR_INTEGRATED_PROOF | fixture/source contract; no productive source | No; integrated proof only |
+| PLAT-EXEC-PERSISTED-MATERIAL | SPEC-PLAT-001 | journal/checkpoint/material reader | IMP-08, IMP-10, IMP-11 | physical material/integrity/order/replay | DEFINED | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | approved PLAT boundary; no productive producer | No; integrated proof only |
+| EXEC2-EXEC-RESUME-CONTEXT | SPEC-EXEC-002 | context applicator | IMP-11 | safe checkpoint basis application | DEFINED | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | approved EXEC-002 boundary; no productive producer | No; integrated proof only |
+| BACKEND-EXEC-FAILURE-MAPPING | SPEC-BACKEND-001 | mapping boundary | IMP-02 | canonical failure code/family/basis/state | DEFINED | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | approved mapping boundary; no productive consumer | No; integrated proof only |
+| OPS-EXEC-FAILURE-PROJECTION | SPEC-OPS-001 | projection boundary | IMP-02 | preserve operational failure meaning | DEFINED | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | approved projection boundary; no productive consumer | No; integrated proof only |
+| UI-EXEC-FAILURE-PROJECTION | SPEC-UI-001 | projection boundary | IMP-02 | preserve success/failure meaning | DEFINED | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | approved projection boundary; no productive consumer | No; integrated proof only |
 
-### Producer / Consumer Contract Proofs
+### Producer / Consumer Contract Proof Summary
 
-`PCP-DOM-EXEC-01`: authority owner DOM-001; producer canonical DOM contract/resolver; produced contract is canonical `RepositoryId`, execution/activity/attempt/cycle identity, snapshot and lifecycle references with version/revision transport; consumers are EXEC-IMP-02/03/05/06/07; semantic status `DEFINED`; local testability `NO`; productive availability `NO`; dependency class `REQUIRED_FOR_INTEGRATED_PROOF`; edge `EXEC-001 → DOM-001`; availability is the future integrated DOM producer at the consumer execution point; no local blocking.
-
-`PCP-REPO-EXEC-01`: authority owner REPO-001; producer enabled repository configuration source; produced contract is repository-scoped NORMAL catalog material; consumer EXEC-IMP-02; authority/contract/semantic status `DEFINED`; local testability `NO`; productive availability `NO`; dependency class `REQUIRED_FOR_INTEGRATED_PROOF`; edge is the approved REPO source boundary, not a new EXEC normative edge; no local blocking.
-
-`PCP-PLAT-EXEC-01`: authority owner PLAT-001; producer physical journal/checkpoint/material reader; produced contract is integrity-checked ordered persisted material; consumers EXEC-IMP-03/06/07/09; PLAT owns storage, serialization, atomicity, ordering and physical recovery only; authority/contract/semantic status `DEFINED`; local testability `NO`; productive availability `NO`; dependency class `REQUIRED_FOR_INTEGRATED_PROOF`; no local blocking.
-
-`PCP-EXEC2-EXEC-01`: authority owner EXEC-002; producer context applicator; produced contract is application of a declared safe checkpoint/resume basis between sessions; consumer EXEC-IMP-08; authority/contract/semantic status `DEFINED`; local testability `NO`; productive availability `NO`; dependency class `REQUIRED_FOR_INTEGRATED_PROOF`; no local blocking.
-
-`PCP-BACKEND-EXEC-01`, `PCP-OPS-EXEC-01`, and `PCP-UI-EXEC-01`: respective approved mapping/projection owner produces a representation preserving EXEC failure code/family/basis/state; consumer EXEC-IMP-04; authority/contract/semantic status `DEFINED`; local testability `NO`; productive availability `NO`; dependency class `REQUIRED_FOR_INTEGRATED_PROOF`; no local blocking and no semantic promotion.
-
-```text
-NO_DOWNSTREAM_CAPABILITY_PROMOTION_WITHOUT_NEW_EVIDENCE = 0
-UNREPRESENTED_UPSTREAM_CONTRACT_BLOCKERS = 0
-READY_UNITS_WITH_UNAVAILABLE_CONTRACT = 0
-```
+Every record above carries the complete dimensions required by the shared authority contract. No `AUTHORITY_STATUS` or `CONTRACT_STATUS` is undefined. No capability classified `REQUIRED_FOR_LOCAL_EXECUTION` or `REQUIRED_FOR_LOCAL_CLOSURE` is unavailable. No productive-availability promotion is claimed; no `NO_DOWNSTREAM_CAPABILITY_PROMOTION_WITHOUT_NEW_EVIDENCE` exception is used.
 
 ## 13. Dependency DAG
 
-Edges are internal implementation dependencies only; they do not change the approved normative component graph.
+Internal implementation edges:
 
 ```text
-EXEC-IMP-01
- ├──> EXEC-IMP-02
- │     ├──> EXEC-IMP-03
- │     │     └──> EXEC-IMP-07
- │     │            └──> EXEC-IMP-09
- │     ├──> EXEC-IMP-04
- │     ├──> EXEC-IMP-05
- │     └──> EXEC-IMP-06
- │            ├──> EXEC-IMP-07
- │            └──> EXEC-IMP-08
+IMP-01 → IMP-02, IMP-03, IMP-07
+IMP-03 → IMP-04, IMP-05, IMP-06, IMP-08, IMP-09
+IMP-04 → IMP-05, IMP-06, IMP-08, IMP-09
+IMP-05 → IMP-09
+IMP-07 → IMP-10, IMP-11
+IMP-08 → IMP-09, IMP-10
+IMP-10 → IMP-11
 ```
 
 ```text
 DAG_CYCLE_DETECTED = NO
+DAG_LOCAL_CLOSURE_INVARIANT = PASS
 ```
 
-Every edge represents an actual contract dependency. No unit's local closure requires a downstream unit: all edges point from an earlier prerequisite to a later consumer.
+Every edge is producer-before-consumer. No unit's local closure requires a downstream unit.
 
 ## 14. Parallelization Waves
 
 | Wave | Units | Prerequisites | Shared repository collision risk | Execution mode |
 |---:|---|---|---|---|
-| 1 | EXEC-IMP-01 | none | low; isolated contract boundary | SAFE |
-| 2 | EXEC-IMP-02 | IMP-01 | medium with shared registry/schema surfaces; coordinate | SAFE_WITH_COORDINATION |
-| 2 | EXEC-IMP-04 | IMP-01 and IMP-02 | medium with schema/registry failure result surfaces; coordinate | SAFE_WITH_COORDINATION |
-| 2 | EXEC-IMP-05 | IMP-02 | high with existing DOM snapshot consumer; serial ownership coordination | SERIAL_REQUIRED |
-| 2 | EXEC-IMP-06 | IMP-01 and IMP-02 | medium with manifest/schema/version surfaces; coordinate | SAFE_WITH_COORDINATION |
-| 3 | EXEC-IMP-03 | IMP-02 | medium with registry persistence seam | SAFE_WITH_COORDINATION |
-| 3 | EXEC-IMP-08 | IMP-06 | low/medium with manifest checkpoint fields | SAFE_WITH_COORDINATION |
-| 4 | EXEC-IMP-07 | IMP-03 and IMP-06 | medium with manifest identity/reconstruction boundary | SAFE_WITH_COORDINATION |
-| 5 | EXEC-IMP-09 | IMP-03 and IMP-07 | low; replay boundary consumes frozen basis | SAFE_WITH_COORDINATION |
+| 1 | IMP-01 | none | low; schema boundary | SAFE |
+| 2 | IMP-02, IMP-03 | IMP-01 | medium; shared schema/registry failures | SAFE_WITH_COORDINATION |
+| 3 | IMP-04, IMP-07 | IMP-03 for IMP-04; IMP-01/03 for IMP-07 | medium; registry/source and manifest surfaces distinct but adjacent | SAFE_WITH_COORDINATION |
+| 4 | IMP-05, IMP-06, IMP-08 | IMP-03/04 as applicable | high for registry/source and snapshot seams; coordinate ownership | SERIAL_REQUIRED |
+| 5 | IMP-09, IMP-10 | IMP-05/08; IMP-07/08 | medium; mutation and manifest reconstruction | SAFE_WITH_COORDINATION |
+| 6 | IMP-11 | IMP-07/10 | low/medium; checkpoint and replay boundary | SAFE_WITH_COORDINATION |
 
-The nominal same-wave work is not unconditionally parallel where it touches the same schema, registry, snapshot or manifest boundary. `EXEC-IMP-05` is serial with the existing snapshot consumer/bypass seam. No wave assumes unavailable foreign productive capability.
+`IMP-05` and `IMP-06` must not be treated as unconditionally parallel with source/snapshot changes despite separate units; repository ownership coordination is required.
 
 ## 15. Integration Checkpoints
 
 | Checkpoint | Required units | Integrated behavior | Required evidence | Unlocked units |
 |---|---|---|---|---|
-| CP-EXEC-01 | IMP-01, IMP-02 | schema-validated deterministic registry resolution and canonical failure inputs | direct schema/version/registry/unknown-incompatible reports | IMP-03, IMP-04, IMP-05, IMP-06 |
-| CP-EXEC-02 | IMP-03, IMP-06, IMP-07 | exact identity-bound manifest and registry basis survive semantic reconstruction | cross-scope, attachment, digest, continuity and no-mutation reports | IMP-09 |
-| CP-EXEC-03 | IMP-06, IMP-08, IMP-09 | declared checkpoint and original-basis replay preserve frozen interpretation | checkpoint declaration, current-registry divergence and replay reports | integrated EXEC-002/PLAT proof |
-| CP-EXEC-04 | IMP-04, IMP-05, IMP-07 | caller cannot establish basis; failures/retry preserve non-success and attempt lineage | caller-bypass, failure-mapping, retry/new-AttemptId evidence | downstream integrated conformance |
+| CP-EXEC-01 | IMP-01, IMP-02, IMP-03 | identifiable schemas, canonical failures and unique non-overlapping resolution | schema, verdict, failure, SemVer and overlap reports | IMP-04, IMP-05, IMP-06, IMP-07 |
+| CP-EXEC-02 | IMP-03, IMP-04, IMP-05, IMP-08, IMP-09 | owner-issued scoped catalog basis, source progression and one-successor mutation | source receipt, scope, progression, issuer, stale/idempotency and no-mutation evidence | integrated DOM/REPO/PLAT catalog proof |
+| CP-EXEC-03 | IMP-06, IMP-07, IMP-10 | exact DOM-bound manifest identity and immutable started basis | caller-bypass, manifest completeness, attachment, digest and freeze reports | IMP-11 |
+| CP-EXEC-04 | IMP-07, IMP-10, IMP-11 | safe checkpoint and original-basis replay with retry-distinct identity | checkpoint declaration, current-registry divergence, replay and new-attempt evidence | integrated EXEC-002/PLAT recovery proof |
+| CP-EXEC-05 | IMP-02, IMP-06, IMP-10 | failure/retry meaning remains separate from DOM lifecycle and external effect confirmation | canonical failure mapping, no-success/no-effect and retry evidence | downstream final conformance |
 
-Checkpoint evidence is integrated proof and is never copied into earlier units' local acceptance criteria.
+Checkpoint evidence is integrated proof and is not copied into earlier local ACs.
 
 ## 16. Legacy / Authority Transition
 
 | Current path | Target authority | Read behavior | Write behavior | Migration/mapping | Owning unit |
 |---|---|---|---|---|---|
-| Caller-supplied `versions` in existing DOM snapshot path | EXEC exact-version basis + DOM snapshot authority | existing path must consume resolved basis; caller values are assertions only | reject caller-established basis; preserve immutable DOM snapshot | convergence at approved DOM/EXEC seam; no DOM ownership transfer | EXEC-IMP-05 |
-| Prototype envelope/version/catalog/checkpoint values | EXEC schemas/registry/manifest contracts | prototype remains historical/scenario evidence | no production writes from prototype | no silent conversion; re-express through canonical contracts | IMP-01, IMP-02, IMP-06, IMP-08 |
-| Current registry during historical replay | original frozen EXEC manifest/catalog basis | replay original basis | never rewrite historical basis | PLAT supplies material; EXEC prevents reinterpretation | EXEC-IMP-09 |
-| Changed started manifest/schema/version basis | new attempt and new immutable manifest | historical record remains readable | no mutation of started basis | explicit cutover to new basis/identity | EXEC-IMP-06/07 |
-| Legacy repository catalog input | REPO mapping to EXEC NORMAL catalog | consume mapped canonical material only | EXEC does not mutate REPO configuration | REPO owns compatibility and enablement | EXEC-IMP-02 |
+| Generic capability payload `data` | identifiable capability-specific schema | consume only selected schema | reject generic-but-invalid payload | no silent conversion | IMP-01 |
+| Unknown non-empty `functionalVerdict` | EXEC verdict registry | return `VERDICT_UNKNOWN` | never approve/finalize/resume | preserve canonical failure | IMP-02 |
+| Ordered overlap resolution | disjoint supported-set registry | invalid overlap is not selectable | reject before basis mutation | no precedence/alias | IMP-03 |
+| Caller-supplied snapshot `versions` | EXEC exact basis plus DOM snapshot | caller fields are assertions | reject caller-established basis | converge at EXEC/DOM seam | IMP-06 |
+| Fixture catalog/source receipt | owner-issued NORMAL/BOOTSTRAP source | fixtures remain contract evidence only | no fixture publication | productive source integration remains foreign | IMP-04/05 |
+| Plain `REGISTERED` result | issuer-bound publication result | consume only verified predecessor/successor | reject detached authority | source/PLAT publication remains foreign | IMP-05 |
+| Started manifest/schema/version basis | immutable original basis | preserve historical record | changed basis uses new AttemptId/manifest | explicit cutover | IMP-07/10 |
+| Current registry during historical replay | original frozen manifest/catalog basis | replay original basis | never rewrite history | PLAT supplies material | IMP-11 |
+| Transient checkpoint/session text | declared persisted checkpoint basis | no resume from text alone | no transient authority write | EXEC-002/PLAT own application/replay | IMP-11 |
 
-Failure ownership remains EXEC-001 for `UNKNOWN_CAPABILITY`, `INCOMPATIBLE_CAPABILITY`, `CONTRACT_INVALID` and `VERDICT_UNKNOWN`. PLAT owns physical recovery/effect reconciliation; DOM owns identity/lifecycle; REPO owns legacy compatibility; BACKEND/OPS/UI only map/project.
+Failure ownership remains EXEC-001 for `UNKNOWN_CAPABILITY`, `INCOMPATIBLE_CAPABILITY`, `CONTRACT_INVALID` and `VERDICT_UNKNOWN`. DOM owns identity/lifecycle; PLAT owns physical recovery/effects; REPO owns legacy configuration; BACKEND/OPS/UI only map/project.
 
 ## 17. Test Strategy
 
 | Evidence class | Retained/modified/new evidence | Owner |
 |---|---|---|
-| Existing tests retained | Root `.pi` orchestration tests and current DOM tests remain regression evidence; prototype tests remain non-authoritative evidence. | respective existing owners |
-| Tests modified | Only where an existing DOM snapshot consumer must stop accepting caller authority, under the approved cross-boundary contract. | EXEC-IMP-05 with DOM consumer owner |
-| New unit/domain tests | schema/envelope, version/support set, registry resolution/catalog isolation, bootstrap allowlist, extensibility, identity/reconstruction, manifest completeness/freeze, checkpoint declaration, failure and replay. | IMP-01 through IMP-09 |
-| Integration tests | DOM exact basis binding; REPO NORMAL source; PLAT physical material/recovery; EXEC-002 resume application; BACKEND/OPS/UI failure mappings. | designated integrated checkpoints |
-| Cross-SPEC tests | two RepositoryIds, DOM tuple attachment, PLAT material integrity, current-registry divergence, retry/new AttemptId, and meaning-preserving mappings. | CP-EXEC-02 through CP-EXEC-04 |
-| Concurrency/idempotency tests | duplicate registry key, duplicate manifest tuple, no mutation on failure, basis immutability; physical CAS/idempotency remains PLAT/GIT-owned integrated evidence. | IMP-02/03/06/07 locally; PLAT integrated |
-| Recovery tests | semantic rehydration and frozen-basis replay locally; durable restart/recovery physically by PLAT at integrated proof. | IMP-03/07/09 plus CP-EXEC-02/03 |
-| Migration/compatibility tests | bootstrap-vs-normal isolation and REPO legacy mapping; no EXEC retirement path. | IMP-02 and integrated REPO proof |
-| Conformance tests | all C-EXEC-001 through C-EXEC-020 applicable to target; direct positive, negative and isolation witnesses. | final proof owners in §11 |
+| Existing tests retained | Current root/DOM tests and existing EXEC contract/registry tests remain regression evidence. Prototype tests remain non-authoritative. | existing owners |
+| Tests modified | Snapshot consumer tests change only to reject caller authority at the approved EXEC/DOM seam. | IMP-06 with DOM boundary owner |
+| New unit/domain tests | capability schema, verdict/failure, SemVer/overlap/resolution, source scope, registration provenance, reconstruction, mutation, manifest, checkpoint and replay. | IMP-01 through IMP-11 |
+| Integration tests | DOM exact basis, NORMAL/BOOTSTRAP productive sources, PLAT material/recovery, EXEC-002 resume and downstream mappings. | CP-EXEC-02 through CP-EXEC-05 |
+| Cross-SPEC tests | RepositoryId isolation, tuple attachment, source progression, issuer proof, current-registry divergence, retry/new AttemptId and failure mappings. | checkpoints/final proof owners |
+| Concurrency/idempotency tests | overlap no mutation, duplicate entry/tuple, stale expected revision, same-key replay and conflicting-key rejection; physical CAS remains PLAT evidence. | IMP-03/08/09 and CP-EXEC-02 |
+| Recovery tests | semantic reconstruction, checkpoint declaration, retry lineage and original-basis replay locally; durable restart/recovery by PLAT. | IMP-08/10/11 and CP-EXEC-04 |
+| Compatibility/migration tests | NORMAL/BOOTSTRAP isolation, legacy REPO mapping, caller-basis cutover, no history rewrite. | IMP-04/06/07/11 |
+| Conformance tests | all `C-EXEC-001` through `C-EXEC-023` applicable scenarios with direct positive and negative/isolation witnesses. | final owners in §11 |
 
-Correctness-sensitive behavior receives automated direct witnesses. Registration/listing is not used as progress proof; sequential duplicate execution is not concurrency proof; fixtures do not prove productive durability, restart, physical CAS or external effects.
+Correctness-sensitive behavior receives automated direct witnesses. Listing is not progress proof; sequential duplicates are not concurrency proof; fixtures do not prove productive durability, restart, physical CAS or external effects.
 
 ## 18. Risk Register
 
 | Risk | Cause | Affected units | Mitigation / gate |
 |---|---|---|---|
-| Duplicate authority | caller, prototype, generic delegation or consumer becomes registry/schema authority | IMP-01/02/05 | authority boundary tests; no downstream promotion; independent plan audit |
-| Version approximation | alias, major-only acceptance or silent conversion | IMP-02/05/09 | explicit support-set and frozen-basis negative witnesses |
-| Identity mismatch | RepositoryId, DOM tuple or manifest aliases replaced by path/digest/label | IMP-03/06/07 | identity/reconstruction proofs and cross-scope isolation |
-| Partial mutation | invalid registry/manifest material mutates state before rejection | IMP-03/06/07 | no-mutation-on-failure witnesses and PLAT integrity boundary |
-| Hidden lifecycle duplication | EXEC starts/advances DOM or applies session lifecycle | IMP-05/08 | Does Not Implement checks and cross-SPEC audit |
-| Historical reinterpretation | current registry resolves old activity | IMP-07/09 | original-basis replay checkpoint and divergence test |
-| Caller-authority bypass | existing snapshot path copies arbitrary `versions` | IMP-05 | direct contradiction witness and serial integration coordination |
-| Durable recovery mismatch | fixture treated as physical persistence/recovery | IMP-03/06/07/09 | dependency class integrated-only; PLAT checkpoint evidence |
-| Failure semantic loss | BACKEND/OPS/UI rename or soften EXEC failures | IMP-04 | meaning-preserving mapping contract and integrated tests |
-| Downstream-dependent local acceptance | local AC requires DOM/PLAT/EXEC-002 implementation | all mixed units | local fixtures; all external capabilities integrated-proof-only |
-| Parallel collision | registry/schema/manifest paths changed concurrently | IMP-02/04/05/06 | waves mark coordination/serial execution |
-| Ambiguous final proof | contributor assigned full end-to-end obligation too early | all | §11 has exactly one owner per acceptance; checkpoints separate proof |
+| Duplicate authority | caller, fixture, structural registration result or projection becomes canonical | IMP-01/04/05/06 | authority-boundary tests; no promotion without evidence |
+| Version approximation | alias, major-only acceptance or silent conversion | IMP-03/06/11 | explicit support-set/frozen-basis witnesses |
+| Identity mismatch | RepositoryId, DOM tuple or manifest alias replaces canonical identity | IMP-04/08/10 | identity/reconstruction and cross-scope tests |
+| Partial mutation | invalid overlap/material/mutation changes state before rejection | IMP-03/08/09/10 | no-mutation-on-failure witnesses |
+| Hidden lifecycle duplication | EXEC advances DOM or applies session lifecycle | IMP-06/11 | Does Not Implement and cross-SPEC audit |
+| Historical reinterpretation | current registry resolves old activity | IMP-10/11 | original-basis replay divergence witness |
+| Caller authority bypass | snapshot copies arbitrary versions | IMP-06 | direct contradiction/convergence witness |
+| Durable recovery mismatch | fixture treated as physical persistence | IMP-08/10/11 | integrated-only dependency class and PLAT checkpoint |
+| Failure semantic loss | consumer mapping renames/softens canonical result | IMP-02 | mapping contract and CP-EXEC-05 |
+| Downstream-dependent local acceptance | local AC requires unavailable producer | all mixed units | local fixture witnesses; integrated-only classes |
+| Parallel change collision | shared schema/registry/manifest seam edited concurrently | IMP-01–05, IMP-07–10 | waves and coordination/serial mode |
+| Ambiguous final proof | contributor claims complete cross-SPEC conformance | all | §11 Final Proof Owners and checkpoints |
 
 ## 19. Implementation Unit Closure Matrix
 
 | Unit | Independently implementable | Local closure | Issue decomposition readiness | Initial DAG state | Blocked by |
 |---|---|---|---|---|---|
-| EXEC-IMP-01 | YES | YES | ISSUE_READY | READY | none |
-| EXEC-IMP-02 | YES after prerequisite | YES | ISSUE_READY | BLOCKED | EXEC-IMP-01 |
-| EXEC-IMP-03 | YES after prerequisite | YES | ISSUE_READY | BLOCKED | EXEC-IMP-02 |
-| EXEC-IMP-04 | YES after prerequisites | YES | ISSUE_READY | BLOCKED | EXEC-IMP-01, EXEC-IMP-02 |
-| EXEC-IMP-05 | YES after prerequisite | YES | ISSUE_READY | BLOCKED | EXEC-IMP-02 |
-| EXEC-IMP-06 | YES after prerequisites | YES | ISSUE_READY | BLOCKED | EXEC-IMP-01, EXEC-IMP-02 |
-| EXEC-IMP-07 | YES after prerequisites | YES | ISSUE_READY | BLOCKED | EXEC-IMP-03, EXEC-IMP-06 |
-| EXEC-IMP-08 | YES after prerequisite | YES | ISSUE_READY | BLOCKED | EXEC-IMP-06 |
-| EXEC-IMP-09 | YES after prerequisites | YES | ISSUE_READY | BLOCKED | EXEC-IMP-03, EXEC-IMP-07 |
+| IMP-01 | YES | YES | ISSUE_READY | READY | none |
+| IMP-02 | YES after prerequisite | YES | ISSUE_READY | BLOCKED | IMP-01 |
+| IMP-03 | YES after prerequisite | YES | ISSUE_READY | BLOCKED | IMP-01 |
+| IMP-04 | YES after prerequisite | YES | ISSUE_READY | BLOCKED | IMP-03 |
+| IMP-05 | YES after prerequisites | YES | ISSUE_READY | BLOCKED | IMP-03, IMP-04 |
+| IMP-06 | YES after prerequisites | YES | ISSUE_READY | BLOCKED | IMP-03, IMP-04 |
+| IMP-07 | YES after prerequisites | YES | ISSUE_READY | BLOCKED | IMP-01, IMP-03 |
+| IMP-08 | YES after prerequisites | YES | ISSUE_READY | BLOCKED | IMP-03, IMP-04 |
+| IMP-09 | YES after prerequisites | YES | ISSUE_READY | BLOCKED | IMP-03, IMP-04, IMP-05, IMP-08 |
+| IMP-10 | YES after prerequisites | YES | ISSUE_READY | BLOCKED | IMP-07, IMP-08 |
+| IMP-11 | YES after prerequisites | YES | ISSUE_READY | BLOCKED | IMP-07, IMP-10 |
 
-All nine units have local acceptance and completion evidence executable at their closure point. A unit's `ISSUE_READY` status is decomposition readiness, not ticket lifecycle or immediate execution state.
+All `ISSUE_READY` units have local acceptance and completion evidence executable at closure. `ISSUE_READY` is decomposition readiness, not ticket lifecycle or immediate execution state.
 
 ## 20. Plan Metrics
 
 ```text
-VALIDATED_GAPS = 17
-LOCAL_IMPLEMENTATION_GAPS = 14
-CROSS_SPEC_DEPENDENCIES = 0 primary gaps; 7 explicit capability handoffs
+VALIDATED_GAPS = 18
+LOCAL_IMPLEMENTATION_GAPS = 13
+CROSS_SPEC_DEPENDENCIES = 2 primary Gap records
+INTEGRATION_OR_CONVERGENCE_GAPS = 3
+EXPLICIT_CAPABILITY_HANDOFFS = 9
 PREEXISTING_FOREIGN_CAPABILITIES = 0
 NO_LOCAL_WORK_GAPS = 0
 
-IMPLEMENTATION_UNITS = 9
-LOCALLY_CLOSABLE_UNITS = 9
+IMPLEMENTATION_UNITS = 11
+LOCALLY_CLOSABLE_UNITS = 11
 NON_LOCALLY_CLOSABLE_UNITS = 0
-ISSUE_DECOMPOSITION_READY_UNITS = 9
+ISSUE_DECOMPOSITION_READY_UNITS = 11
 INTERNAL_ONLY_UNITS = 0
 PLAN_BLOCKED_UNITS = 0
 INITIAL_READY_UNITS = 1
-INITIAL_BLOCKED_UNITS = 8
+INITIAL_BLOCKED_UNITS = 10
 
-GAPS_WITH_PLAN_COVERAGE = 17
+GAPS_WITH_PLAN_COVERAGE = 18
 GAPS_WITHOUT_PLAN_COVERAGE = 0
 UNITS_WITHOUT_GAP_OR_SUPPORTING_AUTHORITY = 0
 FALSE_UNIT_SPLITS = 0
 FALSE_UNIT_MERGES = 0
+SPECULATIVE_UNITS = 0
 
-ACCEPTANCE_OBLIGATIONS = 20
-ACCEPTANCE_WITH_FINAL_PROOF_OWNER = 20
+ACCEPTANCE_OBLIGATIONS = 22
+ACCEPTANCE_WITH_FINAL_PROOF_OWNER = 22
 UNRESOLVED_FINAL_PROOF_OWNERS = 0
 LOCAL_AC_REQUIRING_DOWNSTREAM = 0
 LOCAL_AC_CONTRADICTING_DOES_NOT_IMPLEMENT = 0
@@ -1563,7 +1778,7 @@ UNITS_INVENTING_OWNERSHIP = 0
 UNITS_INVENTING_RECOVERY = 0
 UNITS_INVENTING_PERSISTENCE_SEMANTICS = 0
 
-AUTHORITY_CONSUMPTION_GAPS = 0 local/blocking; 1 inherited integrated-only availability gap
+AUTHORITY_CONSUMPTION_GAPS = 0 local/blocking; 9 inherited integrated-only availability records
 TEMPORAL_AUTHORITY_GAPS = 0
 AUTHORITY_COMPLETENESS = PASS
 UNREPRESENTED_UPSTREAM_CONTRACT_BLOCKERS = 0
@@ -1571,7 +1786,6 @@ READY_UNITS_WITH_UNAVAILABLE_CONTRACT = 0
 DOWNSTREAM_PROMOTION_WITHOUT_NEW_EVIDENCE = 0
 LOCAL_CLOSURE_WITH_UNAVAILABLE_REQUIRED_CAPABILITY = 0
 WITNESSES_NOT_EXECUTABLE_AT_LOCAL_CLOSURE = 0
-SPECULATIVE_UNITS = 0
 ```
 
 ## 21. Authority / Specification Escalations
@@ -1584,37 +1798,39 @@ UPSTREAM_CONTRACT_GAPS = 0
 ESCALATION = NO_ESCALATION
 ```
 
-No implementation detail in this plan requires a new architectural decision, ownership change, normative dependency or missing domain rule. If implementation later exposes such a question, planning must stop and route it to the owning upstream phase; no unit may decide it locally.
+No implementation detail requires a new architectural decision, ownership change, unapproved normative dependency or missing domain rule. If implementation exposes such a question, planning must stop and route it to the owning upstream phase.
 
 ## 22. Upstream Authority Preconditions
 
-The authority handoff is complete and is cited rather than recreated:
-
 | Applicable concept | Required proof | Evidence | Result |
 |---|---|---|---|
-| `REGISTRY_ENTRY` identity | `AGGREGATE_IDENTITY_PROOF` | SPEC-EXEC-001 §12.3; component audit §17 | `IDENTITY_CONTRACT_COMPLETE` |
-| `REGISTRY_ENTRY` reconstruction | `AGGREGATE_RECONSTRUCTION_PROOF` | SPEC-EXEC-001 §12.4; component audit §18 | `RECONSTRUCTION_CONTRACT_COMPLETE` |
-| Activity-attempt manifest identity | `AGGREGATE_IDENTITY_PROOF` | SPEC-EXEC-001 §12.2–12.3; component audit §17 | `IDENTITY_CONTRACT_COMPLETE` |
-| Activity-attempt manifest reconstruction | `AGGREGATE_RECONSTRUCTION_PROOF` | SPEC-EXEC-001 §12.2–12.4; component audit §18 | `RECONSTRUCTION_CONTRACT_COMPLETE` |
-| DOM identities/snapshot/lifecycle consumed by EXEC | upstream proofs | SPEC-DOM-001 revision 4 §§10.1, 12, authority-completeness sections; DOM audit §§17–23 | complete, integrated producer unavailable only |
-| Persistence semantics | domain/physical boundary proof | SPEC-EXEC-001 §12.4, §19; ADR-0006; PLAT boundary | complete; PLAT physical capability is integrated-only |
-| Lifecycle and failure | local SPEC §§15–16 and DOM advancement boundary | SPEC-EXEC-001 audit §§19, 28–29; DOM audit §§19, 28–29 | complete |
+| `REGISTRY_ENTRY` identity | `AGGREGATE_IDENTITY_PROOF` | SPEC-EXEC-001 audit §17; target §12.3 | `IDENTITY_CONTRACT_COMPLETE` |
+| `REGISTRY_ENTRY` reconstruction | `AGGREGATE_RECONSTRUCTION_PROOF` | SPEC-EXEC-001 audit §18; target §12.4 | `RECONSTRUCTION_CONTRACT_COMPLETE` |
+| Activity-attempt manifest identity | `AGGREGATE_IDENTITY_PROOF` | SPEC-EXEC-001 audit §17; target §12.2–§12.3 | `IDENTITY_CONTRACT_COMPLETE` |
+| Activity-attempt manifest reconstruction | `AGGREGATE_RECONSTRUCTION_PROOF` | SPEC-EXEC-001 audit §18; target §12.2–§12.4 | `RECONSTRUCTION_CONTRACT_COMPLETE` |
+| DOM identity/snapshot/lifecycle | upstream proofs | SPEC-DOM-001 rev4 audit §§17–23 | complete; productive runtime unavailable only |
+| Persistence semantics | domain/physical boundary | target audit §§18–20; ADR-0006; approved PLAT boundary | complete; physical producer integrated-only |
+| Lifecycle/failure/recovery | target §§15–20 and DOM boundary | target audit §§19, 28–29; DOM audit §§19, 28–29 | complete |
 
-The shared Implementation Decision Simulation is inherited as PASS for all 19 requirements from the latest component SPEC audit and Gap Matrix audit. This plan defensively rechecks every unit touching identity, reconstruction, rehydration, lifecycle, persistence, recovery, stale/duplicate behavior, external effects and cross-SPEC consumption: all answers remain determined by accepted authority; no `NO` or `UNKNOWN` answer is present. No unit invents identity, lifecycle, provenance, recovery, persistence meaning or ownership.
+The shared Implementation Decision Simulation is inherited as `PASS` for all 19 requirements from the current component and Gap Matrix audits. It was defensively rechecked for each unit touching identity, reconstruction, rehydration, lifecycle, persistence, recovery, stale/duplicate behavior, concurrency, external effects or cross-SPEC consumption. No answer is `NO` or `UNKNOWN`.
 
 ## 23. Implementation Unit Authority Checks
 
 | Unit | Normative decisions already upstream? | Identity/lifecycle/provenance/persistence/ownership invented? | Readiness classification | Execution-ready predicate |
 |---|---|---|---|---|
-| EXEC-IMP-01 | YES — ADR-0003/O-016; EXEC envelope requirements | NO | READY | TRUE |
-| EXEC-IMP-02 | YES — ADR-0003/O-017/O-020; EXEC version/registry requirements; DOM/REPO boundaries | NO | READY after IMP-01 | TRUE after prerequisite |
-| EXEC-IMP-03 | YES — EXEC-REGISTRY-004 and DOM/PLAT proofs | NO | READY after IMP-02 | TRUE after prerequisite |
-| EXEC-IMP-04 | YES — ADR-0003/O-019; EXEC failure requirements; DOM mapping boundary | NO | READY after IMP-01/02 | TRUE after prerequisites |
-| EXEC-IMP-05 | YES — O-018, EXEC-SNAPSHOT-001, DOM-SNAPSHOT-001 | NO | READY after IMP-02; DOM availability integrated-only | TRUE for local closure |
-| EXEC-IMP-06 | YES — O-018/O-021, EXEC-MANIFEST-001/003, DOM identity proof | NO | READY after IMP-01/02 | TRUE for local closure |
-| EXEC-IMP-07 | YES — EXEC-MANIFEST-004, DOM/PLAT reconstruction proofs | NO | READY after IMP-03/06 | TRUE for local closure |
-| EXEC-IMP-08 | YES — EXEC-MANIFEST-002, O-025/PLAT boundary | NO | READY after IMP-06 | TRUE for local closure |
-| EXEC-IMP-09 | YES — EXEC-HISTORY-001, O-021, PLAT replay boundary | NO | READY after IMP-03/07 | TRUE for local closure |
+| IMP-01 | YES — ADR-0003/O-016 and envelope requirements | NO | READY | TRUE |
+| IMP-02 | YES — ADR-0003/O-019 and failure requirements | NO | READY | TRUE after prerequisite |
+| IMP-03 | YES — ADR-0003/O-017/O-020 and overlap/resolution requirements | NO | READY | TRUE after prerequisite |
+| IMP-04 | YES — source/scope/progression contracts and approved DOM/REPO boundaries | NO | READY | TRUE after prerequisite; integrated source remains separate |
+| IMP-05 | YES — registry publication/extensibility requirements and source/PLAT boundaries | NO | READY | TRUE after prerequisites |
+| IMP-06 | YES — O-018, `EXEC-SNAPSHOT-001`, `DOM-SNAPSHOT-001` | NO | READY | TRUE for local closure |
+| IMP-07 | YES — O-018/O-021 and manifest proofs | NO | READY | TRUE for local closure |
+| IMP-08 | YES — `EXEC-REGISTRY-004`, identity/reconstruction proofs | NO | READY | TRUE for local closure |
+| IMP-09 | YES — registry mutation/concurrency proof and temporal authority proof | NO | READY | TRUE for local closure |
+| IMP-10 | YES — `EXEC-MANIFEST-004`, DOM/PLAT proofs | NO | READY | TRUE for local closure |
+| IMP-11 | YES — `EXEC-MANIFEST-002`, `EXEC-HISTORY-001`, O-021 | NO | READY | TRUE for local closure |
+
+Readiness classification is the authority/contract result (`READY`) and is distinct from internal prerequisite scheduling in the Initial DAG State.
 
 ```text
 IMPLEMENTATION_UNIT_AUTHORITY_CHECK = PASS
@@ -1622,23 +1838,27 @@ IMPLEMENTATION_UNIT_AUTHORITY_CHECK = PASS
 
 ## 24. Implementation Plan Gate
 
-The plan satisfies the local planning invariants:
+The plan satisfies the required planning invariants:
 
 ```text
 zero uncovered local gaps
 zero speculative units
 zero false unit splits
 zero false unit merges
-all units independently implementable and locally closable
-all local witnesses executable at closure
+all ISSUE_READY units independently implementable and locally closable
+every local AC locally provable
+zero downstream-dependent local ACs
+zero Does Not Implement contradictions
+every local witness executable at closure
+every required-for-local-closure capability productively available at closure
 all acceptance obligations have exactly one final proof owner
-cross-SPEC dependencies explicit and non-promoted
+cross-SPEC dependencies explicit and not promoted
 approved normative dependency direction preserved
-legacy/cutover and historical replay represented
-failure ownership preserved
+legacy/cutover, failure, replay and compatibility represented
 required tests represented
 DAG acyclic
 no unresolved authority/specification/portfolio/contract gap
+zero units inventing identity, lifecycle, provenance, ownership, recovery or persistence semantics
 ```
 
 ```text
