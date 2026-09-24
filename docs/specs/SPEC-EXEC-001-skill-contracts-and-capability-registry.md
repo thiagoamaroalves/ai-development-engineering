@@ -3,7 +3,7 @@ schema_version: "1.0.0"
 id: SPEC-EXEC-001
 title: Skill Contracts and Capability Registry
 status: PROPOSED
-revision: 4
+revision: 5
 date: 2026-09-17
 spec_scope: execution-contracts
 portfolio: SPEC-PORTFOLIO-001
@@ -22,8 +22,10 @@ remediation_report: docs/specs/remediations/SPEC-EXEC-001-component-spec-remedia
 ## 1. Status
 
 `PROPOSED` — materialização remediada do boundary EXEC-001 a partir do
-portfolio aprovado; a revisão 4 incorpora a correção do achado validado da
-auditoria independente (`CSC-MAJOR-002`).
+portfolio aprovado; a revisão 5 incorpora as correções dos achados validados da
+auditoria independente (`CSC-MAJOR-003` e `CSC-MAJOR-004`). A revisão 4 e o
+achado histórico `CSC-MAJOR-002` permanecem na linhagem e não são autoridade
+para esta rodada.
 
 Generation baseline:
 
@@ -35,10 +37,10 @@ Generation baseline:
 | Portfolio verdict | `PORTFOLIO_DECOMPOSITION_APPROVED` |
 | Primary ADR | `ADR-0003` revision `3`, `ACCEPTED` |
 | Upstream dependency | `SPEC-DOM-001` revision `4`, audit `PASS — COMPONENT_SPEC_CONFORMANT` (`docs/specs/audits/SPEC-DOM-001-component-conformance-audit.md`) |
-| Repository HEAD | `e75fb654a2d18b3614861f404f198e86747ce259` (recovery/reconciliation baseline) |
-| Existing target draft | revision `3`, `PROPOSED` |
+| Repository HEAD | `222ee327f46c9832ab61f6640d81bb9cf002b75e` (current component-SPEC audit checkpoint) |
+| Existing target draft | revision `4`, `PROPOSED`; revision 4 is the remediated candidate baseline |
 | Prior Gap Matrix | downstream historical artifacts exist; they do not authorize this SPEC |
-| Source audit | `docs/specs/audits/SPEC-EXEC-001-component-conformance-audit.md`, `FAIL — COMPONENT_SPEC_NON_CONFORMANT`, `CSC-MAJOR-002` |
+| Source audit | `docs/specs/audits/SPEC-EXEC-001-component-conformance-audit.md`, `FAIL — COMPONENT_SPEC_NON_CONFORMANT`, `CSC-MAJOR-003` and `CSC-MAJOR-004` |
 | Gate | `READY_FOR_INDEPENDENT_COMPONENT_SPEC_REAUDIT` after this remediation |
 
 Esta SPEC ainda não é aceita. Sua aceitação depende de auditoria independente
@@ -300,15 +302,58 @@ respectiva fornece o material autorizado.
 Um basis de catálogo persistido contém as entradas schema-válidas, seu
 `CatalogScope`, `RepositoryId` quando `NORMAL` (ausente para o catálogo
 `BOOTSTRAP` system-scoped), `CatalogRevision`, origem autorizada e digest de
-conteúdo. Reidratação é distinta de registro: o material só pode ser
-materializado após validação da identidade de catálogo, origem, digest,
-unicidade, referências, disjunção dos conjuntos suportados e continuidade do
-`CatalogRevision` dentro do mesmo `RepositoryId`/escopo. Material ausente,
-desconhecido, detached, corrompido, duplicado, sobreposto, fora de ordem ou
-com revisão inconsistente falha fechado como `CONTRACT_INVALID`; uma chave
-desconhecida produz `UNKNOWN_CAPABILITY` e uma chave conhecida cujo basis,
-versão, schema ou papel não é compatível produz `INCOMPATIBLE_CAPABILITY`.
-Nenhum desses caminhos muta estado parcialmente.
+conteúdo. Além desses campos, cada base deve carregar uma
+`CatalogBasisProgression` normativa: para o basis inicial,
+`PredecessorCatalogRevision = NONE` e uma observação de origem inicial; para
+cada sucessor, a evidência deve vincular o predecessor aceito (escopo,
+`RepositoryId` quando `NORMAL`, `CatalogRevision` e
+`PredecessorContentDigest`) ao sucessor proposto (`SuccessorCatalogRevision` e
+`SuccessorContentDigest`), com a `SourceSequence`/observação de autoridade
+retornada pela fonte autorizada do catálogo. Para `NORMAL`, a fonte autorizada
+é o material do catálogo da configuração habilitada ligada ao `RepositoryId`
+DOM; para `BOOTSTRAP`, é a fonte independente do catálogo de sistema.
+EXEC-001 é o owner da validação semântica e exige que a fonte retorne essa
+relação de predecessor/sucessor e seus digests; REPO/PLAT podem fornecer
+material e integridade física, mas não podem inventar a relação. Contiguidade
+numérica é necessária, mas não prova causalidade sozinha: um basis posterior
+auto-consistente, detached ou sem observação de fonte que vincule o
+predecessor aceito falha fechado como `CONTRACT_INVALID` e não é
+materializado.
+
+Reidratação é distinta de registro: o resolver EXEC-001 deve validar a
+identidade do catálogo, origem, digest, unicidade, referências, disjunção dos
+conjuntos suportados, `CatalogBasisProgression` e continuidade da
+`SourceSequence` antes de materializar. Material ausente, desconhecido,
+detached, corrompido, duplicado, sobreposto, fora de ordem, com
+predecessor/digest divergente ou sem relação causal autorizada falha fechado
+como `CONTRACT_INVALID`; uma chave desconhecida produz `UNKNOWN_CAPABILITY` e
+uma chave conhecida cujo basis, versão, schema ou papel não é compatível
+produz `INCOMPATIBLE_CAPABILITY`. Nenhum desses caminhos muta estado
+parcialmente e uma base histórica só pode ser reidratada pelo basis e pela
+relação de progressão que lhe pertenciam.
+
+O comando de registro/publicação de novo `CatalogRevision` deve transportar
+`ExpectedCatalogRevision`: `NONE` somente para o basis inicial, ou a revisão
+exata do basis atualmente aceito para um sucessor. Deve transportar também
+uma `RegistryMutationKey` determinística para o comando canônico completo; ela
+é chave de idempotência da operação, não identidade de entrada ou autoridade
+de catálogo. A validação semântica, a relação de progressão e a publicação de
+um sucessor formam uma operação atômica: ou um novo basis completo é aceito,
+ou nenhuma entrada, revisão, snapshot ou manifesto é mutado. Se a revisão
+esperada não for a revisão corrente, o resultado é `CONTRACT_INVALID` com
+razão `STALE_CATALOG_BASIS`, sem merge, last-writer-wins ou mutação parcial.
+Entre dois comandos válidos que partam do mesmo predecessor, somente o
+primeiro sucessor aceito pela autoridade pode avançar; o outro é stale e deve
+ser rejeitado. Repetir a mesma `RegistryMutationKey` com payload idêntico
+devolve o resultado original (inclusive a mesma identidade/revisão), sem
+criar outra revisão. A mesma chave com payload diferente falha
+`CONTRACT_INVALID`. Depois de resposta ambígua, o retry deve primeiro
+reconciliar a autoridade por `RegistryMutationKey`: se o resultado original
+existir, ele é reapresentado; se não existir e o `ExpectedCatalogRevision`
+ainda for corrente, o mesmo comando pode ser reapresentado; se a revisão
+avançou, o resultado é stale. CAS, serialização, journal e durabilidade são
+mecanismos físicos de PLAT; esses resultados semânticos e a fronteira
+atômica pertencem a EXEC-001.
 
 ### 12.2 — Identidade canônica do manifesto
 
@@ -350,50 +395,60 @@ correlation ou label são aliases/evidência, nunca identidade canônica.
 | `IDENTITY_SCOPE` | NORMAL is scoped to the canonical `RepositoryId`; BOOTSTRAP is the independent system catalog scope | `ExecutionId` and `ArtifactCycleId` scope; attempt attachment validated by DOM |
 | `STABLE_CORRELATION_FIELDS` | `RepositoryId` when NORMAL, stage, capability, contract and catalog revision references; correlation is not identity | `ExecutionId`, `ActivityId`, `AttemptId`, `ArtifactCycleId`, exact snapshot/catalog basis |
 | `CREATION_RULE` | register only an absent complete scoped key; duplicate/conflict or overlapping supported sets reject before a new CatalogRevision | create exactly one complete manifest before attempt start |
-| `COMMAND_REPRESENTATION` | registry-entry registration / new scoped catalog revision application command | manifest creation with canonical DOM references and exact basis |
+| `COMMAND_REPRESENTATION` | registry-entry registration / new scoped catalog revision application command carrying `ExpectedCatalogRevision`, `RegistryMutationKey` and the complete proposed basis | manifest creation with canonical DOM references and exact basis |
 | `REPOSITORY_LOOKUP_REPRESENTATION` | complete scoped key, including `RepositoryId` for NORMAL, plus requested `CatalogRevision` | complete DOM identity tuple plus manifest content revision |
-| `PERSISTED_REPRESENTATION` | schema-valid entry set, scope, `RepositoryId` when NORMAL, revision, authorized source and content digest | identity tuple, type, scope, content revision `1`, complete fields and integrity digest |
-| `REHYDRATED_REPRESENTATION` | validated entry set preserving scoped key, repository/catalog identity, revision, source, references and digest | validated immutable record preserving tuple, basis, fields and digest |
-| `EQUALITY_AND_CONTINUITY_SEMANTICS` | same scoped key/version is same immutable entry; valid resolution has at most one supporting entry; catalog revisions cannot rewrite it or cross-resolve repositories | same DOM tuple is same manifest; retry/new basis requires a new AttemptId |
-| `REVISION_RELATIONSHIP` | semantic version is contract revision; `CatalogRevision` is catalog-basis revision within the scoped repository/catalog; rejected overlap creates no revision | `ManifestContentRevision=1`; DOM snapshot/basis revisions remain distinct |
+| `PERSISTED_REPRESENTATION` | schema-valid entry set, scope, `RepositoryId` when NORMAL, revision, authorized source, content digest and `CatalogBasisProgression` | identity tuple, type, scope, content revision `1`, complete fields and integrity digest |
+| `REHYDRATED_REPRESENTATION` | validated entry set preserving scoped key, repository/catalog identity, revision, source, references, digest, progression and `SourceSequence` observation | validated immutable record preserving tuple, basis, fields and digest |
+| `EQUALITY_AND_CONTINUITY_SEMANTICS` | same scoped key/version is same immutable entry; valid resolution has at most one supporting entry; catalog revisions cannot rewrite it or cross-resolve repositories; successor equality requires the validated predecessor/digest/source relation | same DOM tuple is same manifest; retry/new basis requires a new AttemptId |
+| `REVISION_RELATIONSHIP` | semantic version is contract revision; `CatalogRevision` is catalog-basis revision within the scoped repository/catalog; `ExpectedCatalogRevision` is the mutation concurrency basis and is distinct from identity; rejected overlap or stale command creates no revision | `ManifestContentRevision=1`; DOM snapshot/basis revisions remain distinct |
 | `ALIASES_LOCAL_IDS_DERIVED_IDS` | labels, paths, branch, URL, category, digest and correlation are not entry identity; `RepositoryId` is not replaceable by them | path, filename, digest, checkpoint, correlation and label are not manifest identity |
 | `ALIAS_AUTHORITY_AND_FORBIDDEN_SUBSTITUTIONS` | no caller, projection, detached record or catalog source may replace the complete scoped key or its repository binding | no caller, storage adapter, filename or hash may replace DOM tuple |
-| `PROOF_EVIDENCE` | this §12.1, §12.3, §13 `EXEC-REGISTRY-004`, §14, §15, §21 C-EXEC-018/020/021, §22 | this §12.2–§12.3, §13 `EXEC-MANIFEST-004`, §14, §15, §16–§18, §21, §22 |
+| `PROOF_EVIDENCE` | this §12.1, §12.3, §12.4, §13 `EXEC-REGISTRY-004`, §14–§17, §21 C-EXEC-018/020/021/022/023, §22–§23 | this §12.2–§12.3, §13 `EXEC-MANIFEST-004`, §14, §15, §16–§18, §21, §22 |
 
 ### 12.4 — Aggregate Reconstruction Authority Proofs
 
 | Field | Registry entry | Activity-attempt manifest |
 |---|---|---|
-| `WHAT_PERSISTED_MATERIAL_IS_ACCEPTED` | schema-valid complete catalog basis with authorized source, matching digest, contiguous `CatalogRevision` and `RepositoryId` when `NORMAL` | complete immutable record with DOM tuple, basis, content revision `1`, fields and matching digest |
+| `WHAT_PERSISTED_MATERIAL_IS_ACCEPTED` | schema-valid complete catalog basis with authorized source, matching digest, contiguous `CatalogRevision`, `CatalogBasisProgression` and `RepositoryId` when `NORMAL` | complete immutable record with DOM tuple, basis, content revision `1`, fields and matching digest |
 | `WHO_VALIDATES_PERSISTED_MATERIAL` | EXEC-001 validates semantic catalog identity, repository attachment, references, revision and failure result; physical adapter only supplies material/integrity evidence | PLAT validates physical integrity; EXEC-001 validates semantic identity, attachment, basis and fields |
 | `CREATE_SEMANTICS` | absent scoped key creates one immutable entry in a new valid basis; `NORMAL` creation requires the DOM-resolved `RepositoryId` | one manifest for one DOM attempt before start |
-| `REHYDRATE_SEMANTICS` | resolve requested scoped key/revision, requiring matching `RepositoryId` for `NORMAL`, validate source/digest/continuity, then materialize | resolve DOM tuple, validate attachment/basis/digest/content revision, then materialize |
+| `REHYDRATE_SEMANTICS` | resolve requested scoped key/revision, requiring matching `RepositoryId` for `NORMAL`, obtain the authorized source progression observation, validate source/digest/predecessor-successor continuity, then materialize | resolve DOM tuple, validate attachment/basis/digest/content revision, then materialize |
 | `REHYDRATABLE_STATES` | valid current catalog basis and historical frozen catalog basis within the same repository/system scope | pre-start-created, started-immutable and historical-replay record |
-| `CURRENT_STATE_EVIDENCE` | exact scope, `RepositoryId` when `NORMAL`, `CatalogRevision`, complete key set, source and digest | exact DOM tuple, snapshot/catalog basis, content revision and digest |
+| `CURRENT_STATE_EVIDENCE` | exact scope, `RepositoryId` when `NORMAL`, `CatalogRevision`, complete key set, source, digest, predecessor/successor relation and `SourceSequence` observation | exact DOM tuple, snapshot/catalog basis, content revision and digest |
 | `CANONICAL_IDENTITY_RESOLUTION` | `NORMAL` resolves complete key including DOM `RepositoryId`; `BOOTSTRAP` resolves independent system-scoped key | DOM resolves `ExecutionId`, `ActivityId`, `AttemptId`; `ArtifactCycleId` is lineage |
 | `REFERENCE_ATTACHMENT_VALIDATION` | repository/catalog identity, stage/capability/schema/artifact/verdict/role references resolve in the same scoped basis; overlapping supported sets invalidate the basis before attachment | activity/attempt/cycle and snapshot references resolve to the same execution |
 | `VERSION_OR_REVISION_VALIDATION` | semver and disjoint supported sets plus contiguous `CatalogRevision` within the same `RepositoryId`/scope | exact skill/schema/catalog basis plus `ManifestContentRevision=1` |
 | `CAN_UNTRUSTED_OR_DETACHED_PERSISTED_MATERIAL_BE_MATERIALIZED_DIRECTLY_AS_VALID_DOMAIN_STATE?` | `NO` | `NO` |
-| `RECONSTRUCTION_VALIDATOR_OR_RESOLVER_OWNER` | EXEC-001 semantic registry resolver; source/physical adapter cannot promote material | EXEC-001 manifest validator; PLAT remains physical storage/recovery owner |
-| `CONTINUITY_VALIDATION` | no skipped, duplicate, conflicting or forged catalog revision; no overlapping supported sets within one resolution tuple | no duplicate attachment, digest/basis divergence or cross-attempt attachment |
+| `RECONSTRUCTION_VALIDATOR_OR_RESOLVER_OWNER` | EXEC-001 semantic registry resolver; the authorized NORMAL/BOOTSTRAP catalog source returns progression evidence, while REPO/physical adapters cannot promote material or invent continuity | EXEC-001 manifest validator; PLAT remains physical storage/recovery owner |
+| `PREDECESSOR_SUCCESSOR_OR_PROGRESSION_PROVENANCE` | every non-genesis basis carries the accepted predecessor revision/digest, proposed successor revision/digest and source-backed `SourceSequence` observation; genesis explicitly records `NONE` predecessor | not applicable to immutable content revision 1; retry uses a new DOM attempt |
+| `CAUSAL_SEQUENCE_OR_EQUIVALENT_CONTINUITY_EVIDENCE` | numeric contiguity plus the authorized source observation binding the exact accepted predecessor to the successor; a digest or self-consistent number without that relation is insufficient | DOM tuple and immutable basis are the continuity evidence |
+| `SOURCE_OWNER_AND_RETURNED_PROGRESSION_DATA` | EXEC-001 owns semantic validation; the NORMAL enabled-catalog source or independent BOOTSTRAP source returns scope, predecessor, successor, digests and `SourceSequence`; REPO/PLAT cannot invent them | DOM/PLAT provide their approved manifest material only |
+| `PROGRESSION_FAILURE_BEHAVIOR` | missing, detached, foreign, skipped, out-of-order, digest-divergent or source-unobserved progression returns `CONTRACT_INVALID`, preserves the last valid basis and performs no mutation | invalid attachment/basis returns `CONTRACT_INVALID` with no mutation |
+| `EXPECTED_REVISION_INPUT` | every registry mutation carries `ExpectedCatalogRevision`; `NONE` is valid only for genesis, otherwise the exact current accepted revision is required | no registry mutation is owned by the manifest |
+| `STALE_CONCURRENT_BEHAVIOR` | an expected revision that is not current returns `CONTRACT_INVALID` with reason `STALE_CATALOG_BASIS`; competing valid successors from one predecessor do not merge or use last-writer-wins and the losing command does not mutate state | no concurrent manifest mutation is permitted |
+| `ATOMICITY_LINEARIZATION_BOUNDARY` | validate complete proposed basis, progression, overlap and idempotency key before one semantic accept/reject decision; success publishes one complete successor, failure publishes nothing; physical CAS/serialization remains PLAT-owned | manifest creation/reconstruction remains one semantic validation before materialization |
+| `DUPLICATE_REQUEST_IDEMPOTENCY_BEHAVIOR` | same `RegistryMutationKey` plus identical canonical payload returns the original structured outcome and revision without a second revision; same key with different payload returns `CONTRACT_INVALID` | duplicate DOM tuple remains `CONTRACT_INVALID` |
+| `RETRY_AFTER_AMBIGUOUS_OUTCOME` | retry first reconciles the authoritative registry by `RegistryMutationKey`; existing matching result is replayed, absent result with current expected basis may retry, and an advanced basis yields stale rejection | retry uses a new `AttemptId` and never mutates the historical manifest |
+| `COMPETING_SUCCESSOR_ORDERING` | successors are ordered only by the accepted predecessor relation and authority acceptance; no merge, arbitrary consumer order or last-writer selection may define semantics | not applicable |
+| `CONTINUITY_VALIDATION` | no skipped, duplicate or conflicting revision; each successor has source-backed predecessor/digest/`SourceSequence` evidence; no forged later basis and no overlapping supported sets within one resolution tuple | no duplicate attachment, digest/basis divergence or cross-attempt attachment |
 | `STALE_STATE_BEHAVIOR` | requested stale or foreign-repository basis fails closed; current or another repository catalog cannot reinterpret a frozen basis | stale current registry cannot reinterpret historical manifest |
 | `UNKNOWN_REFERENCE_BEHAVIOR` | unknown capability returns `UNKNOWN_CAPABILITY`; unknown schema/reference is `CONTRACT_INVALID` | unknown DOM attachment is `CONTRACT_INVALID` |
 | `DETACHED_REFERENCE_BEHAVIOR` | detached source/entry or entry attached to another `RepositoryId` fails `CONTRACT_INVALID` | detached manifest fails `CONTRACT_INVALID` |
 | `CORRUPTED_MATERIAL_BEHAVIOR` | digest/schema/continuity corruption fails `CONTRACT_INVALID` | digest/schema/identity corruption fails `CONTRACT_INVALID` |
 | `STATE_SKIP_REJECTION` | skipped/out-of-order `CatalogRevision` rejects without mutation | missing or mismatched manifest basis rejects without mutation |
 | `STATE_EVIDENCE_INCONSISTENCY_REJECTION` | repository identity, source, digest, key set or revision mismatch rejects | DOM tuple, basis, content revision or digest mismatch rejects |
-| `FORGED_LATER_STATE_REJECTION` | untrusted later or foreign-repository catalog cannot replace a frozen scoped revision | untrusted later registry/manifest cannot replace historical record |
+| `FORGED_LATER_STATE_REJECTION` | a later basis with self-consistent numbers/digests but without the authorized source observation binding it to the accepted predecessor fails `CONTRACT_INVALID`; it cannot replace a frozen scoped revision | untrusted later registry/manifest cannot replace historical record |
 | `DOMAIN_VALIDATION_OWNER` | EXEC-001 | EXEC-001; DOM validates referenced identity authority |
 | `PERSISTENCE_ADAPTER_RESPONSIBILITY` | physical storage/integrity remains outside this SPEC; adapter cannot define semantics | PLAT serializes, stores, orders and recovers; it cannot define manifest meaning |
-| `FAIL_CLOSED_FAILURES` | `CONTRACT_INVALID` for invalid/overlapping catalog basis, `UNKNOWN_CAPABILITY` for unknown key, `INCOMPATIBLE_CAPABILITY` for known unsupported request | `CONTRACT_INVALID` for invalid material/attachment/basis |
+| `FAIL_CLOSED_FAILURES` | `CONTRACT_INVALID` for invalid/overlapping catalog basis, missing or forged progression, stale expected revision or idempotency-key conflict; `UNKNOWN_CAPABILITY` for unknown key; `INCOMPATIBLE_CAPABILITY` for known unsupported request | `CONTRACT_INVALID` for invalid material/attachment/basis |
 | `FAIL_CLOSED_RESULT` | no catalog mutation or resolution success | no manifest mutation, attachment or replay success |
 | `MUTATION_ON_FAILURE` | `NO` | `NO` |
-| `PERSISTED_IDENTITY_STATE_VERSION` | scoped catalog revision plus entry semantic version; `RepositoryId` is required for `NORMAL` | manifest content revision `1` plus DOM snapshot/basis revisions |
-| `INVARIANTS_REVALIDATED` | unique scoped key, repository attachment when `NORMAL`, source, digest, references, semantic compatibility, disjoint support sets and continuity | identity attachment, completeness, immutability, basis, digest and cardinality |
+| `PERSISTED_IDENTITY_STATE_VERSION` | scoped catalog revision plus entry semantic version; `ExpectedCatalogRevision` is a distinct mutation basis; `RepositoryId` is required for `NORMAL` | manifest content revision `1` plus DOM snapshot/basis revisions |
+| `INVARIANTS_REVALIDATED` | unique scoped key, repository attachment when `NORMAL`, source, digest, references, semantic compatibility, disjoint support sets, progression continuity, expected revision and idempotency-key/payload consistency | identity attachment, completeness, immutability, basis, digest and cardinality |
 | `EXTERNAL_REFERENCES_REQUIRED` | DOM `RepositoryId` and stage, capability, schema, artifact, verdict and role references for `NORMAL`; system catalog scope for `BOOTSTRAP` | DOM execution/activity/attempt/cycle and snapshot/catalog basis |
 | `INVALID_PERSISTENCE_BEHAVIOR` | reject `CONTRACT_INVALID`, no materialization/mutation | reject `CONTRACT_INVALID`, no materialization/mutation |
 | `INCOMPLETE_HISTORY_BEHAVIOR` | reject missing/omitted repository identity, catalog revision or scoped history | reject missing original basis/manifest fields or detached history |
-| `PROOF_EVIDENCE` | this §12.1, §12.3–§12.4, §13, §14–§18, §21 C-EXEC-018/020/021, §22–§23 | this §12.2–§12.4, §13, §14–§18, §21–§23 |
+| `PROOF_EVIDENCE` | this §12.1, §12.3–§12.4, §13, §14–§18, §21 C-EXEC-018/020/021/022/023, §22–§23 | this §12.2–§12.4, §13, §14–§18, §21–§23 |
 
 ## 13. Normative Requirements
 
@@ -483,6 +538,18 @@ suporta qualquer versão solicitada. A entrada resolvida, quando existe, é a
 identidade completa da entrada no `CatalogRevision` congelado; nenhuma ordem
 de registro, ordenação conveniente ou consumidor escolhe entre candidatos.
 
+Toda mutação que registre uma entrada ou publique um novo `CatalogRevision`
+deve carregar `ExpectedCatalogRevision` e uma `RegistryMutationKey`
+determinística. `NONE` só é permitido para a criação do basis inicial; um
+sucessor exige a revisão atualmente aceita. A validação da proposta, incluindo
+disunção, `CatalogBasisProgression`, referências e chave de idempotência, e a
+publicação do successor formam uma decisão atômica: sucesso aceita um único
+basis completo; qualquer falha preserva integralmente o basis anterior. Um
+expected revision stale, uma corrida entre sucessores ou chave reutilizada
+com payload diferente falha `CONTRACT_INVALID` com razão observável e sem
+mutação. Uma repetição da mesma chave e payload devolve o resultado original,
+sem criar nova revisão; não há merge ou last-writer-wins semântico.
+
 Authority: `O-020`, `ADR-0003`, `Decisão`.
 
 ### EXEC-REGISTRY-004 — Identidade e reconstrução determinística do registry
@@ -500,18 +567,40 @@ cada tuplo de resolução, conjuntos suportados sobrepostos entre entradas
 distintas também falham com `CONTRACT_INVALID` antes de criar a entrada ou a
 nova revisão; a decisão é independente da ordem de registro e não seleciona
 um candidato. Alteração semântica exige nova versão semântica e uma nova base
-de catálogo. Cada base persistida deve incluir o escopo, `RepositoryId` quando
-`NORMAL`, revisão do catálogo, origem autorizada, digest de conteúdo e
-referências completas; criação e reidratação são operações separadas. Somente
-material schema-válido, íntegro, ligado à origem e ao repositório correto
-quando `NORMAL`, com continuidade de revisão, conjuntos suportados disjuntos
+de catálogo.
+
+Cada base persistida deve incluir o escopo, `RepositoryId` quando `NORMAL`,
+`CatalogRevision`, origem autorizada, digest de conteúdo, referências
+completas e `CatalogBasisProgression`. O basis inicial declara predecessor
+`NONE`; todo sucessor declara predecessor e successor, digests correspondentes
+e a `SourceSequence`/observação devolvida pela fonte autorizada que liga o
+successor ao predecessor aceito. EXEC-001 é o owner da resolução e da
+validação dessa relação; REPO fornece o material de configuração NORMAL,
+a fonte de sistema fornece o material BOOTSTRAP e PLAT fornece apenas
+persistência/integridade/ordenação física. Numericamente contíguo ou
+self-consistente não é suficiente sem a relação observada pela fonte.
+
+Criação e reidratação são operações separadas. Somente material
+schema-válido, íntegro, ligado à origem e ao repositório correto quando
+`NORMAL`, com continuidade de revisão e fonte, conjuntos suportados disjuntos
 e referências resolvíveis pode ser reidratado. Material unknown, detached,
-corrompido, stale, inconsistente, sobreposto, fora de ordem ou
-cross-repository falha fechado com `CONTRACT_INVALID`; capability desconhecida
-e capability conhecida incompatível conservam, respectivamente,
-`UNKNOWN_CAPABILITY` e `INCOMPATIBLE_CAPABILITY`. A resolução de uma execução
-usa o `RepositoryId` da execução e o `CatalogRevision` congelado, nunca outro
-catálogo ou o catálogo atual por substituição implícita.
+corrompido, stale, inconsistente, sobreposto, fora de ordem, com predecessor
+ou digest divergente, sem progressão autorizada ou cross-repository falha
+fechado com `CONTRACT_INVALID`; capability desconhecida e capability conhecida
+incompatível conservam, respectivamente, `UNKNOWN_CAPABILITY` e
+`INCOMPATIBLE_CAPABILITY`. A resolução de uma execução usa o `RepositoryId`
+da execução e o `CatalogRevision` congelado, nunca outro catálogo ou o
+catálogo atual por substituição implícita.
+
+Uma mutação deve carregar `ExpectedCatalogRevision` e
+`RegistryMutationKey`. A fonte semântica aceita somente um successor atômico
+para o predecessor esperado; uma revisão stale, concorrência, retry sem
+reconciliação ou chave idempotente conflitante retorna `CONTRACT_INVALID`,
+preserva o último basis válido e não publica material parcial. Retry com a
+mesma chave e payload retorna o resultado original sem nova revisão; retry após
+resposta ambígua consulta primeiro a autoridade por essa chave. Assim,
+reidratação de um basis posterior legítimo e rejeição de um basis posterior
+forjado são observáveis sem congelar CAS, banco, journal ou outra tecnologia.
 
 Authority: `O-020`, `ADR-0003`, `ADR-0010`, `Decisão`, identidade/reconstrução
 consumidas de `DOM-ID-001`/`DOM-SNAPSHOT-001`.
@@ -646,7 +735,7 @@ consumidor transforme uma mensagem observável em nova autoridade:
 
 | Interface | Classificação | Regra |
 |---|---|---|
-| Registro de entrada versionada / publicação de novo `CatalogRevision` | `APPLICATION_COMMAND` de contrato | cria somente chave ausente; duplicata/conflito falha fechado; só altera o catálogo aplicável a novas resoluções e não altera snapshot/manifesto existentes |
+| Registro de entrada versionada / publicação de novo `CatalogRevision` | `APPLICATION_COMMAND` de contrato | transporta `ExpectedCatalogRevision`, `RegistryMutationKey` e o basis completo; valida progressão, disjunção e idempotência atomically; expected revision stale, duplicata/conflito ou chave reutilizada com payload divergente falha fechado, enquanto replay idempotente devolve o resultado original; só altera o catálogo aplicável a novas resoluções e não altera snapshot/manifesto existentes |
 | Resolução de skill/capability para uma etapa | `QUERY`/resolução contratual | retorna entrada, versões, schemas, artefatos, vereditos e papéis; não cria lifecycle DOM |
 | Resultado JSON de uma skill | `INTEGRATION_EVENT`/resultado estruturado | precisa do envelope e schema; texto humano é auxiliar |
 | Falha `CONTRACT_INVALID`, `VERDICT_UNKNOWN`, `UNKNOWN_CAPABILITY`, `INCOMPATIBLE_CAPABILITY` | `INTEGRATION_EVENT` de falha canônica | preserva família, basis e não-sucesso; sobreposição de conjuntos invalida a base com `CONTRACT_INVALID`; transporte e projeção só mapeiam |
@@ -667,7 +756,7 @@ portfolio:
 | Capability | `INCOMPATIBLE_CAPABILITY` | capability/versão/schema/papel não é compatível | existe referência, mas ela não satisfaz o contrato requerido | não converter silenciosamente; nova tentativa exige basis/versão compatível |
 | Contract/verdict | `CONTRACT_INVALID` | JSON, envelope ou schema inválido/incompatível | resultado não é contrato consumível | não é sucesso; tentativas seguem política operacional sem mudar o código/semântica |
 | Contract/verdict | `VERDICT_UNKNOWN` | veredito ausente, desconhecido ou não declarado | não é possível interpretar resultado funcional com segurança | não é aprovação; nova tentativa exige resultado conforme registry |
-| Contract/basis | `CONTRACT_INVALID` | entrada de registry ou manifesto ausente, duplicada, detached, corrompida, stale, inconsistente ou com conjuntos suportados sobrepostos na mesma chave de resolução | material não pode ser usado como contrato/basis autoritativo; nenhuma entrada é selecionada | não há materialização parcial, nova revisão ou mutação; correção exige uma base conforme e a mesma identidade não é sobrescrita |
+| Contract/basis | `CONTRACT_INVALID` | entrada de registry ou manifesto ausente, duplicada, detached, corrompida, stale, inconsistente, sem progressão causal, com expected revision stale, concorrência não reconciliada, conflito de `RegistryMutationKey` ou com conjuntos suportados sobrepostos na mesma chave de resolução | material não pode ser usado como contrato/basis autoritativo; nenhuma entrada é selecionada e `STALE_CATALOG_BASIS` permanece razão semântica local | não há materialização parcial, nova revisão ou mutação; correção exige uma base conforme e a mesma identidade não é sobrescrita; retry idempotente somente reapresenta o resultado já confirmado |
 
 Todas as quatro falhas canônicas permanecem fail-closed; o caso adicional de
 material inválido, inclusive sobreposição de conjuntos suportados, usa
@@ -689,6 +778,16 @@ tentativas:
   resultado estruturado;
 - retry não pode converter uma versão incompatível, reciclar silenciosamente
   um manifesto, contornar uma base sobreposta ou duplicar um efeito externo;
+- mutação de registry é uma semântica EXEC distinta da idempotência de efeitos
+  de PLAT: o comando carrega `ExpectedCatalogRevision` e
+  `RegistryMutationKey`, valida a progressão e publica no máximo um successor;
+  expected revision stale ou corrida concorrente retorna `CONTRACT_INVALID`
+  sem mutação, e uma repetição idêntica reapresenta o resultado original sem
+  nova revisão;
+- após resposta ambígua, o retry de registry reconcilia primeiro a autoridade
+  por `RegistryMutationKey`; só reapresenta o mesmo comando se não houver
+  resultado e a revisão esperada continuar corrente, caso contrário retorna
+  stale; merge e last-writer-wins não são semântica de EXEC;
 - `AttemptId` permanece identidade canônica de `SPEC-DOM-001`; cada retry usa
   novo `AttemptId` e novo manifesto, enquanto assignment/sessão operacional
   pertence a `SPEC-EXEC-002`;
@@ -697,7 +796,8 @@ tentativas:
   reconciliação seguem `SPEC-PLAT-001`/`SPEC-GIT-001`;
 - EXEC-001 expõe checkpoint, manifesto e basis para retomada; a aplicação do
   contexto entre sessões segue `O-025`/`SPEC-EXEC-002` e a recuperação física
-  segue `SPEC-PLAT-001`.
+  segue `SPEC-PLAT-001`; CAS, serialização, journal e durabilidade não escolhem
+  os resultados semânticos de stale, concorrência ou idempotência do registry.
 
 ## 17. Compatibility / Cutover
 
@@ -803,6 +903,21 @@ owner de segurança sem alterar o schema sem versionamento.
   desses conjuntos produz `INCOMPATIBLE_CAPABILITY`. Replay histórico mantém
   o basis válido original, e nenhum consumidor ou camada de projeção escolhe
   precedência.
+- `C-EXEC-022`: um basis inicial e um successor legítimo reidratam somente
+  quando a fonte autorizada retorna `CatalogBasisProgression` com predecessor,
+  successor, digests, escopo e `SourceSequence` correspondentes ao basis aceito.
+  Um basis posterior auto-consistente mas sem essa observação, com predecessor
+  ou digest divergente, salto, fonte detached/foreign ou sequência fora de
+  ordem produz `CONTRACT_INVALID`, preserva o último basis válido e não muta o
+  catálogo; replay histórico conserva a relação original.
+- `C-EXEC-023`: registro de entrada/publicação de novo basis exige
+  `ExpectedCatalogRevision` e `RegistryMutationKey`. Uma proposta válida
+  aceita um único successor atomicamente; uma corrida com expected revision
+  stale retorna `CONTRACT_INVALID` com `STALE_CATALOG_BASIS` e sem mutação.
+  Repetição após resposta ambígua reconcilia por chave: mesma chave e payload
+  devolve o resultado original sem nova revisão, chave reutilizada com payload
+  diferente falha, e ausência de resultado só permite reapresentação se a
+  revisão esperada ainda for corrente. Não há merge nem last-writer-wins.
 
 ### Boundary isolation and dependency conformance
 
@@ -819,6 +934,9 @@ owner de segurança sem alterar o schema sem versionamento.
 
 - `C-EXEC-017`: EXEC-001 expõe basis/versão e checkpoint; o owner de execução
   aplica contexto persistido em retry/retomada, sem retry implícito por texto.
+- `C-EXEC-022` e `C-EXEC-023` também são recovery/concurrency witnesses:
+  nenhum retry de reconstrução ou mutação pode promover material sem relação
+  causal, ultrapassar basis stale ou produzir uma segunda revisão.
 
 Esses testes devem ser executáveis contra a implementação produtiva quando ela
 existir. Os testes atuais do protótipo não satisfazem esta suíte.
@@ -847,6 +965,8 @@ existir. Os testes atuais do protótipo não satisfazem esta suíte.
 | AC-EXEC-018 | Um retry solicitado externamente não altera semântica de falha, não converte versão e não confirma efeito externo por si só; um retry usa novo `AttemptId` e manifesto. | EXEC-FAILURE-001, EXEC-MANIFEST-002 |
 | AC-EXEC-019 | Para `NORMAL`, uma chave `(CatalogScope=NORMAL, RepositoryId, SkillContractId, CapabilityId, SchemaId, SemanticVersion)` resolve somente no catálogo do `RepositoryId` da execução; para `BOOTSTRAP`, a chave permanece no catálogo de sistema independente. A resolução usa o `CatalogRevision` congelado; same-key duplicate/conflict, conjuntos suportados sobrepostos, digest/origem/referência/escopo inválidos, cross-repository lookup e quebra de continuidade produzem `CONTRACT_INVALID` sem mutação. | EXEC-REGISTRY-004 |
 | AC-EXEC-020 | Cada tentativa tem exatamente um manifesto com identidade `(ExecutionId, ActivityId, AttemptId)`, `ManifestContentRevision = 1` e digest; criação duplicada, attachment detached ou reidratação stale/corrompida é rejeitada com `CONTRACT_INVALID`, uma base de catálogo sobreposta não pode originar manifesto e replay usa o basis original. | EXEC-MANIFEST-004 |
+| AC-EXEC-021 | Basis inicial e successor de catálogo só podem ser reidratados quando a `CatalogBasisProgression` retornada pela fonte autorizada vincula predecessor aceito, successor, digests, escopo e `SourceSequence`; basis posterior auto-consistente, forged, skipped, detached, foreign ou divergente falha `CONTRACT_INVALID`, preserva o basis válido e não muta o catálogo. | EXEC-REGISTRY-004 |
+| AC-EXEC-022 | Toda publicação de entrada/nova revisão exige `ExpectedCatalogRevision` e `RegistryMutationKey`: uma proposta válida publica um único successor atomically; expected revision stale/concurrent retorna `CONTRACT_INVALID`/`STALE_CATALOG_BASIS` sem mutação; retry idêntico reapresenta o resultado original sem nova revisão, chave com payload diferente falha e retry ambíguo reconcilia a autoridade antes de repetir. | EXEC-REGISTRY-001, EXEC-REGISTRY-004 |
 
 ## 23. ADR / Obligation / Requirement Traceability
 
@@ -859,8 +979,8 @@ existir. Os testes atuais do protótipo não satisfazem esta suíte.
 | EXEC-SNAPSHOT-001 | O-018 | ADR-0003 | Decisão | canonical owner; consumes DOM-SNAPSHOT-001 | AC-EXEC-005; C-EXEC-012, C-EXEC-016 |
 | EXEC-CONTRACT-001 | O-019 | ADR-0003 | Decisão | canonical owner | AC-EXEC-006; C-EXEC-008 |
 | EXEC-CONTRACT-002 | O-019 | ADR-0003 | Decisão | canonical owner | AC-EXEC-007; C-EXEC-009 |
-| EXEC-REGISTRY-001 | O-020 | ADR-0003 | Decisão | canonical owner | AC-EXEC-008; C-EXEC-004, C-EXEC-021 |
-| EXEC-REGISTRY-004 | O-020 | ADR-0003; ADR-0001; ADR-0010 | Decisão; DOM-ID-001/DOM-SNAPSHOT-001; configuração normal por repositório | canonical owner; consumes DOM authority | AC-EXEC-019; C-EXEC-018, C-EXEC-020, C-EXEC-021 |
+| EXEC-REGISTRY-001 | O-020 | ADR-0003 | Decisão | canonical owner | AC-EXEC-008, AC-EXEC-022; C-EXEC-004, C-EXEC-021, C-EXEC-023 |
+| EXEC-REGISTRY-004 | O-020 | ADR-0003; ADR-0001; ADR-0010 | Decisão; DOM-ID-001/DOM-SNAPSHOT-001; configuração normal por repositório | canonical owner; consumes DOM authority | AC-EXEC-019, AC-EXEC-021, AC-EXEC-022; C-EXEC-018, C-EXEC-020, C-EXEC-021, C-EXEC-022, C-EXEC-023 |
 | EXEC-REGISTRY-002 | O-020 | ADR-0003 | Decisão | canonical owner | AC-EXEC-009; C-EXEC-005 |
 | EXEC-REGISTRY-003 | O-020 | ADR-0003 | Decisão | canonical owner | AC-EXEC-010; C-EXEC-011 |
 | EXEC-CAPABILITY-001 | O-020 | ADR-0003 | Decisão | canonical owner | AC-EXEC-011; C-EXEC-010, C-EXEC-021 |
@@ -887,7 +1007,9 @@ Esta tabela registra divergência observada; não é a Gap Matrix formal.
 |---|---|---|---|
 | Schemas JSON e validação produtiva ausentes | `IMPLEMENTATION_GAP` | EXEC-ENVELOPE-001/002, EXEC-CONTRACT-001/002 | nenhum runtime/schema produtivo; somente `prototype/src/mockDomain.ts` |
 | Registry normal/bootstrap ausente | `IMPLEMENTATION_GAP` | EXEC-REGISTRY-001/002/003/004, EXEC-CAPABILITY-001/002 | nenhum catálogo produtivo encontrado |
-| Regra de sobreposição de versões suportadas | `NON_GAP` normativo; implementação ainda é gap | EXEC-VERSION-002, EXEC-REGISTRY-001/004, EXEC-CAPABILITY-001 | revisão 4 rejeita base sobreposta com `CONTRACT_INVALID`; C-EXEC-021 cobre sobreposição, ordens de registro, resolução única, identidade, basis e replay |
+| Regra de sobreposição de versões suportadas | `NON_GAP` normativo; implementação ainda é gap | EXEC-VERSION-002, EXEC-REGISTRY-001/004, EXEC-CAPABILITY-001 | revisão 5 rejeita base sobreposta com `CONTRACT_INVALID`; C-EXEC-021 cobre sobreposição, ordens de registro, resolução única, identidade, basis e replay |
+| Progressão causal do basis de catálogo e rejeição de basis posterior forjado | `NON_GAP` normativo; implementação ainda é gap | EXEC-REGISTRY-004 | revisão 5 exige `CatalogBasisProgression`, predecessor/successor, digests e `SourceSequence`; C-EXEC-022 prova sucessor legítimo e rejeições sem mutação |
+| Concorrência, stale e retry idempotente de mutação do registry | `NON_GAP` normativo; implementação ainda é gap | EXEC-REGISTRY-001/004 | revisão 5 exige `ExpectedCatalogRevision`, `RegistryMutationKey`, atomicidade semântica, stale rejection e reconciliação; C-EXEC-023 cobre corrida, duplicata e resposta ambígua |
 | Manifesto/checkpoint produtivo ausente | `IMPLEMENTATION_GAP` | EXEC-MANIFEST-001/002/003/004, EXEC-HISTORY-001 | campos simulados em memória; nenhum registro persistido |
 | Runtime de skill e consumidores reais ausentes | `IMPLEMENTATION_GAP` | todos os requisitos EXEC | não há backend/.NET, scheduler ou onboarding produtivo |
 | Protótipo e testes de mock | `PROTOTYPE_ONLY` | todos | `prototype/src/*`, `prototype/tests/*`, `prototype/README.md` |
@@ -920,6 +1042,8 @@ superseded permanece.
 | Texto humano virar autoridade | EXEC-ENVELOPE-001/002 e C-EXEC-002 |
 | Conversão silenciosa entre versões | EXEC-VERSION-002, EXEC-SNAPSHOT-001 e C-EXEC-003/012 |
 | Conjuntos suportados sobrepostos produzirem seleção por ordenação ou registro | EXEC-VERSION-002, EXEC-REGISTRY-001/004, EXEC-CAPABILITY-001 e C-EXEC-021 |
+| Basis posterior forjado ou detached ser aceito pela continuidade numérica isolada | EXEC-REGISTRY-004, C-EXEC-022 e `CatalogBasisProgression` |
+| Corrida de publicação gerar successor conflitante ou retry duplicado | EXEC-REGISTRY-001/004, C-EXEC-023 e seção 16 |
 | Registry normal e bootstrap virarem autoridade dupla ou um catálogo NORMAL ser resolvido em outro repositório | EXEC-REGISTRY-002/003/004 e C-EXEC-005/011/018 |
 | Capability desconhecida ser tratada como indisponibilidade ou sucesso | EXEC-CAPABILITY-001 e C-EXEC-010 |
 | Manifesto atual ser usado para reinterpretar histórico | EXEC-MANIFEST-003, EXEC-HISTORY-001 e C-EXEC-012/016 |
@@ -973,6 +1097,12 @@ resolvida nesta SPEC.
 - conjuntos suportados sobrepostos na mesma chave de resolução falham
   `CONTRACT_INVALID` sem precedência, mutação, identidade selecionada ou
   reinterpretação histórica;
+- cada successor de catálogo possui `CatalogBasisProgression` observável,
+  predecessor/digest e `SourceSequence` autorizados; basis posterior forjado,
+  detached ou sem relação causal falha fechado sem mutação;
+- mutação de registry exige `ExpectedCatalogRevision` e
+  `RegistryMutationKey`, com decisão atômica, stale rejection, ordenação pelo
+  predecessor aceito e retry idempotente sem nova revisão;
 - identidade e lifecycle DOM consumidos sem redefinição;
 - compatibilidade, replay e cutover explícitos;
 - conformance positiva, negativa, de isolamento, dependência, extensibilidade
@@ -1012,12 +1142,19 @@ UPSTREAM_CONTRACT_GAPS = 0
 IMPLEMENTATION_PLAN_LEAKS = 0
 IMPLEMENTER_DECISION_CHECKS = 19
 IMPLEMENTER_DECISION_CHECK_FAILURES = 0
+RECONSTRUCTION_AUTHORITY_GAPS = 0
+CONCURRENCY_SEMANTICS_GAPS = 0
+LIFECYCLE_AUTHORITY_GAPS = 0
 OVERLAP_SELECTION_RULE = REJECT_OVERLAPPING_SUPPORTED_SETS_FAIL_CLOSED
 OVERLAP_CANONICAL_FAILURE = CONTRACT_INVALID
+CATALOG_PROGRESSION_RULE = SOURCE_BACKED_PREDECESSOR_SUCCESSOR_EVIDENCE
+CATALOG_MUTATION_EXPECTED_REVISION = REQUIRED
+CATALOG_MUTATION_ATOMICITY = ONE_SUCCESSOR_OR_NO_MUTATION
+CATALOG_MUTATION_IDEMPOTENCY = SAME_KEY_AND_PAYLOAD_REPLAYS_ORIGINAL_RESULT
 CAPABILITY_AVAILABILITY_CLASSIFICATION_ERRORS = 0
 DOWNSTREAM_PROMOTION_WITHOUT_NEW_EVIDENCE = 0
-ACCEPTANCE_CRITERIA = 20
-CONFORMANCE_TESTS = 21
+ACCEPTANCE_CRITERIA = 22
+CONFORMANCE_TESTS = 23
 ```
 
 Required invariants:
@@ -1048,6 +1185,11 @@ PORTFOLIO_OWNERSHIP_GAPS = 0
 - Sobreposição de conjuntos suportados não possui precedência: é rejeitada
   antes de criar/revisar o catálogo, independentemente da ordem de registro;
   base válida resolve uma única identidade e preserva replay.
+- Progressão de catálogo exige predecessor/successor, digests e observação da
+  fonte autorizada; continuidade numérica isolada não é autoridade.
+- Concorrência de mutação exige expected revision, stale rejection,
+  atomicidade semântica e replay idempotente; CAS/journal permanecem detalhes
+  de PLAT e não escolhem o resultado.
 - Nenhuma seção contém plano de implementação, divisão de tickets ou nomes de
   arquivos exigidos.
 - Todo requisito normativo aponta para obrigação do portfolio e ADR-0003.
@@ -1068,8 +1210,8 @@ IMPLEMENTATION_PLAN_LEAKAGE = PASS
 
 ```text
 COMPONENT_SPEC_REMEDIATION_MATERIALIZATION_COMPLETE
-REMEDIATED_FINDING = CSC-MAJOR-002
-REVISION = 4
+REMEDIATED_FINDINGS = CSC-MAJOR-003, CSC-MAJOR-004
+REVISION = 5
 ```
 
 The artifact is ready for the next independent component SPEC conformance
