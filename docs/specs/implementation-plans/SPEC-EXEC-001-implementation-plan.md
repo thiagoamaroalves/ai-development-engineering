@@ -1674,7 +1674,7 @@ Every edge is producer-before-consumer. No unit's local closure requires a downs
 
 | Checkpoint | Required units | Integrated behavior | Required evidence | Unlocked units |
 |---|---|---|---|---|
-| CP-EXEC-01 | IMP-01, IMP-02, IMP-03 | identifiable schemas, canonical failures and unique non-overlapping resolution | schema, verdict, failure, SemVer and overlap reports | IMP-04, IMP-05, IMP-06, IMP-07 |
+| CP-EXEC-01 | IMP-01, IMP-02, IMP-03 | identifiable schemas, canonical failures and unique non-overlapping resolution | schema, verdict, failure, SemVer and overlap reports | IMP-04 |
 | CP-EXEC-02 | IMP-03, IMP-04, IMP-05, IMP-08, IMP-09 | owner-issued scoped catalog basis, source progression and one-successor mutation | source receipt, scope, progression, issuer, stale/idempotency and no-mutation evidence | integrated DOM/REPO/PLAT catalog proof |
 | CP-EXEC-03 | IMP-06, IMP-07, IMP-10 | exact DOM-bound manifest identity and immutable started basis | caller-bypass, manifest-field, attachment, digest and freeze reports; full proof runs after IMP-06 → IMP-07 and required IMP-10 evidence | IMP-11 |
 | CP-EXEC-04 | IMP-07, IMP-10, IMP-11 | safe checkpoint and original-basis replay with retry-distinct identity | checkpoint declaration, current-registry divergence, durable replay and new-attempt evidence | CP-EXEC-05 |
