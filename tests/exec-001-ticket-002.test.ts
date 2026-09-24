@@ -486,6 +486,20 @@ test('rejects caller-created fixture authority from productive registration with
   assert.equal(registryBasisIdentity(basis), before)
 })
 
+test('rejects runtime authority construction and keeps public failures untrusted', () => {
+  const RuntimeCatalogBasis = CatalogBasis as unknown as new (...args: unknown[]) => CatalogBasis
+  const RuntimeCatalogRevision = CatalogRevision as unknown as new (...args: unknown[]) => CatalogRevision
+  const scope = CatalogScope.normal('repo-a')
+  assert.throws(() => new RuntimeCatalogRevision(2), /Runtime domain authority is private/)
+  assert.throws(() => new RuntimeCatalogBasis(scope, CatalogRevision.create(1), 'REPO_NORMAL_CATALOG', [], false), /Runtime domain authority is private/)
+
+  const basis = createCatalogBasisFixture({ scope }).register(entry())
+  const resolver = new RegistryResolutionService()
+  const callerFailure = resolver.failure(basis, 'CONTRACT_INVALID', 'caller supplied failure')
+  assert.equal(isRegistryFailure(callerFailure), false)
+  assert.equal(isRegistryResolutionBoundToRequest(callerFailure, basis, request()), false)
+})
+
 test('rejects local fixture authority and keeps fixture resolution untrusted', () => {
   const basis = createCatalogBasisFixture({ scope: CatalogScope.normal('repo-a') }).register(entry())
   const resolver = new RegistryResolutionService()

@@ -4,6 +4,14 @@ import {
   SchemaReference,
 } from './exec-contract.ts'
 
+const DOMAIN_AUTHORITY_TOKEN = Object.freeze({})
+
+function assertDomainAuthority(authority: unknown): void {
+  if (authority !== DOMAIN_AUTHORITY_TOKEN) {
+    throw new ExecRegistryDomainError('Runtime domain authority is private to the owner.')
+  }
+}
+
 export type RegistryFailureCode =
   | 'CONTRACT_INVALID'
   | 'UNKNOWN_CAPABILITY'
@@ -81,6 +89,7 @@ const SUPPORTED_VERSION_SET_INSTANCES = new WeakSet<object>()
 const REGISTRY_ENTRY_INSTANCES = new WeakSet<object>()
 const CATALOG_BASIS_INSTANCES = new WeakSet<object>()
 const LOCAL_CATALOG_BASIS_INSTANCES = new WeakSet<object>()
+const PRODUCER_CATALOG_BASIS_INSTANCES = new WeakSet<object>()
 const PRODUCER_AUTHORITY_PROOFS = new WeakMap<object, CatalogBasis>()
 const REGISTRY_RESOLUTION_SERVICE_INSTANCES = new WeakSet<object>()
 const REGISTRY_RESOLUTION_RESULT_INSTANCES = new WeakSet<object>()
@@ -99,7 +108,8 @@ export class SemanticVersion {
   private readonly minorDigits: string
   private readonly patchDigits: string
 
-  private constructor(value: string, majorDigits: string, minorDigits: string, patchDigits: string, prerelease: readonly string[], build: readonly string[]) {
+  private constructor(value: string, majorDigits: string, minorDigits: string, patchDigits: string, prerelease: readonly string[], build: readonly string[], authority: object) {
+    assertDomainAuthority(authority)
     this.value = value
     this.majorDigits = majorDigits
     this.minorDigits = minorDigits
@@ -123,6 +133,7 @@ export class SemanticVersion {
       match[3],
       match[4] ? match[4].split('.') : [],
       match[5] ? match[5].split('.') : [],
+      DOMAIN_AUTHORITY_TOKEN,
     )
   }
 
@@ -168,7 +179,8 @@ export class SupportedVersionSet {
   readonly versions: readonly SemanticVersion[]
   private readonly values: readonly string[]
 
-  private constructor(versions: readonly SemanticVersion[]) {
+  private constructor(versions: readonly SemanticVersion[], authority: object) {
+    assertDomainAuthority(authority)
     this.versions = Object.freeze([...versions])
     this.values = Object.freeze(versions.map((version) => version.value))
     SUPPORTED_VERSION_SET_INSTANCES.add(this)
@@ -183,7 +195,7 @@ export class SupportedVersionSet {
     if (new Set(versions.map((version) => version.value)).size !== versions.length) {
       throw new ExecRegistryDomainError('Supported versions must not contain duplicates.')
     }
-    return new SupportedVersionSet(versions)
+    return new SupportedVersionSet(versions, DOMAIN_AUTHORITY_TOKEN)
   }
 
   has(value: unknown): boolean {
@@ -207,7 +219,8 @@ export class SupportedVersionSet {
 export class CatalogRevision {
   readonly value: number
 
-  private constructor(value: number) {
+  private constructor(value: number, authority: object) {
+    assertDomainAuthority(authority)
     this.value = value
     CATALOG_REVISION_INSTANCES.add(this)
     Object.freeze(this)
@@ -218,7 +231,7 @@ export class CatalogRevision {
     if (!Number.isSafeInteger(value) || (value as number) < 1) {
       throw new ExecRegistryDomainError('Catalog revision must be a positive safe integer.')
     }
-    return new CatalogRevision(value as number)
+    return new CatalogRevision(value as number, DOMAIN_AUTHORITY_TOKEN)
   }
 
   next(): CatalogRevision {
@@ -239,7 +252,8 @@ export class CatalogScope {
   readonly name: CatalogScopeName
   readonly repositoryId?: string
 
-  private constructor(name: CatalogScopeName, repositoryId?: string) {
+  private constructor(name: CatalogScopeName, repositoryId: string | undefined, authority: object) {
+    assertDomainAuthority(authority)
     this.name = name
     this.repositoryId = repositoryId
     CATALOG_SCOPE_INSTANCES.add(this)
@@ -247,11 +261,11 @@ export class CatalogScope {
   }
 
   static normal(repositoryId: unknown): CatalogScope {
-    return new CatalogScope('NORMAL', requiredToken(repositoryId, 'Repository identity'))
+    return new CatalogScope('NORMAL', requiredToken(repositoryId, 'Repository identity'), DOMAIN_AUTHORITY_TOKEN)
   }
 
   static bootstrap(): CatalogScope {
-    return new CatalogScope('BOOTSTRAP')
+    return new CatalogScope('BOOTSTRAP', undefined, DOMAIN_AUTHORITY_TOKEN)
   }
 
   static create(input: { readonly name: unknown; readonly repositoryId?: unknown }): CatalogScope {
@@ -330,7 +344,8 @@ export class RegistryEntry {
     readonly allowedRoles: readonly string[]
     readonly category: BootstrapCapabilityCategory
     readonly supportedVersions: SupportedVersionSet
-  }) {
+  }, authority: object) {
+    assertDomainAuthority(authority)
     this.stage = input.stage
     this.skillContractId = input.skillContractId
     this.capabilityId = input.capabilityId
@@ -377,7 +392,7 @@ export class RegistryEntry {
       allowedRoles: uniqueTokens(input.allowedRoles, 'Allowed roles'),
       category: category as BootstrapCapabilityCategory,
       supportedVersions,
-    })
+    }, DOMAIN_AUTHORITY_TOKEN)
   }
 
   key(scope: CatalogScope): RegistryEntryKey {
@@ -439,7 +454,10 @@ export class CatalogBasis {
     source: string,
     entries: readonly RegistryEntry[],
     localFixture: boolean,
+    producerIssued: boolean,
+    authority: object,
   ) {
+    assertDomainAuthority(authority)
     this.scope = scope
     this.catalogRevision = catalogRevision
     this.source = source
@@ -450,6 +468,7 @@ export class CatalogBasis {
     }
     CATALOG_BASIS_INSTANCES.add(this)
     if (localFixture) LOCAL_CATALOG_BASIS_INSTANCES.add(this)
+    if (producerIssued) PRODUCER_CATALOG_BASIS_INSTANCES.add(this)
     Object.freeze(this)
   }
 
@@ -464,7 +483,7 @@ export class CatalogBasis {
     if (!Array.isArray(entries) || !entries.every((entry) => isAuthenticatedRegistryEntry(entry))) {
       throw new ExecRegistryDomainError('Catalog entries must be authenticated registry entries.')
     }
-    return new CatalogBasis(input.scope, catalogRevision, source, entries, true)
+    return new CatalogBasis(input.scope, catalogRevision, source, entries, true, false, DOMAIN_AUTHORITY_TOKEN)
   }
 
   register(entry: RegistryEntry): CatalogBasis {
@@ -479,6 +498,8 @@ export class CatalogBasis {
       this.source,
       [...this.entries, entry],
       isLocalCatalogBasis(this),
+      PRODUCER_CATALOG_BASIS_INSTANCES.has(this),
+      DOMAIN_AUTHORITY_TOKEN,
     )
   }
 
@@ -503,7 +524,9 @@ export interface CatalogBasisAuthorityProof {
 }
 
 export function createProducerBoundCatalogBasisProof(basis: CatalogBasis): CatalogBasisAuthorityProof {
-  if (!isAuthenticatedCatalogBasis(basis) || isLocalCatalogBasis(basis)) {
+  if (!isAuthenticatedCatalogBasis(basis)
+    || isLocalCatalogBasis(basis)
+    || !PRODUCER_CATALOG_BASIS_INSTANCES.has(basis)) {
     throw new ExecRegistryDomainError('A producer-bound catalog basis is required; local fixtures are not authority.')
   }
   const proof = Object.freeze({ authority: 'PRODUCER_BOUND_CATALOG_BASIS' as const, basis })
@@ -649,7 +672,7 @@ export class RegistryResolutionService {
     if (!isAuthenticatedCatalogBasis(basis) || !isProducerBoundCatalogBasisProof(authorityProof, basis)) {
       throw new ExecRegistryDomainError('A producer-bound catalog basis proof is required; local fixtures are not authority.')
     }
-    return this.resolveInternal(basis, request, true)
+    return this.resolveInternal(basis, request, DOMAIN_AUTHORITY_TOKEN)
   }
 
   /**
@@ -661,32 +684,33 @@ export class RegistryResolutionService {
     if (!isAuthenticatedCatalogBasis(basis) || !isLocalCatalogBasis(basis)) {
       throw new ExecRegistryDomainError('A local catalog fixture is required for contract-only evidence.')
     }
-    return this.resolveInternal(basis, request, false)
+    return this.resolveInternal(basis, request)
   }
 
   private resolveInternal(
     basis: CatalogBasis,
     request: RegistryResolutionRequest,
-    authoritative: boolean,
+    authority?: object,
   ): RegistryResolutionResult {
+    const authoritative = authority === DOMAIN_AUTHORITY_TOKEN
     try {
       if (!request || !isAuthenticatedSchemaReference(request.schema)) {
-        return this.failure(basis, 'CONTRACT_INVALID', 'A complete registry resolution request is required.', request, authoritative)
+        return this.failureInternal(basis, 'CONTRACT_INVALID', 'A complete registry resolution request is required.', request, authority)
       }
       const stage = requiredToken(request.stage, 'Stage')
       const skillContractId = requiredToken(request.skillContractId, 'Skill contract identity')
       const capabilityId = requiredToken(request.capabilityId, 'Capability identity')
       const identityCandidates = basis.findByCapability({ skillContractId, capabilityId })
-      if (identityCandidates.length === 0) return this.failure(basis, 'UNKNOWN_CAPABILITY', 'Capability is not registered in the requested catalog basis.', request, authoritative)
+      if (identityCandidates.length === 0) return this.failureInternal(basis, 'UNKNOWN_CAPABILITY', 'Capability is not registered in the requested catalog basis.', request, authority)
       const stageCandidates = identityCandidates.filter((entry) => entry.stage === stage)
-      if (stageCandidates.length === 0) return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability stage is not compatible with the requested entry.', request, authoritative)
+      if (stageCandidates.length === 0) return this.failureInternal(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability stage is not compatible with the requested entry.', request, authority)
       const schemaCandidates = stageCandidates.filter((entry) => entry.acceptsSchema(request.schema))
-      if (schemaCandidates.length === 0) return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability schema is not compatible with the requested entry.', request, authoritative)
+      if (schemaCandidates.length === 0) return this.failureInternal(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability schema is not compatible with the requested entry.', request, authority)
       let requestedVersion: SemanticVersion
       try {
         requestedVersion = SemanticVersion.parse(request.semanticVersion)
       } catch {
-        return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability version is not a supported semantic version.', request, authoritative)
+        return this.failureInternal(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability version is not a supported semantic version.', request, authority)
       }
       const orderedCandidates = [...schemaCandidates].sort((left, right) => {
         const versionOrder = left.semanticVersion.compare(right.semanticVersion)
@@ -695,20 +719,20 @@ export class RegistryResolutionService {
       })
       const entry = orderedCandidates.find((candidate) => candidate.semanticVersion.value === requestedVersion.value)
         ?? orderedCandidates.find((candidate) => candidate.supports(requestedVersion.value))
-      if (!entry) return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability version is not explicitly supported by the requested basis.', request, authoritative)
+      if (!entry) return this.failureInternal(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability version is not explicitly supported by the requested basis.', request, authority)
       const version = VersionCompatibilityPolicy.resolve(entry, requestedVersion.value)
-      if (!version) return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability version is not explicitly supported by the requested basis.', request, authoritative)
+      if (!version) return this.failureInternal(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability version is not explicitly supported by the requested basis.', request, authority)
       if (!BootstrapAllowlistPolicy.permits(basis.scope, entry)) {
-        return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'The bootstrap catalog permits onboarding capabilities only.', request, authoritative)
+        return this.failureInternal(basis, 'INCOMPATIBLE_CAPABILITY', 'The bootstrap catalog permits onboarding capabilities only.', request, authority)
       }
       if (request.role !== undefined && !entry.acceptsRole(request.role)) {
-        return this.failure(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability role is not supported by the requested entry.', request, authoritative)
+        return this.failureInternal(basis, 'INCOMPATIBLE_CAPABILITY', 'Capability role is not supported by the requested entry.', request, authority)
       }
       const result = { status: 'RESOLVED' as const, code: 'RESOLVED' as const, basis, entry, requestedVersion: version }
       return issueRegistryResolutionResult(result, request, authoritative)
     } catch (error) {
       const reason = error instanceof Error ? error.message : 'Registry resolution request is invalid.'
-      return this.failure(basis, 'CONTRACT_INVALID', reason, request, authoritative)
+      return this.failureInternal(basis, 'CONTRACT_INVALID', reason, request, authority)
     }
   }
 
@@ -717,12 +741,47 @@ export class RegistryResolutionService {
     code: Exclude<RegistryFailureCode, 'RESOLVED'>,
     reason: string,
     request?: unknown,
-    authoritative = true,
   ): RegistryResolutionFailure {
     if (!isAuthenticatedCatalogBasis(basis) && !isRegistryFailureContext(basis)) {
       throw new ExecRegistryDomainError('A catalog basis or non-authoritative failure context is required.')
     }
-    const result = { status: 'FAILED' as const, code, basis, reason, noMutation: true as const, noApproval: true as const }
+    const context = isAuthenticatedCatalogBasis(basis)
+      ? createRegistryFailureContext({
+        scope: basis.scope,
+        catalogRevision: basis.catalogRevision,
+        source: basis.source,
+      })
+      : basis
+    return Object.freeze({
+      status: 'FAILED' as const,
+      code,
+      basis: context,
+      reason,
+      noMutation: true as const,
+      noApproval: true as const,
+    })
+  }
+
+  private failureInternal(
+    basis: CatalogBasis,
+    code: Exclude<RegistryFailureCode, 'RESOLVED'>,
+    reason: string,
+    request: unknown,
+    authority?: object,
+  ): RegistryResolutionFailure {
+    const authoritative = authority === DOMAIN_AUTHORITY_TOKEN
+    const result = {
+      status: 'FAILED' as const,
+      code,
+      basis: authoritative ? basis : createRegistryFailureContext({
+        scope: basis.scope,
+        catalogRevision: basis.catalogRevision,
+        source: basis.source,
+      }),
+      reason,
+      noMutation: true as const,
+      noApproval: true as const,
+    }
     return issueRegistryResolutionResult(result, request, authoritative)
   }
 }

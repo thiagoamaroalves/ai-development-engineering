@@ -4,19 +4,20 @@
 STATUS = REMEDIATED_PENDING_INDEPENDENT_REAUDIT
 TEST = tests/exec-001-ticket-002.test.ts
 FOCUSED_COMMAND = node --experimental-strip-types --test tests/exec-001-ticket-002.test.ts
-FOCUSED_EXECUTED_OUTPUT = 24 tests, 24 passed, 0 failed, 0 skipped
+FOCUSED_EXECUTED_OUTPUT = 25 tests, 25 passed, 0 failed, 0 skipped
 FULL_COMMAND = npm test
-FULL_EXECUTED_OUTPUT = 72 tests, 72 passed, 0 failed, 0 skipped
+FULL_EXECUTED_OUTPUT = 73 tests, 73 passed, 0 failed, 0 skipped
 TYPECHECK = npm run typecheck = PASS
 AUDIT_GOVERNANCE = npm run verify:audit-governance = PASS
 SKILL_MIRROR = npm run verify:skill-mirror = PASS
-REMEDIATION_START_HEAD = 96cb42d004e96b8e4bd17d3f0963542f4645dfb2
-BASELINE_AUDIT_TARGET_HEAD = c450df1c4523a841484cbf1acb8cd1ab57621017
-BASELINE_AUDIT_TARGET_STATE_FINGERPRINT = d91db0e8d277c66499d9d4fd5dc0a05818aeb7d39faf1303876abc8e6d165192
-POST_REMEDIATION_EXECUTION_HEAD = 96cb42d004e96b8e4bd17d3f0963542f4645dfb2
+REMEDIATION_START_HEAD = 15f653441dbf6fb50579505f2ba10ffeb3cfd726
+BASELINE_AUDIT_TARGET_HEAD = 6f8ea7170f21f94d36f30893cc5622040fa4ba5b
+BASELINE_AUDIT_TARGET_STATE_FINGERPRINT = 732a233bb6949d3b9da4192284f83e31564828ba5962ba43c2f25eff1ee66668
+POST_REMEDIATION_EXECUTION_HEAD = 15f653441dbf6fb50579505f2ba10ffeb3cfd726
 POST_REMEDIATION_STATE = uncommitted remediation working tree; independent re-audit required
-POST_REMEDIATION_STATE_FINGERPRINT = 2fafd3a1e03db9058c9ee963f33bccbe14bd78c5cf1ff95395abeb368eab93f6
-ASSERTIONS = complete stage/skill/capability/version/input-schema/output-schema/artifact/verdict/role mapping; exact multi-version selection in both registration orders; source-bound basis retention; duplicate/conflict rejection; prior-basis immutability; incomplete-entry CONTRACT_INVALID construction/registration rejection with no basis mutation; caller-created fixture rejection by the canonical resolver; fixture-only results remain untrusted
+POST_REMEDIATION_STATE_FINGERPRINT = d4156f71b0214f3ec774fee6a38b3c79849cceb62f0a38ce53dce35cecc50e00
+POST_REMEDIATION_FINGERPRINT_METHOD = SHA-256 over sorted allowlisted implementation/test paths as relative-path NUL content tuples
+ASSERTIONS = complete stage/skill/capability/version/input-schema/output-schema/artifact/verdict/role mapping; exact multi-version selection in both registration orders; source-bound basis retention; duplicate/conflict rejection; prior-basis immutability; incomplete-entry CONTRACT_INVALID construction/registration rejection with no basis mutation; runtime constructor authority rejection; public failure remains non-authoritative; caller-created fixture rejection by the canonical resolver; fixture-only results remain untrusted
 RESULT = PASS_PENDING_REAUDIT
 ```
 
