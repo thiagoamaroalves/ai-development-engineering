@@ -128,6 +128,30 @@ The last rule applies even when the report says
 exact current baseline it fingerprinted. It never silently replaces the old
 baseline, changes accepted authority, or authorizes indefinite reuse.
 
+### Interrupted remediation candidate exception
+
+During recovery from an external interruption, the live semantic fingerprint
+may differ from `AUDIT_BASIS_FINGERPRINT` because the owning remediation skill
+has already changed an authorized target before failing. That difference is a
+candidate overlay, not automatic stale-audit drift, only when all of these are
+true:
+
+```text
+SOURCE_AUDIT_UNMODIFIED = YES
+ACCEPTED_AUTHORITY_UNMODIFIED = YES
+DIRTY_PATHS_SUBSET_OF_REMEDIATION_WRITE_BOUNDARY = YES
+NO_UNAUTHORIZED_PRODUCTION_OR_TEST_CHANGE = YES
+REMEDIATION_RECOVERY_MODE = RESUME_OR_RECONCILE
+```
+
+The remediator MUST record both `AUDIT_BASIS_FINGERPRINT` and
+`REMEDIATION_CANDIDATE_FINGERPRINT`, classify the candidate as partial or
+unverified, and revalidate every finding. It MUST NOT promote the candidate
+fingerprint to a new audit basis or use it to skip independent re-audit. A
+change to the source audit, accepted authority, upstream contract, or any path
+outside the remediation write boundary remains `STALE_AUDIT_BASIS` or an exact
+scope blocker.
+
 For assessed drift, the remediator records the old and current baselines,
 reconciles affected records, preserves obsolete/history status, updates
 evidence and metrics, and emits the normal independent re-audit gate.

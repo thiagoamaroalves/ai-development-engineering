@@ -31,7 +31,10 @@ SINGLE_WRITER = YES
 
 The workflow controller must cite the current dirty-path inventory and this
 skill. Never infer preservation from a dirty workspace. Never discard, reset,
-clean, stash, or rewrite a path that is not explicitly in the allowlist.
+clean, stash, or rewrite a path that is not explicitly in the allowlist. An
+interrupted remediation candidate may be explicitly preserved unstaged under
+the recovery exception below; it must never be included in this governance
+commit.
 
 ## Authorized preservation scope for this repository
 
@@ -54,14 +57,29 @@ tools/**
 docs/workflow-checkpoints/SPEC-EXEC-001-governance-reconciliation.md
 ```
 
+For the current interrupted SPEC remediation, the following path may be
+preserved **unstaged** as a recovery candidate, but is not part of this
+checkpoint's staged allowlist:
+
+```text
+docs/specs/SPEC-EXEC-001-skill-contracts-and-capability-registry.md
+```
+
+This exception is valid only when the current component SPEC audit is still
+`FAIL — COMPONENT_SPEC_NON_CONFORMANT`, the owning remediation skill is the
+next operation, and no completed matching remediation report exists. The
+candidate is not treated as complete.
+
 `skills/**` is the canonical versioned source. `.codex/`, `.pi/`,
 `node_modules/`, production source, tests, and unrelated ticket paths are not
 included. Codex mirror changes remain generated/ignored and are not committed
 by this checkpoint.
 
 Before staging, verify every current non-ignored dirty path is either in this
-allowlist or the operation is blocked. A missing expected path is allowed only
-when it is not currently dirty; an unexpected path is never silently omitted.
+allowlist or is the exact explicitly preserved unstaged recovery candidate.
+The candidate must remain unstaged. Any other path blocks the checkpoint. A
+missing expected path is allowed only when it is not currently dirty; an
+unexpected path is never silently omitted.
 
 ## Checkpoint protocol
 
@@ -74,6 +92,7 @@ when it is not currently dirty; an unexpected path is never silently omitted.
 ```text
 CHECKPOINT_KIND = GOVERNANCE_RECONCILIATION_CHECKPOINT
 PARENT_HEAD = <parent>
+PRESERVED_UNSTAGED_RECOVERY_CANDIDATE = docs/specs/SPEC-EXEC-001-skill-contracts-and-capability-registry.md
 HUMAN_PRESERVATION_AUTHORIZATION = YES
 PRESERVATION_SCOPE = EXPLICIT
 ALLOWLIST = <one path per line>
@@ -85,10 +104,11 @@ CHECKS = PASS
 CHECKPOINT_COMMIT_MESSAGE = checkpoint(governance): preserve workflow reconciliation
 ```
 
-5. Stage only the exact allowlisted paths. Never use `git add .` or `git add
-   -A`.
-6. Verify staged paths are a subset of the allowlist and contain no source,
-   test, `.pi/`, `.codex/`, `node_modules/`, or unrelated ticket path.
+5. Stage only the exact governance allowlisted paths. Never stage the
+   preserved recovery candidate. Never use `git add .` or `git add -A`.
+6. Verify staged paths are a subset of the governance allowlist and contain
+   no production source, tests, `.pi/`, `.codex/`, `node_modules/`, or
+   unrelated ticket path. Verify the recovery candidate is not staged.
 7. Run `git diff --cached --check`.
 8. Create exactly one local commit:
 

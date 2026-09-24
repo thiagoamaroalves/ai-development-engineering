@@ -8,6 +8,10 @@ metadata:
 
 # Remediate Implemented Ticket
 
+Read `skills/_shared/interrupted-remediation-recovery-contract.md` before acting.
+A dirty implementation left by an interrupted attempt is an untrusted candidate;
+resume and reconcile it against the current canonical audit before checkpointing.
+
 For baseline/source drift, read
 `skills/_shared/baseline-drift-remediation-contract.md`. A complete actionable
 reassessment is consumable remediation authority; drift alone is not a blocker,

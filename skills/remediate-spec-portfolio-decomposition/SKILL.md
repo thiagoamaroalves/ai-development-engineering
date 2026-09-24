@@ -17,6 +17,11 @@ description: >
 
 # Remediate SPEC Portfolio Decomposition
 
+Read `skills/_shared/interrupted-remediation-recovery-contract.md` before acting.
+A dirty portfolio left by an interrupted attempt is an untrusted candidate;
+resume and reconcile it against the current actionable portfolio audit before
+checkpointing.
+
 Before baseline validation, read
 `skills/_shared/baseline-drift-remediation-contract.md`. Portfolio drift may be
 reconciled from a complete actionable audit reassessment; only unassessed drift

@@ -16,6 +16,10 @@ description: >
 
 # Remediate Component Implementation Plan
 
+Read `skills/_shared/interrupted-remediation-recovery-contract.md` before acting.
+A dirty plan left by an interrupted attempt is an untrusted candidate; resume
+and reconcile it against the current actionable plan audit before checkpointing.
+
 Before applying baseline gates, read
 `skills/_shared/baseline-drift-remediation-contract.md`. A changed baseline is
 remediation input when the source audit persisted a complete, actionable

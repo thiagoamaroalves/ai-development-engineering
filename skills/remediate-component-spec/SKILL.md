@@ -16,9 +16,10 @@ description: >
 # Remediate Component SPEC
 
 For baseline/source drift, read
-`skills/_shared/baseline-drift-remediation-contract.md`. A complete actionable
-reassessment is a valid remediation input; only unassessed drift or a stale
-audit basis requires blocking.
+`skills/_shared/baseline-drift-remediation-contract.md`. Also read
+`skills/_shared/interrupted-remediation-recovery-contract.md` before acting. A
+complete actionable reassessment is a valid remediation input; only unassessed
+drift or a stale audit basis requires blocking.
 
 ## Purpose and operating boundary
 
@@ -137,6 +138,10 @@ REASSESSMENT_COMPLETE
 BASELINE_REMEDIATION_READINESS
 AUDIT_BASIS_FINGERPRINT
 BASELINE_REASSESSMENT_PROOF
+REMEDIATION_RECOVERY_MODE
+INTERRUPTED_ATTEMPT_DETECTED
+CANDIDATE_STATE_CLASSIFICATION
+CANDIDATE_PATHS
 ```
 
 Check for relevant drift from the audited baseline and consume the audit's
@@ -147,6 +152,37 @@ completed the proof with actionable findings and the live fingerprint still
 matches, reconcile the recorded old/current authority rather than requiring a
 duplicate audit. Unassessed or post-audit authority/source drift blocks with
 `BLOCKED_INSUFFICIENT_REASSESSMENT` or `STALE_AUDIT_BASIS` respectively.
+
+## Interrupted remediation recovery
+
+If the target SPEC is already dirty because a prior external failure interrupted
+this skill, and the latest component audit is still the actionable
+`FAIL — COMPONENT_SPEC_NON_CONFORMANT` report, this is a resumable remediation
+candidate, not a missing-authority blocker. Set:
+
+```text
+REMEDIATION_RECOVERY_MODE = RESUME_OR_RECONCILE
+INTERRUPTED_ATTEMPT_DETECTED = YES
+CANDIDATE_STATE_CLASSIFICATION = PARTIAL | COMPLETE_CLAIM_UNVERIFIED | CONTRADICTORY
+```
+
+The candidate SPEC is untrusted evidence. Revalidate every finding from the
+source audit against accepted ADR, portfolio, upstream contracts, and the
+candidate. A completion-looking `READY_FOR_INDEPENDENT_COMPONENT_SPEC_REAUDIT`
+claim without a matching current remediation report is
+`COMPLETE_CLAIM_UNVERIFIED`; it must not route to a checkpoint or re-audit.
+Reconcile the candidate, current revision, all metrics, traceability,
+acceptance/conformance material, finding ledger, and remediation report in one
+consistent result. If the external failure left only the authorized SPEC and
+remediation-evidence paths dirty, resume this skill without resetting or
+stashing them. If any dirty path is outside the declared write boundary, stop
+with the exact path. If accepted authority or the source audit changed, apply
+the baseline contract and block or reassess as required.
+
+A failed retry must preserve the candidate and must not emit a complete gate.
+Only a fully reconciled current remediation may emit
+`READY_FOR_INDEPENDENT_COMPONENT_SPEC_REAUDIT`; the phase checkpoint and fresh
+independent audit remain mandatory.
 
 ## Finding ledger and root cause
 

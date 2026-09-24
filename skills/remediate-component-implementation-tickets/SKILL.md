@@ -16,6 +16,11 @@ description: >
 
 # Remediate Component Implementation Tickets
 
+Read `skills/_shared/interrupted-remediation-recovery-contract.md` before acting.
+A dirty ticket set left by an interrupted attempt is an untrusted candidate;
+resume and reconcile it against the current actionable ticket audit before
+checkpointing.
+
 Before baseline validation, read
 `skills/_shared/baseline-drift-remediation-contract.md`. Findings from an audit
 with complete actionable reassessment are consumable; drift alone is not a

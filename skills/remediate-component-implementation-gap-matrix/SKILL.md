@@ -17,6 +17,10 @@ description: >
 
 # Remediate Component Implementation Gap Matrix
 
+Read `skills/_shared/interrupted-remediation-recovery-contract.md` before acting.
+A dirty Gap Matrix left by an interrupted attempt is an untrusted candidate;
+resume and reconcile it against the current actionable audit before checkpointing.
+
 Before any baseline gate, read
 `skills/_shared/baseline-drift-remediation-contract.md`. It is the shared
 auditor/remediator contract for reassessment proof, actionable findings, and
