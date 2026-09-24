@@ -15,6 +15,11 @@ description: >
 
 # Decompose Component Implementation Plan Into Tickets
 
+Read `../_shared/interrupted-artifact-production-recovery-contract.md` before
+acting. If the ticket output is dirty because an external failure interrupted a
+prior decomposition, treat it as an untrusted candidate and rerun this producer
+from the current conformant Implementation Plan.
+
 ## Purpose
 
 Convert a conformant component Implementation Plan into a complete,

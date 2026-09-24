@@ -12,6 +12,13 @@ description: >
 
 # Generate Component Implementation Gap Matrix
 
+Read `../_shared/interrupted-artifact-production-recovery-contract.md` before
+acting. If the Gap Matrix output is dirty because an external failure
+interrupted a prior generation, treat it as an untrusted candidate and rerun
+this producer after validating the unchanged SPEC audit; do not block merely
+because its authorized output is dirty, and do not checkpoint or plan from a
+completion-looking candidate.
+
 Build exactly one evidence-backed implementation Gap Matrix for the selected
 component SPEC. The artifact compares the approved authority and ownership
 contracts with the current repository. It records what is true, what must be

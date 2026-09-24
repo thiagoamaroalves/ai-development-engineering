@@ -57,18 +57,23 @@ tools/**
 docs/workflow-checkpoints/SPEC-EXEC-001-governance-reconciliation.md
 ```
 
-For the current interrupted SPEC remediation, the following path may be
-preserved **unstaged** as a recovery candidate, but is not part of this
-checkpoint's staged allowlist:
+For the current interrupted workflow, these paths may be preserved
+**unstaged** as recovery candidates, but are not part of this checkpoint's
+staged allowlist:
 
 ```text
 docs/specs/SPEC-EXEC-001-skill-contracts-and-capability-registry.md
+docs/specs/audits/SPEC-EXEC-001-component-conformance-audit.md
+docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md
 ```
 
-This exception is valid only when the current component SPEC audit is still
-`FAIL — COMPONENT_SPEC_NON_CONFORMANT`, the owning remediation skill is the
-next operation, and no completed matching remediation report exists. The
-candidate is not treated as complete.
+The SPEC candidate exception is valid only when the component audit is still
+`FAIL — COMPONENT_SPEC_NON_CONFORMANT` and the owning remediation is next. The
+conformant-audit and Gap Matrix candidate exception is valid only when the
+current component audit is `PASS — COMPONENT_SPEC_CONFORMANT`, its readiness is
+`READY_FOR_GAP_MATRIX: YES`, the next route is the SPEC-conformance checkpoint,
+and Gap Matrix production was interrupted. Candidates are never treated as
+complete.
 
 `skills/**` is the canonical versioned source. `.codex/`, `.pi/`,
 `node_modules/`, production source, tests, and unrelated ticket paths are not
@@ -92,7 +97,7 @@ unexpected path is never silently omitted.
 ```text
 CHECKPOINT_KIND = GOVERNANCE_RECONCILIATION_CHECKPOINT
 PARENT_HEAD = <parent>
-PRESERVED_UNSTAGED_RECOVERY_CANDIDATE = docs/specs/SPEC-EXEC-001-skill-contracts-and-capability-registry.md
+PRESERVED_UNSTAGED_RECOVERY_CANDIDATES = <exact explicitly permitted candidates>
 HUMAN_PRESERVATION_AUTHORIZATION = YES
 PRESERVATION_SCOPE = EXPLICIT
 ALLOWLIST = <one path per line>
@@ -104,7 +109,7 @@ CHECKS = PASS
 CHECKPOINT_COMMIT_MESSAGE = checkpoint(governance): preserve workflow reconciliation
 ```
 
-5. Stage only the exact governance allowlisted paths. Never stage the
+5. Stage only the exact governance allowlisted paths. Never stage any
    preserved recovery candidate. Never use `git add .` or `git add -A`.
 6. Verify staged paths are a subset of the governance allowlist and contain
    no production source, tests, `.pi/`, `.codex/`, `node_modules/`, or

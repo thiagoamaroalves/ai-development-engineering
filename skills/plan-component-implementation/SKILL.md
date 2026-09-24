@@ -19,6 +19,11 @@ description: >
 
 # Plan Component Implementation
 
+Read `../_shared/interrupted-artifact-production-recovery-contract.md` before
+acting. If the Plan output is dirty because an external failure interrupted a
+prior generation, treat it as an untrusted candidate and rerun this producer
+from the current conformant Gap Matrix.
+
 ## Purpose
 
 Convert a validated implementation delta into a complete, dependency-aware,
