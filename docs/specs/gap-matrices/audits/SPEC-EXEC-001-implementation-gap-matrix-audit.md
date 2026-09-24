@@ -1,14 +1,17 @@
-# SPEC-EXEC-001 — Implementation Gap Matrix Audit
+# SPEC-EXEC-001 — Implementation Gap Matrix Audit (Independent Re-audit)
 
 ## 1. Audit Verdict
 
 ```text
 VERDICT = GAP_MATRIX_REMEDIATION_REQUIRED
 IMPLEMENTATION_PLAN_READINESS = NOT_READY_FOR_IMPLEMENTATION_PLAN
-AUDIT_RESULT = independent current-state audit; no remediation performed
+AUDIT_RESULT = independent current-state re-audit; no remediation performed
 ```
 
-The matrix is structurally recoverable, but it is not yet a safe planning baseline. One `IMPLEMENTED` claim is unsupported for the full normative requirement, one existing overlap gap is not traced to two requirements that explicitly require the same behavior, and the cited repository test count is inaccurate. The authority chain is usable and no authority blocker was found.
+The remediation checkpoint is valid and the matrix is structurally recoverable,
+but two planning-critical classification/traceability defects remain. The
+matrix records the affected behavior, so no rebuild is required; it is not yet
+a safe Implementation Plan baseline.
 
 ## 2. Audit Mode
 
@@ -25,107 +28,107 @@ OWNERSHIP_PRESERVING = YES
 MATRIX_SKEPTICAL = YES
 NO_REMEDIATION = YES
 NO_IMPLEMENTATION_DESIGN = YES
-PINNED_STARTING_HEAD = 1c7f3589e03c169f78bbb012fbf16021081bb5f9
+PINNED_STARTING_HEAD = 33da9afec796635acb6376f9c0146bd3119bd86a
 WORKING_TREE_AT_INTAKE = CLEAN
 ```
 
-Only this audit artifact was created by this audit. No authority artifact, Gap Matrix, source file, test, plan, ticket, or process state was changed.
+Only this audit artifact is authorized for creation/update. No ADR, portfolio,
+SPEC, matrix, remediation report, source, test, plan, ticket or process state
+was modified.
 
 ## 3. Subject
 
 | Field | Value |
 |---|---|
 | Target SPEC | `SPEC-EXEC-001` |
-| Target SPEC | `docs/specs/SPEC-EXEC-001-skill-contracts-and-capability-registry.md` |
+| Target SPEC path | `docs/specs/SPEC-EXEC-001-skill-contracts-and-capability-registry.md` |
 | SPEC revision/status | `5` / `PROPOSED` |
-| Current target SPEC audit | `docs/specs/audits/SPEC-EXEC-001-component-conformance-audit.md` |
-| Target SPEC audit verdict | `PASS — COMPONENT_SPEC_CONFORMANT` |
+| Component SPEC audit | `docs/specs/audits/SPEC-EXEC-001-component-conformance-audit.md` |
+| Component verdict | `PASS — COMPONENT_SPEC_CONFORMANT` |
 | Portfolio | `SPEC-PORTFOLIO-001`, revision `2` |
 | Portfolio decomposition audit | `docs/specs/SPEC-PORTFOLIO-001-decomposition-audit.md` |
 | Portfolio verdict | `PORTFOLIO_DECOMPOSITION_APPROVED` |
 | Upstream SPEC | `SPEC-DOM-001`, revision `4` |
-| Upstream SPEC audit verdict | `PASS — COMPONENT_SPEC_CONFORMANT` |
-| Matrix under audit | `docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md` |
-| Matrix assessed baseline | `6b11695154b73a99e35418bfd952795f2028a3bf` |
-| Current repository HEAD | `1c7f3589e03c169f78bbb012fbf16021081bb5f9` |
-| Matrix LF-normalized SHA-256 | `b615f4fe6cfa377320597f4f66028e3ce30246e00f3e1027757f96530ff06296` |
-| Previous matrix audit | superseded evidence only; its subject was SPEC revision 3 and repository baseline `381218d5...` |
+| Upstream verdict | `PASS — COMPONENT_SPEC_CONFORMANT` |
+| Matrix | `docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md` |
+| Matrix LF SHA-256 | `58e3db83a524bae985daae001925932303298a7f76cc68f666b83af313d84e69` |
+| Remediation report | `docs/specs/gap-matrices/remediations/SPEC-EXEC-001-implementation-gap-matrix-remediation.md` |
 
 ## 4. Frozen Baseline Validation
 
-The matrix's authority and implementation baseline were independently compared with the current state.
+| Baseline | Value | Result |
+|---|---|---|
+| Accepted ADR authority | `ADR-0003` rev3 `ACCEPTED`; related accepted ADRs unchanged | PASS |
+| Portfolio | rev2; LF SHA-256 `c449388972279d8add520564a9614cfa236f87b6c8932a70d5bc2d28eef6be86` | PASS |
+| Portfolio audit | LF SHA-256 `120f22d0080ac0640ebbdad7c460df5de2745788cfaea83a1859f2c577168104`; approved | PASS |
+| Component SPEC | rev5; LF SHA-256 `556f4b5ad0b1c8f10d4fd00964d84e1af5bb959724d023eed9bda12a282411b2` | PASS |
+| Component SPEC audit | latest verdict conformant; proof revision current | PASS |
+| Upstream SPEC | rev4; LF SHA-256 `cb4a21924d9619b8349d6cc239d7998633c402d7ea3d7461c2d4d8498f9a014c` | PASS |
+| Upstream audit | latest verdict conformant; LF SHA-256 `9bbea969820f3705354ee6ca76110039f747d9aa60c84e1a19cae49f01158c15` | PASS |
+| Matrix assessed repository baseline | `6b11695154b73a99e35418bfd952795f2028a3bf` | historical matrix basis |
+| Current repository | `33da9afec796635acb6376f9c0146bd3119bd86a`; clean | PASS |
+| Source/test drift | no source or test path changed from the assessed implementation baseline | PASS |
 
-| Baseline | Audited/current value |
-|---|---|
-| Primary ADR | `ADR-0003`, revision `3`, `ACCEPTED`; related accepted ADR authority is unchanged |
-| Portfolio | revision `2`; LF SHA-256 `c449388972279d8add520564a9614cfa236f87b6c8932a70d5bc2d28eef6be86` |
-| Portfolio audit | approved; SHA-256 `120f22d0080ac0640ebbdad7c460df5de2745788cfaea83a1859f2c577168104` |
-| Component SPEC | revision `5`; LF SHA-256 `556f4b5ad0b1c8f10d4fd00964d84e1af5bb959724d023eed9bda12a282411b2` |
-| Component SPEC audit | SHA-256 `fae060d0595ceecf81daa56b7a5a9a597d503f974d20bdcd8eb3e6d1fc4add2e`; implementability PASS |
-| Upstream SPEC | revision `4`; LF SHA-256 `cb4a21924d9619b8349d6cc239d7998633c402d7ea3d7461c2d4d8498f9a014c` |
-| Upstream SPEC audit | SHA-256 `9bbea969820f3705354ee6ca76110039f747d9aa60c84e1a19cae49f01158c15`; conformant |
-| Matrix repository baseline | `6b11695154b73a99e35418bfd952795f2028a3bf` |
-| Current repository baseline | `1c7f3589e03c169f78bbb012fbf16021081bb5f9` |
-| Current working tree after audit write | only this authorized audit artifact is dirty |
-
-The diff from the matrix baseline to current HEAD is documentation/checkpoint-only: the matrix and its generation checkpoint. There is no implementation-relevant source or test drift. This is assessed rather than silently treated as `NO_DRIFT`.
+The matrix baseline differs from current HEAD only through governance and
+workflow-documentation progression. This is assessed documentation-only drift,
+not silently ignored implementation drift.
 
 ```text
 PORTFOLIO_BASELINE_DRIFT = 0
 COMPONENT_SPEC_BASELINE_DRIFT = 0
 UPSTREAM_SPEC_BASELINE_DRIFT = 0
-REPOSITORY_BASELINE_DRIFT = 1 (documentation/checkpoint-only, non-semantic)
+REPOSITORY_BASELINE_DRIFT = 1 (documentation/checkpoint-only)
 BASELINE_DRIFT_STATUS = DRIFT_ASSESSED
 REASSESSMENT_COMPLETE = YES
 FINDINGS_ARE_ACTIONABLE = YES
 BASELINE_REMEDIATION_READINESS = READY
 AUDIT_BASIS_STALE = NO
-AUDIT_BASIS_FINGERPRINT = 0a20c2c99a3a830f88cc6099137be730f1e9bd782db3cfb552baea35823e247d
+AUDIT_BASIS_FINGERPRINT = 329bbaaad48c26787a227d4cb1f275f35efe232082159275a76d78b2ed3adb15
 ```
 
 ### BASELINE_REASSESSMENT_PROOF
 
 ```text
-OLD_AUTHORITY_BASELINE = portfolio rev2/audit approved; ADR authority accepted; SPEC-EXEC-001 rev5 and conformant audit; SPEC-DOM-001 rev4 and conformant audit
-CURRENT_AUTHORITY_BASELINE = identical authority revisions and LF-normalized content hashes
+OLD_AUTHORITY_BASELINE = ADR-0003 rev3 accepted; SPEC-PORTFOLIO-001 rev2 with approved audit; SPEC-EXEC-001 rev5 with conformant audit; SPEC-DOM-001 rev4 with conformant audit
+CURRENT_AUTHORITY_BASELINE = identical authority revisions and LF-normalized hashes
 OLD_REPOSITORY_BASELINE = 6b11695154b73a99e35418bfd952795f2028a3bf
-CURRENT_REPOSITORY_BASELINE = 1c7f3589e03c169f78bbb012fbf16021081bb5f9
+CURRENT_REPOSITORY_BASELINE = 33da9afec796635acb6376f9c0146bd3119bd86a
 AUTHORITY_DRIFT_CLASSIFICATION = NONE
-REPOSITORY_DRIFT_CLASSIFICATION = DOCUMENTATION_ONLY_CHECKPOINT_PROGRESSION; no production/test path changed
-REQUIREMENTS_PRESERVED = all 19 matrix requirement rows
+REPOSITORY_DRIFT_CLASSIFICATION = DOCUMENTATION_ONLY_CHECKPOINT_PROGRESSION; no production/test drift
+REQUIREMENTS_PRESERVED = all 19 requirements
 REQUIREMENTS_ADDED = none
 REQUIREMENTS_REMOVED = none
-GAPS_PRESERVED = GAP-001 through GAP-017
-GAPS_RECLASSIFIED = none due to repository-baseline drift; audit findings below are current-state corrections
+GAPS_PRESERVED = GAP-001 through GAP-018
+GAPS_RECLASSIFIED = none due to baseline drift; current audit classifications are independent corrections
 GAPS_OBSOLETE = none
-GAPS_NEWLY_REQUIRED = none due to baseline drift; the missing capability-specific payload gap is an audit finding against the assessed baseline
-DEPENDENCY_RECORDS_PRESERVED = 4 capability availability records and 3 proof records
-DEPENDENCY_RECORDS_ADDED = none due to baseline drift
+GAPS_NEWLY_REQUIRED = none due to baseline drift
+DEPENDENCY_RECORDS_PRESERVED = four capability-availability records and their integrated-proof treatment
+DEPENDENCY_RECORDS_ADDED = none
 DEPENDENCY_RECORDS_RECLASSIFIED = none due to baseline drift
-EVIDENCE_STALE = matrix's repeated npm test count 75/75 is inaccurate against the current 76-test execution; no source behavior evidence became stale
-EVIDENCE_CURRENT = authority hashes, source inspection, current test execution, typecheck, governance guard and skill-mirror guard
-METRICS_BEFORE = 19 requirements; 5 IMPLEMENTED, 7 PARTIAL, 6 MISSING, 1 CONTRADICTORY; 17 gaps; 5/19 coverage
-METRICS_AFTER = 19 requirements; 4 IMPLEMENTED, 8 PARTIAL, 6 MISSING, 1 CONTRADICTORY; 18 audited gaps including GAP-018; 4/19 coverage
-REMEDIATION_SCOPE = correct EXEC-ENVELOPE-001 classification and add its exact gap record; add EXEC-REGISTRY-001 and EXEC-REGISTRY-004 to the existing overlap-gap traceability; correct execution evidence count
-REVALIDATION_CRITERIA = independently re-audit current matrix; prove capability-specific payload schema authority/validation; prove all overlap requirement-to-gap links; rerun and record the exact test count
+EVIDENCE_STALE = none for source/test behavior; prior 75/75 claims were corrected by remediation
+EVIDENCE_CURRENT = source inspection, current 76/76 test execution, typecheck, governance guard and skill-mirror guard
+METRICS_BEFORE = matrix: 19 requirements; 4 IMPLEMENTED, 8 PARTIAL, 6 MISSING, 1 CONTRADICTORY; 18 gaps
+METRICS_AFTER = audit: 19 requirements; 4 IMPLEMENTED, 4 PARTIAL, 5 MISSING, 6 CONTRADICTORY; 18 gaps
+REMEDIATION_SCOPE = reclassify contradiction-bearing rows; reconcile overlap requirement-to-gap linkage and duplicate overlap wording
+REVALIDATION_CRITERIA = unknown verdict and overlapping supported-set paths are classified CONTRADICTORY; GAP-002 covers every normative overlap requirement; GAP-007 no longer obscures or duplicates that overlap delta; metrics reconcile
 REASSESSMENT_COMPLETE = YES
 ```
 
 ## 5. Authority Reconstruction
 
-The authority chain was independently reconstructed as:
+The independently confirmed authority chain is:
 
 ```text
-ADR-0003 and related accepted ADRs
-  > approved SPEC-PORTFOLIO-001 decomposition (O-016 through O-021)
+accepted ADRs
+  > approved SPEC-PORTFOLIO-001 decomposition
   > conformant SPEC-EXEC-001 revision 5
-  > conformant SPEC-DOM-001 revision 4 for consumed DOM authority
-  > repository behavior at the assessed/current source baseline
+  > conformant SPEC-DOM-001 revision 4
+  > repository implementation at 33da9afec796635acb6376f9c0146bd3119bd86a
   > tests and executable evidence
   > Gap Matrix under audit
 ```
 
-The target SPEC audit provides the required implementability authority:
+The target SPEC audit contains and remains traceable to:
 
 ```text
 SPEC_IMPLEMENTABILITY_CHECK = PASS
@@ -139,49 +142,50 @@ TEMPORAL_AUTHORITY_PROOF = COMPLETE
 CALLER_SUPPLIED_AUTHORITY_BYPASS = 0 in the SPEC authority audit
 ```
 
-The upstream DOM SPEC is conformant. No authority gap, portfolio gap, specification ambiguity, identity gap, reconstruction gap, lifecycle gap, persistence gap, or cross-SPEC authority gap blocks this audit. Missing productive foreign producers remain implementation/dependency facts, not authority blockers.
+The upstream DOM SPEC is conformant. No specification, architectural or
+portfolio authority blocker was found. The four matrix capability records are
+explicitly `REQUIRED_FOR_INTEGRATED_PROOF`; fixture testability is not promoted
+to productive availability.
 
 ## 6. Independent Requirement Inventory
 
-The complete conformant target SPEC independently yields 19 implementation-relevant normative requirements:
+The conformant SPEC independently yields these 19 implementation-relevant
+requirements:
 
-| Requirement | Portfolio obligation | ADR authority | Approved role | Compatibility role |
-|---|---|---|---|---|
-| EXEC-ENVELOPE-001 | O-016 | ADR-0003 / Decisão | CANONICAL_OWNER | NEW_CANONICAL_PATH OWNER |
-| EXEC-ENVELOPE-002 | O-016 | ADR-0003 / Decisão | CANONICAL_OWNER | NEW_CANONICAL_PATH OWNER |
-| EXEC-VERSION-001 | O-017 | ADR-0003 / Decisão | CANONICAL_OWNER | NEW_CANONICAL_PATH OWNER |
-| EXEC-VERSION-002 | O-017 | ADR-0003 / Decisão | CANONICAL_OWNER | NEW_CANONICAL_PATH/CUTOVER OWNER |
-| EXEC-SNAPSHOT-001 | O-018 | ADR-0003; DOM-SNAPSHOT-001 | CANONICAL_OWNER plus DOM consumer boundary | CUTOVER/HISTORICAL_REPLAY OWNER |
-| EXEC-CONTRACT-001 | O-019 | ADR-0003 / Decisão | CANONICAL_OWNER | NEW_CANONICAL_PATH OWNER |
-| EXEC-CONTRACT-002 | O-019 | ADR-0003 / Decisão | CANONICAL_OWNER | NEW_CANONICAL_PATH OWNER |
-| EXEC-REGISTRY-001 | O-020 | ADR-0003 / Decisão | CANONICAL_OWNER | NEW_CANONICAL_PATH OWNER |
-| EXEC-REGISTRY-004 | O-020 | ADR-0003; ADR-0010; DOM-ID-001 | CANONICAL_OWNER plus DOM/PLAT boundary | NEW_CANONICAL_PATH/HISTORICAL_REPLAY OWNER |
-| EXEC-REGISTRY-002 | O-020 | ADR-0003 / Decisão | CANONICAL_OWNER | NEW_CANONICAL_PATH/legacy consumer boundary |
-| EXEC-REGISTRY-003 | O-020 | ADR-0003 / Decisão | CANONICAL_OWNER | NEW_CANONICAL_PATH OWNER |
-| EXEC-CAPABILITY-001 | O-020 | ADR-0003 / Decisão | CANONICAL_OWNER | NEW_CANONICAL_PATH OWNER |
-| EXEC-CAPABILITY-002 | O-020 | ADR-0003 / Decisão | CANONICAL_OWNER | NEW_CANONICAL_PATH/CUTOVER OWNER |
-| EXEC-MANIFEST-001 | O-021 | ADR-0003; DOM-ID-001 | CANONICAL_OWNER plus DOM/PLAT boundary | NEW_CANONICAL_PATH/HISTORICAL_REPLAY OWNER |
-| EXEC-MANIFEST-002 | O-021 | ADR-0003 / Decisão | CANONICAL_OWNER plus EXEC-002/PLAT boundary | HISTORICAL_REPLAY OWNER |
-| EXEC-MANIFEST-003 | O-018/O-021 | ADR-0003; ADR-0001; DOM-SNAPSHOT-001 | CANONICAL_OWNER plus DOM boundary | CUTOVER/HISTORICAL_REPLAY OWNER |
-| EXEC-MANIFEST-004 | O-018/O-021 | ADR-0003; ADR-0001; ADR-0006 | CANONICAL_OWNER plus DOM/PLAT boundary | HISTORICAL_REPLAY/CUTOVER OWNER |
-| EXEC-HISTORY-001 | O-021 | ADR-0003 / Decisão | CANONICAL_OWNER plus PLAT boundary | HISTORICAL_REPLAY OWNER |
-| EXEC-FAILURE-001 | O-019 | ADR-0003 / Decisão | CANONICAL_OWNER plus mapping consumers | NEW_CANONICAL_PATH OWNER |
+```text
+EXEC-ENVELOPE-001, EXEC-ENVELOPE-002,
+EXEC-VERSION-001, EXEC-VERSION-002, EXEC-SNAPSHOT-001,
+EXEC-CONTRACT-001, EXEC-CONTRACT-002,
+EXEC-REGISTRY-001, EXEC-REGISTRY-004, EXEC-REGISTRY-002, EXEC-REGISTRY-003,
+EXEC-CAPABILITY-001, EXEC-CAPABILITY-002,
+EXEC-MANIFEST-001, EXEC-MANIFEST-002, EXEC-MANIFEST-003,
+EXEC-MANIFEST-004, EXEC-HISTORY-001, EXEC-FAILURE-001
+```
 
-The full normative text, including the capability-specific payload obligation and the overlap obligations repeated in `EXEC-REGISTRY-001` and `EXEC-REGISTRY-004`, was used rather than the matrix's shortened summaries.
+All are canonical-owner requirements of EXEC-001 under O-016 through O-021.
+The four requirements with the supported-set overlap rule are
+`EXEC-VERSION-002`, `EXEC-REGISTRY-001`, `EXEC-REGISTRY-004` and
+`EXEC-CAPABILITY-001`. The target SPEC explicitly requires overlap to fail
+closed without selection or mutation in each applicable statement.
 
 ## 7. ADR / Portfolio / SPEC Traceability
 
-All 19 requirement anchors trace to the approved O-016 through O-021 obligation registry and accepted ADR authority. The portfolio assigns these obligations to EXEC-001 as `CANONICAL_OWNER`; the mixed rows preserve DOM, REPO, PLAT, EXEC-002, BACKEND, OPS and UI as consumers/material/projection owners rather than absorbing them into EXEC.
+ADR-0003 decisions map to O-016 through O-021, and every requirement maps to
+one of those obligations and to the component SPEC. Ownership, failure
+semantic ownership, compatibility/cutover ownership and the sole normative
+upstream edge (`EXEC-001 → DOM-001`) are confirmed. No ADR, portfolio or
+source-SPEC conformance drift was found.
 
 ```text
 ADR_TO_PORTFOLIO_TRACEABILITY = CONFIRMED for 19/19
 PORTFOLIO_TO_SPEC_TRACEABILITY = CONFIRMED for 19/19
 PORTFOLIO_OWNER_ERRORS = 0
 ADR_AUTHORITY_MISMATCHES = 0
-SPEC_CONFORMANCE_DRIFT = 0
+SOURCE_SPEC_CONFORMANCE_DRIFT = 0
 ```
 
-The traceability defect found below is downstream requirement-to-gap coverage, not an ADR/portfolio/SPEC authority defect.
+The remaining traceability defect is requirement-to-gap coverage for the
+overlap behavior and is reported as `CGMA-MAJOR-004`.
 
 ## 8. Requirement Inventory Reconciliation
 
@@ -196,99 +200,84 @@ UNCLASSIFIED_REQUIREMENTS = 0
 UNAUDITED_REQUIREMENTS = 0
 ```
 
-| Requirement | Matrix class | Audited class | Audit result |
-|---|---|---|---|
-| EXEC-ENVELOPE-001 | IMPLEMENTED | PARTIAL | RECLASSIFICATION_REQUIRED |
-| EXEC-ENVELOPE-002 | IMPLEMENTED | IMPLEMENTED | CONFIRMED |
-| EXEC-VERSION-001 | IMPLEMENTED | IMPLEMENTED | CONFIRMED |
-| EXEC-VERSION-002 | PARTIAL | PARTIAL | CONFIRMED; overlap linkage correction required elsewhere |
-| EXEC-SNAPSHOT-001 | CONTRADICTORY | CONTRADICTORY | CONFIRMED |
-| EXEC-CONTRACT-001 | IMPLEMENTED | IMPLEMENTED | CONFIRMED |
-| EXEC-CONTRACT-002 | MISSING | MISSING | CONFIRMED |
-| EXEC-REGISTRY-001 | PARTIAL | PARTIAL | CONFIRMED; missing GAP-002 affected-requirement link |
-| EXEC-REGISTRY-004 | PARTIAL | PARTIAL | CONFIRMED; missing GAP-002 affected-requirement link |
-| EXEC-REGISTRY-002 | PARTIAL | PARTIAL | CONFIRMED |
-| EXEC-REGISTRY-003 | IMPLEMENTED | IMPLEMENTED | CONFIRMED |
-| EXEC-CAPABILITY-001 | PARTIAL | PARTIAL | CONFIRMED |
-| EXEC-CAPABILITY-002 | PARTIAL | PARTIAL | CONFIRMED |
-| EXEC-MANIFEST-001 | MISSING | MISSING | CONFIRMED |
-| EXEC-MANIFEST-002 | MISSING | MISSING | CONFIRMED |
-| EXEC-MANIFEST-003 | MISSING | MISSING | CONFIRMED |
-| EXEC-MANIFEST-004 | MISSING | MISSING | CONFIRMED |
-| EXEC-HISTORY-001 | MISSING | MISSING | CONFIRMED |
-| EXEC-FAILURE-001 | PARTIAL | PARTIAL | CONFIRMED |
+The prior remediation corrections are present: `GAP-018` exists for
+`EXEC-ENVELOPE-001`, `GAP-002` links the two registry requirements, and test
+execution evidence is `76/76`. The capability overlap requirement remains
+under-linked and is not independently represented by the audited matrix
+classification.
 
 ## 9. Classification Audit
 
-### IMPLEMENTED claims
-
-`EXEC-ENVELOPE-002`, `EXEC-VERSION-001`, `EXEC-CONTRACT-001`, and `EXEC-REGISTRY-003` are confirmed for their local obligations. Their source paths and direct tests establish required structured fields, exact SemVer parsing/comparison, fail-closed schema behavior, and bootstrap allowlist rejection/no-normal-read behavior.
-
-`EXEC-ENVELOPE-001` is not confirmed as `IMPLEMENTED`; see `CGMA-MAJOR-001`. The current implementation proves an identifiable common wrapper payload, not a payload schema specific to each capability.
-
-### PARTIAL claims
-
-`EXEC-VERSION-002`, `EXEC-REGISTRY-001`, `EXEC-REGISTRY-004`, `EXEC-REGISTRY-002`, `EXEC-CAPABILITY-001`, `EXEC-CAPABILITY-002`, and `EXEC-FAILURE-001` are independently confirmed as `PARTIAL`. The matrix correctly records local behavior and the missing overlap, source/progression, mutation, publication, verdict and failure semantics. The registry rows need the additional existing-gap traceability correction described in `CGMA-MAJOR-002`.
-
-### MISSING claims
-
-`EXEC-CONTRACT-002`, `EXEC-MANIFEST-001` through `EXEC-MANIFEST-004`, and `EXEC-HISTORY-001` remain `MISSING`. Searches across `src`, application/composition/infrastructure paths, tests, compatibility surfaces and prototype/history found no sufficient productive implementation for these local obligations. Prototype-shaped records are not authority.
-
-### CONTRADICTORY claims
-
-`EXEC-SNAPSHOT-001` remains correctly `CONTRADICTORY`: `src/application/snapshot.ts` accepts caller-provided versions into the snapshot path without an EXEC authoritative observation. `GAP-003` records the observed caller-authority bypass and its mixed DOM boundary. `GAP-017` also correctly records the unverified structural registration-result authority path.
+| Requirement | Matrix claim | Audited classification | Result |
+|---|---|---|---|
+| EXEC-ENVELOPE-001 | PARTIAL / GAP-018 | PARTIAL | CONFIRMED |
+| EXEC-ENVELOPE-002 | IMPLEMENTED | IMPLEMENTED | CONFIRMED |
+| EXEC-VERSION-001 | IMPLEMENTED | IMPLEMENTED | CONFIRMED |
+| EXEC-VERSION-002 | PARTIAL / GAP-002 | CONTRADICTORY / GAP-002 | RECLASSIFICATION_REQUIRED |
+| EXEC-SNAPSHOT-001 | CONTRADICTORY / GAP-003 | CONTRADICTORY | CONFIRMED |
+| EXEC-CONTRACT-001 | IMPLEMENTED | IMPLEMENTED | CONFIRMED |
+| EXEC-CONTRACT-002 | MISSING / GAP-001 | CONTRADICTORY / GAP-001 | RECLASSIFICATION_REQUIRED |
+| EXEC-REGISTRY-001 | PARTIAL / GAP-002, GAP-004, GAP-015, GAP-016, GAP-017 | CONTRADICTORY; preserve all distinct deltas | RECLASSIFICATION_REQUIRED |
+| EXEC-REGISTRY-004 | PARTIAL / GAP-002, GAP-005, GAP-015, GAP-016, GAP-017 | CONTRADICTORY; preserve all distinct deltas | RECLASSIFICATION_REQUIRED |
+| EXEC-REGISTRY-002 | PARTIAL / GAP-006, GAP-016 | PARTIAL | CONFIRMED |
+| EXEC-REGISTRY-003 | IMPLEMENTED | IMPLEMENTED | CONFIRMED |
+| EXEC-CAPABILITY-001 | PARTIAL / GAP-007, GAP-016 | CONTRADICTORY; overlap links require reconciliation | RECLASSIFICATION_REQUIRED |
+| EXEC-CAPABILITY-002 | PARTIAL / GAP-008, GAP-017 | PARTIAL | CONFIRMED |
+| EXEC-MANIFEST-001 | MISSING / GAP-009 | MISSING | CONFIRMED |
+| EXEC-MANIFEST-002 | MISSING / GAP-010 | MISSING | CONFIRMED |
+| EXEC-MANIFEST-003 | MISSING / GAP-011 | MISSING | CONFIRMED |
+| EXEC-MANIFEST-004 | MISSING / GAP-012 | MISSING | CONFIRMED |
+| EXEC-HISTORY-001 | MISSING / GAP-013 | MISSING | CONFIRMED |
+| EXEC-FAILURE-001 | PARTIAL / GAP-014 | PARTIAL | CONFIRMED |
 
 ```text
-CONFIRMED_CLASSIFICATIONS = 18
-RECLASSIFICATION_REQUIRED = 1
+CONFIRMED_CLASSIFICATIONS = 14
+RECLASSIFICATION_REQUIRED = 5
 INSUFFICIENT_EVIDENCE = 0
 OWNERSHIP_ERRORS = 0
-UNSUPPORTED_IMPLEMENTED_CLAIMS = 1
+UNSUPPORTED_IMPLEMENTED_CLAIMS = 0
 ```
 
 ## 10. Portfolio Ownership Audit
 
 ```text
 PORTFOLIO_APPROVED_OWNER = EXEC-001/CANONICAL_OWNER for O-016..O-021
-MATRIX_OWNER = EXEC-001/CANONICAL_OWNER for all local requirement rows
-REPOSITORY_ACTUAL_AUTHORITY = no foreign canonical implementation found
+MATRIX_OWNER = EXEC-001/CANONICAL_OWNER for all 19 local requirement rows
+REPOSITORY_ACTUAL_AUTHORITY = no foreign canonical EXEC implementation found
 PORTFOLIO_OWNERSHIP_ERRORS = 0
 WRONG_OWNER_IMPLEMENTATIONS = 0
-ALTERNATE_AUTHORITY_PRESENT = captured as GAP-003/GAP-017, not misclassified as foreign ownership
 ```
 
-The DOM snapshot caller path is a local integration/authority defect, not evidence that EXEC owns DOM lifecycle. PLAT remains physical persistence/integrity owner; REPO and the system source remain catalog-material producers; BACKEND/OPS/UI remain mappings/projections.
+The snapshot caller path and registration-result path are authority defects,
+not foreign ownership transfers. DOM remains owner of DOM identity/snapshot;
+PLAT remains physical persistence/integrity/recovery owner; source owners
+remain catalog-material owners.
 
 ## 11. Mixed Ownership Audit
 
-The matrix records 12 mixed-ownership requirements and supplies local obligation, foreign obligation, foreign owner and local integration expectation for the affected gap records. Independent review confirms the local portions are not converted to `OWNED_BY_OTHER_SPEC` and foreign missing producers are not silently assigned to EXEC.
-
-| Mixed boundary | Local EXEC obligation | Foreign owner | Result |
-|---|---|---|---|
-| DOM snapshot/basis | consume exact authoritative basis and reject caller substitution | DOM | preserved |
-| NORMAL catalog material | validate scope/provenance and consume exact basis | REPO/DOM/PLAT as applicable | preserved |
-| BOOTSTRAP material | enforce independent scope and allowlist | system bootstrap source | preserved |
-| Registry physical material | validate semantic identity/progression | PLAT | preserved |
-| Session/context | expose contract basis without applying session lifecycle | EXEC-002 | preserved |
-| Transport/projection/effect mapping | preserve canonical failure meaning | BACKEND/OPS/UI/PLAT | preserved |
+The matrix preserves local obligation, foreign obligation, foreign owner and
+local integration expectation for the mixed rows. Foreign implementation
+absence is not assigned as local implementation scope. The current findings
+are local classification/traceability defects, not ownership defects.
 
 ```text
 MIXED_OWNERSHIP_REQUIREMENTS = 12
 UNRESOLVED_OWNERSHIP = 0
 FALSE_FOREIGN_OWNERSHIP = 0
-HIDDEN_LOCAL_INTEGRATION_GAPS = 0 except the explicit overlap links in CGMA-MAJOR-002
+HIDDEN_LOCAL_INTEGRATION_GAPS = 0
+FOREIGN_SCOPE_ABSORBED_LOCALLY = 0
 ```
 
 ## 12. Failure Ownership Audit
 
-| Failure semantic | Approved owner | Matrix treatment | Audit result |
+| Failure | Approved semantic owner | Matrix treatment | Audit result |
 |---|---|---|---|
-| `CONTRACT_INVALID` | EXEC-001 | partial structured implementation and GAP-014 | SATISFIED locally / PARTIAL overall |
-| `VERDICT_UNKNOWN` | EXEC-001 | GAP-001 missing | MISSING correctly |
-| `UNKNOWN_CAPABILITY` | EXEC-001 | local resolver outcome | SATISFIED locally |
-| `INCOMPATIBLE_CAPABILITY` | EXEC-001 | local outcome/allowlist with overlap/source gaps | PARTIAL correctly |
-| Transport/log/UI mappings | BACKEND/OPS/UI | no semantic implementation claimed | ownership preserved |
-| Physical effect confirmation/recovery | PLAT/effect owners | no EXEC canonical effect claim | ownership preserved |
+| CONTRACT_INVALID | EXEC-001 | local schema/registry/basis failures | SATISFIED locally / PARTIAL overall |
+| VERDICT_UNKNOWN | EXEC-001 | GAP-001 | MISSING behavior with contradiction classification correction |
+| UNKNOWN_CAPABILITY | EXEC-001 | local resolver outcome | SATISFIED locally |
+| INCOMPATIBLE_CAPABILITY | EXEC-001 | local resolver/allowlist outcome | PARTIAL overall |
+| transport/log/UI mapping | BACKEND/OPS/UI | mappings only | ownership preserved |
+| effect confirmation/recovery | PLAT/effect owners | not claimed by EXEC | ownership preserved |
 
 ```text
 FAILURE_OWNER_ERRORS = 0
@@ -298,13 +287,13 @@ FAILURE_MAPPING_PROMOTED_TO_CANONICAL = 0
 
 ## 13. Compatibility / Cutover Audit
 
-| Compatibility dimension | Approved role | Matrix treatment | Audit result |
+| Dimension | Approved role | Matrix/repository treatment | Result |
 |---|---|---|---|
-| `NEW_CANONICAL_PATH` | OWNER | local schemas/registry/failure contract | conformant |
-| `LEGACY_COMPATIBILITY` | CONSUMER | no EXEC legacy writer or silent conversion | conformant |
-| `HISTORICAL_REPLAY` | OWNER | GAP-013 missing original-basis replay | conformant |
-| `CUTOVER` | OWNER | GAP-003 and GAP-011 preserve basis/new-attempt requirement | conformant |
-| `RETIREMENT` | NOT_APPLICABLE | no independent EXEC retirement obligation | conformant |
+| NEW_CANONICAL_PATH | OWNER | EXEC schema/registry path | CONFORMANT |
+| LEGACY_COMPATIBILITY | CONSUMER | no EXEC legacy writer or silent conversion | CONFORMANT |
+| HISTORICAL_REPLAY | OWNER | GAP-013 records missing original-basis replay | CONFORMANT |
+| CUTOVER | OWNER | GAP-003/GAP-011 preserve new-basis behavior | CONFORMANT |
+| RETIREMENT | NOT_APPLICABLE | no independent EXEC retirement obligation | CONFORMANT |
 
 ```text
 COMPATIBILITY_OWNER_ERRORS = 0
@@ -312,39 +301,35 @@ DUAL_CANONICAL_PATHS_MISSED = 0
 LEGACY_BYPASSES_MISSED = 0
 MISSING_REPLAY_GAPS = 0
 MISSING_CUTOVER_GAPS = 0
-MISSING_RETIREMENT_GAPS = 0
 ```
 
 ## 14. Dependency Audit
 
-The approved dependency direction is preserved: DOM/REPO/system sources and PLAT material flow to EXEC semantic validation; EXEC contracts flow to EXEC-002 and projection/mapping consumers. The four capability availability records are independently classified:
-
-| Capability | Authority | Contract | Local testability | Productive availability | Dependency class | Result |
-|---|---|---|---|---|---|---|
-| DOM identity/snapshot | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | correctly integrated-only |
-| DOM advancement/verdict | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | correctly integrated-only |
-| NORMAL catalog source | DEFINED | DEFINED | YES, fixture | NO | REQUIRED_FOR_INTEGRATED_PROOF | correctly not promoted |
-| BOOTSTRAP catalog source | DEFINED | DEFINED | YES, fixture | NO | REQUIRED_FOR_INTEGRATED_PROOF | correctly not promoted |
+The approved direction is preserved: `SPEC-EXEC-001 → SPEC-DOM-001`; source
+material and PLAT material are consumed boundaries, not reverse normative
+edges. The four availability records distinguish authority, contract, local
+testability and productive availability. No unavailable integrated-only
+capability is marked READY or local-closure blocking.
 
 ```text
-AUTHORITY_CONSUMPTION_PROOFS_UNCLASSIFIED = 0
-PRODUCER_CONSUMER_CONTRACT_PROOFS_UNCLASSIFIED = 0
+UNAPPROVED_DEPENDENCIES = 0
+MISSING_REQUIRED_DEPENDENCIES = 0
+DEPENDENCY_DIRECTION_ERRORS = 0
+HIDDEN_FOREIGN_DEPENDENCIES = 0
+FALSE_DEPENDENCY_BLOCKERS = 0
 CAPABILITY_AVAILABILITY_RECORDS = 4
 CAPABILITY_AVAILABILITY_CLASSIFICATION_ERRORS = 0
-LOCAL_TESTABLE_CAPABILITIES = 2 (fixture-only)
-PRODUCTIVELY_AVAILABLE_CAPABILITIES = 0
-DOWNSTREAM_PROMOTION_WITHOUT_NEW_EVIDENCE = 0
-READY_CLAIMS_WITH_UNAVAILABLE_CONTRACT = 0
-FALSE_DEPENDENCY_BLOCKERS = 0
-UNAPPROVED_DEPENDENCIES = 0
-DEPENDENCY_DIRECTION_ERRORS = 0
+AUTHORITY_CONSUMPTION_PROOFS_UNCLASSIFIED = 0
+PRODUCER_CONSUMER_CONTRACT_PROOFS_UNCLASSIFIED = 0
 ```
-
-No integrated-only absence was converted into a local planning blocker. No productive-availability promotion record was invented.
 
 ## 15. Projection / Responsibility Leakage Audit
 
-No backend, API, OPS, UI, report, cache, read-model or other projection was found to be promoted as EXEC authority. No foreign lifecycle, identity, persistence, scheduler or effect implementation was absorbed into EXEC. The snapshot caller path and registration-result path are behavior/authority findings already captured by GAP-003 and GAP-017, not hidden owner transfers.
+No backend, OPS, UI, report, cache or read model was promoted to EXEC authority.
+No foreign lifecycle, identity, physical persistence, scheduler or effect
+implementation was absorbed locally. The snapshot caller path and structural
+registration result are alternate authority/behavior paths already visible in
+the matrix.
 
 ```text
 PROJECTION_BECOMES_AUTHORITY = 0
@@ -355,143 +340,137 @@ RESPONSIBILITY_LEAKAGE_GAPS = 0
 
 ## 16. Evidence Audit
 
-| Requirement group | Implementation evidence | Test-existence evidence | Test-execution evidence | Audit result |
-|---|---|---|---|---|
-| EXEC-ENVELOPE-001 | present but only generic payload schema | present for generic wrapper | executed, but not capability-specific | insufficient for full `IMPLEMENTED` claim |
-| EXEC-ENVELOPE-002 | strong required-field schema/domain construction | direct missing-field/text tests | current suite passed | sufficient |
-| EXEC-VERSION-001 | exact parser/comparison/change code | direct SemVer tests | current suite passed | sufficient |
-| EXEC-CONTRACT-001 | authenticated canonical validator and fail-closed result | malformed/forged/stale tests | current suite passed | sufficient |
-| EXEC-REGISTRY-003 | allowlist and pre-read rejection | direct allowlist/isolation tests | current suite passed | sufficient |
-| Existing PARTIAL/MISSING/CONTRADICTORY rows | concrete source/search evidence | direct or explicitly absent witnesses | execution separated from existence | sufficient for their classifications |
+The four IMPLEMENTED claims have concrete source evidence and direct tests.
+`EXEC-ENVELOPE-001` is correctly partial and GAP-018 records the generic
+schema limitation. Existing partial/missing/contradictory rows have concrete
+repository evidence and exact deltas. No test name was accepted as proof and
+no fixture was promoted to productive availability.
 
-The matrix generally distinguishes implementation, test existence and test execution. The generic payload claim is nevertheless an evidence false positive because the cited evidence does not prove capability-specific schema validation. The repeated test count is an execution-evidence accuracy defect.
+```text
+IMPLEMENTED_CLAIMS_WITH_ABSENT_IMPLEMENTATION_EVIDENCE = 0
+TEST_EXISTENCE_EVIDENCE = separated from execution evidence
+TEST_EXECUTION_EVIDENCE = current and reproducible
+EVIDENCE_FALSE_POSITIVES = 0
+```
 
 ## 17. Test Evidence Audit
 
-The current execution was independently run from the pinned repository:
+The following commands were executed against the pinned clean repository:
 
 ```text
-npm test = PASS, 76/76
-npm run typecheck = PASS
-npm run verify:audit-governance = PASS
-npm run verify:skill-mirror = PASS
+npm test                         PASS 76/76
+npm run typecheck                PASS
+npm run verify:audit-governance  PASS
+npm run verify:skill-mirror      PASS
 ```
 
-The matrix repeatedly cites `npm test PASS 75/75` in its inventory, rows and gap records. The command passes, but the count is wrong; no test failed and no implementation classification is promoted by this correction. This is recorded as non-blocking `CGMA-INFO-001`.
-
-The direct envelope tests validate a payload with `data: { result: 'structured' }`, and the implementation accepts arbitrary JSON-valued data. They do not prove a capability-specific schema contract. This is part of `CGMA-MAJOR-001`, not merely an execution-count issue.
+The matrix's former `75/75` claims are corrected. Generic payload tests do not
+prove capability-specific payload schemas; that limitation is correctly
+represented by GAP-018. There is no test-execution environment failure.
 
 ```text
 TEST_EXISTS_SEPARATED_FROM_EXECUTION = PASS
-TEST_EXECUTION_CLAIMS_ACCURATE = FAIL (75 cited; 76 observed)
+TEST_EXECUTION_CLAIMS_ACCURATE = PASS
 TESTS_FAILED = 0
 ENVIRONMENTAL_FAILURES = 0
 ```
 
 ## 18. Exact Delta Audit
 
-All existing `PARTIAL`, `MISSING` and `CONTRADICTORY` records contain observed behavior, required behavior and a specific delta. Ownership boundaries and dependencies are present. No implementation class, module, database, algorithm or ticket decomposition is prescribed.
-
-The matrix is incomplete in two planning-relevant ways:
-
-1. `EXEC-ENVELOPE-001` has no delta even though the repository only validates a generic capability wrapper. Its missing capability-specific validation must be represented as a new exact delta.
-2. The existing overlap delta in `GAP-002` is not associated with `EXEC-REGISTRY-001` and `EXEC-REGISTRY-004`, although both normative requirements explicitly require overlap rejection before basis/revision mutation.
+All 18 gap records contain observed behavior, required behavior and an exact
+delta. The two findings below require classification/category/traceability
+correction, not a new implementation design. GAP-001's observed acceptance of
+unknown strings and GAP-002's observed ordered selection are already present
+in their records, but their primary classifications understate the behavior.
 
 ```text
-DELTA_TOO_VAGUE = 0 for existing gap records
+DELTA_TOO_VAGUE = 0
 DELTA_CONTAINS_IMPLEMENTATION_DESIGN = 0
 DELTA_INCLUDES_FOREIGN_SCOPE = 0
-UNRESOLVED_MATERIAL_DELTA = 1 (capability-specific payload validation)
+UNRESOLVED_MATERIAL_DELTA = 0
 ```
 
 ## 19. Gap Identity / Grouping Audit
 
-The 17 existing Gap IDs each have one detail record and represent distinct deltas. No false split or false merge was found among those records. `GAP-002` is the correct shared delta for overlapping supported sets and should be preserved, not duplicated. Its affected-requirement list is incomplete. The generic capability-specific payload delta is a distinct behavioral gap and would be `GAP-018` in the corrected matrix.
+The 18 gap identities are present once each and remain broadly distinct. The
+overlap behavior is one shared repository delta; `GAP-002` correctly groups
+three requirements but omits `EXEC-CAPABILITY-001`, while `GAP-007` repeats the
+overlap aspect alongside source-bound resolution. The required correction is to
+reconcile that linkage and ensure one overlap delta is not represented twice;
+no new implementation identity is needed.
 
 ```text
-EXISTING_DISTINCT_GAPS = 17
-AUDITED_DISTINCT_GAPS = 18 (including required GAP-018)
-FALSE_GAP_SPLITS = 0
+TOTAL_DISTINCT_GAPS = 18
+FALSE_GAP_SPLITS = 0 (pending GAP-002/GAP-007 traceability reconciliation)
 FALSE_GAP_MERGES = 0
 ORPHAN_GAPS = 0
 ORPHAN_REQUIREMENT_REFERENCES = 0
-MISSING_REQUIRED_GAP_LINKS = 2 (EXEC-REGISTRY-001 and EXEC-REGISTRY-004 → GAP-002)
+DUPLICATE_GAP_IDENTITY = 0
 ```
 
 ## 20. Gap Detail Record Audit
 
-`GAP-001` through `GAP-017` each contain the required fields: affected requirements, portfolio obligations, category, severity, normative expectation, current behavior, repository evidence, test existence/execution evidence, exact delta, ownership boundary, dependencies, observed repository boundary and acceptance evidence.
-
-The matrix lacks one required detail record for the capability-specific payload validation delta. The minimum corrected record is:
-
-```text
-Gap ID = GAP-018 (new identity required by audit correction)
-Affected Requirements = EXEC-ENVELOPE-001
-Portfolio Obligations = O-016
-Gap Category = BEHAVIOR_PARTIAL
-Severity = MAJOR
-Normative Expectation = capability-specific payloads are validated by identifiable capability-appropriate schemas before contract consumption
-Current Repository Behavior = one fixed exec-capability-payload schema accepts capabilityId plus arbitrary JSON object data; no capability-specific schema is selected or validated
-Repository Evidence = src/domain/exec-schema.ts; src/application/exec-contract.ts; tests/exec-001-ticket-001.test.ts
-Test Existence Evidence = generic payload positive/negative tests exist; capability-specific schema rejection/selection witness absent
-Test Execution Evidence = npm test PASS 76/76; missing capability-specific witness
-Exact Delta = capability-specific schema authority and its validation consumption are not represented as implemented
-Ownership Boundary = EXEC-001 owns schema/payload contract; registry/source owners remain responsible for their declared capability material
-Dependencies = capability schema/registry contract as approved by the SPEC; no foreign ownership is assigned
-Observed Repository Boundary = fixed generic payload schema and validator path
-Acceptance Evidence Needed = direct positive and negative witnesses for at least distinct capability payload schema identities and rejection of a structurally generic but capability-invalid payload
-```
-
-The record intentionally does not select a schema technology, module layout or implementation mechanism.
+`GAP-001` through `GAP-018` have one detail record with affected requirements,
+portfolio obligations, category, severity, normative expectation, current
+behavior, repository/test evidence, exact delta, ownership, dependencies,
+observed boundary and acceptance evidence. Mixed records include the required
+local/foreign ownership fields. `GAP-002` affected-requirement coverage is
+incomplete for the explicit capability-resolution overlap rule; this is
+`CGMA-MAJOR-004`.
 
 ## 21. Contradiction Audit
 
-| Requirement | Repository behavior | Required behavior | Matrix treatment | Audit result |
+| Requirement | Observed | Required | Matrix treatment | Independent result |
 |---|---|---|---|---|
-| EXEC-SNAPSHOT-001 | caller versions establish snapshot basis | EXEC authority supplies exact versions | GAP-003 CONTRADICTORY | captured |
-| EXEC-REGISTRY-001/004 and EXEC-CAPABILITY-002 | plain structural `REGISTERED` result can carry successor basis without issuer/publication proof | source-bound verifiable publication result | GAP-017 CONTRADICTORY | captured |
-| EXEC-ENVELOPE-001 | generic payload schema accepts arbitrary `data` for any capability ID | capability-specific payload schema validation | claimed IMPLEMENTED, no gap | missed false negative; CGMA-MAJOR-001 |
+| EXEC-SNAPSHOT-001 | caller versions establish snapshot basis | EXEC-authoritative basis | GAP-003 CONTRADICTORY | CONFIRMED |
+| EXEC-REGISTRY-001/004 and EXEC-CAPABILITY-002 | structural registration result can carry successor material without issuer/publication proof | source-bound consumer-verifiable proof | GAP-017 CONTRADICTORY | CONFIRMED |
+| EXEC-CONTRACT-002 | any non-empty `functionalVerdict` passes the envelope schema and `ValidateExecContract` returns `VALID`; no verdict membership/classifier exists | unknown/unregistered/absent verdict returns `VERDICT_UNKNOWN`, never a valid contract/approval | GAP-001 MISSING | MISSED_CONTRADICTION |
+| EXEC-VERSION-002, EXEC-REGISTRY-001/004, EXEC-CAPABILITY-001 | `CatalogBasis.register` permits overlap and `resolveInternal` sorts/selects a candidate | overlap invalidates the basis with `CONTRACT_INVALID`, no selection and no mutation | GAP-002/GAP-007 PARTIAL | MISSED_CONTRADICTION |
 
 ```text
-MISSED_CONTRADICTIONS = 0
-MISSED_FALSE_NEGATIVE_BEHAVIOR = 1
-CANONICAL_STATE_MUTATION_ESCAPES = captured in GAP-003/GAP-017; no additional escape found
+MISSED_CONTRADICTIONS = 2
+CAN_MUTATE_CANONICAL_STATE_ESCAPES = snapshot and registration paths captured
+ALTERNATE_PRODUCTIVE_PATHS = caller snapshot and structural registration paths captured
+HISTORICAL_NON_CONFORMANCE_RISK = present for all four contradiction-bearing paths
 ```
-
-The capability-specific payload issue is classified as partial rather than contradictory: a valid common envelope/payload wrapper and schema validation exist, but a required capability-specific portion is incomplete.
 
 ## 22. False Positive / False Negative Analysis
 
-### False positive gap
+### False positive gaps
 
 ```text
 KNOWN_FALSE_POSITIVE_GAPS = 0
 ```
 
-No existing claimed implementation gap was disproven. The two contradiction gaps and all partial/missing gaps have repository support.
+No existing claimed gap was disproved.
 
-### False negative gap
+### False negative behavior/classification
 
-`EXEC-ENVELOPE-001` is a false negative: the matrix claims full implementation while capability-specific payload schema validation is absent. This is `CGMA-MAJOR-001` and requires a new exact gap record.
+The matrix does not omit the two deltas, but it under-classifies them:
 
-### Requirement-to-gap false negative
-
-The overlap behavior is already represented by `GAP-002`, but the matrix omits two affected requirements. This is a traceability false negative, not a second overlap implementation gap: `CGMA-MAJOR-002` requires preserving GAP-002 and correcting its affected-requirement linkage.
-
-### Ownership/evidence false positives
+- GAP-001 records the unknown-verdict behavior as `MISSING` although the
+  implementation accepts the invalid value as a valid contract.
+- GAP-002/GAP-007 record overlap selection as `PARTIAL` although the resolver
+  actively selects from a basis the SPEC declares invalid.
 
 ```text
+KNOWN_FALSE_NEGATIVE_GAPS = 0 (deltas exist; classifications are false negatives)
 OWNERSHIP_FALSE_POSITIVES = 0
 OWNERSHIP_FALSE_NEGATIVES = 0
-EVIDENCE_FALSE_POSITIVES = 1 (EXEC-ENVELOPE-001 full-proof claim)
+EVIDENCE_FALSE_POSITIVES = 0
 ```
 
 ## 23. Gap Category / Severity Audit
 
-Existing gap categories match their observed deltas. Existing severities are all `MAJOR`; this is defensible because each gap affects canonical contract, registry, authority, replay, failure, or planning behavior. The new payload gap is also `BEHAVIOR_PARTIAL` / `MAJOR`, because treating a generic wrapper as capability-specific validation would omit required implementation work from the plan. The test-count correction is evidence-only and non-blocking; it is not an implementation gap.
+The severity `MAJOR` is defensible for all 18 gaps. GAP-001 is incorrectly
+categorized `BEHAVIOR_MISSING`; its observed valid-return path contradicts the
+fail-closed verdict requirement. GAP-002 is incorrectly categorized
+`BEHAVIOR_PARTIAL` for the same reason: ordered selection violates an explicit
+no-selection rule. The remaining categories are defensible, subject to the
+GAP-002/GAP-007 linkage correction.
 
 ```text
-GAP_CATEGORY_MISCLASSIFIED = 0
+GAP_CATEGORY_MISCLASSIFIED = 2
 SEVERITY_INFLATED = 0
 SEVERITY_UNDERSTATED = 0
 EVIDENCE_ONLY_MISUSED = 0
@@ -504,18 +483,18 @@ EVIDENCE_ONLY_MISUSED = 0
 ```text
 MATRIX_REPORTED:
   TOTAL = 19
-  IMPLEMENTED = 5
-  PARTIAL = 7
-  MISSING = 6
-  CONTRADICTORY = 1
-  COVERAGE = 5/19 = 26.32%
-
-AUDITED:
-  TOTAL = 19
   IMPLEMENTED = 4
   PARTIAL = 8
   MISSING = 6
   CONTRADICTORY = 1
+  COVERAGE = 4/19 = 21.05%
+
+AUDITED:
+  TOTAL = 19
+  IMPLEMENTED = 4
+  PARTIAL = 4
+  MISSING = 5
+  CONTRADICTORY = 6
   NOT_APPLICABLE = 0
   OWNED_BY_OTHER_SPEC = 0
   UNVERIFIED = 0
@@ -526,21 +505,21 @@ AUDITED:
 
 ```text
 MATRIX_REPORTED:
-  TOTAL_DISTINCT_GAPS = 17
+  TOTAL_DISTINCT_GAPS = 18
   BLOCKER_GAPS = 0
-  MAJOR_GAPS = 17
+  MAJOR_GAPS = 18
   MINOR_GAPS = 0
   EVIDENCE_ONLY_GAPS = 0
 
 AUDITED:
-  TOTAL_DISTINCT_GAPS = 18 (GAP-001..GAP-017 plus required GAP-018)
+  TOTAL_DISTINCT_GAPS = 18
   BLOCKER_GAPS = 0
   MAJOR_GAPS = 18
   MINOR_GAPS = 0
   EVIDENCE_ONLY_GAPS = 0
 ```
 
-### Portfolio, ownership and grouping metrics
+### Portfolio and grouping metrics
 
 ```text
 PORTFOLIO_OBLIGATIONS_AUDITED = 6 (O-016..O-021)
@@ -554,26 +533,12 @@ ORPHAN_GAPS = 0
 ORPHAN_REQUIREMENT_REFERENCES = 0
 ```
 
-### Material reliability metrics
-
-```text
-UNCLASSIFIED_REQUIREMENTS = 0
-UNAUDITED_REQUIREMENTS = 0
-UNRESOLVED_OWNERSHIP = 0
-UNRESOLVED_MATERIAL_DELTA = 1
-UNSUPPORTED_IMPLEMENTED_CLAIMS = 1
-KNOWN_FALSE_POSITIVE_GAPS = 0
-KNOWN_FALSE_NEGATIVE_GAPS = 1
-SPECIFICATION_AMBIGUITY = 0
-ARCHITECTURAL_AUTHORITY_GAP = 0
-PORTFOLIO_AUTHORITY_GAP = 0
-SOURCE_SPEC_CONFORMANCE_DRIFT = 0
-PLANNING_CRITICAL_EVIDENCE_ERRORS = 1
-```
-
 ## 25. Baseline Drift Assessment
 
-The only repository-baseline difference between the matrix's assessed commit and the pinned current HEAD is documentation/checkpoint progression. The source and test tree is unchanged. The reassessment proof in §4 is complete, so the baseline is not an audit blocker and the findings are actionable.
+The matrix's assessed implementation baseline and current repository contain
+the same source and test behavior. Documentation/checkpoint-only progression
+was explicitly reassessed. The current findings are actionable and do not
+require a baseline blocker.
 
 ```text
 BASELINE_DRIFT_STATUS = DRIFT_ASSESSED
@@ -584,217 +549,199 @@ AUDIT_BASIS_STALE = NO
 REPOSITORY_IMPLEMENTATION_REASSESSMENT = COMPLETE
 ```
 
-The ordinary remediation verdict is used because the repository drift is non-semantic and does not make the matrix classifications stale. The test-count evidence is corrected as an evidence finding against the current observed execution.
-
 ## 26. Findings
 
-## CGMA-MAJOR-001 — Generic payload validation is falsely classified as complete
+## CGMA-MAJOR-003 — Unknown verdict acceptance is misclassified as a missing behavior
 
 Severity: `MAJOR`
 
 Planning impact: `PLANNING_BLOCKING`
 
-Category: `FALSE_NEGATIVE_GAP` / `UNSUPPORTED_IMPLEMENTED_CLAIM`
+Category: `MISSED_CONTRADICTION` / `RECLASSIFICATION_REQUIRED`
 
 ### Matrix location
 
-`docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md` §6 implementation inventory, §7 row `EXEC-ENVELOPE-001` (line 113), §15 metrics and §19 completeness proof.
+`docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md` §7 row
+`EXEC-CONTRACT-002` and §8 `GAP-001`, lines 123 and 138–150.
 
 ### Requirement
 
-Requirement ID: `EXEC-ENVELOPE-001`
+Requirement ID: `EXEC-CONTRACT-002`
 
-Portfolio Obligation: `O-016`
+Portfolio Obligation: `O-019`
 
 Approved Owner: `EXEC-001 / CANONICAL_OWNER`
 
 ### Matrix claim
 
-Classification: `IMPLEMENTED`
+Classification: `MISSING`
 
-Gap ID: none
+Gap ID: `GAP-001`
 
-Severity: none
+Severity: `MAJOR`
 
 ### Independent audit result
 
-Audited classification: `PARTIAL`
+Audited classification: `CONTRADICTORY`
 
 Audited owner: `EXEC-001 / CANONICAL_OWNER`
 
-Audited gap identity: new `GAP-018` required
+Audited gap identity: preserve `GAP-001`; change its category to
+`BEHAVIOR_CONTRADICTORY`.
 
 ### Authority
 
 ADR: `ADR-0003`, Decisão
 
-Portfolio: `SPEC-PORTFOLIO-001` obligation `O-016`
+Portfolio: `SPEC-PORTFOLIO-001`, obligation `O-019`
 
-Component SPEC: `SPEC-EXEC-001` §13 `EXEC-ENVELOPE-001`, and §5/§9 where payload-specific schema ownership is explicit
+Component SPEC: `SPEC-EXEC-001` §13 `EXEC-CONTRACT-002` (lines 519–526)
 
-Upstream SPEC, if applicable: none required for this local schema obligation
+Upstream SPEC: none required for this local verdict contract
 
 ### Repository evidence
 
-* `src/domain/exec-schema.ts` defines one fixed `PAYLOAD_SCHEMA_DOCUMENT` whose only capability fields are `capabilityId` and `data`; `data` is an object with arbitrary JSON-valued additional properties.
-* `src/application/exec-contract.ts` always validates `this.definitions.payload`; it does not consume a capability-specific schema selected from registry/source authority.
-* `tests/exec-001-ticket-001.test.ts` accepts `data: { result: 'structured' }` and tests wrapper/schema identity, not capability-specific payload validity. The same generic shape is not checked against a capability-specific contract.
+- `src/domain/exec-schema.ts` accepts any non-empty string for
+  `functionalVerdict` (lines 108–109).
+- `src/application/exec-contract.ts` returns `status: 'VALID'` after both
+  generic schemas pass (lines 118–137).
+- The matrix itself records that unknown strings are accepted structurally and
+  that no verdict registry/classifier exists.
+- `npm test` passed 76/76; no direct unknown-verdict witness exists.
 
 ### Problem
 
-The normative requirement is conjunctive: a common envelope and a payload specific to the capability must be validated against identifiable schemas. The current implementation proves an identifiable generic payload wrapper, but `capabilityId` is only a string field and does not make arbitrary `data` capability-specific. No repository evidence shows a capability-specific schema being selected, identified, or enforced before contract consumption. The matrix's “No local delta” claim therefore suppresses material local work.
+The repository does not merely lack a `VERDICT_UNKNOWN` result. It accepts an
+unrecognized verdict as a valid contract. The SPEC requires an absent,
+undeclared or semantically unknown verdict to produce `VERDICT_UNKNOWN` and
+never become approval, completion, resume or success. This is an observed
+behavioral contradiction, not only an absent capability.
 
 ### Why this matters for planning
 
-A planning agent using the matrix would omit the missing capability-specific payload contract and could close the envelope unit after proving only generic shape validation. This is a false negative implementation gap and invalidates the reported 5/19 coverage.
+A plan generated from `MISSING` may add a verdict authority without removing or
+guarding the current valid-return path. The downstream baseline must identify
+the existing fail-open path as contradictory so acceptance proves rejection of
+unknown values.
 
 ### Minimum matrix correction required
 
-* Reclassify `EXEC-ENVELOPE-001` from `IMPLEMENTED` to `PARTIAL`.
-* Add one distinct `BEHAVIOR_PARTIAL` / `MAJOR` gap detail (`GAP-018` or the next preserved identity) with observed generic validation, required capability-specific validation, exact delta, ownership and evidence fields.
-* Correct the affected coverage and implementation metrics.
-* Do not choose a schema library, module layout, registry API or other implementation design in the Gap Matrix.
+- Reclassify `EXEC-CONTRACT-002` from `MISSING` to `CONTRADICTORY`.
+- Preserve `GAP-001`, change its category to `BEHAVIOR_CONTRADICTORY`, and
+  state that unknown values currently pass the generic contract path.
+- Preserve the existing ownership and exact delta; do not choose an
+  implementation mechanism.
+- Reconcile requirement and coverage metrics.
 
 ### Revalidation
 
-Re-run this audit against the corrected matrix. Require direct positive and negative evidence that distinct capability payloads use identifiable capability-appropriate schemas and that a structurally valid generic payload is not accepted for an incompatible capability.
+Execute a direct unknown/absent/unregistered-verdict witness and verify the
+matrix classification, observed behavior, required behavior, gap category and
+acceptance evidence all reconcile.
 
-## CGMA-MAJOR-002 — Existing overlap gap is not traced to registry requirements
+## CGMA-MAJOR-004 — Overlap selection is contradictory and capability overlap is under-traced
 
 Severity: `MAJOR`
 
 Planning impact: `PLANNING_BLOCKING`
 
-Category: `REQUIREMENT_GAP_TRACEABILITY` / `FALSE_NEGATIVE_REQUIREMENT_COVERAGE`
+Category: `MISSED_CONTRADICTION` / `REQUIREMENT_GAP_TRACEABILITY`
 
 ### Matrix location
 
-`docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md` §7 rows `EXEC-VERSION-002`, `EXEC-REGISTRY-001` and `EXEC-REGISTRY-004` (lines 116, 120 and 121); §8 `GAP-002` (lines 148–160), `GAP-004` and `GAP-005`.
+`docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md` §7 rows
+`EXEC-VERSION-002`, `EXEC-REGISTRY-001`, `EXEC-REGISTRY-004` and
+`EXEC-CAPABILITY-001`; §8 `GAP-002` and `GAP-007`, lines 120, 124–128,
+152–164 and 225–238.
 
 ### Requirement
 
-Requirement IDs: `EXEC-VERSION-002`, `EXEC-REGISTRY-001`, `EXEC-REGISTRY-004`
+Requirement IDs: `EXEC-VERSION-002`, `EXEC-REGISTRY-001`,
+`EXEC-REGISTRY-004`, `EXEC-CAPABILITY-001`
 
-Portfolio Obligation: `O-017` for `EXEC-VERSION-002`; `O-020` for the registry requirements
+Portfolio Obligations: `O-017` and `O-020`
 
 Approved Owner: `EXEC-001 / CANONICAL_OWNER`
 
 ### Matrix claim
 
-Classification: all three rows are `PARTIAL`; the matrix links `GAP-002` only to `EXEC-VERSION-002`.
+Classification: all four affected rows are `PARTIAL`.
 
-Gap ID: `GAP-002` exists and records overlap/no-precedence behavior.
+Gap IDs: `GAP-002` covers the first three; `GAP-007` covers
+`EXEC-CAPABILITY-001`.
 
 Severity: `MAJOR`
 
 ### Independent audit result
 
-Audited classification: `PARTIAL` for all three requirements, but requirement-to-gap traceability is incomplete.
+Audited classification: `CONTRADICTORY` for all four overlap-bearing
+requirements; other independent source/reconstruction/mutation gaps remain
+partial as separately represented.
 
 Audited owner: `EXEC-001 / CANONICAL_OWNER`
 
-Audited gap identity: preserve `GAP-002`; add affected requirements `EXEC-REGISTRY-001` and `EXEC-REGISTRY-004`. Do not create duplicate overlap gaps.
+Audited gap identity: preserve one overlap delta; expand `GAP-002` to include
+`EXEC-CAPABILITY-001` and reconcile/remove duplicated overlap wording in
+`GAP-007` without inventing a second overlap gap.
 
 ### Authority
 
 ADR: `ADR-0003`, Decisão
 
-Portfolio: `O-017` and `O-020`
+Portfolio: `SPEC-PORTFOLIO-001`, obligations `O-017` and `O-020`
 
-Component SPEC: `SPEC-EXEC-001` §13 `EXEC-VERSION-002`, `EXEC-REGISTRY-001` and `EXEC-REGISTRY-004`; §12.1 and §12.4 also require disjoint support sets and rejection before a successor/revision is created.
+Component SPEC: `SPEC-EXEC-001` §13 `EXEC-VERSION-002`,
+`EXEC-REGISTRY-001`, `EXEC-REGISTRY-004` and `EXEC-CAPABILITY-001`; the
+no-precedence and fail-closed rules are also explicit in §12.1.
 
-Upstream SPEC, if applicable: `SPEC-DOM-001` is conformant; no upstream authority is being assigned the overlap rule.
-
-### Repository evidence
-
-* `src/domain/exec-registry.ts` `CatalogBasis.register` checks duplicate identity but does not compare supported-version sets.
-* `RegistryResolutionService.resolveInternal` orders candidates and can select among overlapping candidates.
-* The matrix's own `GAP-002` correctly records this exact observed behavior and required correction, but its affected-requirement field contains only `EXEC-VERSION-002`.
-
-### Problem
-
-The normative overlap prohibition is repeated independently in `EXEC-REGISTRY-001` and `EXEC-REGISTRY-004`. Their matrix rows omit `GAP-002`, and their detail records do not state that overlap invalidation is part of their local delta. The existing gap is present but the full requirement-to-gap traceability chain is not. `GAP-007` mentions overlap for capability resolution, but that does not replace the missing direct links for the two registry requirements.
-
-### Why this matters for planning
-
-A plan generated from the row-to-gap references can omit the overlap acceptance obligations when decomposing the registry identity/mutation units. The work may be implemented once but not proven for all authoritative requirements, causing incomplete acceptance and misleading coverage.
-
-### Minimum matrix correction required
-
-* Preserve `GAP-002` as one shared overlap delta.
-* Add `EXEC-REGISTRY-001` and `EXEC-REGISTRY-004` to its affected requirements and update the corresponding requirement rows.
-* Reconcile the affected-requirement and acceptance-evidence fields without duplicating the gap or changing ownership.
-* Recompute traceability metrics.
-
-### Revalidation
-
-Re-run requirement-to-gap reconciliation and verify every normative overlap statement in the three requirements resolves to the same preserved `GAP-002` record and its acceptance evidence.
-
-## CGMA-INFO-001 — Cited npm test count is inaccurate
-
-Severity: `INFO`
-
-Planning impact: `NON_BLOCKING`
-
-Category: `EVIDENCE_RELIABILITY`
-
-### Matrix location
-
-Matrix §6, §7 and all repeated `Test Execution Evidence` fields citing `npm test PASS 75/75`.
-
-### Requirement
-
-Requirement ID: cross-cutting execution evidence for all rows
-
-Portfolio Obligation: evidence quality for O-016 through O-021
-
-Approved Owner: `EXEC-001` for the cited local evidence
-
-### Matrix claim
-
-Classification: execution evidence is reported as `npm test PASS 75/75`.
-
-Gap ID: none
-
-Severity: none
-
-### Independent audit result
-
-Audited classification: implementation classifications are unchanged by this count correction.
-
-Audited owner: unchanged
-
-Audited gap identity: evidence correction only; no implementation gap
-
-### Authority
-
-ADR: applicable audit evidence governance
-
-Portfolio: O-016 through O-021 evidence obligations
-
-Component SPEC: local testability and acceptance witness requirements
-
-Upstream SPEC, if applicable: not applicable
+Upstream SPEC: `SPEC-DOM-001` remains conformant and does not own this overlap
+semantic.
 
 ### Repository evidence
 
-The independently executed current command returned `76` tests, `76` passed, `0` failed. `npm run typecheck`, `npm run verify:audit-governance` and `npm run verify:skill-mirror` also passed. The source/test diff from the matrix baseline to current HEAD contains no test-path change.
+- `CatalogBasis.register` rejects duplicate identity but does not compare
+  supported-version sets (`src/domain/exec-registry.ts`, lines 489–503).
+- `RegistryResolutionService.resolveInternal` sorts candidates and selects one
+  by semantic version/order (`src/domain/exec-registry.ts`, lines 715–724).
+- The matrix's `GAP-002` explicitly records that overlapping candidates can be
+  selected by ordering; `GAP-007` repeats the overlap aspect for capability
+  resolution.
+- Current tests pass 76/76 but contain no overlap rejection/no-mutation witness.
 
 ### Problem
 
-The matrix's command result is numerically inaccurate even though the command passes. The count does not prove or disprove the implementation claims, but it weakens evidence reproducibility.
+The conformant SPEC requires an overlapping basis to fail with
+`CONTRACT_INVALID`, without identity selection, precedence or mutation. The
+repository instead permits the overlap and selects a candidate. That behavior
+contradicts the authority; `PARTIAL` hides a true contradiction. In addition,
+`EXEC-CAPABILITY-001` contains the same explicit overlap rule but is not linked
+to `GAP-002`; its overlap aspect is mixed into `GAP-007`.
 
 ### Why this matters for planning
 
-Accurate execution evidence is required for auditability and later revalidation. This is not planning-blocking because pass/fail and relevant local behavior remain independently observable.
+A plan derived from the current rows can treat overlap as merely unfinished
+validation and may omit the capability-resolution acceptance obligation. It can
+also plan duplicate or inconsistent closure for `GAP-002` and `GAP-007`, or
+leave the ordered-selection path intact.
 
 ### Minimum matrix correction required
 
-Correct the cited test count and preserve the distinction between test existence and execution. Do not alter implementation classifications solely because of the count.
+- Reclassify the overlap-bearing portions/rows for all four requirements to
+  `CONTRADICTORY`; preserve separate partial gaps for source availability,
+  reconstruction and mutation where applicable.
+- Change `GAP-002` to `BEHAVIOR_CONTRADICTORY` and add
+  `EXEC-CAPABILITY-001` to its affected requirements and acceptance evidence.
+- Reconcile `GAP-007` so the shared overlap delta is represented once and its
+  remaining capability/source-boundary delta is not falsely merged or split.
+- Reconcile requirement, category, grouping and coverage metrics.
+- Do not prescribe implementation structure.
 
 ### Revalidation
 
-Rerun the cited command and record the exact observed count.
+Verify both registration orders and resolution against overlapping sets reject
+with `CONTRACT_INVALID`, preserve the prior basis, select no identity and do
+not mutate. Verify the four normative requirements all trace to the same
+overlap gap/acceptance evidence and no duplicate overlap gap remains.
 
 ## 27. Authority Escalations
 
@@ -808,7 +755,8 @@ PORTFOLIO_REMEDIATION_REQUIRED = 0
 ADR_CLARIFICATION_REQUIRED = 0
 ```
 
-No escalation is required. The capability-specific payload obligation and overlap obligations are explicit in the conformant SPEC; the defects are matrix classification/traceability/evidence defects.
+No upstream authority remediation is required. The findings are bounded matrix
+classification and traceability corrections.
 
 ## 28. Remediation Requirements
 
@@ -817,13 +765,15 @@ REMEDIATION_REQUIRED = YES
 REMEDIATION_ENTRY_STATE = READY_FOR_GAP_MATRIX_REMEDIATION
 ```
 
-Permitted finding-driven corrections are:
+Permitted finding-driven corrections:
 
-1. `CGMA-MAJOR-001`: `RECLASSIFY_REQUIREMENT`, add the missing exact gap record, correct evidence and metrics.
-2. `CGMA-MAJOR-002`: preserve `GAP-002`, correct affected-requirement/gap traceability and metrics.
-3. `CGMA-INFO-001`: correct execution evidence only.
+1. `CGMA-MAJOR-003`: `RECLASSIFY_REQUIREMENT` and `CORRECT_GAP_CATEGORY` for
+   `EXEC-CONTRACT-002`/`GAP-001`, then correct metrics.
+2. `CGMA-MAJOR-004`: `RECLASSIFY_REQUIREMENT`, `CORRECT_GAP_CATEGORY`,
+   `CORRECT_EXACT_DELTA`/traceability and `CORRECT_METRICS` for the overlap
+   delta; reconcile `GAP-002` and `GAP-007` using the existing identities.
 
-No source, test, ADR, portfolio, SPEC, plan or ticket change is authorized by this audit.
+No source, test, ADR, portfolio, SPEC, plan or ticket change is authorized.
 
 ## 29. Material Reliability Checks
 
@@ -841,31 +791,36 @@ SPEC_IMPLEMENTABILITY_CHECK = PASS
 IMPLEMENTER_DECISION_CHECK_FAILURES = 0
 TEMPORAL_AUTHORITY_GAPS = 0
 CALLER_SUPPLIED_AUTHORITY_BYPASS_MISSED = 0
-PORTFOLIO_OWNERSHIP_ERRORS = 0
-FAILURE_OWNER_ERRORS = 0
-COMPATIBILITY_OWNER_ERRORS = 0
+UNCLASSIFIED_REQUIREMENTS = 0
+UNAUDITED_REQUIREMENTS = 0
+UNRESOLVED_OWNERSHIP = 0
+UNRESOLVED_MATERIAL_DELTA = 0
+UNSUPPORTED_IMPLEMENTED_CLAIMS = 0
+KNOWN_FALSE_POSITIVE_GAPS = 0
+KNOWN_FALSE_NEGATIVE_GAPS = 0
+MISSED_CONTRADICTIONS = 2
+SPECIFICATION_AMBIGUITY = 0
+ARCHITECTURAL_AUTHORITY_GAP = 0
+PORTFOLIO_AUTHORITY_GAP = 0
+SOURCE_SPEC_CONFORMANCE_DRIFT = 0
+PLANNING_CRITICAL_EVIDENCE_ERRORS = 0
 FALSE_GAP_SPLITS = 0
 FALSE_GAP_MERGES = 0
-UNSUPPORTED_IMPLEMENTED_CLAIMS = 1
-KNOWN_FALSE_POSITIVE_GAPS = 0
-KNOWN_FALSE_NEGATIVE_GAPS = 1
 PLANNING_BLOCKING_FINDINGS = 2
 ```
-
-The matrix is not materially reliable for planning until the two MAJOR findings are corrected and independently re-audited.
 
 ### Audit dimensions
 
 | Dimension | Result |
 |---|---|
-| REQUIREMENT_COMPLETENESS | FAIL |
+| REQUIREMENT_COMPLETENESS | PASS |
 | CLASSIFICATION_ACCURACY | FAIL |
-| EVIDENCE_RELIABILITY | FAIL |
+| EVIDENCE_RELIABILITY | PASS |
 | PORTFOLIO_OWNERSHIP_CONFORMANCE | PASS |
 | DEPENDENCY_CONFORMANCE | PASS |
 | FAILURE_OWNERSHIP_CONFORMANCE | PASS |
 | COMPATIBILITY_CONFORMANCE | PASS |
-| GAP_IDENTITY_CONFORMANCE | FAIL |
+| GAP_IDENTITY_CONFORMANCE | PASS |
 | METRIC_ACCURACY | FAIL |
 | BASELINE_VALIDITY | PASS |
 | PLANNING_RELIABILITY | FAIL |
@@ -883,8 +838,8 @@ The matrix is not materially reliable for planning until the two MAJOR findings 
 | CHECK-05 No matrix requirement is invented/duplicated. | PASS |
 | CHECK-06 ADR → Portfolio → SPEC traceability is correct. | PASS |
 | CHECK-07 Every requirement classification is independently verified. | FAIL |
-| CHECK-08 Every IMPLEMENTED claim has sufficient proof. | FAIL |
-| CHECK-09 Every PARTIAL/MISSING/CONTRADICTORY row has exact delta. | PASS for existing rows |
+| CHECK-08 Every IMPLEMENTED claim has sufficient proof. | PASS |
+| CHECK-09 Every PARTIAL/MISSING/CONTRADICTORY row has exact delta. | PASS |
 | CHECK-10 Mixed ownership is correctly decomposed. | PASS |
 | CHECK-11 Portfolio ownership is preserved. | PASS |
 | CHECK-12 No wrong-owner implementation is hidden. | PASS |
@@ -893,17 +848,17 @@ The matrix is not materially reliable for planning until the two MAJOR findings 
 | CHECK-15 Dependencies match the approved portfolio. | PASS |
 | CHECK-16 Foreign implementation gaps are not absorbed locally. | PASS |
 | CHECK-17 Projections do not become canonical authority. | PASS |
-| CHECK-18 Test existence/execution evidence are separated. | FAIL (count inaccurate) |
-| CHECK-19 Gap IDs represent distinct implementation deltas. | PASS for existing IDs |
-| CHECK-20 No false gap split exists. | PASS |
+| CHECK-18 Test existence/execution evidence are separated. | PASS |
+| CHECK-19 Gap IDs represent distinct implementation deltas. | PASS |
+| CHECK-20 No false gap split exists. | PASS pending overlap linkage correction |
 | CHECK-21 No false gap merge exists. | PASS |
-| CHECK-22 Gap categories are correct. | PASS |
+| CHECK-22 Gap categories are correct. | FAIL |
 | CHECK-23 Gap severities are defensible. | PASS |
 | CHECK-24 Metrics independently reconcile. | FAIL |
 | CHECK-25 No false positive gap remains. | PASS |
 | CHECK-26 No false negative gap remains. | FAIL |
 | CHECK-27 No Implementation Plan leakage exists. | PASS |
-| CHECK-28 Baseline drift does not invalidate conclusions. | PASS (assessed documentation-only drift) |
+| CHECK-28 Baseline drift does not invalidate conclusions. | PASS |
 | CHECK-29 No unresolved SPEC ambiguity remains. | PASS |
 | CHECK-30 No unresolved architectural authority gap remains. | PASS |
 | CHECK-31 No unresolved portfolio authority gap remains. | PASS |
@@ -915,7 +870,7 @@ The matrix is not materially reliable for planning until the two MAJOR findings 
 | CHECK-37 Authority consumption distinguishes existence from consumability. | PASS |
 | CHECK-38 Producer/consumer contract availability is evidenced. | PASS |
 | CHECK-39 Temporal authority is protected where applicable. | PASS |
-| CHECK-40 Caller-supplied canonical authority is not silently accepted. | PASS (the observed snapshot bypass is captured) |
+| CHECK-40 Caller-supplied canonical authority is rejected. | PASS |
 
 ## 30. Implementation Plan Readiness
 
@@ -923,13 +878,10 @@ The matrix is not materially reliable for planning until the two MAJOR findings 
 NOT_READY_FOR_IMPLEMENTATION_PLAN
 ```
 
-The authority gate is ready, but planning readiness is denied because:
-
-* one local normative requirement is falsely reported as complete;
-* one shared implementation delta is not fully traced to all affected requirements;
-* the resulting coverage and gap metrics are incorrect.
-
-The matrix remains suitable for surgical remediation rather than rebuild: 19 requirements are present, existing gap identities are coherent, ownership/dependencies are preserved, and the defects are bounded.
+The authority gate is complete, but planning readiness is denied because the
+matrix under-classifies two active contradiction paths and does not fully trace
+the explicit capability-resolution overlap obligation to the shared overlap
+gap. The matrix remains suitable for surgical remediation rather than rebuild.
 
 ## 31. Closure Gate
 
@@ -947,7 +899,8 @@ CURRENT_VERDICT = GAP_MATRIX_REMEDIATION_REQUIRED
 IMPLEMENTATION_PLAN_GATE = NOT_READY_FOR_IMPLEMENTATION_PLAN
 ```
 
-The audit stops here. No Gap Matrix remediation, planning, ticket decomposition, implementation or state transition was started.
+The audit stops here. No Gap Matrix remediation, planning, ticket
+reconciliation, implementation or state transition was started.
 
 ## 32. Completeness Proof
 
@@ -955,16 +908,17 @@ The audit stops here. No Gap Matrix remediation, planning, ticket decomposition,
 SPEC_NORMATIVE_REQUIREMENTS = 19
 MATRIX_NORMATIVE_REQUIREMENTS = 19
 MISSING_FROM_MATRIX = 0
+EXTRA_IN_MATRIX = 0
 DUPLICATED_IN_MATRIX = 0
 AUDITED_REQUIREMENTS = 19
 UNCLASSIFIED_REQUIREMENTS = 0
 UNAUDITED_REQUIREMENTS = 0
-CONFIRMED_CLASSIFICATIONS = 18
-RECLASSIFICATION_REQUIRED = 1
+CONFIRMED_CLASSIFICATIONS = 14
+RECLASSIFICATION_REQUIRED = 5
 INSUFFICIENT_EVIDENCE = 0
 OWNERSHIP_ERRORS = 0
 FALSE_POSITIVE_GAPS = 0
-FALSE_NEGATIVE_GAPS = 1
+FALSE_NEGATIVE_GAPS = 0
 PORTFOLIO_OBLIGATIONS_AUDITED = 6
 PORTFOLIO_OWNERSHIP_ERRORS = 0
 WRONG_OWNER_IMPLEMENTATIONS = 0
@@ -974,31 +928,35 @@ FALSE_GAP_SPLITS = 0
 FALSE_GAP_MERGES = 0
 ORPHAN_GAPS = 0
 ORPHAN_REQUIREMENT_REFERENCES = 0
-UNSUPPORTED_IMPLEMENTED_CLAIMS = 1
+UNSUPPORTED_IMPLEMENTED_CLAIMS = 0
 UNRESOLVED_OWNERSHIP = 0
-UNRESOLVED_MATERIAL_DELTA = 1
+UNRESOLVED_MATERIAL_DELTA = 0
 BLOCKER_GAPS = 0
-MAJOR_GAPS = 18 audited
+MAJOR_GAPS = 18
 MINOR_GAPS = 0
 EVIDENCE_ONLY_GAPS = 0
 CRITICAL_FINDINGS = 0
 MAJOR_FINDINGS = 2
 MINOR_FINDINGS = 0
-INFO_FINDINGS = 1
+INFO_FINDINGS = 0
 PLANNING_BLOCKING_FINDINGS = 2
-NON_BLOCKING_FINDINGS = 1
+NON_BLOCKING_FINDINGS = 0
 PORTFOLIO_BASELINE_DRIFT = 0
 COMPONENT_SPEC_BASELINE_DRIFT = 0
 UPSTREAM_SPEC_BASELINE_DRIFT = 0
-REPOSITORY_BASELINE_DRIFT = 1 documentation-only
+REPOSITORY_BASELINE_DRIFT = 1
 BASELINE_DRIFT_STATUS = DRIFT_ASSESSED
 REASSESSMENT_COMPLETE = YES
+FINDINGS_ARE_ACTIONABLE = YES
 BASELINE_REMEDIATION_READINESS = READY
 AUDIT_BASIS_STALE = NO
+AUDIT_BASIS_FINGERPRINT = 329bbaaad48c26787a227d4cb1f275f35efe232082159275a76d78b2ed3adb15
 SPECIFICATION_AMBIGUITY = 0
 ARCHITECTURAL_AUTHORITY_GAP = 0
 PORTFOLIO_AUTHORITY_GAP = 0
 SOURCE_SPEC_CONFORMANCE_DRIFT = 0
 ```
 
-All required audit dimensions, findings, authority gates, baseline proof, metrics, mandatory checks, remediation routing and implementation-plan readiness are recorded above. The artifact is the sole authorized output of this independent audit.
+All required sections, findings, authority proofs, baseline reassessment,
+metrics, dimensions, mandatory checks, remediation routing and readiness are
+recorded. The artifact is the sole authorized output of this audit.
