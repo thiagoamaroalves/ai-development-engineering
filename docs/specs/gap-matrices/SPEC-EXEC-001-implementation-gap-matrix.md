@@ -2,21 +2,21 @@
 
 ## 1. Executive Summary
 
-This matrix preserves the single recovery rerun of the Gap Matrix producer for `SPEC-EXEC-001` revision 5 at its assessed baseline `6b11695154b73a99e35418bfd952795f2028a3bf`; the preserved dirty output candidate was not trusted. Current authority remains valid: the governing portfolio is `PORTFOLIO_DECOMPOSITION_APPROVED`, the target audit is `PASS — COMPONENT_SPEC_CONFORMANT`, and `SPEC_IMPLEMENTABILITY_CHECK = PASS`.
+This matrix preserves the original producer baseline at assessed repository commit `6b11695154b73a99e35418bfd952795f2028a3bf` and the subsequent evidence lineage. The latest independent Gap Matrix audit found no rebuild or authority blocker: the governing portfolio is `PORTFOLIO_DECOMPOSITION_APPROVED`, the target component SPEC is `PASS — COMPONENT_SPEC_CONFORMANT`, and `SPEC_IMPLEMENTABILITY_CHECK = PASS`.
 
-The current independent Gap Matrix audit identified one unsupported full-implementation claim, one incomplete requirement-to-gap linkage, and one stale test-count claim. This surgical remediation preserves all 19 normative requirements and existing Gap identities, adds `GAP-018` for the capability-specific payload delta, links `GAP-002` to all three overlap requirements, and corrects execution evidence to 76/76. The corrected matrix records 18 distinct `MAJOR` gaps; no authority gap was converted into implementation work. Defined but unavailable producer capabilities remain integrated-proof dependencies only.
+This targeted remediation corrects the two current planning-blocking findings. It preserves all 19 normative requirements and all 18 existing Gap identities, reclassifies the unknown-verdict and overlap paths as contradictions, links `GAP-002` to all four overlap requirements, removes the duplicated overlap aspect from `GAP-007`, and reconciles the affected evidence and metrics. Defined but unavailable producer capabilities remain integrated-proof dependencies only.
 
 ```text
 PRODUCER_RUN = RECOVERY_RERUN_1_OF_1
-ARTIFACT_PRODUCTION_RECOVERY = RESUME_OR_RECONCILE
-INTERRUPTED_OUTPUT_ATTEMPT = YES
-OUTPUT_CANDIDATE_CLASSIFICATION = COMPLETE_CLAIM_UNVERIFIED
-OUTPUT_CANDIDATE_PATHS = docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md
+ARTIFACT_PRODUCTION_RECOVERY = HISTORICAL_LINEAGE_ONLY; no interrupted remediation candidate at intake
+INTERRUPTED_OUTPUT_ATTEMPT = NO
+OUTPUT_CANDIDATE_CLASSIFICATION = CLEAN_EXISTING_MATRIX; prior remediation report stale for latest audit identity
+OUTPUT_CANDIDATE_PATHS = none at intake
 SOURCE_AUTHORITY_AUDIT_UNMODIFIED = YES
 SOURCE_AUTHORITY_IDENTITY = docs/specs/audits/SPEC-EXEC-001-component-conformance-audit.md; SPEC-EXEC-001 revision 5; PASS — COMPONENT_SPEC_CONFORMANT; basisFingerprint c9063586d314f3a33bd5a1a57ade9fc33312c1680d3f948d37370d5986724979
 
-REMEDIATION_SOURCE_AUDIT = docs/specs/gap-matrices/audits/SPEC-EXEC-001-implementation-gap-matrix-audit.md; VERDICT = GAP_MATRIX_REMEDIATION_REQUIRED; AUDIT_BASIS_FINGERPRINT = 0a20c2c99a3a830f88cc6099137be730f1e9bd782db3cfb552baea35823e247d
-REMEDIATION_FINDINGS = CGMA-MAJOR-001, CGMA-MAJOR-002, CGMA-INFO-001
+REMEDIATION_SOURCE_AUDIT = docs/specs/gap-matrices/audits/SPEC-EXEC-001-implementation-gap-matrix-audit.md; VERDICT = GAP_MATRIX_REMEDIATION_REQUIRED; AUDIT_BASIS_FINGERPRINT = 329bbaaad48c26787a227d4cb1f275f35efe232082159275a76d78b2ed3adb15
+REMEDIATION_FINDINGS = CGMA-MAJOR-003, CGMA-MAJOR-004
 REMEDIATION_STATE = READY_FOR_INDEPENDENT_GAP_MATRIX_REAUDIT
 ```
 
@@ -117,15 +117,15 @@ Each requirement occurs exactly once as the normative inventory anchor. The targ
 | GAP-018 | EXEC-ENVELOPE-001 | O-016 | CANONICAL_OWNER | Schema-validated envelope/payload | PARTIAL | `src/domain/exec-schema.ts` provides one generic payload schema; `src/application/exec-contract.ts` consumes it without capability-specific schema selection/validation | Generic payload positive/negative tests exist; capability-specific witness absent; npm test 76/76 | OBSERVED: identifiable generic wrapper validation accepts arbitrary JSON object data for a capability ID. REQUIRED: capability-specific payloads validate against identifiable capability-appropriate schemas before consumption. DELTA: capability-specific schema authority and validation are not implemented. | EXEC-001 | capability schema/registry contract | HIGH |
 | — | EXEC-ENVELOPE-002 | O-016 | CANONICAL_OWNER | Structured minimum envelope | IMPLEMENTED | Required fields enforced | Missing-field/text-only tests; npm test 76/76 | No local delta | EXEC-001 | — | HIGH |
 | — | EXEC-VERSION-001 | O-017 | CANONICAL_OWNER | Observable SemVer semantics | IMPLEMENTED | Exact parser/comparison/change classification | Large-number/change tests; npm test 76/76 | No local delta | EXEC-001 | — | HIGH |
-| GAP-002 | EXEC-VERSION-002 | O-017 | CANONICAL_OWNER | Disjoint supported sets | PARTIAL | Explicit exact sets exist; overlap is not rejected and candidates are ordered | Exact support tests; no overlap witness | OBSERVED: overlapping sets coexist and resolver selects by ordering. REQUIRED: overlap invalidates basis without mutation. DELTA: disjointness/no-precedence enforcement absent. | EXEC-001 | registry basis | HIGH |
+| GAP-002 | EXEC-VERSION-002 | O-017 | CANONICAL_OWNER | Disjoint supported sets | CONTRADICTORY | Explicit exact sets exist; overlap is not rejected and candidates are ordered | Exact support tests; no overlap witness | OBSERVED: overlapping sets coexist and resolver selects by ordering. REQUIRED: overlap invalidates the basis without identity selection or mutation. DELTA: productive registration/resolution actively permits precedence on an invalid overlapping basis. | EXEC-001 | registry basis | HIGH |
 | GAP-003 | EXEC-SNAPSHOT-001 | O-018 | CANONICAL_OWNER | Authoritative exact basis frozen | CONTRADICTORY | `src/application/snapshot.ts` accepts caller versions; no EXEC authority lookup | Snapshot flow tests lack authority-binding witness | OBSERVED: caller versions establish snapshot state. REQUIRED: EXEC basis supplies exact versions and rejects mismatch. DELTA: caller-authority bypass remains. | EXEC-001 / DOM boundary | DOM snapshot/attempt | HIGH |
 | — | EXEC-CONTRACT-001 | O-019 | CANONICAL_OWNER | Invalid JSON/schema fails closed | IMPLEMENTED | Authenticated schema path and no-approval/checkpoint/effect failure | Malformed/forged/stale tests; npm test 76/76 | No local delta | EXEC-001 | schemas | HIGH |
-| GAP-001 | EXEC-CONTRACT-002 | O-019 | CANONICAL_OWNER | Unknown verdict fails closed | MISSING | Verdict is only a non-empty string; no verdict registry/result | No direct unknown-verdict test | OBSERVED: unknown strings are accepted structurally. REQUIRED: absent/unknown produces `VERDICT_UNKNOWN` with no approval. DELTA: verdict authority absent. | EXEC-001 | registry, schemas | HIGH |
-| GAP-002; GAP-004; GAP-015; GAP-016; GAP-017 | EXEC-REGISTRY-001 | O-020 | CANONICAL_OWNER | Deterministic registry and atomic mutation | PARTIAL | Local immutable basis/resolution; overlap is not rejected; no expected revision, mutation key, atomic publication or productive basis | Local mapping/no-mutation tests; no overlap, stale or idempotency witness; npm test 76/76 | OBSERVED: local values work, overlapping supported sets can be selected by ordering, and required mutation authority does not exist. REQUIRED: disjoint overlap rejection plus frozen-basis resolution and atomic/idempotent mutation. DELTA: overlap and registry mutation authority are incomplete. | EXEC-001 | DOM basis; catalog source; PLAT | HIGH |
-| GAP-002; GAP-005; GAP-015; GAP-016; GAP-017 | EXEC-REGISTRY-004 | O-020 | CANONICAL_OWNER | Scoped identity and reconstruction | PARTIAL | Scoped key, immutable revision and duplicate rejection; overlap is not rejected; no digest/source progression or rehydration | Scope/fixture negatives; no overlap or persisted reconstruction witness; npm test 76/76 | OBSERVED: in-process basis exists, overlapping supported sets can be selected by ordering, and source-backed continuity/rehydration are absent. REQUIRED: disjoint supported sets and validated persisted/reconstructed basis. DELTA: overlap and reconstruction authority are incomplete. | EXEC-001 | DOM `RepositoryId`; catalog/PLAT material | HIGH |
+| GAP-001 | EXEC-CONTRACT-002 | O-019 | CANONICAL_OWNER | Unknown verdict fails closed | CONTRADICTORY | `functionalVerdict` accepts any non-empty string and `ValidateExecContract` returns `VALID` after generic schema checks; no verdict registry/classifier exists | No direct unknown-verdict test; source path is present | OBSERVED: an unrecognized verdict can pass the valid contract path. REQUIRED: absent/unknown produces `VERDICT_UNKNOWN` and cannot become approval, completion, resume or success. DELTA: the productive contract path actively treats unknown verdict text as valid. | EXEC-001 | registry, schemas | HIGH |
+| GAP-002; GAP-004; GAP-015; GAP-016; GAP-017 | EXEC-REGISTRY-001 | O-020 | CANONICAL_OWNER | Deterministic registry and atomic mutation | CONTRADICTORY | Local immutable basis/resolution; overlap is not rejected and candidates are ordered; expected revision, mutation key, atomic publication and productive basis are also absent | Local mapping/no-mutation tests; no overlap, stale or idempotency witness; npm test 76/76 | OBSERVED: overlapping supported sets can be selected by ordering while the remaining mutation authority is incomplete. REQUIRED: an overlapping basis fails `CONTRACT_INVALID` without selection or mutation, while valid mutation remains atomic and idempotent. DELTA: the overlap path contradicts the no-precedence rule; other registry mutation gaps remain separately represented. | EXEC-001 | DOM basis; catalog source; PLAT | HIGH |
+| GAP-002; GAP-005; GAP-015; GAP-016; GAP-017 | EXEC-REGISTRY-004 | O-020 | CANONICAL_OWNER | Scoped identity and reconstruction | CONTRADICTORY | Scoped key, immutable revision and duplicate rejection; overlap is not rejected and candidates are ordered; no digest/source progression or rehydration | Scope/fixture negatives; no overlap or persisted reconstruction witness; npm test 76/76 | OBSERVED: overlapping supported sets can be selected by ordering, while source-backed continuity/rehydration is absent. REQUIRED: overlap invalidates the scoped basis without selection or mutation and reconstructed material is validated. DELTA: the overlap path contradicts scoped fail-closed resolution; reconstruction authority remains separately represented. | EXEC-001 | DOM `RepositoryId`; catalog/PLAT material | HIGH |
 | GAP-006; GAP-016 | EXEC-REGISTRY-002 | O-020 | CANONICAL_OWNER | Independent NORMAL/BOOTSTRAP sources | PARTIAL | Scope/source kinds exist; only local fixtures issue receipts and productive seam rejects them | Isolation/allowlist tests; no productive source-positive witness | OBSERVED: separation exists but productive sources unavailable. REQUIRED: owner-issued independently sourced catalogs. DELTA: productive integration absent. | EXEC-001 | REPO, DOM, bootstrap source | HIGH |
 | — | EXEC-REGISTRY-003 | O-020 | CANONICAL_OWNER | Bootstrap allowlist | IMPLEMENTED | Allowlist rejects NORMAL category before normal reads | Direct allowlist/no-read tests; npm test 76/76 | No local semantic delta; availability remains integrated-only | EXEC-001 | bootstrap source | HIGH |
-| GAP-007; GAP-016 | EXEC-CAPABILITY-001 | O-020 | CANONICAL_OWNER | Unique compatible resolution | PARTIAL | Local outcome distinctions and mapping; overlap/productive authority incomplete | Local outcome tests; no productive positive | OBSERVED: fixture resolution works but invalid overlap/source authority not closed. REQUIRED: one authoritative entry from valid frozen basis. DELTA: authoritative resolution incomplete. | EXEC-001 | registry; source authority | HIGH |
+| GAP-002; GAP-007; GAP-016 | EXEC-CAPABILITY-001 | O-020 | CANONICAL_OWNER | Unique compatible resolution | CONTRADICTORY | Local outcome distinctions and mapping; overlapping candidates can be selected, and productive source authority is unavailable | Local outcome tests; no overlap-invalidity or productive positive witness | OBSERVED: an overlapping basis can select a candidate; productive source-bound authority is also unavailable. REQUIRED: an invalid overlap produces `CONTRACT_INVALID` with no identity selected or mutation, and valid resolution uses one authoritative frozen basis. DELTA: overlap is a contradiction represented by GAP-002; source-bound productive authority remains GAP-007/GAP-016. | EXEC-001 | registry; source authority | HIGH |
 | GAP-008; GAP-017 | EXEC-CAPABILITY-002 | O-020 | CANONICAL_OWNER | Common-path extensibility | PARTIAL | Local synthetic registration works; result is plain structural object without issuer/publication proof | Synthetic/frozen-basis tests; no forged-result consumer witness | OBSERVED: unverified registered successor can be returned. REQUIRED: source-bound consumer-verifiable result. DELTA: alternate authority path remains. | EXEC-001 / source owner | registry source/publication | HIGH |
 | GAP-009 | EXEC-MANIFEST-001 | O-021 | CANONICAL_OWNER | Complete immutable manifest | MISSING | No productive manifest record | No productive manifest test | OBSERVED: no manifest surface. REQUIRED: complete DOM-bound manifest with required basis, paths, hashes, commits and versions. DELTA: manifest contract absent. | EXEC-001 | DOM; PLAT | HIGH |
 | GAP-010 | EXEC-MANIFEST-002 | O-021 | CANONICAL_OWNER | Checkpoint/resume declaration | MISSING | No productive checkpoint/resume contract | No productive checkpoint test | OBSERVED: no declaration surface. REQUIRED: safe checkpoint and resumable basis with downstream ownership preserved. DELTA: contract absent. | EXEC-001 | EXEC-002; PLAT | HIGH |
@@ -138,30 +138,30 @@ Each requirement occurs exactly once as the normative inventory anchor. The targ
 ### GAP-001
 - **Affected Requirements:** `EXEC-CONTRACT-002`
 - **Portfolio Obligations:** `O-019`
-- **Gap Category / Severity:** `BEHAVIOR_MISSING` / `MAJOR`
-- **Normative Expectation:** Absent, unknown or unregistered verdict produces `VERDICT_UNKNOWN`, never approval.
-- **Current Repository Behavior:** Schema/value validation accepts any non-empty verdict string.
-- **Repository Evidence:** `src/domain/exec-schema.ts`, `src/domain/exec-contract.ts`; no verdict registry/classifier.
-- **Test Existence Evidence:** No direct unknown-verdict assertion.
-- **Test Execution Evidence:** `npm test` PASS 76/76; required path not executed.
-- **Exact Delta:** Canonical verdict membership and fail-closed result are absent.
+- **Gap Category / Severity:** `BEHAVIOR_CONTRADICTORY` / `MAJOR`
+- **Normative Expectation:** Absent, unknown or unregistered verdict produces `VERDICT_UNKNOWN`, never approval, completion, resume or success.
+- **Current Repository Behavior:** `functionalVerdict` accepts any non-empty string and `ValidateExecContract` returns `VALID` after generic schema checks; no verdict registry/classifier exists.
+- **Repository Evidence:** `src/domain/exec-schema.ts` accepts the non-empty string; `src/application/exec-contract.ts` returns the valid contract result; no verdict membership/classifier is present.
+- **Test Existence Evidence:** No direct unknown/absent/unregistered-verdict assertion; the source contradiction is independently observable.
+- **Test Execution Evidence:** `npm test` PASS 76/76; the required unknown-verdict witness was not executed.
+- **Exact Delta:** OBSERVED: an unrecognized verdict can pass the valid contract path. REQUIRED: the same input produces `VERDICT_UNKNOWN` and cannot authorize approval, completion, resume or success. DELTA: the productive contract path accepts unknown verdict text as valid. CONTRADICTION: fail-closed verdict semantics are violated. ALTERNATE_PRODUCTIVE_PATH: `ValidateExecContract`; HISTORICAL_RISK: present.
 - **Ownership Boundary:** EXEC owns contract verdict validity; DOM owns lifecycle verdict meaning.
-- **Dependencies:** registry and schemas. **Observed Repository Boundary:** no alternate verdict authority.
+- **Dependencies:** registry and schemas. **Observed Repository Boundary:** no alternate verdict authority; the generic valid-return path is the contradictory local behavior.
 - **Acceptance Evidence Needed:** `AC-EXEC-007`, `C-EXEC-009`.
 
 ### GAP-002
-- **Affected Requirements:** `EXEC-VERSION-002`, `EXEC-REGISTRY-001`, `EXEC-REGISTRY-004`
+- **Affected Requirements:** `EXEC-VERSION-002`, `EXEC-REGISTRY-001`, `EXEC-REGISTRY-004`, `EXEC-CAPABILITY-001`
 - **Portfolio Obligations:** `O-017`, `O-020`
-- **Gap Category / Severity:** `BEHAVIOR_PARTIAL` / `MAJOR`
-- **Normative Expectation:** Distinct entries in one resolution tuple have disjoint supported sets; overlap rejects basis/registration without mutation.
-- **Current Repository Behavior:** `SupportedVersionSet` is explicit, but `CatalogBasis.register` does not compare sets and `resolveInternal` orders candidates; the same overlap rule is normative for the version and both registry requirements.
-- **Repository Evidence:** `src/domain/exec-registry.ts`, `CatalogBasis.register`, `RegistryResolutionService.resolveInternal`.
-- **Test Existence Evidence:** Exact-support tests exist; no both-order overlap/no-mutation witness.
-- **Test Execution Evidence:** `npm test` PASS 76/76 (2026-09-24); overlap path not executed.
-- **Exact Delta:** Enforce disjointness before successor basis creation and remove selection from invalid overlapping bases; preserve one shared delta for `EXEC-VERSION-002`, `EXEC-REGISTRY-001` and `EXEC-REGISTRY-004`.
-- **Ownership Boundary:** EXEC owns disjointness/resolution; no consumer chooses precedence.
+- **Gap Category / Severity:** `BEHAVIOR_CONTRADICTORY` / `MAJOR`
+- **Normative Expectation:** Distinct entries in one resolution tuple have disjoint supported sets; overlap rejects basis/registration without identity selection or mutation. The same explicit no-precedence rule applies to version, registry and capability resolution.
+- **Current Repository Behavior:** `SupportedVersionSet` is explicit, but `CatalogBasis.register` does not compare sets and `RegistryResolutionService.resolveInternal` sorts and selects a candidate. The overlap rule is normative for all four affected requirements.
+- **Repository Evidence:** `src/domain/exec-registry.ts`, `CatalogBasis.register`, `RegistryResolutionService.resolveInternal`; the current audit confirms both registration orders are not fail-closed.
+- **Test Existence Evidence:** Exact-support tests exist; no both-order overlap/no-selection/no-mutation witness.
+- **Test Execution Evidence:** `npm test` PASS 76/76; the overlap path was not executed.
+- **Exact Delta:** OBSERVED: overlapping supported sets coexist and the resolver selects by ordering. REQUIRED: overlap produces `CONTRACT_INVALID` with no identity selection, precedence or mutation, preserving the prior basis. DELTA: registration and resolution actively permit precedence on an invalid overlapping basis. CAN_MUTATE_CANONICAL_STATE: the invalid registration/resolution path can create or select basis material before the required rejection. ALTERNATE_PRODUCTIVE_PATH: `CatalogBasis.register` and `resolveInternal`; HISTORICAL_RISK: present.
+- **Ownership Boundary:** EXEC owns disjointness and resolution; no consumer chooses precedence.
 - **Dependencies:** registry basis. **Observed Repository Boundary:** no foreign overlap authority.
-- **Acceptance Evidence Needed:** `AC-EXEC-004`, `AC-EXEC-008`, `AC-EXEC-019`, `AC-EXEC-021`, `C-EXEC-004`, `C-EXEC-018`, `C-EXEC-021`.
+- **Acceptance Evidence Needed:** `AC-EXEC-004`, `AC-EXEC-008`, `AC-EXEC-011`, `AC-EXEC-019`, `AC-EXEC-021`, `C-EXEC-004`, `C-EXEC-010`, `C-EXEC-018`, `C-EXEC-021`.
 
 ### GAP-003
 - **Affected Requirements:** `EXEC-SNAPSHOT-001`
@@ -226,16 +226,16 @@ Each requirement occurs exactly once as the normative inventory anchor. The targ
 - **Affected Requirements:** `EXEC-CAPABILITY-001`
 - **Portfolio Obligations:** `O-020`
 - **Gap Category / Severity:** `BEHAVIOR_PARTIAL` / `MAJOR`
-- **Normative Expectation:** Exactly one compatible entry resolves from a valid authoritative basis, preserving distinct failures.
-- **Current Repository Behavior:** Local resolver distinguishes outcomes, but overlap invalidity and productive source authority are not closed.
-- **Repository Evidence:** `RegistryResolutionService.resolveInternal`, `ResolveExecCapability`.
-- **Test Existence Evidence:** Local outcome tests; no productive source-positive or overlap-invalidity test.
+- **Normative Expectation:** Exactly one compatible entry resolves from a valid authoritative basis, preserving distinct failures; the shared overlap contradiction is represented only by `GAP-002`.
+- **Current Repository Behavior:** Local resolver distinguishes outcomes on fixtures, but the productive source-bound registry authority is unavailable.
+- **Repository Evidence:** `RegistryResolutionService.resolveInternal`, `ResolveExecCapability`; the current audit separates the overlap selection path into `GAP-002`.
+- **Test Existence Evidence:** Local outcome tests; no productive source-positive witness.
 - **Test Execution Evidence:** `npm test` PASS 76/76; integrated source unavailable.
-- **Exact Delta:** Validate basis disjointness and consume exact productive authority before canonical resolution.
+- **Exact Delta:** OBSERVED: fixture resolution can exercise local outcomes, but no productive owner-issued basis is consumed. REQUIRED: one authoritative entry resolves from the exact valid frozen basis. DELTA: productive source-bound resolution authority is unavailable; overlap disjointness is not duplicated here and remains `GAP-002`.
 - **Ownership Boundary:** EXEC owns resolution/failure meaning; consumers do not select candidates.
-- **LOCAL_OBLIGATION:** resolve one compatible entry and preserve distinct canonical failure outcomes. **FOREIGN_OBLIGATION:** provide the authoritative frozen registry basis and source-backed material. **FOREIGN_OWNER:** authorized catalog source / DOM basis owner. **LOCAL_INTEGRATION_EXPECTATION:** resolve only from the exact producer-bound basis and never select among overlapping or detached candidates.
+- **LOCAL_OBLIGATION:** resolve one compatible entry and preserve distinct canonical failure outcomes. **FOREIGN_OBLIGATION:** provide the authoritative frozen registry basis and source-backed material. **FOREIGN_OWNER:** authorized catalog source / DOM basis owner. **LOCAL_INTEGRATION_EXPECTATION:** resolve only from the exact producer-bound basis and preserve the shared overlap correction in `GAP-002`.
 - **Dependencies:** registry and source authority. **Observed Repository Boundary:** generic delegation is not registry authority.
-- **Acceptance Evidence Needed:** `AC-EXEC-011`, `C-EXEC-010`, `C-EXEC-021`.
+- **Acceptance Evidence Needed:** `AC-EXEC-011`, `C-EXEC-010`.
 
 ### GAP-008
 - **Affected Requirements:** `EXEC-CAPABILITY-002`
@@ -404,6 +404,8 @@ Each requirement occurs exactly once as the normative inventory anchor. The targ
 
 | Requirement | Gap ID | Portfolio Obligation | Repository Location | Observed Behavior | Required Behavior | Wrong Owner? | Alternate Productive Path? | Can Mutate Canonical State? | Historical Non-Conformance Risk? | Severity |
 |---|---|---|---|---|---|---|---|---|---|---|
+| `EXEC-CONTRACT-002` | GAP-001 | O-019 | `src/domain/exec-schema.ts`, `src/application/exec-contract.ts` | Unknown non-empty verdict passes generic validation and returns `VALID` | Unknown/absent verdict returns `VERDICT_UNKNOWN` and cannot authorize success | No; EXEC remains semantic owner | Yes, valid-return contract path | No direct mutation observed; valid result can be consumed as success | Yes | MAJOR |
+| `EXEC-VERSION-002`, `EXEC-REGISTRY-001/004`, `EXEC-CAPABILITY-001` | GAP-002 | O-017/O-020 | `src/domain/exec-registry.ts` | Overlapping supported sets are admitted and a candidate is selected by ordering | Overlap returns `CONTRACT_INVALID` with no identity selection or mutation | No; EXEC remains semantic owner | Yes, registration/resolution path | Potentially via invalid basis/selection path; direct mutation witness absent | Yes | MAJOR |
 | `EXEC-SNAPSHOT-001` | GAP-003 | O-018 | `src/application/snapshot.ts` | Caller versions establish snapshot basis | EXEC-authoritative exact basis | No; DOM remains owner | Yes, caller input | Yes, snapshot creation | Yes | MAJOR |
 | `EXEC-REGISTRY-001/004`, `EXEC-CAPABILITY-002` | GAP-017 | O-020 | `src/application/exec-registry.ts`, `src/domain/exec-registry.ts` | Plain `REGISTERED` result claims authority without issuer/publication proof | Consumer-verifiable source-bound proof | No foreign semantic owner duplicated | Yes, structural result path | Could authorize detached successor | Yes | MAJOR |
 
@@ -423,13 +425,13 @@ RESPONSIBILITY_LEAKAGE = NON_BLOCKING_LOCATION_CONCERNS_NONE; PLANNING_BLOCKING_
 | Failure | Portfolio semantic owner | Repository implementation location/result | Result |
 |---|---|---|---|
 | `CONTRACT_INVALID` | EXEC-001 | `src/domain/exec-contract.ts` and registry paths implement schema/registry failures; complete basis/mapping semantics absent | PARTIAL |
-| `VERDICT_UNKNOWN` | EXEC-001 | No implementation | MISSING |
+| `VERDICT_UNKNOWN` | EXEC-001 | No canonical `VERDICT_UNKNOWN` result exists; unknown non-empty verdicts pass the generic valid-return path | CONTRADICTORY |
 | `UNKNOWN_CAPABILITY` | EXEC-001 | Local resolver emits it for absent capability | SATISFIED locally |
 | `INCOMPATIBLE_CAPABILITY` | EXEC-001 | Local resolver emits known incompatibility/bootstrap rejection; overlap invalidity absent | PARTIAL |
 | Transport/log/UI mapping | BACKEND/OPS/UI | No semantic redefinition observed; productive mapping proof unavailable | NOT_REQUIRED_FOR_CURRENT_GAPS |
 | Effect confirmation/recovery | PLAT/GIT/effect owner | EXEC carries requested effects only | SATISFIED ownership boundary |
 
-No wrong semantic owner was found. `FAILURE_SEMANTIC_VIOLATION_GAPS = 0`.
+No wrong semantic owner was found. The verdict classification correction preserves EXEC failure ownership; it does not create a failure-owner violation. `FAILURE_SEMANTIC_VIOLATION_GAPS = 0`.
 
 ## 12. Compatibility / Cutover Verification
 
@@ -471,15 +473,15 @@ These records preserve `AUTHORITY_STATUS`, `CONTRACT_STATUS`, `SEMANTIC_STATUS`,
 | EXEC-ENVELOPE-001 | Generic frozen envelope/payload schema and validator; no capability-specific schema selection/validation. | Generic payload positive/negative assertions; capability-specific witness absent. | `npm test` PASS 76/76. | WEAKLY_PROVEN |
 | EXEC-ENVELOPE-002 | Required fields enforced. | Missing-field/text-only assertions. | `npm test` PASS 76/76. | PROVEN |
 | EXEC-VERSION-001 | Exact SemVer parser/comparison. | Large-value/change assertions. | `npm test` PASS 76/76. | PROVEN |
-| EXEC-VERSION-002 | Explicit sets; no overlap enforcement. | No overlap assertion. | Not executed. | UNTESTED |
+| EXEC-VERSION-002 | Explicit sets exist, but overlap is admitted and selection proceeds by ordering. | No overlap rejection/no-selection/no-mutation assertion. | `npm test` PASS 76/76; overlap witness not executed. | WEAKLY_PROVEN |
 | EXEC-SNAPSHOT-001 | Caller versions enter DOM snapshot; no EXEC observation. | Consumer-flow tests only. | `npm test` PASS 76/76; authority proof absent. | WEAKLY_PROVEN |
 | EXEC-CONTRACT-001 | Authenticated fail-closed schema path. | Malformed/forged/stale assertions. | `npm test` PASS 76/76. | PROVEN |
-| EXEC-CONTRACT-002 | No verdict membership/classifier. | No direct assertion. | Not executed. | UNTESTED |
-| EXEC-REGISTRY-001 | Local basis/resolution; overlap/mutation authority incomplete. | Local mapping/no-mutation assertions; overlap and mutation witnesses absent. | `npm test` PASS 76/76; integrated unavailable. | WEAKLY_PROVEN |
-| EXEC-REGISTRY-004 | Local scope/identity; overlap and persisted progression absent. | Scope/fixture negatives; overlap and reconstruction witnesses absent. | `npm test` PASS 76/76; reconstruction unavailable. | WEAKLY_PROVEN |
+| EXEC-CONTRACT-002 | Unknown non-empty verdicts pass generic validation and `ValidateExecContract` returns `VALID`; no verdict membership/classifier exists. | No direct unknown-verdict assertion. | `npm test` PASS 76/76; unknown-verdict witness not executed. | WEAKLY_PROVEN |
+| EXEC-REGISTRY-001 | Local basis/resolution; overlapping candidates can be selected, while mutation authority is incomplete. | Local mapping/no-mutation assertions; overlap and mutation witnesses absent. | `npm test` PASS 76/76; overlap witness not executed and integrated source unavailable. | WEAKLY_PROVEN |
+| EXEC-REGISTRY-004 | Local scope/identity; overlapping candidates can be selected and persisted progression is absent. | Scope/fixture negatives; overlap and reconstruction witnesses absent. | `npm test` PASS 76/76; overlap witness not executed and reconstruction unavailable. | WEAKLY_PROVEN |
 | EXEC-REGISTRY-002 | Scope/source separation; productive sources absent. | Isolation/source negatives. | `npm test` PASS 76/76; productive unavailable. | WEAKLY_PROVEN |
 | EXEC-REGISTRY-003 | Bootstrap allowlist present. | Allowlist/no-normal-read assertions. | `npm test` PASS 76/76. | PROVEN |
-| EXEC-CAPABILITY-001 | Local outcomes; productive basis incomplete. | Unknown/incompatible assertions. | `npm test` PASS 76/76; productive unavailable. | WEAKLY_PROVEN |
+| EXEC-CAPABILITY-001 | Local outcomes exist, but overlap selects a candidate and productive source-bound basis is incomplete. | Unknown/incompatible assertions; no overlap-invalidity or productive-positive witness. | `npm test` PASS 76/76; overlap witness not executed and productive source unavailable. | WEAKLY_PROVEN |
 | EXEC-CAPABILITY-002 | Local common-path registration; issuer proof absent. | Synthetic/frozen-basis assertions. | `npm test` PASS 76/76; publication unavailable. | WEAKLY_PROVEN |
 | EXEC-MANIFEST-001 | No productive implementation. | No productive test. | Not executed. | NOT_IMPLEMENTED |
 | EXEC-MANIFEST-002 | No productive implementation. | No productive test. | Not executed. | NOT_IMPLEMENTED |
@@ -510,9 +512,9 @@ The conformance audit's witness matrix is the canonical operationalization for e
 TOTAL_NORMATIVE_REQUIREMENTS = 19
 TOTAL_CLASSIFIED_REQUIREMENTS = 19
 IMPLEMENTED = 4
-PARTIAL = 8
-MISSING = 6
-CONTRADICTORY = 1
+PARTIAL = 4
+MISSING = 5
+CONTRADICTORY = 6
 NOT_APPLICABLE = 0
 OWNED_BY_OTHER_SPEC = 0
 UNVERIFIED = 0
@@ -529,7 +531,7 @@ DEPENDENCY_INTEGRATION_GAPS = 2
 MIXED_OWNERSHIP_REQUIREMENTS = 12
 WRONG_OWNER_IMPLEMENTATIONS = 0
 IMPLEMENTATION_LOCATION_CONCERNS = 0
-IMPLEMENTATION_COVERAGE_FORMULA = IMPLEMENTED / (IMPLEMENTED + PARTIAL + MISSING + CONTRADICTORY)
+IMPLEMENTATION_COVERAGE_FORMULA = IMPLEMENTED_OWNED_REQUIREMENTS / ELIGIBLE_OWNED_REQUIREMENTS = IMPLEMENTED / (IMPLEMENTED + PARTIAL + MISSING + CONTRADICTORY)
 IMPLEMENTATION_COVERAGE = 4 / 19 = 21.05%
 ```
 
