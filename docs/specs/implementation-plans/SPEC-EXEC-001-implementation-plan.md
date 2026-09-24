@@ -837,7 +837,9 @@ DELTA: converge the caller path at the approved EXEC/DOM boundary.
 
 #### Required Behavior
 
-`LOCAL_BEHAVIOR`: exact authority-backed basis is required; caller versions are consistency assertions and mismatch fails closed without snapshot mutation. `END_TO_END_CONTRIBUTION`: DOM snapshot and EXEC manifest retain the same exact basis.
+`LOCAL_BEHAVIOR`: the EXEC consumer treats caller versions only as assertions, rejects a caller/expected-basis mismatch without local mutation, and exposes the exact-basis requirement at the approved boundary. This local contribution does not claim that a DOM producer or snapshot aggregate is available.
+
+`END_TO_END_CONTRIBUTION`: a productive DOM snapshot supplies the exact authority-backed basis and the DOM snapshot and EXEC manifest retain that same immutable basis. The complete `AC-EXEC-005` obligation is integrated proof, not local unit closure.
 
 #### Does Not Implement
 
@@ -861,7 +863,7 @@ No caller authority, no silent conversion, no DOM identity transfer, no snapshot
 
 #### Cross-Spec Prerequisites
 
-DOM identity/snapshot producer is defined but `PRODUCTIVE_AVAILABILITY = NO`, class `REQUIRED_FOR_INTEGRATED_PROOF`; no local closure block because the local binding witness uses a contract fixture.
+DOM identity/snapshot producer is defined but `PRODUCTIVE_AVAILABILITY = NO`, class `REQUIRED_FOR_INTEGRATED_PROOF`. It is not required for the local caller-authority guard, but it is required for the complete `AC-EXEC-005` integrated witness at `CP-EXEC-03`.
 
 #### Producer / Consumer Contract Proof
 
@@ -877,17 +879,19 @@ The local contract fixture proves only binding semantics. No downstream promotio
 
 #### Acceptance Criteria
 
-1. Exact versions come from the authority-backed EXEC basis; arbitrary caller values cannot establish/change snapshot state and later registry mutation cannot rewrite the frozen basis (`LOCAL_PROVABILITY = YES`).
+1. **Local contribution to `AC-EXEC-005`:** the EXEC boundary treats caller versions as assertions, rejects a caller/expected-basis mismatch, and performs no local snapshot mutation (`LOCAL_PROVABILITY = YES`).
+2. **Plan-level `AC-EXEC-005`:** a productive DOM witness proves that the exact authority-backed basis is captured and remains immutable against later registry mutation (`LOCAL_PROVABILITY = NO`; `FINAL_PROOF_OWNER = EXEC-IMP-06`; `INTEGRATION_PROOF_STAGE = CP-EXEC-03`).
 
 #### ACCEPTANCE_WITNESS_MATRIX
 
 | Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Expected evidence | Acceptance owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at local closure | Evidence type |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Exact basis binding | resolve/freeze | `C-EXEC-005` / `AC-EXEC-005` | snapshot/manifest basis | authority exact basis retained | caller mismatch/post-start registry mutation cannot change basis | basis-binding witness | EXEC-IMP-06 | local binding fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Caller-authority guard (local contribution to `AC-EXEC-005`) | validate/reject | `C-EXEC-005` / `AC-EXEC-005` local contribution | EXEC basis input | authority-bound input is accepted as a contract value | caller mismatch is rejected with no local mutation | caller-authority guard report | EXEC-IMP-06 | unit-owned EXEC boundary | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Exact DOM-bound basis (plan-level `AC-EXEC-005`) | resolve/freeze | `C-EXEC-005` / `AC-EXEC-005` integrated proof | DOM snapshot/manifest basis | DOM authority supplies and freezes the exact basis | caller mismatch or post-start registry mutation cannot change it | integrated DOM basis evidence | EXEC-IMP-06 | DOM-EXEC-IDENTITY-SNAPSHOT | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | NO | INTEGRATION_TEST_EVIDENCE |
 
 #### Local Closure
 
-`LOCAL_CLOSURE = YES` for the EXEC contribution. DOM productive runtime remains integrated proof only.
+`LOCAL_CLOSURE = YES`; `LOCAL_CLOSURE_SCOPE = EXEC_CALLER_AUTHORITY_CONTRIBUTION_ONLY`. The complete plan-level `AC-EXEC-005` closes only at `CP-EXEC-03`; integrated evidence is not local Completion Evidence.
 
 #### Work Can Start
 
@@ -899,7 +903,7 @@ The local contract fixture proves only binding semantics. No downstream promotio
 
 #### Required Tests
 
-Authority-backed versions, caller mismatch, arbitrary caller-version rejection, registry mutation after start, basis immutability and no snapshot mutation.
+Local caller/expected-basis mismatch and no-mutation tests. At `CP-EXEC-03`, integrated DOM exact-basis, post-start registry-mutation and immutable snapshot/manifest tests are required; those tests are not local closure evidence.
 
 #### Legacy / Cutover Impact
 
@@ -907,7 +911,7 @@ Authority-backed versions, caller mismatch, arbitrary caller-version rejection, 
 
 #### Completion Evidence
 
-`C-EXEC-005/012/016` binding report and no-caller-authority/no-mutation assertions.
+Local: caller-authority guard and no-local-mutation report. Integrated: `CP-EXEC-03` exact DOM-basis evidence for plan-level `AC-EXEC-005`.
 
 #### Risks
 
@@ -915,7 +919,7 @@ Caller-authority bypass, current-registry reinterpretation and DOM ownership tra
 
 #### Issue Decomposition Readiness
 
-`ISSUE_READY`; `VALIDATED_GAP_BACKING = YES`; `INDEPENDENT_CLOSURE = YES`.
+`ISSUE_READY`; `VALIDATED_GAP_BACKING = YES`; `INDEPENDENT_CLOSURE = YES` for the local contribution; the plan-level integrated witness remains an explicit checkpoint handoff.
 
 #### Initial DAG State
 
@@ -956,7 +960,9 @@ DELTA: add semantic manifest completeness/freeze contract without assigning stor
 
 #### Required Behavior
 
-`LOCAL_BEHAVIOR`: create one complete manifest with paths, hashes, commits, basis, dependencies, findings, round, attempt, configuration, workdir, schema and exact versions; reject post-start mutation and require a new attempt for changed basis. `END_TO_END_CONTRIBUTION`: EXEC-002/PLAT can apply/recover the frozen basis.
+`LOCAL_BEHAVIOR`: validate the EXEC-owned manifest field set and freeze/cutover rules against supplied contract values; reject missing fields and post-start mutation without claiming DOM attachment or durable persistence. This is the locally closable semantic contribution.
+
+`END_TO_END_CONTRIBUTION`: a productive DOM/PLAT path proves one complete DOM-bound manifest before start, durable started-basis immutability and history preservation. The complete `AC-EXEC-013` and `AC-EXEC-015` obligations are integrated proof, not local unit closure.
 
 #### Does Not Implement
 
@@ -976,11 +982,11 @@ Complete pre-start creation, immutable post-start basis, new AttemptId for chang
 
 #### Internal Prerequisites
 
-`EXEC-IMP-01`, `EXEC-IMP-03`.
+`EXEC-IMP-01`, `EXEC-IMP-03`, `EXEC-IMP-06` for the acceptance-order contribution to `AC-EXEC-015`.
 
 #### Cross-Spec Prerequisites
 
-DOM identity/attempt and PLAT durability are defined, unavailable productively and `REQUIRED_FOR_INTEGRATED_PROOF` only; no local closure block.
+DOM identity/attempt and PLAT durability are defined, unavailable productively and `REQUIRED_FOR_INTEGRATED_PROOF` only. They are not required for the local field-validation/freeze contribution, but are required for the complete `AC-EXEC-013` and `AC-EXEC-015` witnesses at `CP-EXEC-03`.
 
 #### Producer / Consumer Contract Proof
 
@@ -996,23 +1002,26 @@ Local manifest fixture is testable; physical persistence/DOM runtime remain inte
 
 #### Acceptance Criteria
 
-1. Every started activity has required manifest fields and exact schema/version references bound to DOM identities (`LOCAL_PROVABILITY = YES`).
-2. Started manifest/schema/version basis cannot mutate; a changed basis creates a new attempt and preserves history (`LOCAL_PROVABILITY = YES`).
+1. **Local contribution to `AC-EXEC-013`:** the EXEC-owned manifest field validator accepts a complete supplied contract and rejects missing fields without claiming DOM attachment or durable persistence (`LOCAL_PROVABILITY = YES`).
+2. **Local contribution to `AC-EXEC-015`:** the EXEC-owned freeze rule rejects post-start mutation and requires a new attempt for a changed supplied basis (`LOCAL_PROVABILITY = YES`).
+3. **Plan-level `AC-EXEC-013`/`AC-EXEC-015`:** productive DOM/PLAT evidence proves complete attachment, durable started-basis immutability and preserved history (`LOCAL_PROVABILITY = NO`; `FINAL_PROOF_OWNER = EXEC-IMP-07`; `INTEGRATION_PROOF_STAGE = CP-EXEC-03`).
 
 #### ACCEPTANCE_WITNESS_MATRIX
 
 | Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Expected evidence | Acceptance owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at local closure | Evidence type |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Complete manifest | create/freeze | `C-EXEC-007` / `AC-EXEC-013` | activity/attempt manifest | complete pre-start manifest accepted | missing field/identity rejected | manifest witness | EXEC-IMP-07 | local manifest fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
-| Basis immutability | preserve/reject | `C-EXEC-012` / `AC-EXEC-015` | started manifest | basis remains unchanged | post-start mutation rejected; new attempt required | freeze witness | EXEC-IMP-07 | local manifest fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Manifest field validation (local contribution to `AC-EXEC-013`) | create/validate | `C-EXEC-007` / `AC-EXEC-013` local contribution | EXEC manifest contract | complete supplied field set accepted | missing field rejected | local manifest-field report | EXEC-IMP-07 | unit-owned manifest contract | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Basis freeze (local contribution to `AC-EXEC-015`) | freeze/reject | `C-EXEC-012` / `AC-EXEC-015` local contribution | EXEC manifest contract | supplied started basis remains unchanged | post-start mutation rejected; new attempt required | local freeze report | EXEC-IMP-07 | unit-owned freeze contract | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Complete DOM-bound manifest (plan-level `AC-EXEC-013`) | create/attach | `C-EXEC-007` / `AC-EXEC-013` integrated proof | activity/attempt manifest | complete manifest is attached before start | missing identity or attachment rejected | integrated manifest evidence | EXEC-IMP-07 | DOM-EXEC-IDENTITY-SNAPSHOT + PLAT-EXEC-PERSISTED-MATERIAL | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | NO | INTEGRATION_TEST_EVIDENCE |
+| Durable started-basis freeze (plan-level `AC-EXEC-015`) | preserve/reject | `C-EXEC-012` / `AC-EXEC-015` integrated proof | started manifest | exact basis remains immutable in durable history | post-start mutation or changed basis without new attempt rejected | integrated freeze/history evidence | EXEC-IMP-07 | DOM-EXEC-IDENTITY-SNAPSHOT + PLAT-EXEC-PERSISTED-MATERIAL | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | NO | INTEGRATION_TEST_EVIDENCE |
 
 #### Local Closure
 
-`LOCAL_CLOSURE = YES`; semantic completeness and freeze witnesses are local; PLAT durability is integrated-only.
+`LOCAL_CLOSURE = YES`; `LOCAL_CLOSURE_SCOPE = EXEC_MANIFEST_FIELD_AND_FREEZE_CONTRIBUTION_ONLY`. The complete plan-level `AC-EXEC-013` and `AC-EXEC-015` obligations close only at `CP-EXEC-03`; integrated evidence is not local Completion Evidence.
 
 #### Work Can Start
 
-`WORK_CAN_START = NO` until IMP-01 and IMP-03 complete.
+`WORK_CAN_START = NO` until IMP-01, IMP-03 and the IMP-06 acceptance-order contribution complete.
 
 #### Shared Closure Boundary
 
@@ -1020,7 +1029,7 @@ Local manifest fixture is testable; physical persistence/DOM runtime remain inte
 
 #### Required Tests
 
-Manifest completeness, missing/duplicate field rejection, pre-start creation, post-start freeze, new-attempt cutover and history preservation.
+Local manifest-field completeness, missing/duplicate field rejection, post-start freeze and new-attempt cutover tests. At `CP-EXEC-03`, integrated DOM attachment, durable started-basis and history-preservation tests are required; those tests are not local closure evidence.
 
 #### Legacy / Cutover Impact
 
@@ -1028,7 +1037,7 @@ Manifest completeness, missing/duplicate field rejection, pre-start creation, po
 
 #### Completion Evidence
 
-`C-EXEC-007/012` reports, complete-field assertions, mutation rejection and new-attempt evidence.
+Local: field-validation, mutation-rejection and new-attempt contract reports. Integrated: `CP-EXEC-03` complete DOM-bound manifest, durable freeze and history evidence for plan-level `AC-EXEC-013`/`AC-EXEC-015`.
 
 #### Risks
 
@@ -1036,7 +1045,7 @@ Manifest mutation, basis drift, identity aliasing and storage meaning leakage.
 
 #### Issue Decomposition Readiness
 
-`ISSUE_READY`; `VALIDATED_GAP_BACKING = YES`; `INDEPENDENT_CLOSURE = YES`.
+`ISSUE_READY`; `VALIDATED_GAP_BACKING = YES`; `INDEPENDENT_CLOSURE = YES` for the local contribution; the plan-level integrated witnesses remain explicit checkpoint handoffs.
 
 #### Initial DAG State
 
@@ -1319,7 +1328,9 @@ DELTA: add local semantic identity/reconstruction and retry-lineage proof.
 
 #### Required Behavior
 
-`LOCAL_BEHAVIOR`: create exactly once before start, rehydrate only after semantic/physical validation, preserve `(ExecutionId, ActivityId, AttemptId)` and `ArtifactCycleId` lineage, reject detached/corrupt/stale/duplicate material without mutation and create a new attempt for retry. `END_TO_END_CONTRIBUTION`: PLAT supplies material and EXEC-002 applies context.
+`LOCAL_BEHAVIOR`: validate the EXEC-owned tuple, digest, cardinality and retry-lineage rules against supplied contract material; reject detached, corrupt, stale or duplicate values without local mutation and require a new AttemptId for retry. This local contribution does not claim canonical DOM attachment or durable rehydration.
+
+`END_TO_END_CONTRIBUTION`: productive DOM/PLAT evidence proves one immutable manifest for the canonical DOM tuple and durable reconstruction. The complete `AC-EXEC-020` obligation is integrated proof; retry semantics contribute locally to `AC-EXEC-018`.
 
 #### Does Not Implement
 
@@ -1343,7 +1354,7 @@ DOM tuple is authoritative; `ManifestContentRevision=1` is distinct from physica
 
 #### Cross-Spec Prerequisites
 
-DOM tuple and PLAT physical material are defined, unavailable productively, `REQUIRED_FOR_INTEGRATED_PROOF`; local fixture remains contract evidence only.
+DOM tuple and PLAT physical material are defined, unavailable productively, `REQUIRED_FOR_INTEGRATED_PROOF`. They are not required for the local tuple/retry validator contribution, but are required for the complete `AC-EXEC-020` witness at `CP-EXEC-03` and the later recovery evidence.
 
 #### Producer / Consumer Contract Proof
 
@@ -1359,19 +1370,21 @@ Foreign productive identity/material availability does not block local semantic 
 
 #### Acceptance Criteria
 
-1. One manifest is created/reconstructed for the exact DOM tuple with content revision and digest; attachment/cardinality are validated (`LOCAL_PROVABILITY = YES`).
-2. Detached, stale, corrupt or duplicate material fails closed without mutation; retry creates a new AttemptId/manifest (`LOCAL_PROVABILITY = YES`).
+1. **Local contribution to `AC-EXEC-020`:** the EXEC validator accepts a supplied tuple/material contract only when identity, digest and cardinality rules hold; detached or corrupt values fail without local mutation (`LOCAL_PROVABILITY = YES`).
+2. **Local contribution to `AC-EXEC-018`:** retry lineage requires a new AttemptId/manifest and rejects same-manifest reuse or current-basis reinterpretation (`LOCAL_PROVABILITY = YES`).
+3. **Plan-level `AC-EXEC-020`:** productive DOM/PLAT evidence proves canonical tuple attachment and durable reconstruction (`LOCAL_PROVABILITY = NO`; `FINAL_PROOF_OWNER = EXEC-IMP-10`; `INTEGRATION_PROOF_STAGE = CP-EXEC-03`).
 
 #### ACCEPTANCE_WITNESS_MATRIX
 
 | Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Expected evidence | Acceptance owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at local closure | Evidence type |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Manifest identity/rehydration | create/rehydrate | `C-EXEC-019` / `AC-EXEC-020` | immutable manifest | one tuple creates/rehydrates | duplicate/detached/digest/basis mismatch → invalid | manifest reconstruction witness | EXEC-IMP-10 | local reconstruction fixture | DEFINED | DEFINED | YES | NO | REQUIRED_FOR_INTEGRATED_PROOF | YES | LOCAL_TEST_EVIDENCE |
-| Retry lineage | retry/recreate | `C-EXEC-017` / `AC-EXEC-018` | attempt/manifest lineage | new AttemptId preserves basis | same-manifest reuse/current reinterpretation rejected | retry witness | EXEC-IMP-10 | local reconstruction fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Tuple/material validation (local contribution to `AC-EXEC-020`) | validate/rehydrate | `C-EXEC-019` / `AC-EXEC-020` local contribution | EXEC manifest contract | supplied tuple/material passes identity, digest and cardinality checks | detached/corrupt/stale/duplicate value fails with no local mutation | local manifest-validator report | EXEC-IMP-10 | unit-owned manifest validator | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Retry lineage (local contribution to `AC-EXEC-018`) | retry/recreate | `C-EXEC-017` / `AC-EXEC-018` local contribution | attempt/manifest contract | new AttemptId preserves supplied basis | same-manifest reuse/current reinterpretation rejected | local retry-lineage report | EXEC-IMP-10 | unit-owned retry contract | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Canonical tuple attachment/reconstruction (plan-level `AC-EXEC-020`) | create/rehydrate | `C-EXEC-019` / `AC-EXEC-020` integrated proof | immutable manifest | one canonical DOM tuple creates/rehydrates exactly one manifest | attachment, digest, basis or durable-material mismatch fails | integrated manifest reconstruction evidence | EXEC-IMP-10 | DOM-EXEC-IDENTITY-SNAPSHOT + PLAT-EXEC-PERSISTED-MATERIAL | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | NO | INTEGRATION_TEST_EVIDENCE |
 
 #### Local Closure
 
-`LOCAL_CLOSURE = YES`; semantic identity/reconstruction/retry evidence is local. PLAT durable evidence is integrated-only.
+`LOCAL_CLOSURE = YES`; `LOCAL_CLOSURE_SCOPE = EXEC_TUPLE_VALIDATION_AND_RETRY_CONTRIBUTION_ONLY`. The complete plan-level `AC-EXEC-020` closes only at `CP-EXEC-03`; integrated evidence is not local Completion Evidence.
 
 #### Work Can Start
 
@@ -1383,7 +1396,7 @@ Foreign productive identity/material availability does not block local semantic 
 
 #### Required Tests
 
-Tuple uniqueness, one-manifest cardinality, attachment mismatch, duplicate creation, digest/schema/basis mismatch, current-registry divergence, no mutation on failure and new-AttemptId retry.
+Local tuple/digest/cardinality validation, no-mutation-on-failure and new-AttemptId retry tests. At `CP-EXEC-03`, integrated canonical DOM attachment and durable reconstruction tests are required; those tests are not local closure evidence.
 
 #### Legacy / Cutover Impact
 
@@ -1391,7 +1404,7 @@ Tuple uniqueness, one-manifest cardinality, attachment mismatch, duplicate creat
 
 #### Completion Evidence
 
-`C-EXEC-019/020` reports, identity/reconstruction proof, no-mutation evidence and new-AttemptId evidence.
+Local: tuple-validator, no-mutation and retry-lineage reports. Integrated: `CP-EXEC-03` canonical attachment and durable reconstruction evidence for plan-level `AC-EXEC-020`.
 
 #### Risks
 
@@ -1399,7 +1412,7 @@ Manifest identity invention, detached material acceptance and current-registry r
 
 #### Issue Decomposition Readiness
 
-`ISSUE_READY`; `VALIDATED_GAP_BACKING = YES`; `INDEPENDENT_CLOSURE = YES`.
+`ISSUE_READY`; `VALIDATED_GAP_BACKING = YES`; `INDEPENDENT_CLOSURE = YES` for the local contribution; the plan-level integrated witness remains an explicit checkpoint handoff.
 
 #### Initial DAG State
 
@@ -1440,7 +1453,9 @@ DELTA: add local declaration and replay-protection semantics while preserving EX
 
 #### Required Behavior
 
-`LOCAL_BEHAVIOR`: manifest declares safe checkpoint and exact resume basis; missing basis cannot authorize resume; historical replay reproduces original schema/catalog/version/hash/commit/result/checkpoint basis and rejects current-registry reinterpretation. `END_TO_END_CONTRIBUTION`: EXEC-002 applies context and PLAT replays durable records.
+`LOCAL_BEHAVIOR`: validate the EXEC-owned checkpoint declaration and original-basis guard against supplied contract material; reject absent basis and current-registry reinterpretation without local mutation. This local contribution does not claim EXEC-002 context application or durable replay.
+
+`END_TO_END_CONTRIBUTION`: productive EXEC-002/PLAT evidence proves safe resume and durable historical replay from the original basis. The complete `AC-EXEC-014` and `AC-EXEC-016` obligations are integrated proof, and this unit is their final proof contributor.
 
 #### Does Not Implement
 
@@ -1466,8 +1481,8 @@ No resume without declared basis; transient text/session memory is not authority
 
 | Owner | Required capability | Implementation state | Blocking? |
 |---|---|---|---|
-| SPEC-EXEC-002 | apply declared resume context | defined; productive availability `NO` | No for local closure; integrated proof only |
-| SPEC-PLAT-001 | durable replay/recovery material | defined; productive availability `NO` | No for local closure; integrated proof only |
+| SPEC-EXEC-002 | apply declared resume context | defined; productive availability `NO` | No for local contribution; integrated proof only |
+| SPEC-PLAT-001 | durable replay/recovery material | defined; productive availability `NO` | No for local contribution; integrated proof only |
 
 #### Producer / Consumer Contract Proof
 
@@ -1475,7 +1490,7 @@ No resume without declared basis; transient text/session memory is not authority
 
 #### Capability Availability and Blocking Effect
 
-Local declaration and frozen-basis fixture witnesses are executable. Context application and durable replay are integrated-only and do not block local closure.
+The local declaration/original-basis guard is executable against supplied contract values. EXEC-002 context application and PLAT durable replay remain `REQUIRED_FOR_INTEGRATED_PROOF`; they do not block the local contribution, but they are required before the plan-level `AC-EXEC-014`/`AC-EXEC-016` proof can close.
 
 #### Temporal Authority Preconditions
 
@@ -1483,19 +1498,22 @@ Local declaration and frozen-basis fixture witnesses are executable. Context app
 
 #### Acceptance Criteria
 
-1. Manifest declares safe checkpoint and exact resume basis; absent declaration cannot authorize resume (`LOCAL_PROVABILITY = YES`).
-2. Historical replay reproduces the original basis even when current registry differs; no silent conversion/reinterpretation occurs (`LOCAL_PROVABILITY = YES`).
+1. **Local contribution to `AC-EXEC-014`:** the checkpoint contract requires an explicit exact resume basis and rejects an absent declaration without local authorization (`LOCAL_PROVABILITY = YES`).
+2. **Local contribution to `AC-EXEC-016`:** the replay guard preserves the supplied original basis and rejects current-registry reinterpretation without local mutation (`LOCAL_PROVABILITY = YES`).
+3. **Plan-level `AC-EXEC-014`/`AC-EXEC-016`:** productive EXEC-002/PLAT evidence proves safe resume and durable original-basis historical replay (`LOCAL_PROVABILITY = NO`; `FINAL_PROOF_OWNER = EXEC-IMP-11`; `INTEGRATION_PROOF_STAGE = CP-EXEC-04`).
 
 #### ACCEPTANCE_WITNESS_MATRIX
 
 | Normative behavior | Verb | Concrete operation | State affected | Direct positive | Direct negative/isolation | Expected evidence | Acceptance owner | Required capability | Authority | Contract | Local testability | Productive availability | Dependency class | Witness executable at local closure | Evidence type |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Checkpoint/resume declaration | declare/reject | `C-EXEC-017` / `AC-EXEC-014` | manifest basis | safe checkpoint accepted | absent basis cannot authorize resume | checkpoint witness | EXEC-IMP-11 | local declaration fixture | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
-| Historical replay | replay/resolve | `C-EXEC-016` / `AC-EXEC-016` | historical manifest/catalog | original basis reproduced | current registry differs but cannot reinterpret/convert | replay witness | EXEC-IMP-11 | local replay fixture | DEFINED | DEFINED | YES | NO | REQUIRED_FOR_INTEGRATED_PROOF | YES | LOCAL_TEST_EVIDENCE |
+| Checkpoint declaration guard (local contribution to `AC-EXEC-014`) | declare/reject | `C-EXEC-017` / `AC-EXEC-014` local contribution | EXEC checkpoint contract | exact supplied basis declaration accepted | absent basis cannot authorize local resume | local checkpoint-guard report | EXEC-IMP-11 | unit-owned checkpoint contract | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Original-basis replay guard (local contribution to `AC-EXEC-016`) | replay/reject | `C-EXEC-016` / `AC-EXEC-016` local contribution | EXEC replay contract | supplied original basis is preserved | current registry divergence cannot reinterpret it | local replay-guard report | EXEC-IMP-11 | unit-owned replay contract | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
+| Safe resume (plan-level `AC-EXEC-014`) | declare/apply | `C-EXEC-017` / `AC-EXEC-014` integrated proof | durable manifest basis | EXEC-002 applies a declared exact basis | absent or mismatched durable basis cannot resume | integrated resume evidence | EXEC-IMP-11 | EXEC2-EXEC-RESUME-CONTEXT + PLAT-EXEC-PERSISTED-MATERIAL | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | NO | INTEGRATION_TEST_EVIDENCE |
+| Historical replay (plan-level `AC-EXEC-016`) | replay/resolve | `C-EXEC-016` / `AC-EXEC-016` integrated proof | durable historical manifest/catalog | PLAT replays the original basis | current registry cannot reinterpret or convert history | integrated historical replay evidence | EXEC-IMP-11 | PLAT-EXEC-PERSISTED-MATERIAL | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | NO | INTEGRATION_TEST_EVIDENCE |
 
 #### Local Closure
 
-`LOCAL_CLOSURE = YES`; declaration and frozen-basis replay protection are locally testable. Physical replay/context application are integrated-only.
+`LOCAL_CLOSURE = YES`; `LOCAL_CLOSURE_SCOPE = EXEC_CHECKPOINT_AND_REPLAY_GUARD_CONTRIBUTION_ONLY`. The complete plan-level `AC-EXEC-014` and `AC-EXEC-016` obligations close only at `CP-EXEC-04`; integrated evidence is not local Completion Evidence.
 
 #### Work Can Start
 
@@ -1507,7 +1525,7 @@ Local declaration and frozen-basis fixture witnesses are executable. Context app
 
 #### Required Tests
 
-Safe checkpoint declaration, absent basis rejection, transient-text rejection, original-basis replay, current-registry divergence, schema/version/hash/commit preservation and no historical mutation.
+Local absent-basis, transient-text and current-registry-divergence guard tests. At `CP-EXEC-04`, integrated EXEC-002 context application, durable checkpoint and historical replay tests are required; those tests are not local closure evidence.
 
 #### Legacy / Cutover Impact
 
@@ -1515,7 +1533,7 @@ Safe checkpoint declaration, absent basis rejection, transient-text rejection, o
 
 #### Completion Evidence
 
-`C-EXEC-016/017` reports, checkpoint/basis assertions, divergence rejection and original-basis preservation.
+Local: checkpoint-declaration and original-basis guard reports. Integrated: `CP-EXEC-04` safe-resume and durable historical-replay evidence for plan-level `AC-EXEC-014`/`AC-EXEC-016`; `CP-EXEC-05` consumes this evidence for `AC-EXEC-018` final proof.
 
 #### Risks
 
@@ -1523,7 +1541,7 @@ Transient memory as authority, current-registry reinterpretation and PLAT recove
 
 #### Issue Decomposition Readiness
 
-`ISSUE_READY`; `VALIDATED_GAP_BACKING = YES`; `INDEPENDENT_CLOSURE = YES`.
+`ISSUE_READY`; `VALIDATED_GAP_BACKING = YES`; `INDEPENDENT_CLOSURE = YES` for the local contribution; the plan-level integrated witnesses remain explicit checkpoint handoffs.
 
 #### Initial DAG State
 
@@ -1566,7 +1584,7 @@ GAPS_WITHOUT_PLAN_COVERAGE = 0
 | AC-EXEC-002 | EXEC-ENVELOPE-002 | IMP-01 | IMP-01 | structured minimum rejection | envelope conformance report |
 | AC-EXEC-003 | EXEC-VERSION-001 | IMP-03 | IMP-03 | SemVer witness | version report |
 | AC-EXEC-004 | EXEC-VERSION-002 | IMP-03 | IMP-03 | disjointness/unsupported witness | registry conformance report |
-| AC-EXEC-005 | EXEC-SNAPSHOT-001 | IMP-03, IMP-04, IMP-06 | IMP-06 | authority-binding fixture | integrated DOM basis evidence |
+| AC-EXEC-005 | EXEC-SNAPSHOT-001 | IMP-03, IMP-04, IMP-06 | IMP-06 | caller-authority guard contribution (local) | integrated DOM exact-basis evidence at CP-EXEC-03 |
 | AC-EXEC-006 | EXEC-CONTRACT-001 | IMP-01, IMP-02 | IMP-02 | invalid-contract regression/direct witness | failure conformance report |
 | AC-EXEC-007 | EXEC-CONTRACT-002 | IMP-01, IMP-02 | IMP-02 | verdict registry/rejection witness | failure conformance report |
 | AC-EXEC-008 | EXEC-REGISTRY-001 | IMP-03, IMP-04, IMP-05, IMP-09 | IMP-09 | deterministic resolution and mutation witnesses | registry publication report |
@@ -1574,14 +1592,14 @@ GAPS_WITHOUT_PLAN_COVERAGE = 0
 | AC-EXEC-010 | EXEC-REGISTRY-003 | IMP-03, IMP-04 | IMP-04 | bootstrap allowlist witness | catalog conformance report |
 | AC-EXEC-011 | EXEC-CAPABILITY-001 | IMP-03, IMP-04, IMP-08 | IMP-08 | known/unknown/incompatible and source-bound witnesses | capability conformance report |
 | AC-EXEC-012 | EXEC-CAPABILITY-002 | IMP-03, IMP-05 | IMP-05 | common-path synthetic capability | registry extensibility report |
-| AC-EXEC-013 | EXEC-MANIFEST-001 | IMP-07 | IMP-07 | complete manifest fixture | manifest conformance report |
-| AC-EXEC-014 | EXEC-MANIFEST-002 | IMP-07, IMP-11 | IMP-11 | checkpoint/basis declaration | integrated resume evidence |
-| AC-EXEC-015 | EXEC-MANIFEST-003 | IMP-06, IMP-07 | IMP-07 | post-start freeze witness | manifest freeze report |
-| AC-EXEC-016 | EXEC-HISTORY-001 | IMP-10, IMP-11 | IMP-11 | original-basis replay fixture | historical replay evidence |
+| AC-EXEC-013 | EXEC-MANIFEST-001 | IMP-07 | IMP-07 | manifest-field validation contribution (local) | integrated DOM-bound manifest evidence at CP-EXEC-03 |
+| AC-EXEC-014 | EXEC-MANIFEST-002 | IMP-07, IMP-11 | IMP-11 | checkpoint-declaration guard contribution (local) | integrated resume evidence at CP-EXEC-04 |
+| AC-EXEC-015 | EXEC-MANIFEST-003 | IMP-06, IMP-07 | IMP-07 | freeze-rule contribution (local) | integrated durable freeze/history evidence at CP-EXEC-03 |
+| AC-EXEC-016 | EXEC-HISTORY-001 | IMP-10, IMP-11 | IMP-11 | original-basis replay-guard contribution (local) | integrated historical replay evidence at CP-EXEC-04 |
 | AC-EXEC-017 | EXEC-FAILURE-001 | IMP-02 | IMP-02 | structured failure witness | failure conformance report |
-| AC-EXEC-018 | EXEC-FAILURE-001 / EXEC-MANIFEST-002 | IMP-02, IMP-10, IMP-11 | IMP-10 | retry no-conversion/new AttemptId | retry and integrated recovery evidence |
+| AC-EXEC-018 | EXEC-FAILURE-001 / EXEC-MANIFEST-002 | IMP-02, IMP-10, IMP-11 | IMP-11 | failure/retry and new-AttemptId contributions (local) | integrated retry/recovery evidence at CP-EXEC-05 |
 | AC-EXEC-019 | EXEC-REGISTRY-004 | IMP-03, IMP-04, IMP-08 | IMP-08 | scope/identity/continuity witness | registry reconstruction evidence |
-| AC-EXEC-020 | EXEC-MANIFEST-004 | IMP-07, IMP-10 | IMP-10 | tuple identity/rehydration rejection | manifest reconstruction evidence |
+| AC-EXEC-020 | EXEC-MANIFEST-004 | IMP-07, IMP-10 | IMP-10 | tuple/material validation contribution (local) | integrated canonical attachment/reconstruction evidence at CP-EXEC-03 |
 | AC-EXEC-021 | EXEC-REGISTRY-004 | IMP-04, IMP-08 | IMP-08 | source-backed progression witness | progression conformance evidence |
 | AC-EXEC-022 | EXEC-REGISTRY-001 / EXEC-REGISTRY-004 | IMP-05, IMP-08, IMP-09 | IMP-09 | expected revision/key/retry witness | mutation concurrency evidence |
 
@@ -1625,6 +1643,7 @@ IMP-01 → IMP-02, IMP-03, IMP-07
 IMP-03 → IMP-04, IMP-05, IMP-06, IMP-08, IMP-09
 IMP-04 → IMP-05, IMP-06, IMP-08, IMP-09
 IMP-05 → IMP-09
+IMP-06 → IMP-07
 IMP-07 → IMP-10, IMP-11
 IMP-08 → IMP-09, IMP-10
 IMP-10 → IMP-11
@@ -1643,12 +1662,13 @@ Every edge is producer-before-consumer. No unit's local closure requires a downs
 |---:|---|---|---|---|
 | 1 | IMP-01 | none | low; schema boundary | SAFE |
 | 2 | IMP-02, IMP-03 | IMP-01 | medium; shared schema/registry failures | SAFE_WITH_COORDINATION |
-| 3 | IMP-04, IMP-07 | IMP-03 for IMP-04; IMP-01/03 for IMP-07 | medium; registry/source and manifest surfaces distinct but adjacent | SAFE_WITH_COORDINATION |
-| 4 | IMP-05, IMP-06, IMP-08 | IMP-03/04 as applicable | high for registry/source and snapshot seams; coordinate ownership | SERIAL_REQUIRED |
-| 5 | IMP-09, IMP-10 | IMP-05/08; IMP-07/08 | medium; mutation and manifest reconstruction | SAFE_WITH_COORDINATION |
-| 6 | IMP-11 | IMP-07/10 | low/medium; checkpoint and replay boundary | SAFE_WITH_COORDINATION |
+| 3 | IMP-04 | IMP-03 | medium; registry/source seam | SAFE_WITH_COORDINATION |
+| 4 | IMP-06 | IMP-03/04 | high; snapshot seam and DOM-boundary coordination | SERIAL_REQUIRED |
+| 5 | IMP-05, IMP-07, IMP-08 | IMP-03/04; IMP-06 for IMP-07 | high for registry/source, manifest and reconstruction seams; coordinate ownership | SERIAL_REQUIRED |
+| 6 | IMP-09, IMP-10 | IMP-05/08; IMP-07/08 | medium; mutation and manifest reconstruction | SAFE_WITH_COORDINATION |
+| 7 | IMP-11 | IMP-07/10 | low/medium; checkpoint and replay boundary | SAFE_WITH_COORDINATION |
 
-`IMP-05` and `IMP-06` must not be treated as unconditionally parallel with source/snapshot changes despite separate units; repository ownership coordination is required.
+`IMP-06` must complete its exact-basis contribution before `IMP-07` can contribute to `AC-EXEC-015`; `IMP-05`, `IMP-07` and `IMP-08` remain coordinated/serial in Wave 5. Repository ownership coordination is required.
 
 ## 15. Integration Checkpoints
 
@@ -1656,9 +1676,9 @@ Every edge is producer-before-consumer. No unit's local closure requires a downs
 |---|---|---|---|---|
 | CP-EXEC-01 | IMP-01, IMP-02, IMP-03 | identifiable schemas, canonical failures and unique non-overlapping resolution | schema, verdict, failure, SemVer and overlap reports | IMP-04, IMP-05, IMP-06, IMP-07 |
 | CP-EXEC-02 | IMP-03, IMP-04, IMP-05, IMP-08, IMP-09 | owner-issued scoped catalog basis, source progression and one-successor mutation | source receipt, scope, progression, issuer, stale/idempotency and no-mutation evidence | integrated DOM/REPO/PLAT catalog proof |
-| CP-EXEC-03 | IMP-06, IMP-07, IMP-10 | exact DOM-bound manifest identity and immutable started basis | caller-bypass, manifest completeness, attachment, digest and freeze reports | IMP-11 |
-| CP-EXEC-04 | IMP-07, IMP-10, IMP-11 | safe checkpoint and original-basis replay with retry-distinct identity | checkpoint declaration, current-registry divergence, replay and new-attempt evidence | integrated EXEC-002/PLAT recovery proof |
-| CP-EXEC-05 | IMP-02, IMP-06, IMP-10 | failure/retry meaning remains separate from DOM lifecycle and external effect confirmation | canonical failure mapping, no-success/no-effect and retry evidence | downstream final conformance |
+| CP-EXEC-03 | IMP-06, IMP-07, IMP-10 | exact DOM-bound manifest identity and immutable started basis | caller-bypass, manifest-field, attachment, digest and freeze reports; full proof runs after IMP-06 → IMP-07 and required IMP-10 evidence | IMP-11 |
+| CP-EXEC-04 | IMP-07, IMP-10, IMP-11 | safe checkpoint and original-basis replay with retry-distinct identity | checkpoint declaration, current-registry divergence, durable replay and new-attempt evidence | CP-EXEC-05 |
+| CP-EXEC-05 | IMP-02, IMP-06, IMP-10, IMP-11 | failure/retry meaning remains separate from DOM lifecycle and external effect confirmation | canonical failure mapping, no-success/no-effect, retry and CP-EXEC-04 recovery evidence; `IMP-11` is Final Proof Owner for AC-EXEC-018 | downstream final conformance |
 
 Checkpoint evidence is integrated proof and is not copied into earlier local ACs.
 
@@ -1721,31 +1741,42 @@ Correctness-sensitive behavior receives automated direct witnesses. Listing is n
 | IMP-04 | YES after prerequisite | YES | ISSUE_READY | BLOCKED | IMP-03 |
 | IMP-05 | YES after prerequisites | YES | ISSUE_READY | BLOCKED | IMP-03, IMP-04 |
 | IMP-06 | YES after prerequisites | YES | ISSUE_READY | BLOCKED | IMP-03, IMP-04 |
-| IMP-07 | YES after prerequisites | YES | ISSUE_READY | BLOCKED | IMP-01, IMP-03 |
+| IMP-07 | YES after prerequisites | YES | ISSUE_READY | BLOCKED | IMP-01, IMP-03, IMP-06 |
 | IMP-08 | YES after prerequisites | YES | ISSUE_READY | BLOCKED | IMP-03, IMP-04 |
 | IMP-09 | YES after prerequisites | YES | ISSUE_READY | BLOCKED | IMP-03, IMP-04, IMP-05, IMP-08 |
 | IMP-10 | YES after prerequisites | YES | ISSUE_READY | BLOCKED | IMP-07, IMP-08 |
 | IMP-11 | YES after prerequisites | YES | ISSUE_READY | BLOCKED | IMP-07, IMP-10 |
 
-All `ISSUE_READY` units have local acceptance and completion evidence executable at closure. `ISSUE_READY` is decomposition readiness, not ticket lifecycle or immediate execution state.
+All `ISSUE_READY` units have local acceptance and completion evidence executable at closure. For IMP-06, IMP-07, IMP-10 and IMP-11, this means the explicitly bounded EXEC-owned local contribution; their complete plan-level integrated acceptance remains at the named checkpoint and is not claimed as local closure. `ISSUE_READY` is decomposition readiness, not ticket lifecycle or immediate execution state.
 
 ## 20. Plan Metrics
 
 ```text
 VALIDATED_GAPS = 18
+AUDITED_GAPS = 18
+FULLY_COVERED_GAPS = 18
+PARTIALLY_COVERED_GAPS = 0
+UNCOVERED_GAPS = 0
 LOCAL_IMPLEMENTATION_GAPS = 13
 CROSS_SPEC_DEPENDENCIES = 2 primary Gap records
 INTEGRATION_OR_CONVERGENCE_GAPS = 3
 EXPLICIT_CAPABILITY_HANDOFFS = 9
+PORTFOLIO_OBLIGATIONS_PLANNED = 6
 PREEXISTING_FOREIGN_CAPABILITIES = 0
 NO_LOCAL_WORK_GAPS = 0
 
 IMPLEMENTATION_UNITS = 11
+JUSTIFIED_UNITS = 11
+SPECULATIVE_UNITS = 0
 LOCALLY_CLOSABLE_UNITS = 11
 NON_LOCALLY_CLOSABLE_UNITS = 0
 ISSUE_DECOMPOSITION_READY_UNITS = 11
 INTERNAL_ONLY_UNITS = 0
 PLAN_BLOCKED_UNITS = 0
+INTEGRATED_ONLY_ACCEPTANCE_OBLIGATIONS = 6
+NON_LOCAL_COMPLETION_EVIDENCE = 4
+ISSUE_READY_OVERRATED = 0
+LOCAL_PROVABILITY_FAILURES = 0
 INITIAL_READY_UNITS = 1
 INITIAL_BLOCKED_UNITS = 10
 
@@ -1762,6 +1793,8 @@ UNRESOLVED_FINAL_PROOF_OWNERS = 0
 LOCAL_AC_REQUIRING_DOWNSTREAM = 0
 LOCAL_AC_CONTRADICTING_DOES_NOT_IMPLEMENT = 0
 LOCAL_AC_REQUIRING_UNAVAILABLE_FOREIGN_CAPABILITY = 0
+LOCAL_CLOSURE_WITH_UNAVAILABLE_REQUIRED_CAPABILITY = 0
+WITNESSES_NOT_EXECUTABLE_AT_LOCAL_CLOSURE = 0
 
 UNAPPROVED_NORMATIVE_DEPENDENCIES = 0
 SPECIFICATION_GAPS = 0
@@ -1770,6 +1803,10 @@ PORTFOLIO_GAPS = 0
 UPSTREAM_CONTRACT_GAPS = 0
 
 DAG_CYCLE_DETECTED = NO
+FINAL_PROOF_PREMATURE = 0
+INVALID_FINAL_PROOF_OWNERS = 0
+UNSAFE_PARALLEL_RELATIONSHIPS = 0
+HIDDEN_BLOCKERS = 0
 IMPLEMENTATION_UNIT_AUTHORITY_CHECK = PASS
 UNITS_INVENTING_IDENTITY = 0
 UNITS_INVENTING_LIFECYCLE = 0
@@ -1779,6 +1816,12 @@ UNITS_INVENTING_RECOVERY = 0
 UNITS_INVENTING_PERSISTENCE_SEMANTICS = 0
 
 AUTHORITY_CONSUMPTION_GAPS = 0 local/blocking; 9 inherited integrated-only availability records
+OWNERSHIP_ERRORS = 0
+AGGREGATE_IDENTITY_PROOF = COMPLETE
+AGGREGATE_RECONSTRUCTION_PROOF = COMPLETE
+REHYDRATION_AUTHORITY_GAPS = 0
+BLOCKED_BY_UPSTREAM_CONTRACT = 0 at declared local closure points
+CAPABILITY_AVAILABILITY_CLASSIFICATION_ERRORS = 0
 TEMPORAL_AUTHORITY_GAPS = 0
 AUTHORITY_COMPLETENESS = PASS
 UNREPRESENTED_UPSTREAM_CONTRACT_BLOCKERS = 0
@@ -1838,7 +1881,7 @@ IMPLEMENTATION_UNIT_AUTHORITY_CHECK = PASS
 
 ## 24. Implementation Plan Gate
 
-The plan satisfies the required planning invariants:
+The plan remains pending independent re-audit. Its local contribution and integrated-proof allocations now satisfy the remediation consistency invariants:
 
 ```text
 zero uncovered local gaps
@@ -1862,5 +1905,5 @@ zero units inventing identity, lifecycle, provenance, ownership, recovery or per
 ```
 
 ```text
-IMPLEMENTATION_PLAN_GATE: READY_FOR_IMPLEMENTATION_PLAN_AUDIT
+IMPLEMENTATION_PLAN_GATE: REMEDIATION_PENDING_INDEPENDENT_REAUDIT
 ```
