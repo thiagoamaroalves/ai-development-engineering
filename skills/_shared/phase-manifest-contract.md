@@ -63,7 +63,9 @@ The producer or checkpoint operation MUST derive the manifest from canonical
 artifacts and the current candidate. It MUST NOT hand-maintain a project-
 specific list in a skill or accept a path list from prose. The controller passes
 only the manifest path and phase identity; the manifest content is validated
-against the source authority and current Git state.
+against the source authority and current Git state. The manifest path may be
+absent at operation intake; the owning checkpoint operation is authorized to
+create it before validation, but it may not invent authority or broaden scope.
 
 Before staging, run:
 
