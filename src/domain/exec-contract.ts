@@ -1,5 +1,4 @@
 import {
-  isAuthenticatedExecSchemaValidationPort,
   isProducerIssuedValidationResult,
 } from './exec-validation-evidence-internal.ts'
 import type {
@@ -395,8 +394,7 @@ function isSuccessfulSchemaValidation(
   input: object,
   producer: unknown,
 ): value is Extract<SchemaValidationResult, { readonly valid: true }> {
-  if (!isAuthenticatedExecSchemaValidationPort(producer)
-    || !isProducerIssuedValidationResult(producer, value)) {
+  if (!isProducerIssuedValidationResult(producer, value)) {
     return false
   }
   const result = value as Partial<Extract<SchemaValidationResult, { readonly valid: true }>>

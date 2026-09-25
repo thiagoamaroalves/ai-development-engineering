@@ -8,11 +8,10 @@ import {
 } from '../domain/exec-contract.ts'
 import {
   ExecContractSchemaDefinitions,
-  isAuthenticatedExecSchemaValidationPort,
-  isProducerIssuedValidationResult,
   type ExecSchemaValidationPort,
   type SchemaValidationResult,
 } from '../domain/exec-schema.ts'
+import { isProducerIssuedValidationResult } from '../domain/exec-validation-evidence-internal.ts'
 
 export interface ValidateExecContractInput {
   readonly envelope: unknown
@@ -100,10 +99,6 @@ export class ValidateExecContract {
     }
 
     try {
-      if (!isAuthenticatedExecSchemaValidationPort(this.validator)) {
-        return this.invalid(input, 'Schema validation requires an authenticated producer port.')
-      }
-
       const payloadDefinition = this.definitions.selectPayload(input.payload)
       if (!payloadDefinition) {
         return this.invalid(input, 'Capability payload schema selection failed closed.')

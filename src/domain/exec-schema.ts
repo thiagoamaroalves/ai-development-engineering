@@ -8,18 +8,6 @@ import {
   EXEC_PAYLOAD_SCHEMA_REFERENCE,
   SchemaReference,
 } from './exec-contract.ts'
-import {
-  AuthenticatedExecSchemaValidationPort,
-  isAuthenticatedExecSchemaValidationPort,
-  isProducerIssuedValidationResult,
-} from './exec-validation-evidence-internal.ts'
-
-export {
-  AuthenticatedExecSchemaValidationPort,
-  isAuthenticatedExecSchemaValidationPort,
-  isProducerIssuedValidationResult,
-}
-
 export type SchemaValidationResult =
   | {
       readonly valid: true

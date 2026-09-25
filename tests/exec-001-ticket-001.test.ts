@@ -20,10 +20,10 @@ import {
   ValidatedExecContract,
 } from '../src/domain/exec-contract.ts'
 import {
-  AuthenticatedExecSchemaValidationPort,
   ExecContractSchemaDefinitions,
   type ExecSchemaDefinition,
   type ExecSchemaValidationPort,
+  type SchemaValidationResult,
 } from '../src/domain/exec-schema.ts'
 import { JsonSchemaExecValidator } from '../src/infrastructure/exec-schema-validator.ts'
 import { runFullWorkflow, type WorkflowPlan } from '../.pi/extensions/workflow-orchestrator/full-orchestrator.ts'
@@ -260,45 +260,38 @@ test('rejects an always-true adapter when the structured input is invalid or unp
   assert.equal('value' in unprovenResult, false)
 })
 
-test('accepts an independently implemented adapter through the explicit producer contract', () => {
-  class IndependentSchemaAdapter extends AuthenticatedExecSchemaValidationPort {
-    constructor() {
-      super()
-    }
-
-    validate(schema: ExecSchemaDefinition, value: unknown) {
-      return this.issueValidatedResult({
-        valid: true as const,
-        issues: Object.freeze([]),
-        validatedInput: value as object,
-        schemaReference: schema.reference,
-        contentFingerprint: structuredContentFingerprint(value),
-      })
-    }
+test('accepts only owner-issued validation evidence through an explicit adapter wrapper', () => {
+  const canonicalAdapter = new JsonSchemaExecValidator()
+  const delegatingAdapter: ExecSchemaValidationPort = {
+    validate: (schema, value) => canonicalAdapter.validate(schema, value),
   }
-
-  const result = new ValidateExecContract(new IndependentSchemaAdapter()).validate(validInput())
+  const result = new ValidateExecContract(delegatingAdapter).validate(validInput())
   assert.equal(result.status, 'VALID')
 })
 
-test('rechecks capability semantics before accepting authenticated producer evidence', () => {
-  class AlwaysTrueAuthenticatedAdapter extends AuthenticatedExecSchemaValidationPort {
-    constructor() {
-      super()
-    }
-
-    validate(schema: ExecSchemaDefinition, value: unknown) {
-      return this.issueValidatedResult({
+test('rejects a caller-created always-true subtype at the owner-proof boundary', () => {
+  class AlwaysTrueCallerAdapter extends JsonSchemaExecValidator {
+    validate(_schema: ExecSchemaDefinition, value: unknown): SchemaValidationResult {
+      return Object.freeze({
         valid: true as const,
         issues: Object.freeze([]),
         validatedInput: value as object,
-        schemaReference: schema.reference,
+        schemaReference: new ExecContractSchemaDefinitions().payload.reference,
         contentFingerprint: structuredContentFingerprint(value),
       })
     }
   }
 
-  const adapter = new AlwaysTrueAuthenticatedAdapter()
+  const adapter = new AlwaysTrueCallerAdapter()
+  const validInputResult = new ValidateExecContract(adapter).validate(validInput())
+  assert.equal(validInputResult.status, 'INVALID')
+  if (validInputResult.status === 'INVALID') {
+    assert.equal(validInputResult.failure.noApproval, true)
+    assert.equal(validInputResult.failure.noCheckpoint, true)
+    assert.equal(validInputResult.failure.noEffect, true)
+    assert.equal('value' in validInputResult, false)
+  }
+
   const genericInvalidResult = new ValidateExecContract(adapter).validate({
     ...validInput(),
     payload: {
@@ -315,21 +308,23 @@ test('rechecks capability semantics before accepting authenticated producer evid
     assert.equal('value' in genericInvalidResult, false)
   }
 
-  const definitions = new ExecContractSchemaDefinitions()
   const unknownCapabilityPayload = {
     ...(validInput().payload as Record<string, unknown>),
     capabilityId: 'capability-unknown',
   }
-  const forgedUnknownCapability = adapter.validate(definitions.payload, unknownCapabilityPayload)
+  const forgedUnknownCapability = adapter.validate(
+    new ExecContractSchemaDefinitions().payload,
+    unknownCapabilityPayload,
+  )
   assert.equal(forgedUnknownCapability.valid, true)
   assert.throws(
     () => StructuredCapabilityPayload.create(
       unknownCapabilityPayload as never,
-      definitions.payload.reference,
+      new ExecContractSchemaDefinitions().payload.reference,
       forgedUnknownCapability,
       adapter,
     ),
-    /Capability identity does not match/,
+    /authenticated successful schema validation result/,
   )
 })
 
@@ -337,6 +332,8 @@ test('does not expose caller-mintable validation authority through the domain bo
   assert.equal('registerExecValidationAuthority' in execContractDomain, false)
   assert.equal('recordExecSchemaValidation' in execContractDomain, false)
   const validationEvidenceModule = await import('../src/domain/exec-validation-evidence-internal.ts')
+  const schemaModule = await import('../src/domain/exec-schema.ts')
+  assert.equal('AuthenticatedExecSchemaValidationPort' in schemaModule, false)
   assert.equal('default' in validationEvidenceModule, false)
   assert.equal('registerIssuedSchemaValidationEvidence' in validationEvidenceModule, false)
   assert.equal('issueSchemaValidationEvidence' in validationEvidenceModule, false)
@@ -427,6 +424,34 @@ test('rejects forged validation results and runtime-created canonical-looking re
     /ticket-owned envelope schema reference/,
   )
 
+  const genuineValidation = new JsonSchemaExecValidator().validate(
+    definitions.envelope,
+    input.envelope,
+  )
+  assert.equal(genuineValidation.valid, true)
+  if (genuineValidation.valid) {
+    const copiedValidation = Object.assign(
+      Object.create(Object.getPrototypeOf(genuineValidation)),
+      genuineValidation,
+    )
+    Object.defineProperty(copiedValidation, 'canonicalResultType', {
+      configurable: false,
+      enumerable: false,
+      writable: false,
+      value: (genuineValidation as unknown as { readonly canonicalResultType: unknown }).canonicalResultType,
+    })
+    Object.freeze(copiedValidation)
+    assert.throws(
+      () => StructuredExecutionEnvelope.create(
+        input.envelope as never,
+        definitions.envelope.reference,
+        copiedValidation,
+        new JsonSchemaExecValidator(),
+      ),
+      /authenticated successful schema validation result/,
+    )
+  }
+
   const forgedPort: ExecSchemaValidationPort = {
     validate: (schema, value) => ({ ...forgedResult(schema.reference, value as object), contentFingerprint: structuredContentFingerprint(value) }),
   }
@@ -469,27 +494,11 @@ test('rejects stale genuine evidence after envelope or payload current-content m
   assert.equal(payloadValidation.valid, true)
   if (!envelopeValidation.valid || !payloadValidation.valid) return
 
-  class StaleReceiptAdapter extends AuthenticatedExecSchemaValidationPort {
-    constructor() {
-      super()
-    }
-
-    validate(schema: ExecSchemaDefinition, value: unknown) {
-      const receipt = schema.reference === definitions.envelope.reference
-        ? envelopeValidation
-        : payloadValidation
-      if (!receipt.valid) return receipt
-      return this.issueValidatedResult({
-        valid: true as const,
-        issues: receipt.issues,
-        validatedInput: receipt.validatedInput,
-        schemaReference: receipt.schemaReference,
-        contentFingerprint: receipt.contentFingerprint,
-      })
-    }
+  const stalePort: ExecSchemaValidationPort = {
+    validate: (schema, _value) => schema.reference === definitions.envelope.reference
+      ? envelopeValidation
+      : payloadValidation,
   }
-
-  const stalePort: ExecSchemaValidationPort = new StaleReceiptAdapter()
   const originalExecutionId = Object.getOwnPropertyDescriptor(Object.prototype, 'executionId')
   const originalData = Object.getOwnPropertyDescriptor(Object.prototype, 'data')
   try {
