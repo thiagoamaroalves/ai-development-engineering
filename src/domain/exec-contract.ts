@@ -12,7 +12,8 @@ export type JsonObject = Readonly<Record<string, unknown>>
 export type ContractFailureCode = 'CONTRACT_INVALID'
 
 export const EXEC_ENVELOPE_SCHEMA_ID = 'exec-envelope'
-export const EXEC_PAYLOAD_SCHEMA_ID = 'exec-capability-payload'
+export const EXEC_CAPABILITY_ID = 'capability-001'
+export const EXEC_PAYLOAD_SCHEMA_ID = 'exec-capability-001-payload'
 export const EXEC_SCHEMA_VERSION = '1.0.0'
 
 const SCHEMA_REFERENCE_BRAND = Symbol('exec-schema-reference')

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "manifestKind": "PHASE_CHECKPOINT",
+  "phaseId": "EXEC-001-TICKET-001-implementation-checkpoint-8cf79cd37ebb02d0657c1fb191cea1d194b71f89",
+  "operation": "checkpoint-implemented-ticket",
+  "subject": {
+    "id": "EXEC-001-TICKET-001",
+    "type": "ticket"
+  },
+  "sourceAuthority": [
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/implementation-ticket-audit.md",
+      "sha256": "f466d5fa9780f3859e0c61e8f2f2e19e2e64e12fa5b996b6001ce0bc6e73ef36"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design.md",
+      "sha256": "155185f684196648b0bf89c000de12ab76988017d99b1dbcc1e97e28e5730459"
+    }
+  ],
+  "target": {
+    "head": "8cf79cd37ebb02d0657c1fb191cea1d194b71f89",
+    "semanticFingerprint": "7a3239869ddcf9810903a422e4fb51635a7dc04e1b896a4ee3daf095aa026834"
+  },
+  "paths": {
+    "manifest": "docs/workflow-checkpoints/exec-001-ticket-001-checkpoint-implemented-ticket-8cf79cd37ebb-manifest.json",
+    "preserve": [
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-capability-specific-envelope-and-payload-schemas.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design.md",
+      "docs/tickets/SPEC-EXEC-001/README.md",
+      "docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-001-envelope-schema.md",
+      "docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-002-required-fields.md",
+      "src/application/exec-contract.ts",
+      "src/domain/exec-contract.ts",
+      "src/domain/exec-schema.ts",
+      "tests/exec-001-ticket-001.test.ts"
+    ],
+    "delete": [],
+    "unstagedRecovery": [],
+    "marker": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-checkpoints/EXEC-001-TICKET-001-implementation-checkpoint-round-14.md"
+  },
+  "nextAuthorizedOperation": "audit-implemented-ticket",
+  "commitMessage": "checkpoint(SPEC-EXEC-001/EXEC-001-TICKET-001): IMPLEMENTATION_CHECKPOINT round 14"
+}

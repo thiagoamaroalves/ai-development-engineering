@@ -53,7 +53,7 @@ function validInput(): ValidateExecContractInput {
       errors: [],
     },
     payload: {
-      schemaId: 'exec-capability-payload',
+      schemaId: 'exec-capability-001-payload',
       schemaVersion: '1.0.0',
       capabilityId: 'capability-001',
       data: { result: 'structured' },
@@ -70,7 +70,7 @@ function assertFailureEvidence(result: ReturnType<ValidateExecContract['validate
   assert.equal(result.status, 'INVALID')
   if (result.status !== 'INVALID') return
   assert.equal(result.failure.expectedContractReference.value.envelope.schemaId, 'exec-envelope')
-  assert.equal(result.failure.expectedContractReference.value.payload.schemaId, 'exec-capability-payload')
+  assert.equal(result.failure.expectedContractReference.value.payload.schemaId, 'exec-capability-001-payload')
   assert.equal(result.failure.expectedContractReference.value.envelope.version, '1.0.0')
   assert.equal(Object.isFrozen(result.failure), true)
   assert.equal(Object.isFrozen(result.failure.expectedContractReference), true)
@@ -92,8 +92,43 @@ test('accepts a valid identifiable envelope and capability payload as structured
   assert.equal(result.status, 'VALID')
   if (result.status !== 'VALID') return
   assert.equal(result.value.envelope.schema.value, 'exec-envelope@1.0.0')
-  assert.equal(result.value.payload.schema.value, 'exec-capability-payload@1.0.0')
+  assert.equal(result.value.payload.schema.value, 'exec-capability-001-payload@1.0.0')
   assert.equal(result.value.payload.data.result, 'structured')
+})
+
+test('selects an identifiable capability schema and rejects generic or unknown payloads', () => {
+  const definitions = new ExecContractSchemaDefinitions()
+  assert.equal(definitions.payload.capabilityId, 'capability-001')
+  assert.equal(definitions.payloadDefinitions.length, 1)
+  assert.equal(Object.isFrozen(definitions.payloadDefinitions), true)
+  assert.equal(definitions.selectPayload(validInput().payload), definitions.payload)
+
+  const genericPayload = {
+    ...(validInput().payload as Record<string, unknown>),
+    data: { unrelated: true },
+  }
+  const genericResult = createDefaultValidator().validate({ ...validInput(), payload: genericPayload })
+  assert.equal(genericResult.status, 'INVALID')
+  if (genericResult.status === 'INVALID') {
+    assert.equal(genericResult.failure.code, 'CONTRACT_INVALID')
+    assert.equal(genericResult.failure.noEffect, true)
+  }
+
+  const unknownPayload = {
+    ...(validInput().payload as Record<string, unknown>),
+    capabilityId: 'capability-unknown',
+  }
+  const unknownResult = createDefaultValidator().validate({ ...validInput(), payload: unknownPayload })
+  assert.equal(unknownResult.status, 'INVALID')
+  if (unknownResult.status === 'INVALID') assert.equal(unknownResult.failure.code, 'CONTRACT_INVALID')
+
+  const genericSchemaPayload = {
+    ...(validInput().payload as Record<string, unknown>),
+    schemaId: 'exec-capability-payload',
+  }
+  const genericSchemaResult = createDefaultValidator().validate({ ...validInput(), payload: genericSchemaPayload })
+  assert.equal(genericSchemaResult.status, 'INVALID')
+  if (genericSchemaResult.status === 'INVALID') assert.equal(genericSchemaResult.failure.code, 'CONTRACT_INVALID')
 })
 
 test('preserves opaque identity references without normalization', () => {
@@ -108,20 +143,17 @@ test('preserves opaque identity references without normalization', () => {
     capabilityId: ' capability-opaque ',
   }
   const result = createDefaultValidator().validate({ ...input, envelope, payload })
-  assert.equal(result.status, 'VALID')
-  if (result.status !== 'VALID') return
-  assert.equal(result.value.envelope.executionId, '  execution-opaque  ')
-  assert.equal(result.value.envelope.activityId, ' activity-opaque ')
-  assert.equal(result.value.payload.capabilityId, ' capability-opaque ')
-  assert.equal(result.value.envelope.structured.executionId, '  execution-opaque  ')
-  assert.equal(result.value.payload.structured.capabilityId, ' capability-opaque ')
+  assert.equal(result.status, 'INVALID')
+  if (result.status !== 'INVALID') return
+  assert.equal(result.failure.code, 'CONTRACT_INVALID')
+  assert.equal(result.failure.noEffect, true)
 })
 
 test('uses canonical JSON Schema documents through the compiled validation adapter', () => {
   const definitions = new ExecContractSchemaDefinitions()
   assert.equal(definitions.envelope.document.$schema, 'https://json-schema.org/draft/2020-12/schema')
   assert.equal(definitions.envelope.document.$id, 'exec-envelope@1.0.0')
-  assert.equal(definitions.payload.document.$id, 'exec-capability-payload@1.0.0')
+  assert.equal(definitions.payload.document.$id, 'exec-capability-001-payload@1.0.0')
   assert.equal(Object.isFrozen(definitions.envelope.document), true)
   assert.equal(Object.isFrozen(definitions.envelope.document.required), true)
   assert.equal(Object.isFrozen(definitions.envelope.document.properties), true)
@@ -704,7 +736,7 @@ test('rejects non-JSON and inherited values at the schema boundary', () => {
 
 test('preserves own __proto__ keys and rejects sparse arrays at the value boundary', () => {
   const input = validInput()
-  const data = JSON.parse('{"__proto__":{"nested":"preserved"}}') as Record<string, unknown>
+  const data = JSON.parse('{"__proto__":{"nested":"preserved"},"result":"structured"}') as Record<string, unknown>
   const preserved = createDefaultValidator().validate({
     ...input,
     payload: { ...(input.payload as Record<string, unknown>), data },

@@ -1,5 +1,6 @@
 import {
   EXEC_ENVELOPE_SCHEMA_ID,
+  EXEC_CAPABILITY_ID,
   EXEC_PAYLOAD_SCHEMA_ID,
   EXEC_SCHEMA_VERSION,
   ContractReference,
@@ -40,6 +41,7 @@ export interface JsonSchemaDocument extends Readonly<Record<string, unknown>> {
 export interface ExecSchemaDefinition {
   readonly reference: SchemaReference
   readonly document: JsonSchemaDocument
+  readonly capabilityId?: string
 }
 
 export interface ExecSchemaValidationPort {
@@ -140,8 +142,15 @@ const PAYLOAD_SCHEMA_DOCUMENT = schemaDocument({
   properties: {
     schemaId: { const: EXEC_PAYLOAD_SCHEMA_ID },
     schemaVersion: { const: EXEC_SCHEMA_VERSION },
-    capabilityId: { type: 'string', minLength: 1 },
-    data: { type: 'object', additionalProperties: jsonValueRef() },
+    capabilityId: { const: EXEC_CAPABILITY_ID },
+    data: {
+      type: 'object',
+      properties: {
+        result: { type: 'string', minLength: 1 },
+      },
+      required: ['result'],
+      additionalProperties: jsonValueRef(),
+    },
   },
   required: ['schemaId', 'schemaVersion', 'capabilityId', 'data'],
 })
@@ -149,6 +158,7 @@ const PAYLOAD_SCHEMA_DOCUMENT = schemaDocument({
 export class ExecContractSchemaDefinitions {
   readonly envelope: ExecSchemaDefinition
   readonly payload: ExecSchemaDefinition
+  readonly payloadDefinitions: readonly ExecSchemaDefinition[]
 
   constructor() {
     this.envelope = Object.freeze({
@@ -158,8 +168,18 @@ export class ExecContractSchemaDefinitions {
     this.payload = Object.freeze({
       reference: PAYLOAD_SCHEMA_REFERENCE,
       document: PAYLOAD_SCHEMA_DOCUMENT,
+      capabilityId: EXEC_CAPABILITY_ID,
     })
+    this.payloadDefinitions = Object.freeze([this.payload])
     Object.freeze(this)
+  }
+
+  selectPayload(value: unknown): ExecSchemaDefinition | undefined {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined
+    const candidate = value as { readonly capabilityId?: unknown; readonly schemaId?: unknown; readonly schemaVersion?: unknown }
+    return this.payloadDefinitions.find((definition) => candidate.capabilityId === definition.capabilityId
+      && candidate.schemaId === definition.reference.schemaId
+      && candidate.schemaVersion === definition.reference.version)
   }
 
   get envelopeReference(): SchemaReference {

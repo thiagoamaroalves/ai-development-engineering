@@ -104,12 +104,17 @@ export class ValidateExecContract {
         return this.invalid(input, 'Schema validation requires an authenticated producer port.')
       }
 
+      const payloadDefinition = this.definitions.selectPayload(input.payload)
+      if (!payloadDefinition) {
+        return this.invalid(input, 'Capability payload schema selection failed closed.')
+      }
+
       const envelopeResult = normalizedValidationResult(
         this.validator.validate(this.definitions.envelope, input.envelope),
         this.validator,
       )
       const payloadResult = normalizedValidationResult(
-        this.validator.validate(this.definitions.payload, input.payload),
+        this.validator.validate(payloadDefinition, input.payload),
         this.validator,
       )
       if (!envelopeResult || !payloadResult) {
@@ -128,7 +133,7 @@ export class ValidateExecContract {
       )
       const payload = StructuredCapabilityPayload.create(
         input.payload as never,
-        this.definitions.payloadReference,
+        payloadDefinition.reference,
         payloadResult,
         this.validator,
       )
