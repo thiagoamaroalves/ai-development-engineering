@@ -26,7 +26,7 @@ UNBLOCKS: NONE
 - Implementation Plan: `docs/specs/implementation-plans/SPEC-EXEC-001-implementation-plan.md` â€” SHA-256 `c7248bc0cc496c662a49fd40a56aafe2869ca795bb717d1b4ac9d625fd79b47f`
 - Plan audit: `docs/specs/implementation-plans/audits/SPEC-EXEC-001-implementation-plan-audit.md` â€” `IMPLEMENTATION_PLAN_CONFORMANT`; SHA-256 `5a3869bf5fbc0ac22db03cf0837c847ecbee96441c1ad270b345413f5828ac80`
 - Plan conformance checkpoint: `docs/workflow-checkpoints/SPEC-EXEC-001-component-implementation-plan-conformance.md` â€” `READY_FOR_ISSUE_DECOMPOSITION`
-- Current HEAD: `6588536e1551044c7a3c83a5d451a063144e3b93`
+- Current HEAD: `afa5d48c50cccc2f2f42cdc9549c3db3a34a6611`
 
 - Exact Implementation Unit: `EXEC-IMP-11` in Plan Â§9.
 - Plan Final Proof Owner(s) preserved: `AC-EXEC-014, AC-EXEC-016, AC-EXEC-018` (AC-EXEC-018 final ownership is reconciled from Plan §11; this unit is the final proof owner after CP-EXEC-04).
@@ -128,6 +128,7 @@ The local declaration/original-basis guard is executable against supplied contra
 1. **Local contribution to `AC-EXEC-014`:** the checkpoint contract requires an explicit exact resume basis and rejects an absent declaration without local authorization (`LOCAL_PROVABILITY = YES`).
 2. **Local contribution to `AC-EXEC-016`:** the replay guard preserves the supplied original basis and rejects current-registry reinterpretation without local mutation (`LOCAL_PROVABILITY = YES`).
 3. **Plan-level `AC-EXEC-014`/`AC-EXEC-016`:** productive EXEC-002/PLAT evidence proves safe resume and durable original-basis historical replay (`LOCAL_PROVABILITY = NO`; `FINAL_PROOF_OWNER = EXEC-IMP-11`; `INTEGRATION_PROOF_STAGE = CP-EXEC-04`).
+4. **Plan-level `AC-EXEC-018` final proof:** `CP-EXEC-05` proves that canonical failure meaning remains non-success and effect-unconfirmed through retry/recovery, that retry uses a new `AttemptId` and manifest, and that the original basis is not reinterpreted by the current registry (`LOCAL_PROVABILITY = NO`; `FINAL_PROOF_OWNER = EXEC-IMP-11`; `INTEGRATION_PROOF_STAGE = CP-EXEC-05`).
 
 #### ACCEPTANCE_WITNESS_MATRIX
 
@@ -137,6 +138,7 @@ The local declaration/original-basis guard is executable against supplied contra
 | Original-basis replay guard (local contribution to `AC-EXEC-016`) | replay/reject | `C-EXEC-016` / `AC-EXEC-016` local contribution | EXEC replay contract | supplied original basis is preserved | current registry divergence cannot reinterpret it | local replay-guard report | EXEC-IMP-11 | unit-owned replay contract | DEFINED | DEFINED | YES | NO | INFORMATIONAL | YES | LOCAL_TEST_EVIDENCE |
 | Safe resume (plan-level `AC-EXEC-014`) | declare/apply | `C-EXEC-017` / `AC-EXEC-014` integrated proof | durable manifest basis | EXEC-002 applies a declared exact basis | absent or mismatched durable basis cannot resume | integrated resume evidence | EXEC-IMP-11 | EXEC2-EXEC-RESUME-CONTEXT + PLAT-EXEC-PERSISTED-MATERIAL | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | NO | INTEGRATION_TEST_EVIDENCE |
 | Historical replay (plan-level `AC-EXEC-016`) | replay/resolve | `C-EXEC-016` / `AC-EXEC-016` integrated proof | durable historical manifest/catalog | PLAT replays the original basis | current registry cannot reinterpret or convert history | integrated historical replay evidence | EXEC-IMP-11 | PLAT-EXEC-PERSISTED-MATERIAL | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | NO | INTEGRATION_TEST_EVIDENCE |
+| Failure/retry/recovery final proof (plan-level `AC-EXEC-018`) | retry/recover/reject | `C-EXEC-014/017` / `AC-EXEC-018` final proof at `CP-EXEC-05` | canonical failure, AttemptId/manifest and external-effect confirmation | CP-EXEC-04 recovery evidence plus canonical failure retains code/family, version/basis, cause and processing state; a new AttemptId/new manifest preserves the original basis and remains non-success/effect-unconfirmed | same AttemptId/manifest reuse, changed version/basis, current-registry reinterpretation or retry-as-effect-confirmation is rejected with no history mutation or effect confirmation | `docs/tickets/SPEC-EXEC-001/evidence/CP-EXEC-05/AC-EXEC-018-final-proof.md` | EXEC-IMP-11 | EXEC-RESUME-HISTORICAL-BASIS + EXEC2-EXEC-RESUME-CONTEXT + PLAT-EXEC-PERSISTED-MATERIAL | DEFINED | DEFINED | NO | NO | REQUIRED_FOR_INTEGRATED_PROOF | NO | INTEGRATION_TEST_EVIDENCE |
 
 #### Local Closure
 
@@ -152,7 +154,7 @@ The local declaration/original-basis guard is executable against supplied contra
 
 #### Required Tests
 
-Local absent-basis, transient-text and current-registry-divergence guard tests. At `CP-EXEC-04`, integrated EXEC-002 context application, durable checkpoint and historical replay tests are required; those tests are not local closure evidence.
+Local absent-basis, transient-text and current-registry-divergence guard tests. At `CP-EXEC-04`, integrated EXEC-002 context application, durable checkpoint and historical replay tests are required. At `CP-EXEC-05`, execute canonical failure mapping, no-success/no-effect, retry/recovery and new-`AttemptId`/new-manifest tests while consuming the CP-EXEC-04 evidence; these integrated tests are final proof for `AC-EXEC-018` and are not local closure evidence.
 
 #### Legacy / Cutover Impact
 
@@ -160,7 +162,7 @@ Local absent-basis, transient-text and current-registry-divergence guard tests. 
 
 #### Completion Evidence
 
-Local: checkpoint-declaration and original-basis guard reports. Integrated: `CP-EXEC-04` safe-resume and durable historical-replay evidence for plan-level `AC-EXEC-014`/`AC-EXEC-016`; `CP-EXEC-05` consumes this evidence for `AC-EXEC-018` final proof.
+Local: checkpoint-declaration and original-basis guard reports. Integrated: `CP-EXEC-04` safe-resume and durable historical-replay evidence for plan-level `AC-EXEC-014`/`AC-EXEC-016`. Final-owner evidence at `CP-EXEC-05` is recorded in `docs/tickets/SPEC-EXEC-001/evidence/CP-EXEC-05/AC-EXEC-018-final-proof.md` and proves preserved failure semantics, no success/effect confirmation, retry recovery, new `AttemptId`/manifest identity and original-basis protection.
 
 #### Risks
 
@@ -248,12 +250,12 @@ Preserve the Unit's constraints exactly. Do not invent identity, lifecycle, prov
 
 ## 16. Acceptance Criteria
 
-The exact Unit Acceptance Criteria and Plan Â§11 Acceptance â†’ Plan traceability are preserved above. Every criterion is testable and locally provable for the bounded unit contribution; complete integrated obligations remain with the Plan's Final Proof Owner and checkpoint.
+The exact Unit Acceptance Criteria and Plan Â§11 Acceptance â†’ Plan traceability are preserved above. Local contributions are testable and locally provable for the bounded unit contribution; complete integrated obligations remain with the Plan's Final Proof Owner and checkpoint.
 
 ```text
-ACCEPTANCE_REFERENCED = AC-EXEC-014, AC-EXEC-016
+ACCEPTANCE_REFERENCED = AC-EXEC-014, AC-EXEC-016, AC-EXEC-018
 TESTABLE = YES
-LOCALLY_PROVABLE = YES for local contribution
+LOCALLY_PROVABLE = YES for AC-EXEC-014/016 local contributions; NO for AC-EXEC-018 plan-level final proof
 ```
 
 ## 17. Acceptance / Proof Role
