@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "manifestKind": "PHASE_CHECKPOINT",
+  "phaseId": "SPEC-EXEC-001-EXEC-001-TICKET-001-current-audit-baseline-220728f972a98a5086e3370a90b069bf8707a2a3-864c5e99e2fd21d26fc1ca36a9dff20c2cbad74e4e13f604313d5a9d070f843d",
+  "operation": "checkpoint-implemented-ticket",
+  "subject": {
+    "id": "EXEC-001-TICKET-001",
+    "type": "ticket"
+  },
+  "sourceAuthority": [
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-audit.md",
+      "sha256": "062b51ee08b477fb87f62d00b9f3d3ec89a7e192c3165b990ae5c92707575b97"
+    }
+  ],
+  "target": {
+    "head": "220728f972a98a5086e3370a90b069bf8707a2a3",
+    "semanticFingerprint": "864c5e99e2fd21d26fc1ca36a9dff20c2cbad74e4e13f604313d5a9d070f843d"
+  },
+  "paths": {
+    "manifest": "docs/workflow-checkpoints/spec-exec-001-exec-001-ticket-001-current-audit-baseline-checkpoint-implemented-ticket-220728f972a9-manifest.json",
+    "preserve": [
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-audit.md"
+    ],
+    "delete": [],
+    "unstagedRecovery": [],
+    "marker": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-checkpoints/EXEC-001-TICKET-001-audit-checkpoint-round-15.md"
+  },
+  "nextAuthorizedOperation": "remediate-implemented-ticket",
+  "commitMessage": "checkpoint(SPEC-EXEC-001/EXEC-001-TICKET-001): AUDIT_CHECKPOINT round 15"
+}
