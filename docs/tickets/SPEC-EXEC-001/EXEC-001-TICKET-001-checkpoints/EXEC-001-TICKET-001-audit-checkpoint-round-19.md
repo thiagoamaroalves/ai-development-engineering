@@ -1,0 +1,20 @@
+CHECKPOINT_KIND = AUDIT_CHECKPOINT
+TICKET_ID = EXEC-001-TICKET-001
+PARENT_HEAD = 543033de8484c9104c28fa60d5228027d170c103
+CHECKPOINT_SCOPE = GAP-018; EXEC-ENVELOPE-001/002; AC-EXEC-001/002
+PHASE_MANIFEST = docs/workflow-checkpoints/exec-001-ticket-001-checkpoint-implemented-ticket-543033de8484-manifest.json
+PRESERVED_PATHS = 7
+docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-architecture-audit.md
+docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-behavior-audit.md
+docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-audit.md
+docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design-conformance-audit.md
+docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-ticket-conformance-audit.md
+docs/workflow-checkpoints/exec-001-ticket-001-checkpoint-implemented-ticket-543033de8484-manifest.json
+docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-checkpoints/EXEC-001-TICKET-001-audit-checkpoint-round-19.md
+UNSTAGED_RECOVERY_PATHS = NONE
+EXCLUDED_DIRS = .pi/; skills/; .codex/; node_modules/
+SOURCE_AUDIT = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-audit.md
+SOURCE_REMEDIATION = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-remediation.md
+NEXT_AUTHORIZED_OPERATION = remediate-implemented-ticket
+DOWNSTREAM_RECONCILIATION_REQUIRED = NO
+CHECKPOINT_COMMIT_MESSAGE = checkpoint(SPEC-EXEC-001/EXEC-001-TICKET-001): AUDIT_CHECKPOINT round 19
