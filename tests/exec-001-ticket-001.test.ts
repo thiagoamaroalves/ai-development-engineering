@@ -20,6 +20,7 @@ import {
   ValidatedExecContract,
 } from '../src/domain/exec-contract.ts'
 import {
+  AuthenticatedExecSchemaValidationPort,
   ExecContractSchemaDefinitions,
   type ExecSchemaDefinition,
   type ExecSchemaValidationPort,
@@ -236,6 +237,33 @@ test('does not let a custom schema document mint canonical validation authority'
   assert.match(schemaResult.issues.join(' '), /ticket-owned schema definitions/)
 })
 
+test('rejects getter-backed schema definitions before reading replaceable authority', () => {
+  const definitions = new ExecContractSchemaDefinitions()
+  const attackerDocument = {
+    ...definitions.envelope.document,
+    required: [],
+  }
+  let documentReads = 0
+  const getterBackedDefinition = {
+    get reference(): SchemaReference {
+      return definitions.envelope.reference
+    },
+    get document() {
+      documentReads += 1
+      return documentReads === 1 ? definitions.envelope.document : attackerDocument
+    },
+  }
+
+  const result = new JsonSchemaExecValidator().validate(
+    getterBackedDefinition as never,
+    validInput().envelope,
+  )
+
+  assert.equal(result.valid, false)
+  assert.match(result.issues.join(' '), /ticket-owned schema definitions/)
+  assert.equal(documentReads, 0)
+})
+
 test('rejects an always-true adapter when the structured input is invalid or unproven', () => {
   const forgedValidator: ExecSchemaValidationPort = {
     validate: () => ({ valid: true, issues: [], validatedInput: {}, schemaReference: new ExecContractSchemaDefinitions().envelope.reference, contentFingerprint: '{}' }),
@@ -260,13 +288,72 @@ test('rejects an always-true adapter when the structured input is invalid or unp
   assert.equal('value' in unprovenResult, false)
 })
 
-test('accepts only owner-issued validation evidence through an explicit adapter wrapper', () => {
+test('accepts an independently implemented authenticated adapter through the explicit producer contract', () => {
+  class IndependentSchemaAdapter extends AuthenticatedExecSchemaValidationPort {
+    constructor() {
+      super()
+    }
+
+    validate(schema: ExecSchemaDefinition, value: unknown): SchemaValidationResult {
+      if (!value || typeof value !== 'object' || Array.isArray(value)) {
+        return Object.freeze({ valid: false, issues: Object.freeze(['A structured value is required.']) })
+      }
+      const required = schema.document.required
+      const properties = schema.document.properties
+      if (!Array.isArray(required)
+        || !required.every((key) => typeof key === 'string')
+        || !properties
+        || typeof properties !== 'object'
+        || Array.isArray(properties)) {
+        return Object.freeze({ valid: false, issues: Object.freeze(['The schema definition is malformed.']) })
+      }
+      const candidate = value as Record<string, unknown>
+      if (!required.every((key) => Object.prototype.propertyIsEnumerable.call(candidate, key))) {
+        return Object.freeze({ valid: false, issues: Object.freeze(['Required fields are missing.']) })
+      }
+      for (const [key, rule] of Object.entries(properties)) {
+        if (rule && typeof rule === 'object' && !Array.isArray(rule) && 'const' in rule
+          && candidate[key] !== (rule as { readonly const?: unknown }).const) {
+          return Object.freeze({ valid: false, issues: Object.freeze([`${key} does not match its schema constant.`]) })
+        }
+      }
+      return this.issueValidatedResult({
+        valid: true as const,
+        issues: Object.freeze([] as readonly string[]),
+        validatedInput: value,
+        schemaReference: schema.reference,
+        contentFingerprint: structuredContentFingerprint(value),
+      })
+    }
+  }
+
+  const adapter = new IndependentSchemaAdapter()
+  const result = new ValidateExecContract(adapter).validate(validInput())
+  assert.equal(result.status, 'VALID')
+  const invalid = new ValidateExecContract(adapter).validate({
+    ...validInput(),
+    payload: {
+      ...(validInput().payload as Record<string, unknown>),
+      data: { unrelated: true },
+    },
+  })
+  assert.equal(invalid.status, 'INVALID')
+  if (invalid.status === 'INVALID') assert.equal(invalid.failure.code, 'CONTRACT_INVALID')
+})
+
+test('rejects an untrusted wrapper even when it transports a genuine result', () => {
   const canonicalAdapter = new JsonSchemaExecValidator()
-  const delegatingAdapter: ExecSchemaValidationPort = {
+  const untrustedWrapper: ExecSchemaValidationPort = {
     validate: (schema, value) => canonicalAdapter.validate(schema, value),
   }
-  const result = new ValidateExecContract(delegatingAdapter).validate(validInput())
-  assert.equal(result.status, 'VALID')
+  const result = new ValidateExecContract(untrustedWrapper).validate(validInput())
+  assert.equal(result.status, 'INVALID')
+  if (result.status === 'INVALID') {
+    assert.equal(result.failure.code, 'CONTRACT_INVALID')
+    assert.equal(result.failure.noApproval, true)
+    assert.equal(result.failure.noCheckpoint, true)
+    assert.equal(result.failure.noEffect, true)
+  }
 })
 
 test('rejects a caller-created always-true subtype at the owner-proof boundary', () => {
@@ -333,7 +420,8 @@ test('does not expose caller-mintable validation authority through the domain bo
   assert.equal('recordExecSchemaValidation' in execContractDomain, false)
   const validationEvidenceModule = await import('../src/domain/exec-validation-evidence-internal.ts')
   const schemaModule = await import('../src/domain/exec-schema.ts')
-  assert.equal('AuthenticatedExecSchemaValidationPort' in schemaModule, false)
+  assert.equal('AuthenticatedExecSchemaValidationPort' in schemaModule, true)
+  assert.equal('isAuthenticatedExecSchemaValidationPort' in schemaModule, true)
   assert.equal('default' in validationEvidenceModule, false)
   assert.equal('registerIssuedSchemaValidationEvidence' in validationEvidenceModule, false)
   assert.equal('issueSchemaValidationEvidence' in validationEvidenceModule, false)
@@ -404,6 +492,52 @@ test('rejects forged validation results and runtime-created canonical-looking re
       input.envelope as never,
       definitions.envelope.reference,
       exactNamedResult,
+      new JsonSchemaExecValidator(),
+    ),
+    /authenticated successful schema validation result/,
+  )
+
+  class CallerOwnedVerifier {
+    isCanonicalValidationResult(): boolean {
+      return true
+    }
+  }
+  const callerOwnedSelfDescribingResult = (
+    schema: SchemaReference,
+    value: unknown,
+  ): SchemaValidationResult => {
+    const result = {
+      valid: true as const,
+      issues: Object.freeze([] as readonly string[]),
+      validatedInput: value as object,
+      schemaReference: schema,
+      contentFingerprint: structuredContentFingerprint(value),
+    }
+    Object.defineProperty(result, 'canonicalResultType', {
+      configurable: false,
+      enumerable: false,
+      writable: false,
+      value: CallerOwnedVerifier,
+    })
+    return Object.freeze(result)
+  }
+  const callerOwnedResult = new ValidateExecContract({
+    validate: (schema, value) => callerOwnedSelfDescribingResult(schema.reference, value),
+  }).validate(input)
+  assert.equal(callerOwnedResult.status, 'INVALID')
+  if (callerOwnedResult.status === 'INVALID') {
+    assert.equal(callerOwnedResult.failure.code, 'CONTRACT_INVALID')
+    assert.equal(callerOwnedResult.failure.noApproval, true)
+    assert.equal(callerOwnedResult.failure.noCheckpoint, true)
+    assert.equal(callerOwnedResult.failure.noEffect, true)
+    assert.equal('value' in callerOwnedResult, false)
+  }
+
+  assert.throws(
+    () => StructuredExecutionEnvelope.create(
+      input.envelope as never,
+      definitions.envelope.reference,
+      callerOwnedSelfDescribingResult(definitions.envelope.reference, input.envelope),
       new JsonSchemaExecValidator(),
     ),
     /authenticated successful schema validation result/,

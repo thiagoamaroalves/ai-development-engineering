@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "manifestKind": "PHASE_CHECKPOINT",
+  "phaseId": "SPEC-EXEC-001-EXEC-001-TICKET-001-remediation-40bf3351d35defba2e684632a67b68516463cc1e-dbe38e900c50db156161c31c8282491a81e672a9d88effcd5f6c273775e23d7e",
+  "operation": "checkpoint-implemented-ticket",
+  "subject": {
+    "id": "EXEC-001-TICKET-001",
+    "type": "ticket"
+  },
+  "sourceAuthority": [
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-audit.md",
+      "sha256": "b5af4b5adeb7ace136f3708ab91bf36c2ed5618d6aeab92db72665bd455d831b"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-remediation.md",
+      "sha256": "8747e2f7f670bf1c37bc9854270aa65ae965586a6c3e52a84d652273f5b42d2e"
+    }
+  ],
+  "target": {
+    "head": "40bf3351d35defba2e684632a67b68516463cc1e",
+    "semanticFingerprint": "dbe38e900c50db156161c31c8282491a81e672a9d88effcd5f6c273775e23d7e"
+  },
+  "paths": {
+    "manifest": "docs/workflow-checkpoints/exec-001-ticket-001-checkpoint-implemented-ticket-40bf3351d35d-manifest.json",
+    "preserve": [
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-remediation.md",
+      "docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-001-envelope-schema.md",
+      "docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-001-structured-consumption.md",
+      "docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-002-fail-closed.md",
+      "docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-002-required-fields.md",
+      "src/domain/exec-schema.ts",
+      "src/domain/exec-validation-evidence-internal.ts",
+      "src/infrastructure/exec-schema-validator.ts",
+      "tests/exec-001-ticket-001.test.ts"
+    ],
+    "delete": [],
+    "unstagedRecovery": [],
+    "marker": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-checkpoints/EXEC-001-TICKET-001-remediation-checkpoint-round-20.md"
+  },
+  "nextAuthorizedOperation": "audit-implemented-ticket",
+  "commitMessage": "checkpoint(SPEC-EXEC-001/EXEC-001-TICKET-001): REMEDIATION_CHECKPOINT round 20"
+}

@@ -8,6 +8,18 @@ import {
   EXEC_PAYLOAD_SCHEMA_REFERENCE,
   SchemaReference,
 } from './exec-contract.ts'
+import {
+  AuthenticatedExecSchemaValidationPort,
+  isAuthenticatedExecSchemaValidationPort,
+  isProducerIssuedValidationResult,
+} from './exec-validation-evidence-internal.ts'
+
+export {
+  AuthenticatedExecSchemaValidationPort,
+  isAuthenticatedExecSchemaValidationPort,
+  isProducerIssuedValidationResult,
+}
+
 export type SchemaValidationResult =
   | {
       readonly valid: true
@@ -143,6 +155,8 @@ const PAYLOAD_SCHEMA_DOCUMENT = schemaDocument({
   required: ['schemaId', 'schemaVersion', 'capabilityId', 'data'],
 })
 
+const CANONICAL_SCHEMA_DEFINITIONS = new WeakSet<object>()
+
 export class ExecContractSchemaDefinitions {
   readonly envelope: ExecSchemaDefinition
   readonly payload: ExecSchemaDefinition
@@ -160,6 +174,8 @@ export class ExecContractSchemaDefinitions {
     })
     this.payloadDefinitions = Object.freeze([this.payload])
     Object.freeze(this)
+    CANONICAL_SCHEMA_DEFINITIONS.add(this.envelope)
+    CANONICAL_SCHEMA_DEFINITIONS.add(this.payload)
   }
 
   selectPayload(value: unknown): ExecSchemaDefinition | undefined {
@@ -188,19 +204,16 @@ export class ExecContractSchemaDefinitions {
 
 /**
  * Schema mechanics may be selected behind the port, but canonical authority
- * can only be established from the two immutable definitions owned here.
- * Reference and document identity checks prevent a caller from substituting a
- * custom document that merely copies a canonical schema reference.
+ * can only be established from an immutable definition object created by the
+ * owner boundary. Membership is checked before reading `reference` or
+ * `document`, so getter/proxy wrappers cannot pass recognition and then swap
+ * the document observed by the compiler.
  */
 export function isCanonicalExecSchemaDefinition(value: unknown): value is ExecSchemaDefinition {
-  try {
-    if (!value || typeof value !== 'object') return false
-    const candidate = value as Partial<ExecSchemaDefinition>
-    return (candidate.reference === ENVELOPE_SCHEMA_REFERENCE
-      && candidate.document === ENVELOPE_SCHEMA_DOCUMENT)
-      || (candidate.reference === PAYLOAD_SCHEMA_REFERENCE
-        && candidate.document === PAYLOAD_SCHEMA_DOCUMENT)
-  } catch {
-    return false
-  }
+  return Boolean(
+    value
+      && typeof value === 'object'
+      && !Array.isArray(value)
+      && CANONICAL_SCHEMA_DEFINITIONS.has(value),
+  )
 }
