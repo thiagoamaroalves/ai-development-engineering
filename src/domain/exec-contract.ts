@@ -371,6 +371,24 @@ function hasCurrentOwnDataFields(
   })
 }
 
+/**
+ * The selected capability schema's semantic minimum is rechecked at the
+ * structured-value boundary. This keeps a caller-supplied authenticated
+ * producer from turning an unvalidated payload into a domain value: producer
+ * evidence binds the input, while the domain value independently enforces the
+ * ticket-owned capability contract before construction.
+ */
+function hasRequiredNonEmptyStringField(value: unknown, field: string): boolean {
+  if (!isPlainObject(value)) return false
+  const descriptor = Object.getOwnPropertyDescriptor(value, field)
+  return Boolean(
+    descriptor?.enumerable
+      && 'value' in descriptor
+      && typeof descriptor.value === 'string'
+      && descriptor.value.length > 0,
+  )
+}
+
 function isSuccessfulSchemaValidation(
   value: unknown,
   schema: SchemaReference,
@@ -536,6 +554,12 @@ export class StructuredCapabilityPayload {
       || input.schemaId !== schema.schemaId
       || input.schemaVersion !== schema.version) {
       throw new ExecContractDomainError('Payload schema identity does not match the registered schema.')
+    }
+    if (input.capabilityId !== EXEC_CAPABILITY_ID) {
+      throw new ExecContractDomainError('Capability identity does not match the ticket-owned payload schema.')
+    }
+    if (!hasRequiredNonEmptyStringField(input.data, 'result')) {
+      throw new ExecContractDomainError('Capability payload data must include a non-empty result field.')
     }
     return new StructuredCapabilityPayload(input, schema, CONSTRUCTION_TOKEN)
   }

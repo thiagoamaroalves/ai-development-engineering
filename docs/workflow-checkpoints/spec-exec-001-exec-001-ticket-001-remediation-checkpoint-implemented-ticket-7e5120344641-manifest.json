@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "manifestKind": "PHASE_CHECKPOINT",
+  "phaseId": "SPEC-EXEC-001-EXEC-001-TICKET-001-remediation-7e512034464168e5236eaa770bcdc5441e8b5bb6-25b299a188afa04f95ad1e40b72f678bf52a1d48d86150e1098036d1cca995ca",
+  "operation": "checkpoint-implemented-ticket",
+  "subject": {
+    "id": "EXEC-001-TICKET-001",
+    "type": "ticket"
+  },
+  "sourceAuthority": [
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-audit.md",
+      "sha256": "062b51ee08b477fb87f62d00b9f3d3ec89a7e192c3165b990ae5c92707575b97"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-remediation.md",
+      "sha256": "8a6cb3b3273e44969c45f0b1e841214915f55f9497bf0f35cdabbe85ef6318a7"
+    }
+  ],
+  "target": {
+    "head": "7e512034464168e5236eaa770bcdc5441e8b5bb6",
+    "semanticFingerprint": "25b299a188afa04f95ad1e40b72f678bf52a1d48d86150e1098036d1cca995ca"
+  },
+  "paths": {
+    "manifest": "docs/workflow-checkpoints/spec-exec-001-exec-001-ticket-001-remediation-checkpoint-implemented-ticket-7e5120344641-manifest.json",
+    "preserve": [
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-remediation.md",
+      "docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-001-envelope-schema.md",
+      "docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-001-structured-consumption.md",
+      "docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-002-fail-closed.md",
+      "docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-002-required-fields.md",
+      "src/domain/exec-contract.ts",
+      "tests/exec-001-ticket-001.test.ts"
+    ],
+    "delete": [],
+    "unstagedRecovery": [],
+    "marker": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-checkpoints/EXEC-001-TICKET-001-remediation-checkpoint-round-16.md"
+  },
+  "nextAuthorizedOperation": "audit-implemented-ticket",
+  "commitMessage": "checkpoint(SPEC-EXEC-001/EXEC-001-TICKET-001): REMEDIATION_CHECKPOINT round 16"
+}

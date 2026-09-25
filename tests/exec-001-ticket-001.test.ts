@@ -281,6 +281,58 @@ test('accepts an independently implemented adapter through the explicit producer
   assert.equal(result.status, 'VALID')
 })
 
+test('rechecks capability semantics before accepting authenticated producer evidence', () => {
+  class AlwaysTrueAuthenticatedAdapter extends AuthenticatedExecSchemaValidationPort {
+    constructor() {
+      super()
+    }
+
+    validate(schema: ExecSchemaDefinition, value: unknown) {
+      return this.issueValidatedResult({
+        valid: true as const,
+        issues: Object.freeze([]),
+        validatedInput: value as object,
+        schemaReference: schema.reference,
+        contentFingerprint: structuredContentFingerprint(value),
+      })
+    }
+  }
+
+  const adapter = new AlwaysTrueAuthenticatedAdapter()
+  const genericInvalidResult = new ValidateExecContract(adapter).validate({
+    ...validInput(),
+    payload: {
+      ...(validInput().payload as Record<string, unknown>),
+      data: { unrelated: true },
+    },
+  })
+  assert.equal(genericInvalidResult.status, 'INVALID')
+  if (genericInvalidResult.status === 'INVALID') {
+    assert.equal(genericInvalidResult.failure.code, 'CONTRACT_INVALID')
+    assert.equal(genericInvalidResult.failure.noApproval, true)
+    assert.equal(genericInvalidResult.failure.noCheckpoint, true)
+    assert.equal(genericInvalidResult.failure.noEffect, true)
+    assert.equal('value' in genericInvalidResult, false)
+  }
+
+  const definitions = new ExecContractSchemaDefinitions()
+  const unknownCapabilityPayload = {
+    ...(validInput().payload as Record<string, unknown>),
+    capabilityId: 'capability-unknown',
+  }
+  const forgedUnknownCapability = adapter.validate(definitions.payload, unknownCapabilityPayload)
+  assert.equal(forgedUnknownCapability.valid, true)
+  assert.throws(
+    () => StructuredCapabilityPayload.create(
+      unknownCapabilityPayload as never,
+      definitions.payload.reference,
+      forgedUnknownCapability,
+      adapter,
+    ),
+    /Capability identity does not match/,
+  )
+})
+
 test('does not expose caller-mintable validation authority through the domain boundary', async () => {
   assert.equal('registerExecValidationAuthority' in execContractDomain, false)
   assert.equal('recordExecSchemaValidation' in execContractDomain, false)
