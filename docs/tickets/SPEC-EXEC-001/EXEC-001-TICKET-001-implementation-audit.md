@@ -1,112 +1,141 @@
-# EXEC-001-TICKET-001 — Canonical Implementation Audit
+# Canonical Implementation Audit — EXEC-001-TICKET-001
 
 ## 1. Audit Verdict
 
 ```text
+AUDIT_ARTIFACT_TYPE = CANONICAL_IMPLEMENTATION_AUDIT
 AUDIT_SKILL = consolidate-implementation-audit
-AUDIT_MODE = READ_ONLY; CONSOLIDATION_ONLY; SPECIALIST_EVIDENCE_DRIVEN; CANONICAL_FINDING_AUTHORITY
+AUDIT_MODE = READ_ONLY / CONSOLIDATION_ONLY / SPECIALIST_EVIDENCE_DRIVEN / CANONICAL_FINDING_AUTHORITY
+CONSOLIDATION_RECOVERY_MODE = RESUME_OR_RECONCILE
+INTERRUPTED_CANONICAL_CANDIDATE = YES
+CANONICAL_CANDIDATE_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-audit.md
+CANONICAL_CANDIDATE_CLASSIFICATION = CONTRADICTORY / COMPLETE_CLAIM_UNVERIFIED
+CANDIDATE_COMPLETION_CLAIMS_USED_AS_AUTHORITY = NO
+CONSOLIDATION_ATTEMPT = 2/3
+AUDIT_ROUND = RE_AUDIT
+AUDIT_ROUND_NUMBER = 2
 TICKET_ID = EXEC-001-TICKET-001
-TICKET_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-capability-specific-envelope-and-payload-schemas.md
-TICKET_FOLDER = docs/tickets/SPEC-EXEC-001
-AUDIT_ROUND = INITIAL_AUDIT
-AUDIT_ROUND_NUMBER = 1
-AUDIT_TARGET_HEAD = 220728f972a98a5086e3370a90b069bf8707a2a3
-CURRENT_HEAD = 220728f972a98a5086e3370a90b069bf8707a2a3
-IMPLEMENTATION_BASELINE = 8cf79cd37ebb02d0657c1fb191cea1d194b71f89
-AUDIT_PROFILE = CONFORMANCE_REQUIRED, BEHAVIOR_REQUIRED, DESIGN_CONFORMANCE_REQUIRED, ARCHITECTURE_REQUIRED
+AUDIT_TARGET_HEAD = 38a81fc832b55360fd0cde1a584076cb28a5482f
+AUDIT_TARGET_STATE_FINGERPRINT = a85d61bc8ef7d9f1352b111ac3d28e7f71ce4a90a3b05f540b410b5e29203073
+AUDIT_WAVE_ID = ffb910a8-45ef-4e4c-a1c9-7f000239e153
+AUDIT_VERDICT = TICKET_IMPLEMENTATION_REMEDIATION_REQUIRED
+TICKET_IMPLEMENTATION_VERDICT = TICKET_IMPLEMENTATION_REMEDIATION_REQUIRED
+FINDING_COMPLETENESS = PASS
+TICKET_GATE = NOT_READY_FOR_DONE
+LOCAL_TICKET_DONE_ALLOWED = NO
 BASELINE_DRIFT_STATUS = NO_DRIFT
 REASSESSMENT_COMPLETE = YES
 FINDINGS_ARE_ACTIONABLE = YES
 BASELINE_REMEDIATION_READINESS = READY
-AUDIT_BASIS_FINGERPRINT = 864c5e99e2fd21d26fc1ca36a9dff20c2cbad74e4e13f604313d5a9d070f843d
 AUDIT_BASIS_STALE = NO
-AUDIT_VERDICT = TICKET_IMPLEMENTATION_REMEDIATION_REQUIRED
-TICKET_GATE = NOT_READY_FOR_DONE
 ```
 
-The four required specialist artifacts are present, complete, ticket-matched,
-and aligned to the supplied target HEAD and semantic state fingerprint. The
-current ticket/design subject is the refreshed `GAP-018` capability-specific
-schema unit. A historical canonical file existed for an older ticket path and
-`GAP-001` subject; it is not a same-subject predecessor for this initial audit
-of the refreshed ticket authority and is retained only as historical context,
-not as a current finding inventory.
+The dirty canonical file was an interrupted, untrusted candidate. Its
+completion-looking claims were not used to select the round, source findings,
+lineage, gate, or route. The current four specialist artifacts and the
+committed same-subject canonical baseline at the prior audit checkpoint were
+reconciled against the authoritative contracts. The candidate incorrectly
+presented this post-remediation subject as an initial audit with no predecessor;
+the current result is therefore a re-audit and preserves the prior
+`IMA-CRITICAL-001` identity.
+
+The audit is complete and actionable. The current specialist evidence contains
+one persisted critical authority-boundary defect and two newly surfaced,
+non-blocking conformance findings. The local gate is not ready for DONE because
+the authority/provenance obligation remains unsatisfied; this effect is derived
+from the local closure obligation, not from severity alone. No implementation,
+test, ticket-state, upstream-authority, remediation, checkpoint, commit, or
+specialist artifact was modified by consolidation.
 
 ## 2. Ticket Subject
 
 ```text
+TICKET_ID = EXEC-001-TICKET-001
+TICKET_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-capability-specific-envelope-and-payload-schemas.md
+TICKET_FOLDER = docs/tickets/SPEC-EXEC-001
+TICKET_STATUS = VALIDATION_REQUIRED
+AUDIT_PROFILE = CONFORMANCE_REQUIRED / BEHAVIOR_REQUIRED / DESIGN_CONFORMANCE_REQUIRED / ARCHITECTURE_REQUIRED
 IMPLEMENTATION_UNIT = EXEC-IMP-01 — Capability-specific envelope and payload schemas
-PORTFOLIO_OBLIGATION = O-016
+IMPLEMENTATION_BASELINE = 8cf79cd37ebb02d0657c1fb191cea1d194b71f89
+CURRENT_HEAD = 38a81fc832b55360fd0cde1a584076cb28a5482f
+IMPLEMENTATION_DESIGN_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design.md
 GAP_IDS = GAP-018
 REQUIREMENT_IDS = EXEC-ENVELOPE-001, EXEC-ENVELOPE-002
 ACCEPTANCE_IDS = AC-EXEC-001, AC-EXEC-002
-IMPLEMENTATION_DESIGN_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design.md
-CONFORMANCE_AUDIT_PATH = .pi/runtime/workflow-audits/554132c0-2d2d-4779-88d0-215e971a3441/conformance-EXEC-001-TICKET-001-ticket-conformance-audit.md
-BEHAVIOR_AUDIT_PATH = .pi/runtime/workflow-audits/554132c0-2d2d-4779-88d0-215e971a3441/behavior-EXEC-001-TICKET-001-behavior-audit.md
-DESIGN_CONFORMANCE_AUDIT_PATH = .pi/runtime/workflow-audits/554132c0-2d2d-4779-88d0-215e971a3441/design-EXEC-001-TICKET-001-implementation-design-conformance-audit.md
-ARCHITECTURE_AUDIT_PATH = .pi/runtime/workflow-audits/554132c0-2d2d-4779-88d0-215e971a3441/architecture-EXEC-001-TICKET-001-architecture-audit.md
-IMPLEMENTATION_DESIGN_READY = YES
-IMPLEMENTATION_DESIGN_GATE = READY_FOR_IMPLEMENTATION
-TICKET_STATUS_AT_AUDIT = VALIDATION_REQUIRED
+FINAL_PROOF_OWNER = EXEC-001-TICKET-001 local acceptance owner
+LOCAL_CLOSURE = YES only when all local obligations conform
+LOCAL_CLOSURE_AUDITED = NO
+INTEGRATED_FOLLOWUP_REQUIRED = YES for the unresolved authority boundary; not an availability-only handoff
 ```
 
-The ticket owns identifiable envelope and capability-payload schema validation,
-minimum structured fields, immutable structured values, and fail-closed
-`CONTRACT_INVALID` semantics. Registry resolution, lifecycle, persistence,
-transport, effects, downstream mappings, and final cross-SPEC conformance
-remain outside local ownership. The unit-owned schema harness is informational
-and locally testable; its lack of a foreign productive producer is not promoted
-into a local blocker.
+The ticket owns identifiable envelope and capability-payload schema selection,
+structured minimum fields, authenticated validation evidence, complete-pair
+construction, and fail-closed invalid results. Registry publication, DOM
+identity/lifecycle, persistence, runtime, transport, external effects, and
+foreign mappings remain outside this ticket.
 
 ## 3. Audit Round
 
 ```text
-AUDIT_ROUND = INITIAL_AUDIT
-AUDIT_ROUND_NUMBER = 1
+AUDIT_ROUND = RE_AUDIT
+AUDIT_ROUND_NUMBER = 2
 PREVIOUS_CANONICAL_AUDIT_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-audit.md
-PREVIOUS_CANONICAL_AUDIT_SUBJECT = historical envelope-schema-contract.md / GAP-001 subject
-CURRENT_AUDIT_SUBJECT = capability-specific-envelope-and-payload-schemas.md / GAP-018 subject
-PREVIOUS_CANONICAL_AUDIT_USED_FOR_CURRENT_LINEAGE = NO
-PREVIOUS_CANONICAL_FINDINGS = NOT_APPLICABLE_TO_CURRENT_REFRESHED_SUBJECT
-PREVIOUS_FINDINGS_RECONCILED = NOT_APPLICABLE
+PREVIOUS_CANONICAL_AUDIT_COMMIT = 7e512034464168e5236eaa770bcdc5441e8b5bb6
+PREVIOUS_CANONICAL_AUDIT_BLOB = 53e013eca17832b1c3238f007a034b76f3407925
+PREVIOUS_AUDIT_TARGET_HEAD = 220728f972a98a5086e3370a90b069bf8707a2a3
+PREVIOUS_AUDIT_BASIS_FINGERPRINT = 864c5e99e2fd21d26fc1ca36a9dff20c2cbad74e4e13f604313d5a9d070f843d
+PREVIOUS_CANONICAL_FINDINGS = IMA-CRITICAL-001
+PREVIOUS_CANONICAL_AUDIT_USED_FOR_LINEAGE = YES
+PREVIOUS_FINDINGS_RECONCILED = YES
+
+REMEDIATION_BASELINE = 7e512034464168e5236eaa770bcdc5441e8b5bb6
+REMEDIATION_HEAD = 38a81fc832b55360fd0cde1a584076cb28a5482f
+REMEDIATION_DELTA = authorized remediation after audit checkpoint round 15; current target changed the implementation/test candidate and remediation evidence, but the authority-boundary obligation remains open
+REMEDIATION_CHANGED_FILES = src/domain/exec-contract.ts; tests/exec-001-ticket-001.test.ts; docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/*; docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-remediation.md; remediation checkpoint/manifest artifacts
 ```
 
-The historical artifact at the canonical path targeted
-`bfb5c7db98102202d054493add14b8293f29c742` and the former ticket path
-`EXEC-001-TICKET-001-envelope-schema-contract.md`, with `GAP-001` authority.
-The supplied current ticket path, current design, current checkpoint, and
-current specialist wave target `GAP-018` and the capability-specific schema
-subject. Treating the stale historical artifact as the predecessor of this
-refreshed authority would merge unlike obligations and would require an
-unavailable historical baseline-drift proof. It is therefore not used as the
-current lineage ledger for this initial audit.
+The committed prior canonical report targeted the same ticket, `GAP-018`,
+requirements, acceptance criteria, and implementation unit. Its open
+`IMA-CRITICAL-001` was the predecessor for this re-audit. The round-16
+remediation checkpoint is historical evidence that remediation was attempted;
+it is not an independent audit and does not close the finding. The dirty
+current canonical candidate was not treated as a predecessor because it was
+uncheckpointed and internally contradicted the committed lineage.
 
 ## 4. Audit Target HEAD
 
 ```text
-AUDIT_TARGET_HEAD = 220728f972a98a5086e3370a90b069bf8707a2a3
-CURRENT_HEAD = 220728f972a98a5086e3370a90b069bf8707a2a3
+AUDIT_TARGET_HEAD = 38a81fc832b55360fd0cde1a584076cb28a5482f
+CURRENT_HEAD = 38a81fc832b55360fd0cde1a584076cb28a5482f
 IMPLEMENTATION_BASELINE = 8cf79cd37ebb02d0657c1fb191cea1d194b71f89
-AUDIT_TARGET_STATE_FINGERPRINT = 864c5e99e2fd21d26fc1ca36a9dff20c2cbad74e4e13f604313d5a9d070f843d
-AUDIT_BASIS_FINGERPRINT = 864c5e99e2fd21d26fc1ca36a9dff20c2cbad74e4e13f604313d5a9d070f843d
-CONFORMANCE_HEAD = 220728f972a98a5086e3370a90b069bf8707a2a3
-BEHAVIOR_HEAD = 220728f972a98a5086e3370a90b069bf8707a2a3
-DESIGN_HEAD = 220728f972a98a5086e3370a90b069bf8707a2a3
-ARCHITECTURE_HEAD = 220728f972a98a5086e3370a90b069bf8707a2a3
-CONFORMANCE_FINGERPRINT = 864c5e99e2fd21d26fc1ca36a9dff20c2cbad74e4e13f604313d5a9d070f843d
-BEHAVIOR_FINGERPRINT = 864c5e99e2fd21d26fc1ca36a9dff20c2cbad74e4e13f604313d5a9d070f843d
-DESIGN_FINGERPRINT = 864c5e99e2fd21d26fc1ca36a9dff20c2cbad74e4e13f604313d5a9d070f843d
-ARCHITECTURE_FINGERPRINT = 864c5e99e2fd21d26fc1ca36a9dff20c2cbad74e4e13f604313d5a9d070f843d
-SPECIALIST_STATE_CONSISTENCY = SPECIALIST_STATE_CONSISTENT
-NON_SEMANTIC_ARTIFACT_DRIFT = NONE_AT_INTAKE
+AUDIT_TARGET_STATE_FINGERPRINT = a85d61bc8ef7d9f1352b111ac3d28e7f71ce4a90a3b05f540b410b5e29203073
+AUDIT_BASIS_FINGERPRINT = a85d61bc8ef7d9f1352b111ac3d28e7f71ce4a90a3b05f540b410b5e29203073
+CONFORMANCE_HEAD = 38a81fc832b55360fd0cde1a584076cb28a5482f
+BEHAVIOR_HEAD = 38a81fc832b55360fd0cde1a584076cb28a5482f
+DESIGN_HEAD = 38a81fc832b55360fd0cde1a584076cb28a5482f
+ARCHITECTURE_HEAD = 38a81fc832b55360fd0cde1a584076cb28a5482f
+CONFORMANCE_STATE_FINGERPRINT = a85d61bc8ef7d9f1352b111ac3d28e7f71ce4a90a3b05f540b410b5e29203073
+BEHAVIOR_STATE_FINGERPRINT = a85d61bc8ef7d9f1352b111ac3d28e7f71ce4a90a3b05f540b410b5e29203073
+DESIGN_STATE_FINGERPRINT = a85d61bc8ef7d9f1352b111ac3d28e7f71ce4a90a3b05f540b410b5e29203073
+ARCHITECTURE_STATE_FINGERPRINT = a85d61bc8ef7d9f1352b111ac3d28e7f71ce4a90a3b05f540b410b5e29203073
+TARGET_HEAD_VERIFIED = YES
+TARGET_WORKTREE_STABLE_DURING_SPECIALIST_AUDITS = YES
+SPECIALIST_STATE_CONSISTENT = YES
+NON_SEMANTIC_ARTIFACT_DRIFT = YES — only workflow/audit artifact overlays differ; no material implementation/test divergence
 MATERIAL_STATE_DIVERGENCE = NO
+IMPLEMENTATION_DESIGN_BASELINE_MISMATCH = NO
+BASELINE_DRIFT_STATUS = NO_DRIFT
+REASSESSMENT_COMPLETE = YES
+FINDINGS_ARE_ACTIONABLE = YES
+BASELINE_REMEDIATION_READINESS = READY
 AUDIT_BASIS_STALE = NO
 ```
 
-Every specialist audited the same pinned implementation and test semantics. No
-specialist reports a working-tree overlay or material implementation/test state
-divergence. The target fingerprint is the exact semantic basis consumed by this
-canonical result.
+All four specialists audited the same pinned semantic implementation state. The
+implementation baseline and accepted authority were unchanged for the current
+re-audit basis; the change from the previous target is the authorized
+remediation delta, not unassessed baseline drift. The live target fingerprint
+is the exact basis consumed by this canonical result.
 
 ## 5. Specialist Audit Profile
 
@@ -119,19 +148,35 @@ READ_ONLY = YES
 CONSOLIDATION_ONLY = YES
 SPECIALIST_EVIDENCE_DRIVEN = YES
 SAME_TARGET_REQUIRED = SATISFIED
+IMPLEMENTATION_DESIGN_READY = YES
+IMPLEMENTATION_DESIGN_GATE = READY_FOR_IMPLEMENTATION
 ```
 
-Design conformance is mandatory for this workflow. Architecture is required by
-the supplied profile and is not treated as optional.
+Required persisted specialist artifacts:
+
+```text
+CONFORMANCE_AUDIT_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-ticket-conformance-audit.md
+BEHAVIOR_AUDIT_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-behavior-audit.md
+DESIGN_CONFORMANCE_AUDIT_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design-conformance-audit.md
+ARCHITECTURE_AUDIT_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-architecture-audit.md
+IMPLEMENTATION_DESIGN_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design.md
+```
+
+Architecture is required by the current audit profile. Design conformance is a
+mandatory domain and is not retroactively treated as optional.
 
 ## 6. Specialist Artifact Validation
 
-| Domain | Artifact | Ticket | Target HEAD | Fingerprint | Domain complete | Specialist result |
-|---|---|---|---|---|---|---|
-| Ticket conformance | `.pi/runtime/workflow-audits/554132c0-2d2d-4779-88d0-215e971a3441/conformance-EXEC-001-TICKET-001-ticket-conformance-audit.md` | MATCH | MATCH | MATCH | YES | `SPECIALIST_CONFORMANCE_PASS` |
-| Implementation behavior | `.pi/runtime/workflow-audits/554132c0-2d2d-4779-88d0-215e971a3441/behavior-EXEC-001-TICKET-001-behavior-audit.md` | MATCH | MATCH | MATCH | YES | `SPECIALIST_BEHAVIOR_FINDINGS` |
-| Implementation design conformance | `.pi/runtime/workflow-audits/554132c0-2d2d-4779-88d0-215e971a3441/design-EXEC-001-TICKET-001-implementation-design-conformance-audit.md` | MATCH | MATCH | MATCH | YES | `SPECIALIST_DESIGN_FINDINGS` |
-| Architecture boundaries | `.pi/runtime/workflow-audits/554132c0-2d2d-4779-88d0-215e971a3441/architecture-EXEC-001-TICKET-001-architecture-audit.md` | MATCH | MATCH | MATCH | YES | `SPECIALIST_ARCHITECTURE_FINDINGS` |
+Each required artifact exists, identifies the ticket, carries the current
+pinned target head and semantic fingerprint, identifies the current wave, is
+complete, and has a valid specialist result.
+
+| Domain | Artifact | Ticket match | Target/fingerprint match | Wave match | Domain complete | Result | Validation |
+|---|---|---:|---:|---:|---:|---|---|
+| Ticket conformance | `docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-ticket-conformance-audit.md` | YES | YES | YES | YES | `SPECIALIST_CONFORMANCE_PASS` | ACCEPTED |
+| Implementation behavior | `docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-behavior-audit.md` | YES | YES | YES | YES | `SPECIALIST_BEHAVIOR_PASS` | ACCEPTED |
+| Design conformance | `docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design-conformance-audit.md` | YES | YES | YES | YES | `SPECIALIST_DESIGN_PASS` | ACCEPTED |
+| Architecture boundary | `docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-architecture-audit.md` | YES | YES | YES | YES | `SPECIALIST_ARCHITECTURE_FINDINGS` | ACCEPTED |
 
 ```text
 ALL_REQUIRED_SPECIALISTS_COMPLETE = YES
@@ -139,184 +184,279 @@ CONFORMANCE_DOMAIN_COMPLETE = YES
 BEHAVIOR_DOMAIN_COMPLETE = YES
 DESIGN_DOMAIN_COMPLETE = YES
 ARCHITECTURE_DOMAIN_COMPLETE = YES
-SPECIALIST_ARTIFACTS_EXIST = YES
-SPECIALIST_ARTIFACTS_VALID = YES
-SPECIALIST_ARTIFACTS_COMPLETE = YES
-SPECIALIST_RESULT_INVALID = NO
-SPECIALIST_SUBJECT_MISMATCH = NO
+SPECIALIST_ARTIFACTS_MISSING = 0
+SPECIALIST_ARTIFACTS_INCOMPLETE = 0
+SPECIALIST_RESULTS_INVALID = 0
+SPECIALIST_SUBJECT_MISMATCHES = 0
+SPECIALIST_VALIDATION_BLOCKER = NONE
 ```
 
-The approved Implementation Design was also verified from the supplied design
-artifact as `IMPLEMENTATION_DESIGN_READY` with
-`IMPLEMENTATION_DESIGN_GATE = READY_FOR_IMPLEMENTATION`.
+The behavior and design specialists report domain passes, while the architecture
+specialist supplies concrete source and executable evidence for the caller-
+mintable issuer seam. This is a resolved interpretation conflict, not a target
+contradiction: the architecture evidence controls the canonical authority
+finding, while the specialist domain results remain recorded unchanged.
 
 ## 7. Repository-State Consistency
 
 ```text
-CONFORMANCE_HEAD = 220728f972a98a5086e3370a90b069bf8707a2a3
-BEHAVIOR_HEAD = 220728f972a98a5086e3370a90b069bf8707a2a3
-DESIGN_HEAD = 220728f972a98a5086e3370a90b069bf8707a2a3
-ARCHITECTURE_HEAD = 220728f972a98a5086e3370a90b069bf8707a2a3
-AUDIT_TARGET_HEAD = 220728f972a98a5086e3370a90b069bf8707a2a3
-CONFORMANCE_FINGERPRINT = 864c5e99e2fd21d26fc1ca36a9dff20c2cbad74e4e13f604313d5a9d070f843d
-BEHAVIOR_FINGERPRINT = 864c5e99e2fd21d26fc1ca36a9dff20c2cbad74e4e13f604313d5a9d070f843d
-DESIGN_FINGERPRINT = 864c5e99e2fd21d26fc1ca36a9dff20c2cbad74e4e13f604313d5a9d070f843d
-ARCHITECTURE_FINGERPRINT = 864c5e99e2fd21d26fc1ca36a9dff20c2cbad74e4e13f604313d5a9d070f843d
+CONFORMANCE_HEAD = 38a81fc832b55360fd0cde1a584076cb28a5482f
+BEHAVIOR_HEAD = 38a81fc832b55360fd0cde1a584076cb28a5482f
+DESIGN_HEAD = 38a81fc832b55360fd0cde1a584076cb28a5482f
+ARCHITECTURE_HEAD = 38a81fc832b55360fd0cde1a584076cb28a5482f
+AUDIT_TARGET_HEAD = 38a81fc832b55360fd0cde1a584076cb28a5482f
+CONFORMANCE_FINGERPRINT = a85d61bc8ef7d9f1352b111ac3d28e7f71ce4a90a3b05f540b410b5e29203073
+BEHAVIOR_FINGERPRINT = a85d61bc8ef7d9f1352b111ac3d28e7f71ce4a90a3b05f540b410b5e29203073
+DESIGN_FINGERPRINT = a85d61bc8ef7d9f1352b111ac3d28e7f71ce4a90a3b05f540b410b5e29203073
+ARCHITECTURE_FINGERPRINT = a85d61bc8ef7d9f1352b111ac3d28e7f71ce4a90a3b05f540b410b5e29203073
 SPECIALIST_STATE_CONSISTENT = YES
-NON_SEMANTIC_ARTIFACT_DRIFT = NONE_AT_INTAKE
+NON_SEMANTIC_ARTIFACT_DRIFT = YES
 MATERIAL_STATE_DIVERGENCE = NO
-AUDIT_BASIS_STALE = NO
+SPECIALIST_STATE_DIVERGENCE = NO
+IMPLEMENTATION_DESIGN_BASELINE_MISMATCH = NO
 ```
 
-No implementation or test semantics differ between the specialist artifacts.
-Their independent direct probe descriptions converge on the same alternate
-producer authority escape; this is evidence convergence, not state divergence.
+No implementation or test semantic state differs between specialist audits.
+The current canonical candidate's contradictory round/completion claims are
+process-artifact drift and were reconciled rather than treated as semantic
+state.
 
 ## 8. Specialist Results
 
+### 8.1 Ticket conformance
+
 ```text
 CONFORMANCE_RESULT = PASS
-BEHAVIOR_RESULT = FINDINGS
-DESIGN_RESULT = FINDINGS
-ARCHITECTURE_RESULT = FINDINGS
 CONFORMANCE_SPECIALIST_RESULT = SPECIALIST_CONFORMANCE_PASS
-BEHAVIOR_SPECIALIST_RESULT = SPECIALIST_BEHAVIOR_FINDINGS
-DESIGN_SPECIALIST_RESULT = SPECIALIST_DESIGN_FINDINGS
-ARCHITECTURE_SPECIALIST_RESULT = SPECIALIST_ARCHITECTURE_FINDINGS
-DOMAIN_AUDIT_COMPLETE_FOR_ALL_REQUIRED_SPECIALISTS = YES
+CONFORMANCE_DOMAIN_AUDIT_COMPLETE = YES
+CONFORMANCE_CRITICAL_FINDINGS = 0
+CONFORMANCE_MAJOR_FINDINGS = 0
+CONFORMANCE_MINOR_FINDINGS = 2
+CONFORMANCE_INFO_FINDINGS = 0
+CONFORMANCE_REQUIRED_BEHAVIORS = 2
+CONFORMANCE_ACCEPTANCE_CRITERIA_SATISFIED = 2/2
+CONFORMANCE_COMPLETION_EVIDENCE_MISSING = 0
 ```
 
-The conformance specialist found no ticket-conformance defect. The behavior,
-design-conformance, and architecture specialists independently report the same
-caller-injectable authenticated validation-producer defect.
+The conformance specialist reported `CONF-MINOR-001`, a capability-record
+wording contradiction, and `CONF-MINOR-002`, unpinned execution-head metadata.
+Both are ticket/evidence findings and neither changes the authoritative
+informational capability class.
+
+### 8.2 Implementation behavior
+
+```text
+BEHAVIOR_RESULT = PASS
+BEHAVIOR_SPECIALIST_RESULT = SPECIALIST_BEHAVIOR_PASS
+BEHAVIOR_DOMAIN_AUDIT_COMPLETE = YES
+BEHAVIOR_CRITICAL_FINDINGS = 0
+BEHAVIOR_MAJOR_FINDINGS = 0
+BEHAVIOR_MINOR_FINDINGS = 0
+BEHAVIOR_INFO_FINDINGS = 0
+REQUIRED_BEHAVIORS_TOTAL = 2
+DIRECT_BEHAVIOR_WITNESSES = 2
+PROXY_ONLY_BEHAVIORS = 0
+UNTESTED_STATE_TRANSITIONS = 0
+UNPROVEN_CONCURRENCY_CONTRACTS = 0
+MISSING_ARCHITECTURE_GUARDS_REPORTED_BY_BEHAVIOR = 0
+BEHAVIOR_TESTS_RUN = 103
+BEHAVIOR_TESTS_PASSED = 103
+```
+
+The behavior specialist found direct positive and negative witnesses for the
+ordinary canonical path, structured minimum, fail-closed behavior,
+stale/mutation handling, and no-effect semantics. Its domain pass does not
+close the separately evidenced unauthorized alternate-issuer path.
+
+### 8.3 Design conformance
+
+```text
+DESIGN_RESULT = PASS
+DESIGN_SPECIALIST_RESULT = SPECIALIST_DESIGN_PASS
+DESIGN_DOMAIN_AUDIT_COMPLETE = YES
+DESIGN_CRITICAL_FINDINGS = 0
+DESIGN_MAJOR_FINDINGS = 0
+DESIGN_MINOR_FINDINGS = 0
+DESIGN_INFO_FINDINGS = 0
+DESIGN_VERDICT = IMPLEMENTATION_DESIGN_READY
+DESIGN_GATE = READY_FOR_IMPLEMENTATION
+```
+
+The design specialist confirmed the approved responsibility placement, domain
+and invariant ownership, dependency direction, testability, and out-of-scope
+boundaries. The approved design remains ready; the canonical implementation
+finding records the actual owner/provenance escape and routes it to
+implementation remediation rather than design revalidation.
+
+### 8.4 Architecture boundary
+
+```text
+ARCHITECTURE_RESULT = FINDINGS
+ARCHITECTURE_SPECIALIST_RESULT = SPECIALIST_ARCHITECTURE_FINDINGS
+ARCHITECTURE_DOMAIN_AUDIT_COMPLETE = YES
+ARCHITECTURE_CRITICAL_FINDINGS = 1
+ARCHITECTURE_MAJOR_FINDINGS = 0
+ARCHITECTURE_MINOR_FINDINGS = 0
+ARCHITECTURE_INFO_FINDINGS = 0
+MISSING_ARCHITECTURE_GUARDS = 1
+CALLER_SUPPLIED_AUTHORITY_BYPASSES = 1
+AUTHORITY_CONSUMPTION_GAPS = 1
+PRODUCER_CONSUMER_CONTRACT_ERRORS = 1
+```
+
+The architecture specialist demonstrated that a caller-created subclass of the
+exported authenticated validation base can issue a `valid: true` result without
+evaluating the selected schema, and that the consumer accepts that producer and
+receipt membership as sufficient authority.
 
 ## 9. Source Finding Inventory
 
-### Source counts and disposition
+### 9.1 Source counts
 
 ```text
-CONFORMANCE_SOURCE_FINDINGS = 0
-BEHAVIOR_SOURCE_FINDINGS = 1
-DESIGN_SOURCE_FINDINGS = 1
+CONFORMANCE_SOURCE_FINDINGS = 2
+BEHAVIOR_SOURCE_FINDINGS = 0
+DESIGN_SOURCE_FINDINGS = 0
 ARCHITECTURE_SOURCE_FINDINGS = 1
 SOURCE_FINDINGS_TOTAL = 3
 SOURCE_FINDINGS_REJECTED_AS_INVALID = 0
-NON_BLOCKING_OBSERVATIONS = 0
+SOURCE_FINDINGS_NON_BLOCKING_OBSERVATIONS = 0
 SOURCE_FINDINGS_ACCOUNTED_FOR = YES
 ```
 
-| Source specialist | Source finding ID | Source severity | Source domain | Canonical disposition | Relationship |
+| Source specialist | Source finding ID | Severity | Source domain | Canonical mapping | Accounting |
 |---|---|---:|---|---|---|
-| IMPLEMENTATION_BEHAVIOR | `BEH-CRITICAL-001` | CRITICAL | IMPLEMENTATION_BEHAVIOR | `IMA-CRITICAL-001` | SAME_DEFECT |
-| IMPLEMENTATION_DESIGN | `IDC-CRITICAL-001` | CRITICAL | IMPLEMENTATION_DESIGN | `IMA-CRITICAL-001` | SAME_DEFECT |
-| ARCHITECTURE_BOUNDARY | `ARCH-CRITICAL-001` | CRITICAL | ARCHITECTURE_BOUNDARY | `IMA-CRITICAL-001` | SAME_DEFECT |
+| `TICKET_CONFORMANCE` | `CONF-MINOR-001` | MINOR | TICKET_CONFORMANCE | `IMA-MINOR-001` | ACCOUNTED |
+| `TICKET_CONFORMANCE` | `CONF-MINOR-002` | MINOR | TICKET_CONFORMANCE | `IMA-MINOR-002` | ACCOUNTED |
+| `ARCHITECTURE_BOUNDARY` | `ARCH-CRITICAL-001` | CRITICAL | ARCHITECTURE_BOUNDARY | `IMA-CRITICAL-001` | ACCOUNTED |
 
-### BEH-CRITICAL-001
+### 9.2 `CONF-MINOR-001`
 
 ```text
-SOURCE_SPECIALIST = IMPLEMENTATION_BEHAVIOR
-SOURCE_FINDING_ID = BEH-CRITICAL-001
-SOURCE_SEVERITY = CRITICAL
-SOURCE_DOMAIN = IMPLEMENTATION_BEHAVIOR
-TICKET = EXEC-001-TICKET-001
+SOURCE_SPECIALIST = TICKET_CONFORMANCE
+SOURCE_FINDING_ID = CONF-MINOR-001
+SOURCE_SEVERITY = MINOR
+TICKET_ID = EXEC-001-TICKET-001
 IMPLEMENTATION_UNIT = EXEC-IMP-01 — Capability-specific envelope and payload schemas
 GAP_IDS = GAP-018
 REQUIREMENT_IDS = EXEC-ENVELOPE-001, EXEC-ENVELOPE-002
 ACCEPTANCE_IDS = AC-EXEC-001, AC-EXEC-002
-NORMATIVE_AUTHORITY = SPEC-EXEC-001 EXEC-ENVELOPE-001/002; approved Implementation Design §7 and §§13/17/20; authority-provenance anti-forgery contract
-AFFECTED_BEHAVIOR = capability-invalid payload must be rejected before a validated contract is exposed; invalid evidence must fail closed
-AFFECTED_RESPONSIBILITY = authenticated schema-validation producer/evidence boundary and consumer-side verification
-AFFECTED_COMPONENT = AuthenticatedExecSchemaValidationPort; ValidateExecContract; StructuredCapabilityPayload
-AFFECTED_BOUNDARY = producer-issued validation evidence → application consumer → structured contract values
-AFFECTED_INVARIANT = capability-specific schema semantics and producer authority must be verified before VALID construction
-REPOSITORY_EVIDENCE = src/domain/exec-validation-evidence-internal.ts:18-39; src/application/exec-contract.ts:80-143; src/domain/exec-contract.ts:377-399,505-540; src/domain/exec-schema.ts:140-155
-TEST_EVIDENCE = direct authenticated always-true alternate-adapter probe returns VALID for capability-001 data={unrelated:true}; existing positive alternate-adapter test does not use invalid selected-schema data; plain untrusted adapter rejection is not equivalent
-PROBLEM = producer-instance authentication proves only base-class membership and receipt binding, not that the selected canonical schema was evaluated or that the issuer is owner-authorized
-IMPACT = downstream consumers can receive a validated contract for generic/capability-invalid data; fail-closed and no-effect meaning can be bypassed
-MINIMUM_CORRECTION = close the caller-mintable issuer seam or independently verify canonical schema semantics at consumption; add direct invalid-data negative witnesses for branded alternate adapters and caller-injection paths
-SYSTEMIC_PATTERN = YES
+NORMATIVE_AUTHORITY = Plan/EXEC-IMP-01 capability record; LOCAL_TESTABILITY=YES; PRODUCTIVE_AVAILABILITY=NO for the fixture/harness; DEPENDENCY_CLASS=INFORMATIONAL; BLOCKING_EFFECT=NONE
+AFFECTED_BEHAVIOR = capability availability wording and downstream interpretation
+AFFECTED_RESPONSIBILITY = ticket capability-record traceability
+AFFECTED_COMPONENT = ticket §14a/§14b capability record
+AFFECTED_BOUNDARY = local testability versus productive availability
+AFFECTED_INVARIANT = preserve the informational dependency class without availability promotion
+REPOSITORY_EVIDENCE = ticket §14a says PRODUCTIVE_AVAILABILITY=YES for unit-owned local execution while the authoritative Unit record and §14b preserve PRODUCTIVE_AVAILABILITY=NO for the fixture/harness
+TEST_EVIDENCE = direct local witnesses pass; no productive foreign producer is established
+PROBLEM = the same availability dimension is used for local execution/testability and productive availability without a clear distinction
+IMPACT = a downstream reader could infer an unauthorized availability promotion, although execution, acceptance, dependency class, and local closure are not blocked
+MINIMUM_CORRECTION = reword the ticket to use LOCAL_TESTABILITY=YES/CONTRACT_TESTABLE_LOCALLY while preserving PRODUCTIVE_AVAILABILITY=NO and DEPENDENCY_CLASS=INFORMATIONAL
+SYSTEMIC_PATTERN = NO
+RELATED_LOCATIONS = ticket §14a; ticket §14b; EXEC-IMP-01 capability record; Implementation Plan capability record
 ```
 
-### IDC-CRITICAL-001
+### 9.3 `CONF-MINOR-002`
 
 ```text
-SOURCE_SPECIALIST = IMPLEMENTATION_DESIGN
-SOURCE_FINDING_ID = IDC-CRITICAL-001
-SOURCE_SEVERITY = CRITICAL
-SOURCE_DOMAIN = IMPLEMENTATION_DESIGN
-TICKET = EXEC-001-TICKET-001
+SOURCE_SPECIALIST = TICKET_CONFORMANCE
+SOURCE_FINDING_ID = CONF-MINOR-002
+SOURCE_SEVERITY = MINOR
+TICKET_ID = EXEC-001-TICKET-001
 IMPLEMENTATION_UNIT = EXEC-IMP-01 — Capability-specific envelope and payload schemas
 GAP_IDS = GAP-018
 REQUIREMENT_IDS = EXEC-ENVELOPE-001, EXEC-ENVELOPE-002
 ACCEPTANCE_IDS = AC-EXEC-001, AC-EXEC-002
-NORMATIVE_AUTHORITY = approved Implementation Design §7 authority-provenance record; §§9–13 responsibility/invariant boundaries; authority-provenance anti-forgery contract
-AFFECTED_BEHAVIOR = selected capability schema must remain the semantic authority for payload validation on every consumable producer path
-AFFECTED_RESPONSIBILITY = ExecSchemaValidationPort/authenticated evidence boundary must preserve issuer ownership and alternate-adapter conformance
-AFFECTED_COMPONENT = AuthenticatedExecSchemaValidationPort; ValidateExecContract; StructuredCapabilityPayload
-AFFECTED_BOUNDARY = approved producer/evidence seam and the application/domain construction boundary
-AFFECTED_INVARIANT = issuer authorization, exact selected-schema scope, caller-injection rejection, and alternate-adapter negative proof
-REPOSITORY_EVIDENCE = public/subclassable authenticated producer base in src/domain/exec-validation-evidence-internal.ts:18-39; caller-supplied port accepted by src/application/exec-contract.ts:80-86,102-118; consumer checks bindings but not schema semantics at src/domain/exec-contract.ts:377-399
-TEST_EVIDENCE = tests/exec-001-ticket-001.test.ts:263-281 tests an unconditional authenticated independent adapter only with valid input; direct Evil-subclass probe accepts data={} although src/domain/exec-schema.ts:140-155 requires data.result
-PROBLEM = the implementation violates the design's non-caller-mintable authority proof while retaining the appearance of producer-issued evidence
-IMPACT = capability-specific payload meaning can be materialized without canonical schema validation; the approved authority/provenance boundary is incomplete
-MINIMUM_CORRECTION = make successful-result issuance reachable only through an owner-authorized/verifiable producer capability or independently evaluate the canonical selected schema before constructing values; add branded-subclass negative coverage
-SYSTEMIC_PATTERN = YES
+NORMATIVE_AUTHORITY = current audit-target binding and ADR-0009 structured audit lineage
+AFFECTED_BEHAVIOR = interpretation of execution-evidence identity and historical/current test counts
+AFFECTED_RESPONSIBILITY = ticket completion-evidence traceability
+AFFECTED_COMPONENT = ticket §27 implementation execution evidence
+AFFECTED_BOUNDARY = implementation baseline versus current target evidence
+AFFECTED_INVARIANT = current completion evidence must identify its audited implementation state
+REPOSITORY_EVIDENCE = ticket §27 records 8cf79cd... as IMPLEMENTATION_HEAD/working-tree state while the pinned target is 38a81fc...; the ticket retains an older Current HEAD and historical 78-test count
+TEST_EVIDENCE = current pinned direct evidence is independently recorded by the current specialist artifacts, but the ticket record itself is not target-pinned
+PROBLEM = ticket execution evidence does not distinguish historical implementation metadata from current-target evidence
+IMPACT = later evidence consumers may be unable to bind the ticket claim to an implementation commit and test population; no current acceptance witness is missing
+MINIMUM_CORRECTION = update §27 with the current target/fingerprint and current run metadata, or explicitly label the 8cf/78-test values historical and attach a wave-specific target record
+SYSTEMIC_PATTERN = NO
+RELATED_LOCATIONS = ticket §2 Current HEAD; ticket §27 implementation execution evidence; implementation checkpoint round 14; current pinned target
 ```
 
-### ARCH-CRITICAL-001
+### 9.4 `ARCH-CRITICAL-001`
 
 ```text
 SOURCE_SPECIALIST = ARCHITECTURE_BOUNDARY
 SOURCE_FINDING_ID = ARCH-CRITICAL-001
 SOURCE_SEVERITY = CRITICAL
-SOURCE_DOMAIN = ARCHITECTURE_BOUNDARY
-TICKET = EXEC-001-TICKET-001
+TICKET_ID = EXEC-001-TICKET-001
 IMPLEMENTATION_UNIT = EXEC-IMP-01 — Capability-specific envelope and payload schemas
 GAP_IDS = GAP-018
 REQUIREMENT_IDS = EXEC-ENVELOPE-001, EXEC-ENVELOPE-002
-ACCEPTANCE_IDS = AC-EXEC-001, AC-EXEC-002
-NORMATIVE_AUTHORITY = ADR-0003 revision 3 Decision; SPEC-EXEC-001 §§2, 13, 19/20; approved design §7; authority-provenance anti-forgery contract
-AFFECTED_BEHAVIOR = only owner-authorized schema evaluation may establish consumable VALID evidence
-AFFECTED_RESPONSIBILITY = EXEC schema authority/issuer and consumer-side canonical authority verification
-AFFECTED_COMPONENT = public AuthenticatedExecSchemaValidationPort; ValidateExecContract; StructuredCapabilityPayload; composition boundary
-AFFECTED_BOUNDARY = caller-supplied validation producer → canonical EXEC contract boundary
-AFFECTED_INVARIANT = no caller-created issuer may mint a success for capability-invalid input; no alternate authority path may bypass canonical schema semantics
-REPOSITORY_EVIDENCE = src/domain/exec-validation-evidence-internal.ts:18-36 registers every subclass and exposes runtime-visible protected issuance; src/domain/exec-schema.ts:11-20 publicly exports the base; src/application/exec-contract.ts:84-86,103-139 trusts WeakSet membership; src/domain/exec-contract.ts:374-399,516-540 does not independently verify the selected document
-TEST_EVIDENCE = NW-ARCH-001 direct caller-defined subclass returns VALID for canonical capability metadata with data={}; existing import/plain-forgery/stale guards pass but no semantic branded-subclass negative exists
-PROBLEM = the private WeakSet authenticates construction by an exported subclassable base, not owner authorization or actual schema evaluation, creating dual authority
-IMPACT = downstream consumers can consume generic/invalid capability data as an EXEC-owned validated contract and carry false validity toward later boundaries
-MINIMUM_CORRECTION = preserve the canonical schema owner as the only issuer or establish a genuinely owner-authorized/verifiable alternate adapter; reject caller-injected success for capability-invalid data with direct executable proof
+ACCEPTANCE_IDS = AC-EXEC-001
+NORMATIVE_AUTHORITY = ADR-0003 Decision; SPEC-EXEC-001 O-016, EXEC-ENVELOPE-001/002, EXEC-CONTRACT-001, C-EXEC-001 and C-EXEC-008; authority-provenance anti-forgery contract
+AFFECTED_BEHAVIOR = consumable validation proof must come from an authorized producer that evaluated the exact selected schema
+AFFECTED_RESPONSIBILITY = schema-proof issuer authorization and consumer provenance verification
+AFFECTED_COMPONENT = AuthenticatedExecSchemaValidationPort; ValidateExecContract; StructuredExecutionEnvelope/StructuredCapabilityPayload boundary
+AFFECTED_BOUNDARY = producer issuer → injected consumer → validated structured values
+AFFECTED_INVARIANT = caller cannot mint or substitute canonical schema-validation authority
+REPOSITORY_EVIDENCE = src/domain/exec-validation-evidence-internal.ts:18-39 publicly exposes a subclassable producer base and protected issuance helper; src/domain/exec-schema.ts:17-20 re-exports it; src/application/exec-contract.ts:80-145 accepts an injected producer and checks membership/result binding but not issuer ownership or schema evaluation
+TEST_EVIDENCE = tests/exec-001-ticket-001.test.ts:263-281 demonstrates a caller-created independent adapter that does not evaluate JSON Schema; :318-324 demonstrates valid=true for unknown capability input; the required direct negative issuer/conformance guard is absent
+PROBLEM = producer-instance and issued-result membership are treated as sufficient authority proof even though a caller-created subclass can mint a successful receipt without evaluating the selected canonical definition
+IMPACT = downstream consumers may receive schema-validation evidence without owner authorization or complete schema semantics; fixed value checks do not close the alternate authority path for all schema constraints or future definitions
+MINIMUM_CORRECTION = make the canonical EXEC owner the sole source of consumable schema proof, or constrain alternate adapters behind an owner-issued/independently verified producer capability proving exact selected-schema evaluation, stale behavior, scope, and caller-injection rejection; add a direct executable negative witness for the caller-created always-true subtype
 SYSTEMIC_PATTERN = YES
+RELATED_LOCATIONS = src/domain/exec-validation-evidence-internal.ts:14-39; src/domain/exec-schema.ts:11-20,41-49; src/application/exec-contract.ts:80-145; src/domain/exec-contract.ts:392-416,482-564; src/infrastructure/exec-schema-validator.ts:38-98; tests/exec-001-ticket-001.test.ts:239-334,430-457,460-551
+```
+
+```text
+SOURCE_FINDINGS_ACCOUNTED_FOR = YES
+SOURCE_FINDINGS_REJECTED_AS_INVALID = 0
+SOURCE_FINDINGS_NON_BLOCKING_OBSERVATIONS = 0
 ```
 
 ## 10. Finding Relationship / Deduplication Analysis
 
+| Findings compared | Relationship | Resolution |
+|---|---|---|
+| `CONF-MINOR-001` and `CONF-MINOR-002` | RELATED_BUT_INDEPENDENT | Both concern ticket evidence quality, but availability wording and execution-head lineage have distinct correction obligations. |
+| `CONF-MINOR-001` and `ARCH-CRITICAL-001` | INDEPENDENT | The capability-record wording does not cause the caller-mintable issuer seam. |
+| `CONF-MINOR-002` and `ARCH-CRITICAL-001` | INDEPENDENT | Ticket execution metadata and runtime authority issuance have different owners and corrections. |
+| Behavior/design specialist passes and `ARCH-CRITICAL-001` | CONTRADICTORY_SPECIALIST_INTERPRETATION, resolved | The architecture artifact supplies concrete source locations and an always-true producer witness. The pass claims do not disprove that witness; no unresolved target contradiction remains. |
+| Previous `IMA-CRITICAL-001` and current `ARCH-CRITICAL-001` | SAME_DEFECT / LINEAGE_CONTINUATION | The current architecture finding is the same authority/provenance obligation after attempted remediation; preserve `IMA-CRITICAL-001` rather than create a new canonical ID. |
+
 ```text
-BEH-CRITICAL-001 = SAME_DEFECT with IDC-CRITICAL-001 and ARCH-CRITICAL-001
-IDC-CRITICAL-001 = SAME_DEFECT with BEH-CRITICAL-001 and ARCH-CRITICAL-001
-ARCH-CRITICAL-001 = SAME_DEFECT with BEH-CRITICAL-001 and IDC-CRITICAL-001
-CONTRADICTORY_SPECIALIST_INTERPRETATION = NO
-SPECIALIST_CONTRADICTION_REQUIRES_REAUDIT = NO
-DUPLICATE_REPRESENTATIONS_MERGED = 2
+SAME_DEFECT_RELATIONSHIPS = 1 lineage continuation
+SAME_ROOT_CAUSE_DIFFERENT_MANIFESTATION_RELATIONSHIPS = 0
+RELATED_BUT_INDEPENDENT_RELATIONSHIPS = 1
+INDEPENDENT_RELATIONSHIPS = 2
+CONTRADICTORY_INTERPRETATIONS_RESOLVED = 1
+CONTRADICTIONS_REQUIRING_REAUDIT = 0
+DUPLICATE_REPRESENTATIONS_MERGED = 0 current-round source duplicates
 SOURCE_FINDINGS_ACCOUNTED_FOR = YES
 ```
 
-All three source findings identify one causal defect: caller-created
-authenticated producer membership is treated as semantic schema authority. A
-single correction obligation—owner-authorized/verifiable issuance or
-consumer-side canonical schema verification, plus direct negative evidence—resolves
-the behavioral, design, and architecture manifestations. The generic-path
-cutover, stale-input checks, and plain-forgery guards are supporting defenses,
-not independent defects. No source finding is rejected or silently omitted.
+The critical current source finding is not a new duplicate of the prior
+canonical finding; it is the re-audited manifestation of the same obligation.
+The two current conformance findings remain separate canonical findings.
 
 ## 11. Canonical Root-Cause Analysis
 
+### 11.1 Campaign records
+
+| Campaign | Canonical finding | Root-cause domain | Root-cause category | Status | Matrix complete | Surface coverage | Negative witnesses | Expanded radius |
+|---|---|---|---|---|---|---|---|---|
+| `RCC-EXEC-001-SCHEMA-VALIDATION-AUTHORITY` | `IMA-CRITICAL-001` | ARCHITECTURE_BOUNDARY | CALLER_SUPPLIED_AUTHORITY_BYPASS | OPEN | YES | NO | NO | NO |
+| `RCC-CONF-EXEC-001-T001-CAPABILITY-RECORD` | `IMA-MINOR-001` | TICKET_CONFORMANCE | CAPABILITY_AVAILABILITY_CONTRADICTION | OPEN | YES | YES | YES | NO |
+| `RCC-CONF-EXEC-001-T001-EVIDENCE-IDENTITY` | `IMA-MINOR-002` | TICKET_CONFORMANCE | OTHER / COMPLETION_EVIDENCE_TRACEABILITY | OPEN | YES | YES | YES | NO |
+
+### 11.2 Stable systemic campaign: schema producer authority
+
 ```text
 ROOT_CAUSE_CAMPAIGN_ID = RCC-EXEC-001-SCHEMA-VALIDATION-AUTHORITY
-ROOT_CAUSE_CAMPAIGN_ALIASES = RCC-EXEC-SCHEMA-AUTHORITY-ISSUER-001
+ROOT_CAUSE_CAMPAIGN_ALIASES = RCC-EXEC-SCHEMA-AUTHORITY-ISSUER-001; RCC-ARCH-EXEC-001-T001-SCHEMA-PRODUCER
 ROOT_CAUSE_ID = CALLER_MINTABLE_AUTHENTICATED_VALIDATION_EVIDENCE_BYPASSES_SELECTED_SCHEMA_SEMANTICS
 CAMPAIGN_STATUS = OPEN
-CAMPAIGN_SCOPE = EXEC-001-TICKET-001 schema validation, provenance, alternate-adapter and consumer-construction boundary
+CAMPAIGN_SCOPE = EXEC-001-TICKET-001 schema-definition, validation-evidence, structured-value and alternate-producer boundary
 CANONICAL_FINDINGS = IMA-CRITICAL-001
 ROOT_CAUSE_DOMAIN = ARCHITECTURE_BOUNDARY
 ROOT_CAUSE_CATEGORY = CALLER_SUPPLIED_AUTHORITY_BYPASS
@@ -324,72 +464,93 @@ CAMPAIGN_MATRIX_COMPLETE = YES
 ALL_SURFACE_ROWS_COVERED = NO
 ALL_NEGATIVE_WITNESSES_PASS = NO
 NO_UNEXPLAINED_PUBLIC_AUTHORITY_PATH = NO
-NO_HIDDEN_CONCRETE_PROTOCOL = NO
+NO_HIDDEN_CONCRETE_PROTOCOL = YES
 ROOT_CAUSE_REMOVED = NO
 KNOWN_MANIFESTATIONS_CLOSED = NO
-SYSTEMIC_TEST_EVIDENCE = PRESENT_BUT_FAILED_ALTERNATE-ADAPTER_NEGATIVE
+SYSTEMIC_TEST_EVIDENCE = PRESENT
 EXPANDED_RADIUS_REQUIRED = NO
 ```
 
-### Root-cause surface matrix
+The campaign identity is preserved from the prior same-subject canonical audit.
+The current architecture specialist used an alias for the same campaign; that
+alias is not promoted to a new campaign. The matrix is complete as an inventory
+but remains open because the issuer, consumer, alternate-authority, injection,
+port-substitution, public-export, architecture-guard, and test rows still lack
+required proof.
 
-| Surface row | Surface class | Location/owner | Current behavior | Expected behavior | Coverage status | Negative witness |
-|---|---|---|---|---|---|---|
-| RCC-SVA-001 | ISSUER | `src/infrastructure/exec-schema-validator.ts:38-98`; EXEC-001 | Canonical adapter evaluates the selected frozen document and issues bound evidence | Only an owner-authorized schema evaluator may establish consumable semantics | COVERED for canonical route; campaign remains open | Canonical invalid-data rejection passes |
-| RCC-SVA-002 | REGISTRAR | No dynamic registrar in this ticket; static definitions in `ExecContractSchemaDefinitions` | No dynamic registry operation is in scope | Registry authority remains in later EXEC units; static authority stays immutable | NOT_APPLICABLE | Reason: no registrar operation in scope |
-| RCC-SVA-003 | CONSUMER | `src/application/exec-contract.ts:80-143`; `src/domain/exec-contract.ts:374-399` | Consumer checks brand, input, reference, and fingerprint but not schema semantics/issuer owner | Consumer rejects unauthorized issuer or independently verifies canonical semantics | MISSING | NW-ARCH-001 fails |
-| RCC-SVA-004 | ALTERNATE_AUTHORITY_PATH | Caller subclass of exported `AuthenticatedExecSchemaValidationPort` | Branded permissive adapter is accepted as a schema authority | Alternate adapter must be owner-authorized and satisfy direct semantic negatives | MISSING | NW-ARCH-001 fails |
-| RCC-SVA-005 | INJECTION_POINT | `src/application/exec-contract.ts:84-86` | Caller chooses the producer instance; subclass passes authentication | Composition-owned provider or independently verifiable capability only | MISSING | Direct Evil-subclass probe fails |
-| RCC-SVA-006 | MUTATION_PATH | `src/infrastructure/exec-schema-validator.ts:46-55,75-92`; evidence WeakMaps | Genuine input mutation/stale content is rejected, but issuance remains caller-mintable | Preserve stale rejection and prevent caller minting | PARTIAL | Genuine stale tests pass; mint-path negative fails |
-| RCC-SVA-007 | STALE_PATH | `tests/exec-001-ticket-001.test.ts:408-499` | Genuine stale/mutated receipts fail closed | Every consumable path remains stale-safe | COVERED for genuine producer | NW-ARCH-003 passes |
-| RCC-SVA-008 | PORT_SUBSTITUTION_PATH | `src/domain/exec-schema.ts:17-20`; evidence module | Alternate implementation is supported without semantic conformance enforcement | Every alternate adapter carries verifiable owner authorization and schema semantics | MISSING | Alternate invalid-data witness absent/fails |
-| RCC-SVA-009 | PUBLIC_EXPORT | `src/domain/exec-schema.ts:11-20` and public application constructor | Public API exposes a subclassable authority-bearing producer seam | Authority-bearing issuance is not caller-mintable | MISSING | NW-ARCH-001 fails |
-| RCC-SVA-010 | PERSISTENCE | None in ticket | No durable authority path exists | No persistence claim in this unit | NOT_APPLICABLE | Reason: validation is side-effect free |
-| RCC-SVA-011 | RETRY_RECOVERY | None in ticket | No retry/recovery authority exists | Later owners preserve their own recovery semantics | NOT_APPLICABLE | Reason: no effect or durable state |
-| RCC-SVA-012 | LEGACY_ROUTE | Former generic schema is rejected input only | No legacy writer or conversion path restores generic authority | Generic path remains retired | COVERED | NW-ARCH-004 passes |
-| RCC-SVA-013 | ARCHITECTURE_GUARD | `tests/exec-001-ticket-001.test.ts:774-825` | Import graph is guarded, but branded permissive adapter semantics are not | Architecture guard exercises caller-subclass invalid-schema rejection | MISSING | Missing guard / NW-ARCH-001 fails |
-| RCC-SVA-014 | TEST | `tests/exec-001-ticket-001.test.ts:239-282,316-406` | Plain forgeries are tested; branded permissive adapter is tested only with valid data | Direct branded alternate-adapter invalid-data and caller-injection negatives | MISSING | Required negative witness absent |
+| Surface row | Surface class | Location / owner | Normative obligation | Current behavior | Expected behavior | Coverage | Negative witnesses |
+|---|---|---|---|---|---|---|---|
+| `RCC-SVP-001` | ISSUER | `src/domain/exec-validation-evidence-internal.ts:18-39`; EXEC-001 | Only an authorized producer may issue consumable schema proof | Every subclass is branded and may issue a `valid: true` receipt | Owner authorization and selected-schema semantic conformance are independently established | MISSING | `NW-ARCH-003`, `NW-ARCH-007` |
+| `RCC-SVP-002` | REGISTRAR | `src/domain/exec-schema.ts:158-183`; EXEC-001 | Definitions are immutable and owner-controlled | Frozen static envelope/payload set and exact selection are present | Keep definition authority owner-controlled; no caller extension | COVERED | `NW-ARCH-002`, `NW-ARCH-005` |
+| `RCC-SVP-003` | CONSUMER | `src/application/exec-contract.ts:80-145`; EXEC-001 | Consumer verifies provenance and selected-schema semantics | Membership, shape, input, reference and fingerprint are checked, but not issuer authorization/evaluation | Verify owner-authorized producer and alternate-adapter semantics | MISSING | `NW-ARCH-003`, `NW-ARCH-007` |
+| `RCC-SVP-004` | ALTERNATE_AUTHORITY_PATH | caller-created `AuthenticatedExecSchemaValidationPort` subclass | Alternate adapters cannot become a second owner | Caller subclass can issue success without schema evaluation | Owner-authorized capability or no consumable alternate proof | MISSING | `NW-ARCH-003` |
+| `RCC-SVP-005` | INJECTION_POINT | `ValidateExecContract` constructor `src/application/exec-contract.ts:84-86` | Dependency injection cannot replace canonical authority with caller truth | Any caller-supplied branded port is stored and accepted | Injection constrained to an owner-authorized proof-bearing producer | MISSING | `NW-ARCH-001`, `NW-ARCH-003` |
+| `RCC-SVP-006` | MUTATION_PATH | `src/infrastructure/exec-schema-validator.ts:46-92` | Evidence binds current input and selected schema | Canonical adapter rechecks schema and fingerprints content | Preserve current-content and own-field validation | COVERED | `NW-ARCH-004` |
+| `RCC-SVP-007` | STALE_PATH | canonical receipt and alternate-adapter paths | Stale/mutated evidence cannot become a validated value | Canonical path rejects stale input; alternate issuer semantics are unproven | Every consumable producer satisfies the same stale/current-input proof | MISSING | `NW-ARCH-004`, `NW-ARCH-007` |
+| `RCC-SVP-008` | PORT_SUBSTITUTION_PATH | exported validation port/base | Substitution preserves issuer, scope, stale and forgery guarantees | Substitution is accepted based on subclass membership alone | Alternate implementation has a verifiable owner/proof contract | MISSING | `NW-ARCH-003`, `NW-ARCH-007` |
+| `RCC-SVP-009` | PUBLIC_EXPORT | `src/domain/exec-schema.ts:17-20`; evidence module | Public exports cannot expose caller-mintable authority | Base and issuance helper are reachable to public subclasses | Close issuance or use owner-issued capability | MISSING | `NW-ARCH-003` |
+| `RCC-SVP-010` | PERSISTENCE | none in this ticket | No persistence adapter becomes schema authority | No persistence path exists | Preserve out-of-scope status | NOT_APPLICABLE — no durable material | NONE |
+| `RCC-SVP-011` | RETRY_RECOVERY | none in this ticket | Retry/recovery cannot mint contract proof | No retry/recovery operation exists | Later owners consume preserved proof/basis | NOT_APPLICABLE — no retry/recovery operation | NONE |
+| `RCC-SVP-012` | LEGACY_ROUTE | `src/domain/exec-schema.ts:140-183` | Generic payload acceptance remains retired | Old generic identifier is not selected; no conversion fallback | Retain fail-closed old-schema rejection | COVERED | `NW-ARCH-005` |
+| `RCC-SVP-013` | ARCHITECTURE_GUARD | `tests/exec-001-ticket-001.test.ts:826-877` | Guard rejects forbidden issuer/substitution paths | Import graph and plain-forgery guards pass; alternate issuer guard is absent | Add direct negative alternate-issuer witness | MISSING | `NW-ARCH-007` |
+| `RCC-SVP-014` | TEST | `tests/exec-001-ticket-001.test.ts:263-334,430-457` | Positive and negative issuer/injection witnesses exist | Permissive branded adapter positive is present; required invalid-data negative is absent | Reject caller-created always-true producer at the authority boundary | MISSING | `NW-ARCH-003`, `NW-ARCH-007` |
 
-The matrix accounts for all minimum campaign surface classes. It cannot close
-while the consumer, injection, alternate-authority, public-export, or direct
-negative-witness rows remain missing.
+Negative witness index:
+
+```text
+NW-ARCH-001 = plain unbranded caller port is rejected
+NW-ARCH-002 = copied/custom schema definition cannot establish canonical authority
+NW-ARCH-003 = caller-created authenticated adapter issues valid=true without selected-schema evaluation
+NW-ARCH-004 = canonical stale receipt/current-content mutation is rejected
+NW-ARCH-005 = productive import graph rejects forbidden dependencies and legacy route
+NW-ARCH-006 = text-only output cannot become canonical completion/effect
+NW-ARCH-007 = unauthorized-alternate-issuer negative witness is absent
+```
+
+### 11.3 Bounded ticket-record campaigns
+
+`RCC-CONF-EXEC-001-T001-CAPABILITY-RECORD` and
+`RCC-CONF-EXEC-001-T001-EVIDENCE-IDENTITY` are localized ticket-record
+campaigns. Their applicable surfaces are covered by the conformance evidence;
+their corrections do not promote the informational schema capability or alter
+its dependency class.
 
 ## 12. Canonical Findings
 
-### IMA-CRITICAL-001 — Caller-injectable authenticated adapter bypasses capability-specific schema semantics
+### IMA-CRITICAL-001 — Caller-mintable authenticated schema producer creates an alternate authority path
 
 ```text
 Finding ID = IMA-CRITICAL-001
 Severity = CRITICAL
-Title = Caller-injectable authenticated adapter bypasses capability-specific schema semantics
+Title = Caller-mintable authenticated schema producer creates an alternate authority path
+FINDING_STATUS = OPEN
 FINDING_CATEGORY = CALLER_SUPPLIED_AUTHORITY_BYPASS
 ROOT_CAUSE_DOMAIN = ARCHITECTURE_BOUNDARY
 ROOT_CAUSE_CATEGORY = CALLER_SUPPLIED_AUTHORITY_BYPASS
 ROOT_CAUSE_CAMPAIGN_ID = RCC-EXEC-001-SCHEMA-VALIDATION-AUTHORITY
-SOURCE_SPECIALISTS = IMPLEMENTATION_BEHAVIOR; IMPLEMENTATION_DESIGN; ARCHITECTURE_BOUNDARY
-SOURCE_FINDING_IDS = BEH-CRITICAL-001; IDC-CRITICAL-001; ARCH-CRITICAL-001
+SOURCE_SPECIALISTS = ARCHITECTURE_BOUNDARY
+SOURCE_FINDING_IDS = ARCH-CRITICAL-001
 TICKET = EXEC-001-TICKET-001
 IMPLEMENTATION_UNIT = EXEC-IMP-01 — Capability-specific envelope and payload schemas
 GAP_IDS = GAP-018
 REQUIREMENT_IDS = EXEC-ENVELOPE-001, EXEC-ENVELOPE-002
-ACCEPTANCE_IDS = AC-EXEC-001, AC-EXEC-002
-NORMATIVE_AUTHORITY = ADR-0003 revision 3 Decision; SPEC-EXEC-001 EXEC-ENVELOPE-001/002 and fail-closed contract; approved Implementation Design §7 and §§9–13/17; authority-provenance anti-forgery contract
-REPOSITORY_EVIDENCE = src/domain/exec-validation-evidence-internal.ts:18-39 registers every subclass and allows protected issueValidatedResult; src/domain/exec-schema.ts:11-20 publicly exposes the producer base; src/application/exec-contract.ts:80-143 accepts the caller-supplied producer after WeakSet checks; src/domain/exec-contract.ts:377-399,505-540 checks receipt bindings but not selected-schema semantics; src/domain/exec-schema.ts:140-155 requires data.result for capability-001
-TEST_EVIDENCE = direct authenticated always-true alternate-adapter probe returned VALID with data={unrelated:true} for capability-001; direct Evil-subclass probe returned VALID with data={}; existing alternate-adapter positive test uses valid input only; plain untrusted adapter and canonical invalid-data tests do not close this path
-EXPECTED_RESULT = INVALID / CONTRACT_INVALID / no validated pair / no approval, checkpoint, or effect interpretation for capability-invalid data from any untrusted or unauthorized producer
-AUDITED_RESULT = VALID with a StructuredCapabilityPayload for data rejected by the ticket-owned capability-specific schema
-PROBLEM = producer-instance branding is treated as semantic schema authority even when a caller-created authenticated subclass does not evaluate the selected canonical schema
-ROOT_CAUSE = public subclassable producer registration and protected runtime result minting establish caller-controlled evidence; consumer-side checks prove shape, identity, input, reference, and fingerprint but not issuer authorization or schema evaluation
-IMPACT = a downstream consumer can consume generic or capability-invalid data as an EXEC-owned validated contract; the fail-closed/no-effect boundary is bypassable and later integrated consumers receive false validity
-STRUCTURAL_IMPACT = alternate producer authority, public export, and consumer-construction boundaries do not preserve the approved owner-authorized provenance proof
-BEHAVIORAL_IMPACT = generic-but-capability-invalid payloads can return VALID through a branded permissive adapter instead of CONTRACT_INVALID
+ACCEPTANCE_IDS = AC-EXEC-001
+NORMATIVE_AUTHORITY = ADR-0003 revision 3 Decision; SPEC-EXEC-001 O-016, EXEC-ENVELOPE-001/002, EXEC-CONTRACT-001, C-EXEC-001 and C-EXEC-008; approved Implementation Design; authority-provenance anti-forgery contract
+REPOSITORY_EVIDENCE = src/domain/exec-validation-evidence-internal.ts:18-39 registers every subclass and permits protected issueValidatedResult; src/domain/exec-schema.ts:17-20 re-exports the producer base; src/application/exec-contract.ts:80-145 accepts an injected producer after membership/result checks but not issuer ownership or schema evaluation
+TEST_EVIDENCE = tests/exec-001-ticket-001.test.ts:263-281 shows a caller-created adapter that never evaluates JSON Schema; :318-324 shows valid=true for unknown capability input; the required direct negative issuer/conformance guard is absent
+EXPECTED_RESULT = CONTRACT_INVALID / no validated pair / no approval, checkpoint, or effect interpretation for capability-invalid data from an unauthorized producer
+AUDITED_RESULT = the caller-created branded producer can issue an authority-shaped valid result; the architecture specialist's bounded examples show that value-level checks do not establish canonical issuer provenance or complete schema semantics
+PROBLEM = producer-instance and issued-result membership are treated as sufficient authority proof even though a caller-created subclass can mint a successful receipt without evaluating the selected canonical definition
+ROOT_CAUSE = public subclassable producer registration and protected result minting establish caller-controlled evidence; consumer checks prove shape, identity, input, reference, and fingerprint but not issuer ownership or schema evaluation
+IMPACT = downstream consumers may consume generic or capability-invalid data as an EXEC-owned validated contract; the fail-closed/no-effect authority boundary is bypassable for schema semantics not duplicated in fixed value checks
+STRUCTURAL_IMPACT = alternate producer, public-export, injection, and consumer-construction boundaries do not preserve owner-authorized provenance
+BEHAVIORAL_IMPACT = the canonical path and known fixed invalid cases pass, but an unauthorized branded alternate producer is not rejected by the authority boundary
 ARCHITECTURE_IMPACT = canonical EXEC schema authority is duplicated by a caller-mintable alternate authority path
 SYSTEMIC_PATTERN = YES
-RELATED_LOCATIONS = src/domain/exec-validation-evidence-internal.ts; src/domain/exec-schema.ts; src/application/exec-contract.ts; src/domain/exec-contract.ts; src/infrastructure/exec-schema-validator.ts; src/composition/exec-contract.ts; tests/exec-001-ticket-001.test.ts:239-282,316-406,774-825
-MINIMUM_CORRECTION_REQUIRED = make successful-result issuance reachable only through an owner-authorized and consumer-verifiable producer capability, or independently evaluate the canonical selected schema before construction; preserve exact input/reference/fingerprint and stale checks; add direct branded-alternate invalid-data, unknown/mismatched-capability, caller-injection, no-partial-result, and no-effect negative witnesses
-REMEDIATION_ROUTE = IMPLEMENTATION_REMEDIATION
+RELATED_LOCATIONS = src/domain/exec-validation-evidence-internal.ts:14-39; src/domain/exec-schema.ts:11-20,41-49; src/application/exec-contract.ts:80-145; src/domain/exec-contract.ts:392-416,482-564; src/infrastructure/exec-schema-validator.ts:38-98; src/composition/exec-contract.ts:1-10; tests/exec-001-ticket-001.test.ts:239-334,430-551
+MINIMUM_CORRECTION_REQUIRED = make the canonical EXEC owner the sole source of consumable schema proof, or constrain alternate adapters behind an owner-issued/independently verified producer capability proving exact selected-schema evaluation, scope, stale behavior, and caller-injection rejection; add direct negative witnesses for the caller-created always-true subtype and no-authority/no-effect outcome
 PRIMARY_ROUTE = IMPLEMENTATION_REMEDIATION
-FINDING_STATUS = OPEN
+REMEDIATION_ROUTE = IMPLEMENTATION_REMEDIATION
 CAPABILITY = EXEC-SCHEMA-CAPABILITY-PAYLOAD / authenticated selected-schema validation evidence
 DEPENDENCY_CLASS = INFORMATIONAL
 LOCAL_CLOSURE_BLOCKING = YES
@@ -403,137 +564,272 @@ BLOCKS_LOCAL_CLOSURE = YES
 BLOCKS_TICKET_DONE = YES
 BLOCKS_INTEGRATED_PROOF = YES
 BLOCKS_SPEC_FINAL_CONFORMANCE = YES
-DOWNSTREAM_CHECKPOINT = ticket validation/local closure and later integrated contract-consumption proof
-DOWNSTREAM_OWNER = EXEC-001 implementation owner; downstream consumers must retain the fail-closed contract
 OPEN_INTEGRATED_FINDING_TRACEABILITY = COMPLETE
+DOWNSTREAM_CHECKPOINT = implemented-ticket audit checkpoint, then remediation checkpoint and independent re-audit
+DOWNSTREAM_OWNER = EXEC-001-TICKET-001 implementation/remediation owner and local acceptance owner
+FINDING_ORIGIN = PREEXISTING
+ORIGIN_REASON = the same canonical finding was open in the committed prior audit; remediation was attempted, but the current specialist architecture evidence reproduces the authority-boundary defect
+PREVIOUS_FINDING_IDS = IMA-CRITICAL-001
+LINEAGE_STATUS = REGRESSED
+REMEDIATION_UNIT_IDS = RU-001
+REMEDIATION_REGRESSION_CLASSIFICATION = DIRECT_REMEDIATION_REGRESSION
+CONSECUTIVE_FINDING_PERSISTENCE = 1
+REMEDIATION_PROGRESS = PARTIAL
+CONVERGENCE_STATUS = CONVERGING
+NON_CONVERGENCE_REASON = NONE
+EXPANDED_RADIUS_REQUIRED = NO
+AUDIT_ESCAPE = NONE — previously detected in the same-subject canonical audit
+FINDING_SEVERITY_USED_AS_SOLE_COMPLETION_GATE = 0
+```
+
+The `INFORMATIONAL` dependency class describes the unit-owned schema harness
+availability record. It does not reclassify the implementation defect or make
+it non-blocking. The local closure effect is derived from the unsatisfied
+owner-authorized provenance obligation and its required direct negative witness;
+no productive-capability promotion is claimed.
+
+### IMA-MINOR-001 — Capability availability wording conflates local testability with productive availability
+
+```text
+Finding ID = IMA-MINOR-001
+Severity = MINOR
+Title = Capability availability wording conflates local testability with productive availability
+FINDING_STATUS = OPEN
+FINDING_CATEGORY = CAPABILITY_AVAILABILITY_CONTRADICTION
+ROOT_CAUSE_DOMAIN = TICKET_CONFORMANCE
+ROOT_CAUSE_CATEGORY = CAPABILITY_AVAILABILITY_CONTRADICTION
+ROOT_CAUSE_CAMPAIGN_ID = RCC-CONF-EXEC-001-T001-CAPABILITY-RECORD
+SOURCE_SPECIALISTS = TICKET_CONFORMANCE
+SOURCE_FINDING_IDS = CONF-MINOR-001
+TICKET = EXEC-001-TICKET-001
+IMPLEMENTATION_UNIT = EXEC-IMP-01 — Capability-specific envelope and payload schemas
+GAP_IDS = GAP-018
+REQUIREMENT_IDS = EXEC-ENVELOPE-001, EXEC-ENVELOPE-002
+ACCEPTANCE_IDS = AC-EXEC-001, AC-EXEC-002
+NORMATIVE_AUTHORITY = Plan/EXEC-IMP-01 capability record; LOCAL_TESTABILITY=YES; PRODUCTIVE_AVAILABILITY=NO for the fixture/harness; DEPENDENCY_CLASS=INFORMATIONAL; BLOCKING_EFFECT=NONE
+REPOSITORY_EVIDENCE = ticket §14a says PRODUCTIVE_AVAILABILITY=YES for unit-owned local execution while the authoritative Unit record and §14b preserve PRODUCTIVE_AVAILABILITY=NO for the fixture/harness
+TEST_EVIDENCE = direct local witnesses pass; no productive foreign producer is established
+EXPECTED_RESULT = ticket wording distinguishes LOCAL_TESTABILITY=YES from PRODUCTIVE_AVAILABILITY=NO and preserves INFORMATIONAL dependency/no-blocking effect
+AUDITED_RESULT = ticket wording uses the availability dimension ambiguously and requires revalidation
+PROBLEM = local testability and productive availability are conflated in the ticket capability record
+ROOT_CAUSE = ticket prose was not normalized to the authoritative capability record after implementation evidence was recorded
+IMPACT = a downstream reader could infer unauthorized availability promotion; no local execution, acceptance, or closure capability is actually blocked
+STRUCTURAL_IMPACT = ticket authority-record clarity is weakened; no production structure changes
+BEHAVIORAL_IMPACT = NOT_APPLICABLE — direct runtime behavior remains conformant
+ARCHITECTURE_IMPACT = NOT_APPLICABLE — no runtime authority boundary is changed
+SYSTEMIC_PATTERN = NO
+RELATED_LOCATIONS = ticket §14a; ticket §14b; EXEC-IMP-01 capability record; Implementation Plan capability record
+MINIMUM_CORRECTION_REQUIRED = reword the ticket to state LOCAL_TESTABILITY=YES/CONTRACT_TESTABLE_LOCALLY while preserving PRODUCTIVE_AVAILABILITY=NO, DEPENDENCY_CLASS=INFORMATIONAL, and no blocking effect
+PRIMARY_ROUTE = TICKET_REVALIDATION
+REMEDIATION_ROUTE = TICKET_REVALIDATION
+CAPABILITY = EXEC-SCHEMA-CAPABILITY-PAYLOAD
+DEPENDENCY_CLASS = INFORMATIONAL
+LOCAL_CLOSURE_BLOCKING = NO
+LOCAL_ACCEPTANCE_REQUIRES_PRODUCTIVE_CAPABILITY = NO
+CLOSURE_OWNERSHIP = LOCAL_TICKET
+COMPLETION_EVIDENCE_TIMING = LOCAL_CLOSURE
+DEPENDENCY_CLASS_RECLASSIFICATION_REQUIRED = NO
+UPSTREAM_DEPENDENCY_CLASSIFICATION_PRESERVED = YES
+BLOCKS_LOCAL_EXECUTION = NO
+BLOCKS_LOCAL_CLOSURE = NO
+BLOCKS_TICKET_DONE = NO
+BLOCKS_INTEGRATED_PROOF = NO
+BLOCKS_SPEC_FINAL_CONFORMANCE = NO
+DOWNSTREAM_CHECKPOINT = ticket evidence/revalidation checkpoint
+DOWNSTREAM_OWNER = EXEC-001-TICKET-001 local closure owner
 FINDING_ORIGIN = NEW_PREEXISTING
-ORIGIN_REASON = the exploitable authenticated producer seam is present in the implementation baseline and is not among the current target's changed production files; the current target's direct negative probe establishes the preexisting boundary defect
-AUDIT_ESCAPE = UNCLASSIFIED_ESCAPE
-AUDIT_ESCAPE_REASON = the defect was reasonably observable in the shared authority boundary, but the historical canonical artifact targets a different ticket path/GAP subject and cannot support a narrower same-subject escape attribution
-REMEDIATION_REGRESSION_CLASSIFICATION = NOT_APPLICABLE_FOR_INITIAL_CURRENT_SUBJECT
+ORIGIN_REASON = the ticket wording is unchanged in the current remediation delta and was reasonably observable before the current audit
+PREVIOUS_FINDING_IDS = NONE
+LINEAGE_STATUS = NEW_PREEXISTING
+REMEDIATION_REGRESSION_CLASSIFICATION = NONE
 CONSECUTIVE_FINDING_PERSISTENCE = 0
 REMEDIATION_PROGRESS = NONE
 CONVERGENCE_STATUS = NEW_FINDING
 NON_CONVERGENCE_REASON = NONE
 EXPANDED_RADIUS_REQUIRED = NO
+AUDIT_ESCAPE = CONFORMANCE_ESCAPE
+AUDIT_ESCAPE_REASON = prior same-subject conformance consolidation reported no source finding although this unchanged ticket record contained the contradiction
 FINDING_SEVERITY_USED_AS_SOLE_COMPLETION_GATE = 0
 ```
 
-The finding is local-closure blocking because the approved design and ticket
-require the authority/provenance and alternate-adapter negative proof at local
-closure. The `INFORMATIONAL` dependency class describes the unit-owned harness
-availability record; it does not prevent a local implementation defect from
-blocking completion. No capability class is reclassified.
+### IMA-MINOR-002 — Ticket execution evidence is not pinned to the audited implementation
+
+```text
+Finding ID = IMA-MINOR-002
+Severity = MINOR
+Title = Ticket execution evidence is not pinned to the audited implementation
+FINDING_STATUS = OPEN
+FINDING_CATEGORY = COMPLETION_EVIDENCE_TRACEABILITY
+ROOT_CAUSE_DOMAIN = TICKET_CONFORMANCE
+ROOT_CAUSE_CATEGORY = OTHER
+ROOT_CAUSE_CAMPAIGN_ID = RCC-CONF-EXEC-001-T001-EVIDENCE-IDENTITY
+SOURCE_SPECIALISTS = TICKET_CONFORMANCE
+SOURCE_FINDING_IDS = CONF-MINOR-002
+TICKET = EXEC-001-TICKET-001
+IMPLEMENTATION_UNIT = EXEC-IMP-01 — Capability-specific envelope and payload schemas
+GAP_IDS = GAP-018
+REQUIREMENT_IDS = EXEC-ENVELOPE-001, EXEC-ENVELOPE-002
+ACCEPTANCE_IDS = AC-EXEC-001, AC-EXEC-002
+NORMATIVE_AUTHORITY = current audit-target binding and ADR-0009 structured audit lineage
+REPOSITORY_EVIDENCE = ticket §27 records 8cf79cd... as IMPLEMENTATION_HEAD/working-tree state while the pinned target is 38a81fc...; the ticket retains an older Current HEAD and historical 78-test count
+TEST_EVIDENCE = current pinned direct evidence is independently recorded by the current specialist artifacts, but the ticket record itself is not target-pinned
+EXPECTED_RESULT = ticket execution evidence identifies the exact current implementation target/fingerprint or clearly labels older head/count values historical
+AUDITED_RESULT = ticket execution metadata does not distinguish historical implementation metadata from current-target evidence
+PROBLEM = the ticket record does not bind its execution evidence to the audited implementation and test population
+ROOT_CAUSE = execution metadata was not refreshed or explicitly labeled historical when later implementation and evidence overlays were added
+IMPACT = later evidence consumers may be unable to bind the ticket claim to an implementation commit and test population; no current acceptance witness is missing
+STRUCTURAL_IMPACT = NOT_APPLICABLE to production structure; audit-lineage clarity is reduced
+BEHAVIORAL_IMPACT = NOT_APPLICABLE — current direct behavior evidence passes
+ARCHITECTURE_IMPACT = NOT_APPLICABLE
+SYSTEMIC_PATTERN = NO
+RELATED_LOCATIONS = ticket §2 Current HEAD; ticket §27 implementation execution evidence; implementation checkpoint round 14; current pinned target
+MINIMUM_CORRECTION_REQUIRED = update §27 with the current target/fingerprint and current run metadata, or label the 8cf/78-test values historical and attach a wave-specific target record
+PRIMARY_ROUTE = TICKET_REVALIDATION
+REMEDIATION_ROUTE = TICKET_REVALIDATION
+CAPABILITY = TICKET-EXECUTION-EVIDENCE-IDENTITY
+DEPENDENCY_CLASS = INFORMATIONAL
+LOCAL_CLOSURE_BLOCKING = NO
+LOCAL_ACCEPTANCE_REQUIRES_PRODUCTIVE_CAPABILITY = NO
+CLOSURE_OWNERSHIP = LOCAL_TICKET
+COMPLETION_EVIDENCE_TIMING = LOCAL_CLOSURE
+DEPENDENCY_CLASS_RECLASSIFICATION_REQUIRED = NO
+UPSTREAM_DEPENDENCY_CLASSIFICATION_PRESERVED = YES
+BLOCKS_LOCAL_EXECUTION = NO
+BLOCKS_LOCAL_CLOSURE = NO
+BLOCKS_TICKET_DONE = NO
+BLOCKS_INTEGRATED_PROOF = NO
+BLOCKS_SPEC_FINAL_CONFORMANCE = NO
+DOWNSTREAM_CHECKPOINT = ticket evidence/revalidation checkpoint
+DOWNSTREAM_OWNER = EXEC-001-TICKET-001 local closure owner
+FINDING_ORIGIN = NEW_PREEXISTING
+ORIGIN_REASON = the unpinned §27 record is unchanged in the current remediation delta and was reasonably observable before the current audit
+PREVIOUS_FINDING_IDS = NONE
+LINEAGE_STATUS = NEW_PREEXISTING
+REMEDIATION_REGRESSION_CLASSIFICATION = NONE
+CONSECUTIVE_FINDING_PERSISTENCE = 0
+REMEDIATION_PROGRESS = NONE
+CONVERGENCE_STATUS = NEW_FINDING
+NON_CONVERGENCE_REASON = NONE
+EXPANDED_RADIUS_REQUIRED = NO
+AUDIT_ESCAPE = CONFORMANCE_ESCAPE
+AUDIT_ESCAPE_REASON = prior same-subject conformance consolidation reported no source finding although this unchanged execution record contained the traceability defect
+FINDING_SEVERITY_USED_AS_SOLE_COMPLETION_GATE = 0
+```
 
 ## 13. Previous Finding Reconciliation
 
 ```text
-PREVIOUS_FINDINGS_TOTAL = 0
+PREVIOUS_FINDINGS_TOTAL = 1
 PREVIOUS_FINDINGS_RESOLVED = 0
 PREVIOUS_FINDINGS_STILL_PRESENT = 0
-PREVIOUS_FINDINGS_REGRESSED = 0
+PREVIOUS_FINDINGS_REGRESSED = 1
 PREVIOUS_FINDINGS_SUPERSEDED = 0
-PREVIOUS_FINDINGS_RECONCILED = NOT_APPLICABLE
+PREVIOUS_FINDINGS_RECONCILED = YES
 ```
 
-The prior canonical file is historical evidence for a different authority
-subject: its ticket path is `EXEC-001-TICKET-001-envelope-schema-contract.md`,
-its active Gap is `GAP-001`, and its target is
-`bfb5c7db98102202d054493add14b8293f29c742`. The current ticket path is
-`EXEC-001-TICKET-001-capability-specific-envelope-and-payload-schemas.md`, its
-active Gap is `GAP-018`, and the supplied target is
-`220728f972a98a5086e3370a90b069bf8707a2a3`. The historical artifact therefore
-cannot be used to resolve, preserve, or silently supersede current findings.
-The current audit is an initial audit for this refreshed subject, and the
-current finding receives a new canonical identity with an evidence-backed
-`NEW_PREEXISTING` origin.
+| Previous canonical finding | Current identity | Reconciliation | Evidence delta | Remediation unit |
+|---|---|---|---|---|
+| `IMA-CRITICAL-001` at target `220728f972a98a5086e3370a90b069bf8707a2a3` | `IMA-CRITICAL-001` | `REGRESSED` | Remediation added fixed capability/value checks and witnesses, but the current architecture audit still reproduces a caller-created branded producer that can issue schema-proof-shaped success without selected-schema evaluation; the required issuer/conformance negative guard remains absent. | `RU-001` |
+
+The prior canonical identity is preserved. The remediation report's completion
+claim is supporting history only; the current specialist architecture evidence
+controls the current status. No previous blocking finding disappeared.
 
 ## 14. New Finding Origin Analysis
 
 ```text
-NEW_FINDINGS_TOTAL = 1
-NEW_PREEXISTING_FINDINGS = 1
+NEW_FINDINGS_TOTAL = 2
+NEW_PREEXISTING_FINDINGS = 2
 NEW_REMEDIATION_INTRODUCED_FINDINGS = 0
 NEWLY_APPLICABLE_FINDINGS = 0
 UNKNOWN_ORIGIN_FINDINGS = 0
 NEW_FINDING_ORIGINS_CLASSIFIED = YES
 ```
 
-| Current canonical finding | Origin | Evidence | Classification |
+| Current canonical finding | Origin | Evidence basis | Audit-escape classification |
 |---|---|---|---|
-| `IMA-CRITICAL-001` | NEW_PREEXISTING | The vulnerable producer/evidence module is outside the current target's changed production-file set; the direct probe executes the preexisting seam against the pinned target | `UNCLASSIFIED_ESCAPE` because the historical artifact is not a same-subject predecessor |
+| `IMA-MINOR-001` | `NEW_PREEXISTING` | The ticket capability wording is unchanged in the remediation delta and contradicts the independently audited Unit/Plan capability record. | `CONFORMANCE_ESCAPE` |
+| `IMA-MINOR-002` | `NEW_PREEXISTING` | The ticket §27 metadata is unchanged in the remediation delta and remains unpinned to the current target. | `CONFORMANCE_ESCAPE` |
 
-The finding is not classified as remediation-introduced because the current
-implementation target does not change the producer/evidence module and the
-supplied current wave does not provide a remediation history for this refreshed
-`GAP-018` subject. No origin is silently inferred from severity or wording.
+`IMA-CRITICAL-001` is not a new finding; its origin remains `PREEXISTING` and
+its current lineage is `REGRESSED` after attempted remediation. No finding is
+classified as remediation-introduced without evidence that the remediation
+created the obligation.
 
 ## 15. Audit Escape Analysis
 
 ```text
-AUDIT_ESCAPE_COUNT = 1
-CONFORMANCE_ESCAPES = 0
+AUDIT_ESCAPE_COUNT = 2
+CONFORMANCE_ESCAPES = 2
 BEHAVIOR_ESCAPES = 0
 DESIGN_ESCAPES = 0
 ARCHITECTURE_ESCAPES = 0
 CROSS_DOMAIN_ESCAPES = 0
-UNCLASSIFIED_ESCAPES = 1
+UNCLASSIFIED_ESCAPES = 0
 DESIGN_DEVIATION_ESCAPES = 0
 ```
 
-`IMA-CRITICAL-001` is a preexisting shared authority-boundary defect detected
-by the current independent wave. It is recorded as `UNCLASSIFIED_ESCAPE` rather
-than attributed to one specialist domain because the historical canonical
-artifact is stale and subject-mismatched; no same-subject prior specialist
-result can establish whether the escape originated in conformance, behavior,
-design, or architecture review.
+The two minor ticket-record defects were present before remediation and were
+reasonably observable to the prior conformance pass, which reported no source
+findings. They are therefore conformance escapes. The critical authority
+finding is a continued/regrressed prior finding, not a new audit escape in this
+round.
 
 ## 16. Design Escape / Structural Regression Analysis
 
 ```text
-DESIGN_FINDINGS_PREVIOUS = 0
+DESIGN_FINDINGS_PREVIOUS = 1
 DESIGN_FINDINGS_RESOLVED = 0
 DESIGN_FINDINGS_STILL_PRESENT = 0
-DESIGN_FINDINGS_REGRESSED = 0
-DESIGN_FINDINGS_CURRENT = 1
+DESIGN_FINDINGS_REGRESSED = 1
+CURRENT_DESIGN_ESCAPE_FINDINGS = 0
 DESIGN_DEVIATIONS_RECORDED_BY_TICKET = 0
 UNDECLARED_MATERIAL_DESIGN_DEVIATIONS = 0
-STRUCTURAL_REGRESSIONS = 0
 DESIGN_DEVIATION_ESCAPES = 0
+STRUCTURAL_REGRESSIONS = 0
 ```
 
-The design specialist identifies a material authority/provenance conformance
-failure in the implementation, not an unrecorded change to the approved
-component decomposition or a new upstream design decision. The approved design
-remains the interpretation authority; implementation remediation is the route.
+The previous canonical critical finding included the implementation's
+provenance/design manifestation. The current design specialist reports the
+approved design itself remains ready, but the architecture evidence establishes
+that the same implementation boundary still violates the design's owner-
+authorized proof requirement after remediation. This is a regressed existing
+structural obligation, not a new design escape or a reason to revalidate the
+approved design. No new structural defect was introduced by the remediation
+according to the current design and behavior evidence.
 
 ## 17. Remediation Regression Analysis
 
 ```text
-REMEDIATION_REGRESSION_COUNT = 0
-DIRECT_REMEDIATION_REGRESSIONS = 0
+REMEDIATION_REGRESSION_COUNT = 1
+DIRECT_REMEDIATION_REGRESSIONS = 1
 COLLATERAL_REMEDIATION_REGRESSIONS = 0
 SYSTEMIC_REMEDIATION_REGRESSIONS = 0
 STRUCTURAL_REGRESSIONS = 0
 NEW_REMEDIATION_INTRODUCED_FINDINGS = 0
+REMEDIATION_REGRESSION_RATE = 1/1 = 100% diagnostic only
 ```
 
-No current remediation artifact or current-target remediation delta is part of
-this initial refreshed subject. The open finding is not promoted to a
-remediation regression without history proving that an authorized remediation
-introduced it.
+`IMA-CRITICAL-001` is a direct remediation regression: the remediation unit
+`RU-001` targeted the same authority/provenance obligation, but the public
+issuer/substitution route remains consumable. The remediation made partial
+progress on fixed value-level rejection and retained stale/fingerprint defenses;
+it did not remove the root cause. The two minor findings were preexisting ticket
+record defects, not remediation regressions.
 
 ## 18. Remediation Routing
 
-| Canonical finding | Primary route | Route rationale |
-|---|---|---|
-| `IMA-CRITICAL-001` | `IMPLEMENTATION_REMEDIATION` | The producer/evidence authority escape is correctable within the approved ticket semantics and design; no upstream authority change is required. |
+| Canonical finding | Status | Primary route | Local effect | Downstream checkpoint/owner |
+|---|---|---|---|---|
+| `IMA-CRITICAL-001` | OPEN / REGRESSED | `IMPLEMENTATION_REMEDIATION` | Blocks local closure, ticket DONE, integrated proof, and SPEC final conformance; does not block execution start | implemented-ticket audit checkpoint, then remediation checkpoint / EXEC-001-TICKET-001 implementation and local acceptance owner |
+| `IMA-MINOR-001` | OPEN | `TICKET_REVALIDATION` | Non-blocking ticket-record correction | ticket evidence/revalidation checkpoint / EXEC-001-TICKET-001 local closure owner |
+| `IMA-MINOR-002` | OPEN | `TICKET_REVALIDATION` | Non-blocking completion-evidence correction | ticket evidence/revalidation checkpoint / EXEC-001-TICKET-001 local closure owner |
 
 ```text
 CANONICAL_FINDING_ROUTES_CLASSIFIED = YES
 IMPLEMENTATION_REMEDIATION_FINDINGS = 1
 IMPLEMENTATION_DESIGN_REVALIDATION_FINDINGS = 0
-TICKET_REVALIDATION_FINDINGS = 0
+TICKET_REVALIDATION_FINDINGS = 2
 IMPLEMENTATION_PLAN_REVALIDATION_FINDINGS = 0
 PLAN_REVALIDATION_FINDINGS = 0
 PLAN_OR_TICKET_REVALIDATION_FINDINGS = 0
@@ -541,71 +837,98 @@ GAP_MATRIX_REVALIDATION_FINDINGS = 0
 SPEC_REVALIDATION_FINDINGS = 0
 PORTFOLIO_REVALIDATION_FINDINGS = 0
 ADR_REVALIDATION_FINDINGS = 0
+OPEN_INTEGRATED_FINDINGS = 1
+LOCAL_TICKET_BLOCKING_FINDINGS = 1
+INTEGRATED_ONLY_AVAILABILITY_BLOCKING_LOCAL_DONE = 0
+LOCAL_CLOSURE_FINDINGS_NOT_BLOCKING_DONE = 0
+FINDING_SEVERITY_USED_AS_SOLE_COMPLETION_GATE = 0
+OPEN_INTEGRATED_FINDING_LOST_FROM_TRACEABILITY = 0
+SPECIALIST_CANNOT_SILENTLY_PROMOTE_INTEGRATED_DEPENDENCY_TO_LOCAL_BLOCKER = TRUE
+CONSOLIDATOR_CANNOT_DERIVE_LOCAL_BLOCKING_FROM_SEVERITY_ALONE = TRUE
+LOCAL_DONE_GATE_USES_LOCAL_CLOSURE_SCOPE = TRUE
+INTEGRATED_PROOF_GATE_USES_INTEGRATED_DEPENDENCY_SCOPE = TRUE
 ```
 
-Only the canonical finding is routed. Specialist artifacts remain supporting
-evidence and are not competing remediation inventories.
+The current target has a matching remediation checkpoint (round 16) but no
+matching audit checkpoint for this re-audit target. Under the routing contract,
+the canonical audit must be checkpointed before remediation is selected.
+
+```text
+CURRENT_AUDIT_CHECKPOINT_MATCH = NO
+CURRENT_REMEDIATION_CHECKPOINT_MATCH = YES
+NEXT_OPERATION_BEFORE_AUDIT_CHECKPOINT = checkpoint-implemented-ticket
+POST_CHECKPOINT_OPERATION = remediate-implemented-ticket
+```
 
 ## 19. Canonical Metrics
 
 ```text
-AUDIT_ROUND = INITIAL_AUDIT
-AUDIT_ROUND_NUMBER = 1
-AUDIT_TARGET_HEAD = 220728f972a98a5086e3370a90b069bf8707a2a3
-AUDIT_TARGET_STATE_FINGERPRINT = 864c5e99e2fd21d26fc1ca36a9dff20c2cbad74e4e13f604313d5a9d070f843d
+AUDIT_ROUND = RE_AUDIT
+AUDIT_ROUND_NUMBER = 2
+AUDIT_TARGET_HEAD = 38a81fc832b55360fd0cde1a584076cb28a5482f
+
 CONFORMANCE_RESULT = PASS
-BEHAVIOR_RESULT = FINDINGS
-DESIGN_RESULT = FINDINGS
+BEHAVIOR_RESULT = PASS
+DESIGN_RESULT = PASS
 ARCHITECTURE_RESULT = FINDINGS
-CONFORMANCE_SOURCE_FINDINGS = 0
-BEHAVIOR_SOURCE_FINDINGS = 1
-DESIGN_SOURCE_FINDINGS = 1
+
+CONFORMANCE_SOURCE_FINDINGS = 2
+BEHAVIOR_SOURCE_FINDINGS = 0
+DESIGN_SOURCE_FINDINGS = 0
 ARCHITECTURE_SOURCE_FINDINGS = 1
 SOURCE_FINDINGS_TOTAL = 3
-CANONICAL_FINDINGS_TOTAL = 1
-DUPLICATE_REPRESENTATIONS_MERGED = 2
+CANONICAL_FINDINGS_TOTAL = 3
+DUPLICATE_REPRESENTATIONS_MERGED = 0
+
 REQUIRED_BEHAVIORS_TOTAL = 2
 DIRECT_BEHAVIOR_WITNESSES = 2
 PROXY_ONLY_BEHAVIORS = 0
 UNTESTED_STATE_TRANSITIONS = 0
 UNPROVEN_CONCURRENCY_CONTRACTS = 0
 MISSING_ARCHITECTURE_GUARDS = 1
+
 CRITICAL_FINDINGS = 1
 MAJOR_FINDINGS = 0
-MINOR_FINDINGS = 0
+MINOR_FINDINGS = 2
 INFO_FINDINGS = 0
-PREVIOUS_FINDINGS_TOTAL = 0
+
+PREVIOUS_FINDINGS_TOTAL = 1
 PREVIOUS_FINDINGS_RESOLVED = 0
 PREVIOUS_FINDINGS_STILL_PRESENT = 0
-PREVIOUS_FINDINGS_REGRESSED = 0
+PREVIOUS_FINDINGS_REGRESSED = 1
 PREVIOUS_FINDINGS_SUPERSEDED = 0
-CONSECUTIVE_FINDING_PERSISTENCE = 0 for IMA-CRITICAL-001
-REMEDIATION_PROGRESS = NONE
+CONSECUTIVE_FINDING_PERSISTENCE = 1 for IMA-CRITICAL-001; 0 for each new minor
+REMEDIATION_PROGRESS = PARTIAL
 CONVERGENCE_STATUS = CONVERGING
 NON_CONVERGENCE_REASON = NONE
 EXPANDED_RADIUS_REQUIRED = NO
-NEW_FINDINGS_TOTAL = 1
-NEW_PREEXISTING_FINDINGS = 1
+
+NEW_FINDINGS_TOTAL = 2
+NEW_PREEXISTING_FINDINGS = 2
 NEW_REMEDIATION_INTRODUCED_FINDINGS = 0
 NEWLY_APPLICABLE_FINDINGS = 0
 UNKNOWN_ORIGIN_FINDINGS = 0
-AUDIT_ESCAPE_COUNT = 1
-CONFORMANCE_ESCAPES = 0
+
+AUDIT_ESCAPE_COUNT = 2
+CONFORMANCE_ESCAPES = 2
 BEHAVIOR_ESCAPES = 0
 DESIGN_ESCAPES = 0
 ARCHITECTURE_ESCAPES = 0
 CROSS_DOMAIN_ESCAPES = 0
-UNCLASSIFIED_ESCAPES = 1
+UNCLASSIFIED_ESCAPES = 0
 DESIGN_DEVIATION_ESCAPES = 0
-REMEDIATION_REGRESSION_COUNT = 0
+
+REMEDIATION_REGRESSION_COUNT = 1
 STRUCTURAL_REGRESSIONS = 0
-DESIGN_FINDINGS_PREVIOUS = 0
+
+DESIGN_FINDINGS_PREVIOUS = 1
 DESIGN_FINDINGS_RESOLVED = 0
 DESIGN_FINDINGS_STILL_PRESENT = 0
-DESIGN_FINDINGS_REGRESSED = 0
+DESIGN_FINDINGS_REGRESSED = 1
+
 IMPLEMENTATION_REMEDIATION_FINDINGS = 1
 IMPLEMENTATION_DESIGN_REVALIDATION_FINDINGS = 0
-TICKET_REVALIDATION_FINDINGS = 0
+TICKET_REVALIDATION_FINDINGS = 2
 PLAN_REVALIDATION_FINDINGS = 0
 GAP_MATRIX_REVALIDATION_FINDINGS = 0
 SPEC_REVALIDATION_FINDINGS = 0
@@ -622,63 +945,70 @@ SPECIALIST_CANNOT_SILENTLY_PROMOTE_INTEGRATED_DEPENDENCY_TO_LOCAL_BLOCKER = TRUE
 CONSOLIDATOR_CANNOT_DERIVE_LOCAL_BLOCKING_FROM_SEVERITY_ALONE = TRUE
 LOCAL_DONE_GATE_USES_LOCAL_CLOSURE_SCOPE = TRUE
 INTEGRATED_PROOF_GATE_USES_INTEGRATED_DEPENDENCY_SCOPE = TRUE
-```
 
-Diagnostic rates:
+FINDING_RESOLUTION_RATE = 0/1 = 0% diagnostic only
+PERSISTENCE_RATE = 1/1 = 100% diagnostic only
+REMEDIATION_REGRESSION_RATE = 1/1 = 100% diagnostic only
+AUDIT_ESCAPE_RATE = 2/2 = 100% diagnostic only
 
-```text
-FINDING_RESOLUTION_RATE = NOT_APPLICABLE (no same-subject previous finding set)
-PERSISTENCE_RATE = NOT_APPLICABLE (no same-subject previous finding set)
-REMEDIATION_REGRESSION_RATE = NOT_APPLICABLE (no current remediation-introduced denominator)
-AUDIT_ESCAPE_RATE = 1/1 = 100.00% (diagnostic only)
-CAMPAIGNS_TOTAL = 1
+CAMPAIGNS_TOTAL = 3
 CAMPAIGNS_NON_CONVERGING = 0
 BASE_REPORT_PATH = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-audit.md
-ROUND_DELTA_PATH = INLINE IN THIS ARTIFACT
-FINDING_LINEAGE_LEDGER_PATH = INLINE §§13–17 IN THIS ARTIFACT
-BASE_REPORT_IMMUTABLE = YES
+ROUND_DELTA_PATH = INLINE IN THIS ARTIFACT (RE_AUDIT §§3–18)
+FINDING_LINEAGE_LEDGER_PATH = INLINE IN THIS ARTIFACT (§§13–17)
+BASE_REPORT_IMMUTABLE = YES — prior base snapshot preserved at commit 7e512034464168e5236eaa770bcdc5441e8b5bb6
 ROUND_DELTA_COMPLETE = YES
 FINDING_LINEAGE_LEDGER_COMPLETE = YES
+AUDIT_BASIS_FINGERPRINT = a85d61bc8ef7d9f1352b111ac3d28e7f71ce4a90a3b05f540b410b5e29203073
 ```
 
-Rates are diagnostic only and do not weaken the CRITICAL finding, remediation
-verdict, or local ticket gate.
+Rates are diagnostic only and do not weaken the canonical finding, verdict, or
+gate.
 
 ## 20. Design Convergence Metrics
 
 ```text
-DESIGN_CONVERGENCE_STATUS = NEW_FINDING
-DESIGN_FINDINGS_PREVIOUS = 0
+DESIGN_RESULT = PASS
+DESIGN_FINDINGS_PREVIOUS = 1
 DESIGN_FINDINGS_RESOLVED = 0
 DESIGN_FINDINGS_STILL_PRESENT = 0
-DESIGN_FINDINGS_REGRESSED = 0
-DESIGN_FINDINGS_CURRENT = 1
-DESIGN_FINDINGS_NEWLY_APPLICABLE = 0
-DESIGN_TEST_COVERAGE_GATE = BLOCKED
+DESIGN_FINDINGS_REGRESSED = 1
+CURRENT_DESIGN_ESCAPE_FINDINGS = 0
+DESIGN_DEVIATION_ESCAPES = 0
+STRUCTURAL_REGRESSIONS = 0
 IMPLEMENTATION_DESIGN_READY = YES
 IMPLEMENTATION_DESIGN_GATE = READY_FOR_IMPLEMENTATION
+DESIGN_CONVERGENCE_STATUS = CONVERGING
 ```
 
-The approved design is ready as an authority artifact, but implementation
-design-conformance evidence is not a pass because the producer provenance and
-alternate-adapter negative witness required by that design are incomplete.
+The approved design remains conformant and ready as an authority artifact. The
+implementation's existing provenance-boundary deviation is still represented by
+the canonical critical finding after remediation; the design specialist's pass
+does not erase the architecture evidence or require upstream design
+revalidation.
 
 ## 21. Overall Convergence Metrics
 
 ```text
-OVERALL_CONVERGENCE_STATUS = CONVERGING
+CONVERGENCE_STATUS = CONVERGING
 NON_CONVERGENCE_FINDINGS = NONE
 EXPANDED_RADIUS_REQUIRED = NO
-CAMPAIGNS_TOTAL = 1
+CAMPAIGNS_TOTAL = 3
 CAMPAIGNS_NON_CONVERGING = 0
-OPEN_INTEGRATED_FINDINGS = 1
-LOCAL_TICKET_BLOCKING_FINDINGS = 1
+ROOT_CAUSE_CAMPAIGN_CLOSURE = NOT_CLOSED — the systemic campaign has uncovered issuer/consumer/public-export/test rows
 ```
 
-This is the first canonical audit for the refreshed ticket subject. The open
-campaign is not marked closed; expanded-radius remediation is not yet required
-because no same blocking finding has persisted across two consecutive
-same-subject re-audits.
+Per-finding convergence:
+
+| Finding | Current status | Persistence | Remediation progress | Convergence | Expanded radius |
+|---|---|---:|---|---|---|
+| `IMA-CRITICAL-001` | OPEN / REGRESSED | 1 | PARTIAL | CONVERGING | NO |
+| `IMA-MINOR-001` | OPEN / NEW_PREEXISTING | 0 | NONE | NEW_FINDING | NO |
+| `IMA-MINOR-002` | OPEN / NEW_PREEXISTING | 0 | NONE | NEW_FINDING | NO |
+
+The two-consecutive-reaudit non-convergence threshold has not been reached for
+the same-subject blocking finding. The campaign remains open and cannot be
+closed by the current partial remediation or by happy-path evidence.
 
 ## 22. Finding Completeness Gate
 
@@ -690,31 +1020,40 @@ DESIGN_DOMAIN_COMPLETE = YES
 ARCHITECTURE_DOMAIN_COMPLETE = YES
 SPECIALIST_STATE_CONSISTENT = YES
 SOURCE_FINDINGS_ACCOUNTED_FOR = YES
-PREVIOUS_FINDINGS_RECONCILED = NOT_APPLICABLE
+PREVIOUS_FINDINGS_RECONCILED = YES
 NEW_FINDING_ORIGINS_CLASSIFIED = YES
 CANONICAL_FINDING_ROUTES_CLASSIFIED = YES
 BASELINE_DRIFT_STATUS = NO_DRIFT
 BASELINE_REMEDIATION_READINESS = READY
 REASSESSMENT_COMPLETE = YES
 FINDINGS_ARE_ACTIONABLE = YES
-AUDIT_BASIS_FINGERPRINT = 864c5e99e2fd21d26fc1ca36a9dff20c2cbad74e4e13f604313d5a9d070f843d
+AUDIT_BASIS_FINGERPRINT = a85d61bc8ef7d9f1352b111ac3d28e7f71ce4a90a3b05f540b410b5e29203073
 AUDIT_BASIS_STALE = NO
+CONTRADICTION_REQUIRING_REAUDIT = NO
+CAMPAIGN_RECORDS_PRESENT = YES
+OPEN_CAMPAIGN_CLOSURE_NOT_FALSE = YES
+FINDING_SEVERITY_USED_AS_SOLE_COMPLETION_GATE = 0
+CANDIDATE_RECONCILIATION_COMPLETE = YES
+CANDIDATE_CLAIMS_DISCARDED = YES
+FINDING_COMPLETENESS_GATE = PASS
 FINDING_COMPLETENESS = PASS
 ```
 
-All required specialists completed against the same semantic target. Every
-source finding is inventoried and mapped to one canonical finding; the campaign
-and route are explicit; the origin and escape classification are persisted; all
-finding-level completion effects are derived from the local obligation rather
-than severity alone; and the exact audit basis is current.
+All required specialist domains completed against the same target. Every
+current source finding is inventoried and mapped exactly once; the previous
+canonical finding is reconciled as regressed; new origins, audit escapes,
+remediation regression, campaigns, routes, completion effects, and exact basis
+are persisted. The architecture/design interpretation difference is resolved
+from concrete evidence and does not require a new specialist re-audit.
 
 ## 23. Ticket Completion Gate
 
 ```text
-LOCAL_ACCEPTANCE_VALID = NO
-LOCAL_COMPLETION_EVIDENCE_VALID = NO; the design-required alternate-adapter/caller-injection negative witness is absent and a direct probe returns false success
+LOCAL_ACCEPTANCE_EVIDENCE_AVAILABLE = YES for the ordinary direct behavior rows
+LOCAL_ACCEPTANCE_CONFORMANCE = NO — AC-EXEC-001 remains incomplete at the owner-authorized provenance boundary
+LOCAL_COMPLETION_EVIDENCE_COMPLETE = NO — the required unauthorized-alternate-issuer negative witness is absent and the current authority path remains consumable
 LOCAL_WITNESS_NON_EXECUTABLE_AT_CLOSURE = NO
-NO_FINDING_BLOCKS_TICKET_DONE = NO
+NO_CANONICAL_FINDING_BLOCKS_TICKET_DONE = NO
 LOCAL_TICKET_DONE_ALLOWED = NO
 TICKET_GATE = NOT_READY_FOR_DONE
 LOCAL_DONE_GATE_USES_LOCAL_CLOSURE_SCOPE = TRUE
@@ -723,18 +1062,19 @@ INTEGRATED_FOLLOWUP_REQUIRED = YES
 CURRENT_AUDIT_CHECKPOINT_MATCH = NO
 ```
 
-The current audit has no matching audit checkpoint marker. The next
-checkpoint must preserve this canonical artifact; remediation is authorized
-only after that checkpoint.
+The gate is derived from the local authority/provenance closure obligation and
+missing direct negative proof, not from the CRITICAL label alone. The two minor
+findings remain non-blocking and do not promote or reclassify the informational
+schema capability.
 
 When remediation is required, the sole authoritative remediation inventory is:
 
 ```text
-IMA-CRITICAL-001 — CRITICAL — Caller-injectable authenticated adapter bypasses capability-specific schema semantics
+IMA-CRITICAL-001 — CRITICAL — Caller-mintable authenticated schema producer creates an alternate authority path
 Root cause: ARCHITECTURE_BOUNDARY / CALLER_SUPPLIED_AUTHORITY_BYPASS
 Route: IMPLEMENTATION_REMEDIATION
-Lineage: NEW_PREEXISTING in the refreshed current subject
-Origin: UNCLASSIFIED_ESCAPE
+Lineage: REGRESSED from IMA-CRITICAL-001 after attempted RU-001 remediation
+Origin: PREEXISTING
 Status: OPEN
 Capability: EXEC-SCHEMA-CAPABILITY-PAYLOAD / authenticated selected-schema validation evidence
 Dependency class: INFORMATIONAL
@@ -745,26 +1085,64 @@ Blocks integrated proof: YES
 Blocks SPEC final conformance: YES
 Dependency class reclassification required: NO
 Upstream dependency classification preserved: YES
-Downstream checkpoint/owner: ticket validation/local closure and later integrated contract-consumption proof / EXEC-001 implementation owner and downstream consumers
+Downstream checkpoint/owner: implemented-ticket audit checkpoint, then remediation checkpoint / EXEC-001-TICKET-001 implementation and local acceptance owner
+
+IMA-MINOR-001 — MINOR — Capability availability wording conflates local testability with productive availability
+Root cause: TICKET_CONFORMANCE / CAPABILITY_AVAILABILITY_CONTRADICTION
+Route: TICKET_REVALIDATION
+Lineage: NEW_PREEXISTING / CONFORMANCE_ESCAPE
+Origin: NEW_PREEXISTING
+Status: OPEN
+Capability: EXEC-SCHEMA-CAPABILITY-PAYLOAD
+Dependency class: INFORMATIONAL
+Blocks local execution: NO
+Blocks local closure: NO
+Blocks ticket done: NO
+Blocks integrated proof: NO
+Blocks SPEC final conformance: NO
+Dependency class reclassification required: NO
+Upstream dependency classification preserved: YES
+Downstream checkpoint/owner: ticket evidence/revalidation checkpoint / EXEC-001-TICKET-001 local closure owner
+
+IMA-MINOR-002 — MINOR — Ticket execution evidence is not pinned to the audited implementation
+Root cause: TICKET_CONFORMANCE / OTHER completion-evidence traceability
+Route: TICKET_REVALIDATION
+Lineage: NEW_PREEXISTING / CONFORMANCE_ESCAPE
+Origin: NEW_PREEXISTING
+Status: OPEN
+Capability: TICKET-EXECUTION-EVIDENCE-IDENTITY
+Dependency class: INFORMATIONAL
+Blocks local execution: NO
+Blocks local closure: NO
+Blocks ticket done: NO
+Blocks integrated proof: NO
+Blocks SPEC final conformance: NO
+Dependency class reclassification required: NO
+Upstream dependency classification preserved: YES
+Downstream checkpoint/owner: ticket evidence/revalidation checkpoint / EXEC-001-TICKET-001 local closure owner
 ```
 
 ## 24. Completeness Proof
 
 ```text
+CONSOLIDATION_RECOVERY_COMPLETE = YES
+CURRENT_CANONICAL_CANDIDATE_RECONCILED = YES
+CURRENT_CANONICAL_CANDIDATE_COMPLETION_CLAIMS_TRUSTED = NO
 ALL_REQUIRED_SPECIALIST_ARTIFACTS_READ = YES
 ALL_REQUIRED_SPECIALISTS_SAME_TARGET = YES
 SPECIALIST_ARTIFACT_VALIDATION_COMPLETE = YES
 SOURCE_FINDING_ACCOUNTING_COMPLETE = YES
 CAUSAL_DEDUPLICATION_COMPLETE = YES
 SEVERITY_NORMALIZATION_COMPLETE = YES
-PREVIOUS_FINDING_RECONCILIATION_COMPLETE = NOT_APPLICABLE_FOR_REFRESHED_INITIAL_SUBJECT
+PREVIOUS_FINDING_RECONCILIATION_COMPLETE = YES
 NEW_ORIGIN_CLASSIFICATION_COMPLETE = YES
 AUDIT_ESCAPE_ANALYSIS_COMPLETE = YES
 DESIGN_CONVERGENCE_ANALYSIS_COMPLETE = YES
+REMEDIATION_REGRESSION_ANALYSIS_COMPLETE = YES
 BASELINE_DRIFT_STATUS = NO_DRIFT
 BASELINE_REASSESSMENT_PROOF = NOT_REQUIRED
 BASELINE_REMEDIATION_READINESS = READY
-AUDIT_BASIS_FINGERPRINT = 864c5e99e2fd21d26fc1ca36a9dff20c2cbad74e4e13f604313d5a9d070f843d
+AUDIT_BASIS_FINGERPRINT = a85d61bc8ef7d9f1352b111ac3d28e7f71ce4a90a3b05f540b410b5e29203073
 AUDIT_BASIS_STALE = NO
 SEMANTIC_COVERAGE_METRICS_COMPLETE = YES
 FINDING_COMPLETION_FIELDS_PERSISTED_FOR_ALL_CANONICAL_FINDINGS = YES
@@ -773,26 +1151,32 @@ REMEDIATION_ROUTING_COMPLETE = YES
 CANONICAL_VERDICT_UNIQUE = YES
 CANONICAL_GATE_UNIQUE = YES
 FINDING_COMPLETENESS = PASS
+WRITE_BOUNDARY_COMPLIANCE = ONLY_CANONICAL_IMPLEMENTATION_AUDIT
+SPECIALIST_ARTIFACTS_MODIFIED_BY_CONSOLIDATOR = 0
 PRODUCTION_FILES_MODIFIED_BY_CONSOLIDATOR = 0
 TEST_FILES_MODIFIED_BY_CONSOLIDATOR = 0
 TICKET_OR_UPSTREAM_FILES_MODIFIED_BY_CONSOLIDATOR = 0
-SPECIALIST_ARTIFACTS_MODIFIED_BY_CONSOLIDATOR = 0
-CANONICAL_ARTIFACT_UPDATED = YES
+CHECKPOINTS_MODIFIED_BY_CONSOLIDATOR = 0
 ```
 
-The current canonical result is complete and actionable: all four required
-independent domains audited the same pinned semantic state; all three source
-findings are accounted for and causally deduplicated; the approved design gate
-is verified; the canonical critical finding has a route, origin, escape,
-completion effects, campaign, and downstream owner; the finding-completeness
-gate passes; and the local ticket gate remains not ready for done. No
-implementation, test, ticket state, upstream authority, remediation artifact,
-specialist artifact, commit, merge, or push was changed by consolidation.
+This re-audit is complete because all current required specialist evidence was
+read, the same semantic target was verified, the committed same-subject
+predecessor was reconciled, the dirty candidate was treated as untrusted,
+every source finding was accounted for, the critical campaign identity and
+finding identity were preserved, the two new conformance escapes were
+classified, remediation regression was recorded, and every canonical finding
+has a route and mechanically derived completion effects. No specialist finding
+or prior canonical blocker was silently dropped. No authority, implementation,
+test, ticket, checkpoint, commit, or process-state operation was performed
+beyond this canonical artifact write.
 
-POST_CHECKPOINT_OPERATION: remediate-implemented-ticket
-AUDIT_TARGET_HEAD: 220728f972a98a5086e3370a90b069bf8707a2a3
-AUDIT_TARGET_STATE_FINGERPRINT: 864c5e99e2fd21d26fc1ca36a9dff20c2cbad74e4e13f604313d5a9d070f843d
-AUDIT_WAVE_ID: 554132c0-2d2d-4779-88d0-215e971a3441
+```text
+AUDIT_TARGET_HEAD: 38a81fc832b55360fd0cde1a584076cb28a5482f
+AUDIT_TARGET_STATE_FINGERPRINT: a85d61bc8ef7d9f1352b111ac3d28e7f71ce4a90a3b05f540b410b5e29203073
+AUDIT_WAVE_ID: ffb910a8-45ef-4e4c-a1c9-7f000239e153
 AUDIT_VERDICT: TICKET_IMPLEMENTATION_REMEDIATION_REQUIRED
 TICKET_GATE: NOT_READY_FOR_DONE
+```
+
+POST_CHECKPOINT_OPERATION: remediate-implemented-ticket
 NEXT_AUTHORIZED_OPERATION: checkpoint-implemented-ticket
