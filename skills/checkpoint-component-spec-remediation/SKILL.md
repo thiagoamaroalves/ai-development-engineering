@@ -7,53 +7,37 @@ metadata:
 
 # Checkpoint Component SPEC Remediation
 
-Read `../_shared/phase-checkpoint-contract.md` completely before acting.
+Read `../_shared/phase-checkpoint-contract.md` and
+`../_shared/phase-manifest-contract.md` completely before acting.
 
-Use only after `remediate-component-spec` returns
-`READY_FOR_INDEPENDENT_COMPONENT_SPEC_REAUDIT`. This checkpoint preserves the
-SPEC and remediation evidence; it does not audit, approve, generate a Gap
-Matrix, or modify downstream artifacts.
+Use only after the SPEC remediator returns its independent re-audit readiness
+gate. This checkpoint preserves the SPEC and remediation evidence; it does not
+audit, approve, generate a Gap Matrix, or modify downstream artifacts.
 
-## Preconditions
+## Preconditions and phase manifest
 
-Require:
-
-```text
-COMPONENT_SPEC_REMEDIATION_COMPLETE = YES
-READY_FOR_INDEPENDENT_COMPONENT_SPEC_REAUDIT = YES
-PRODUCTION_FILES_CHANGED = 0
-TEST_FILES_CHANGED = 0
-```
-
-For the current component:
+Require complete remediation, the exact re-audit gate, zero production/test
+changes, and `PHASE_MANIFEST_PATH`. The manifest must be derived from the
+remediated SPEC, remediation evidence, current HEAD, and candidate. Validate:
 
 ```text
-docs/specs/SPEC-EXEC-001-skill-contracts-and-capability-registry.md
-docs/specs/remediations/SPEC-EXEC-001-component-spec-remediation.md
-docs/workflow-checkpoints/SPEC-EXEC-001-component-spec-remediation.md
+node tools/verify-phase-manifest.mjs --manifest <PHASE_MANIFEST_PATH>
 ```
 
-The marker is created by this operation. Stage only the SPEC, its remediation
-evidence, and the marker. Reject ADRs, portfolio, upstream SPECs, Gap Matrix,
-Plan, tickets, code, tests, `.pi/`, `.codex/`, and unrelated paths.
+Stage only the manifest's effective path set. Reject every other dirty path and
+do not embed project-specific paths in this skill.
 
 ## Protocol
 
 1. Capture `PARENT_HEAD`.
 2. Verify the remediation result and exact re-audit gate.
-3. Verify every dirty path is in the allowlist or is the marker.
-4. Run phase-required validation and inspect whitespace. Intentional two-space
-   Markdown hard breaks in audit artifacts are allowed.
-5. Write the marker with `CHECKPOINT_KIND = COMPONENT_SPEC_REMEDIATION_CHECKPOINT`,
-   source remediation, parent, validation results, and zero production/test
-   changes.
-6. Stage only the allowlist; run cached whitespace validation.
-7. Create exactly:
-
-```text
-checkpoint(SPEC-EXEC-001): preserve component SPEC remediation
-```
-
+3. Validate the phase manifest and its source digests.
+4. Run phase-required validation and inspect whitespace. Intentional audit
+   hard breaks are allowed only when declared by manifest policy.
+5. Write the marker declared by the manifest with parent, validation results,
+   and zero production/test changes.
+6. Stage exactly the manifest's effective path set and run cached validation.
+7. Create exactly one commit using the manifest's `commitMessage`.
 8. Verify the commit has exactly `PARENT_HEAD` as parent. Do not begin audit.
 
 ## Completion

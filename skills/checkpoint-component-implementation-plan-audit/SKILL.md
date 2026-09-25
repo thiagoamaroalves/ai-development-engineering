@@ -7,33 +7,31 @@ metadata:
 
 # Checkpoint Component Implementation Plan Audit
 
-Read `../_shared/phase-checkpoint-contract.md` completely before acting.
-Use only after `audit-component-implementation-plan` completes. Preserve the
-exact plan/audit baseline and do not alter planning authority in this operation.
+Read `../_shared/phase-checkpoint-contract.md` and
+`../_shared/phase-manifest-contract.md` completely before acting. Use only
+after the independent Plan audit completes. Preserve the exact plan/audit
+baseline and do not alter planning authority in this operation.
 
-## Allowlist and preconditions
+## Phase manifest and preconditions
 
-Require a complete current plan audit, actionable reassessment when findings
-exist, and no production/test changes. For `SPEC-EXEC-001`:
+Require a complete current audit, actionable reassessment when findings exist,
+no production/test changes, and a controller-supplied `PHASE_MANIFEST_PATH`.
+The manifest must be derived from the audited Plan, audit evidence, current
+HEAD, and actual candidate. Validate it before staging:
 
 ```text
-docs/specs/implementation-plans/SPEC-EXEC-001-implementation-plan.md
-docs/specs/implementation-plans/audits/SPEC-EXEC-001-implementation-plan-audit.md
-docs/workflow-checkpoints/SPEC-EXEC-001-component-implementation-plan-audit.md
+node tools/verify-phase-manifest.mjs --manifest <PHASE_MANIFEST_PATH>
 ```
 
-Reject ADRs, portfolio, SPECs, Gap Matrix, tickets, code, tests, runtime,
-mirrors, and unrelated paths. Verify all dirty paths before staging.
+Reject every dirty path outside the manifest's effective path set. The skill
+must not contain repository-specific paths.
 
 ## Protocol and completion
 
-Capture parent; verify audit verdict, basis and routing; run required validation
-and whitespace checks; write the marker; stage only the allowlist; run cached
-checks; create exactly:
-
-```text
-checkpoint(SPEC-EXEC-001): preserve component Implementation Plan audit baseline
-```
+Capture parent; verify audit verdict, basis and routing; validate the phase
+manifest; run required validation and whitespace checks; write its declared
+marker; stage exactly the manifest's effective path set; run cached checks; and
+create exactly the manifest's `commitMessage`.
 
 Verify the exact parent and do not remediate or re-audit. Return:
 

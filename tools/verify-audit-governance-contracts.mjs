@@ -43,6 +43,17 @@ const requiredContracts = {
     "CANONICAL_ARTIFACT_CONSISTENCY = PASS | FAIL",
     "ROUTING_DERIVATION",
   ],
+  "phase-manifest-contract.md": [
+    "manifestKind",
+    "unstagedRecovery",
+    "verify-phase-manifest.mjs",
+    "PHASE_MANIFEST_VALID = PASS",
+  ],
+  "semantic-fingerprint-policy.json": [
+    "semanticExclusions",
+    "keyScopedExclusions",
+    "tools/verify-*.mjs",
+  ],
 };
 
 const requiredSkillMarkers = {

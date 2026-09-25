@@ -7,34 +7,30 @@ metadata:
 
 # Checkpoint Component Gap Matrix Remediation
 
-Read `../_shared/phase-checkpoint-contract.md` completely before acting.
-Use only after `remediate-component-implementation-gap-matrix` returns
-`READY_FOR_INDEPENDENT_GAP_MATRIX_REAUDIT`. This checkpoint preserves only the
-validated Matrix remediation slice.
+Read `../_shared/phase-checkpoint-contract.md` and
+`../_shared/phase-manifest-contract.md` completely before acting. Use only
+after the Gap Matrix remediator returns its independent re-audit readiness
+gate. This checkpoint preserves only the validated remediation slice.
 
-## Allowlist and preconditions
+## Phase manifest and preconditions
 
-Require complete remediation, actionable reassessment, and zero production/test
-changes. For `SPEC-EXEC-001`:
+Require complete remediation, actionable reassessment, zero production/test
+changes, and `PHASE_MANIFEST_PATH`. The manifest must be derived from the
+remediated Matrix, remediation evidence, current HEAD, and candidate. Validate:
 
 ```text
-docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md
-docs/specs/gap-matrices/remediations/SPEC-EXEC-001-implementation-gap-matrix-remediation.md
-docs/workflow-checkpoints/SPEC-EXEC-001-component-gap-matrix-remediation.md
+node tools/verify-phase-manifest.mjs --manifest <PHASE_MANIFEST_PATH>
 ```
 
-Stage only these paths. Reject ADRs, portfolio, SPECs, audits, Plan, tickets,
-code, tests, runtime, mirrors, and unrelated paths.
+Stage only the manifest's effective path set. Reject every other dirty path and
+do not embed project-specific paths in this skill.
 
 ## Protocol and completion
 
-Capture parent, verify the exact remediation gate and fingerprints, run required
-validation and whitespace checks, write the marker, stage only the allowlist,
-run cached checks, and create exactly:
-
-```text
-checkpoint(SPEC-EXEC-001): preserve component Gap Matrix remediation
-```
+Capture parent, verify the exact remediation gate and fingerprints, validate
+the phase manifest, run required validation and whitespace checks, write its
+declared marker, stage exactly its effective path set, run cached checks, and
+create exactly the manifest's `commitMessage`.
 
 Verify the commit parent and do not audit in this operation. Return:
 

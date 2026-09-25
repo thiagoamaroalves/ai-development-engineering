@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "semanticExclusions": [
+    ".pi/**",
+    "skills/**",
+    ".codex/**",
+    "tools/verify-*.mjs"
+  ],
+  "keyScopedExclusions": [
+    {
+      "path": "package.json",
+      "jsonPaths": [
+        "/scripts/verify:*"
+      ],
+      "reason": "workflow-only verification command registration"
+    }
+  ]
+}

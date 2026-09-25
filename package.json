@@ -7,7 +7,8 @@
     "typecheck": "tsc --noEmit",
     "verify:skill-mirror": "node tools/verify-skill-mirror.mjs",
     "verify:audit-governance": "node tools/verify-audit-governance-contracts.mjs",
-    "verify:canonical-consistency": "node tools/verify-canonical-artifact-consistency.mjs"
+    "verify:canonical-consistency": "node tools/verify-canonical-artifact-consistency.mjs",
+    "verify:phase-manifest": "node tools/verify-phase-manifest.mjs"
   },
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "0.85.1",

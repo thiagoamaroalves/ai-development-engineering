@@ -7,37 +7,34 @@ metadata:
 
 # Checkpoint Component Implementation Plan Remediation
 
-Read `../_shared/phase-checkpoint-contract.md` and
+Read `../_shared/phase-checkpoint-contract.md`,
+`../_shared/phase-manifest-contract.md`, and
 `../_shared/canonical-artifact-consistency-contract.md` completely before
-acting. Run `npm run verify:canonical-consistency` before staging. The command
-must pass; its result is part of the checkpoint evidence.
-Use only after `remediate-component-implementation-plan` returns its independent
-plan re-audit readiness gate. This operation preserves the plan remediation and
-never audits, creates tickets, or implements code.
+acting. Run `npm run verify:canonical-consistency` before staging; it must pass.
+Use only after the Plan remediator returns its independent re-audit readiness
+gate. This operation preserves Plan remediation and never audits, creates
+tickets, or implements code.
 
-## Allowlist and preconditions
+## Phase manifest and preconditions
 
-Require complete actionable remediation and zero production/test changes:
+Require complete actionable remediation, zero production/test changes, and
+`PHASE_MANIFEST_PATH`. The manifest must be derived from the remediated Plan,
+remediation evidence, current HEAD, and candidate. Validate it before staging:
 
 ```text
-docs/specs/implementation-plans/SPEC-EXEC-001-implementation-plan.md
-docs/specs/implementation-plans/remediations/SPEC-EXEC-001-implementation-plan-remediation.md
-docs/workflow-checkpoints/SPEC-EXEC-001-component-implementation-plan-remediation.md
+node tools/verify-phase-manifest.mjs --manifest <PHASE_MANIFEST_PATH>
 ```
 
-Stage only these paths. Reject ADRs, portfolio, SPECs, Gap Matrix, audits,
-tickets, code, tests, runtime, mirrors, and unrelated paths.
+Stage only the manifest's effective path set. Reject every other dirty path and
+do not embed project-specific paths in this skill.
 
 ## Protocol and completion
 
-Capture parent; verify the exact remediation gate and basis; run required
-validation, canonical artifact consistency, and whitespace checks; write the
-marker only after consistency passes; stage only the allowlist; run cached
-checks; create exactly:
-
-```text
-checkpoint(SPEC-EXEC-001): preserve component Implementation Plan remediation
-```
+Capture parent; verify the exact remediation gate and basis; validate the
+phase manifest; run required validation, canonical artifact consistency, and
+whitespace checks; write its declared marker only after consistency passes;
+stage exactly its effective path set; run cached checks; and create exactly
+the manifest's `commitMessage`.
 
 Verify the exact parent and do not audit or decompose tickets. Return:
 

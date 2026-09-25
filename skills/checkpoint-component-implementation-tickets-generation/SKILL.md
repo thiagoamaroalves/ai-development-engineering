@@ -7,39 +7,33 @@ metadata:
 
 # Checkpoint Component Implementation Tickets Generation
 
-Read `../_shared/phase-checkpoint-contract.md` and
+Read `../_shared/phase-checkpoint-contract.md`,
+`../_shared/phase-manifest-contract.md`, and
 `../_shared/interrupted-artifact-production-recovery-contract.md` completely.
-Use only after `decompose-component-implementation-plan-into-tickets` returns
-`COMPONENT_TICKET_DECOMPOSITION_COMPLETE` and `READY_FOR_TICKET_AUDIT`.
+Use only after the ticket-decomposition producer returns its complete result
+and ticket-audit readiness gate.
 
-## Allowlist
+## Phase manifest
+
+Do not embed repository, component, ticket, or filename paths in this skill.
+Require `PHASE_MANIFEST_PATH` derived from the conformant Plan checkpoint, the
+complete decomposition result, current HEAD, and actual candidate. The
+manifest must explicitly distinguish preserved files from authorized
+historical deletions. Validate:
 
 ```text
-docs/tickets/SPEC-EXEC-001/README.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-envelope-schema-contract.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-002-version-registry-catalogs-capabilities.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-003-registry-entry-reconstruction.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-004-contract-verdict-failure-semantics.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-005-authoritative-exact-basis-binding.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-006-manifest-completeness-freeze.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-007-manifest-identity-reconstruction-retry.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-008-checkpoint-resume-basis.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-009-historical-original-basis-replay.md
-docs/workflow-checkpoints/SPEC-EXEC-001-component-implementation-tickets-generation.md
+node tools/verify-phase-manifest.mjs --manifest <PHASE_MANIFEST_PATH>
 ```
 
-Verify the conformant Plan checkpoint and decomposition result match. Reject
-code/tests, audits, remediation artifacts, runtime, mirrors and unrelated
-paths.
+Reject every dirty path outside the manifest's effective path set. A complete
+producer result without a valid manifest is not checkpointable.
 
 ## Completion
 
-Capture parent, verify all ticket identities, DAG, metrics and readiness, write
-marker, stage only the allowlist, run cached checks, create exactly:
-
-```text
-checkpoint(SPEC-EXEC-001): preserve generated implementation tickets
-```
+Capture parent, verify all ticket identities, DAG, metrics and readiness,
+validate the phase manifest, write its declared marker, stage exactly its
+effective path set, run cached checks, and create exactly the manifest's
+`commitMessage`.
 
 Return:
 

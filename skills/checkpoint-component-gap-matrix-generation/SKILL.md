@@ -7,33 +7,31 @@ metadata:
 
 # Checkpoint Component Gap Matrix Generation
 
-Read `../_shared/phase-checkpoint-contract.md` and
+Read `../_shared/phase-checkpoint-contract.md`,
+`../_shared/phase-manifest-contract.md`, and
 `../_shared/interrupted-artifact-production-recovery-contract.md` completely.
-Use only after `generate-component-implementation-gap-matrix` returns
-`COMPONENT_IMPLEMENTATION_GAP_MATRIX_COMPLETE` with a valid readiness result.
+Use only after the Gap Matrix producer returns a complete result with a valid
+readiness gate.
 
-## Allowlist
+## Phase manifest
 
-For `SPEC-EXEC-001`, stage only:
+Require `PHASE_MANIFEST_PATH` generated from the conformant SPEC authority,
+producer result, current HEAD, and actual candidate. Validate:
 
 ```text
-docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md
-docs/workflow-checkpoints/SPEC-EXEC-001-component-gap-matrix-generation.md
+node tools/verify-phase-manifest.mjs --manifest <PHASE_MANIFEST_PATH>
 ```
 
-Verify the current conformant SPEC audit checkpoint and matrix baselines match.
-Reject audits, ADRs, portfolio, SPECs, Plans, tickets, code, tests, runtime,
-mirrors and unrelated paths.
+The manifest is the only path authority. Reject every dirty path outside its
+effective set; do not embed project, component, or filename paths in this
+skill.
 
 ## Protocol and completion
 
 Capture parent; verify the complete matrix result, source authority identity,
-repository baseline, metrics and `READY_FOR_IMPLEMENTATION_PLAN`; write marker;
-stage only the allowlist; run cached checks; create exactly:
-
-```text
-checkpoint(SPEC-EXEC-001): preserve generated component Gap Matrix
-```
+repository baseline, metrics and readiness; validate the phase manifest; write
+its declared marker; stage exactly its effective path set; run cached checks;
+and create exactly the manifest's `commitMessage`.
 
 Verify the exact parent and do not audit or plan in this operation. Return:
 

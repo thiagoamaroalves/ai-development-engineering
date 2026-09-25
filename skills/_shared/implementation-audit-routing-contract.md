@@ -159,8 +159,11 @@ and finding-completeness fields without modifying the historical artifact.
   permission to proceed; stop for reconciliation or a human gate.
 - The audit target is the base HEAD plus the stable semantic working-tree
   overlay fingerprint defined by the audit contract.
-- The semantic implementation fingerprint excludes workflow machinery
-  (`.pi/`, `skills/`, and `.codex/`). Those resources are process authority and
-  runtime infrastructure, not the ticket implementation subject. Changes to
-  them require workflow reload/skill validation but must not create false
-  implementation target drift during a specialist wave.
+- The semantic implementation fingerprint is governed by
+  `semantic-fingerprint-policy.json`, not by hardcoded extension logic. It
+  excludes declared process-only workflow machinery (currently `.pi/`,
+  `skills/`, `.codex/`, workflow verification tools, and only the declared
+  verification-script keys in `package.json`). Product, dependency, build, or
+  runtime changes remain semantic unless explicitly and safely classified.
+  Process-authority changes require workflow reload/skill validation but must
+  not create false implementation target drift during a specialist wave.

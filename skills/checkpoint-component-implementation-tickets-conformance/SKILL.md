@@ -7,33 +7,30 @@ metadata:
 
 # Checkpoint Component Implementation Tickets Conformance
 
-Read `../_shared/phase-checkpoint-contract.md` completely. Use only after the
-current ticket-set audit is conformant and emits
-`IMPLEMENTATION_GATE = READY_FOR_IMPLEMENTATION`.
+Read `../_shared/phase-checkpoint-contract.md` and
+`../_shared/phase-manifest-contract.md` completely. Use only after the current
+ticket-set audit is conformant and emits its implementation readiness gate.
 
-## Allowlist and candidate
+## Phase manifest and candidate
 
-Stage only:
+Require `PHASE_MANIFEST_PATH` derived from the conformant ticket audit, current
+HEAD, and actual candidate. If design or implementation was interrupted, its
+paths must be represented as untrusted candidates in the manifest and remain
+outside this checkpoint's preserved set. Validate:
 
 ```text
-docs/tickets/SPEC-EXEC-001/README.md
-docs/tickets/SPEC-EXEC-001/implementation-ticket-audit.md
-docs/workflow-checkpoints/SPEC-EXEC-001-component-implementation-tickets-conformance.md
+node tools/verify-phase-manifest.mjs --manifest <PHASE_MANIFEST_PATH>
 ```
 
-If design/implementation was interrupted, the exact selected ticket design,
-implementation, tests and evidence must be separately authorized by the
-implemented-ticket checkpoint; do not include them here. Any other dirty path
-blocks.
+Any dirty path outside the manifest's effective set blocks. Do not embed
+project-specific paths in this skill.
 
 ## Completion
 
-Capture parent, verify current conformant ticket audit, basis, DAG, metrics and
-gate, write marker, stage only the allowlist, run cached checks, create exactly:
-
-```text
-checkpoint(SPEC-EXEC-001): preserve conformant implementation-tickets audit
-```
+Capture parent, verify the current conformant ticket audit, basis, DAG,
+metrics and gate, validate the phase manifest, write its declared marker, stage
+exactly its effective path set, run cached checks, and create exactly the
+manifest's `commitMessage`.
 
 Return:
 

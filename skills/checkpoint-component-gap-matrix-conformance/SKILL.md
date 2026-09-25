@@ -7,38 +7,31 @@ metadata:
 
 # Checkpoint Component Gap Matrix Conformance
 
-Read `../_shared/phase-checkpoint-contract.md` and
+Read `../_shared/phase-checkpoint-contract.md`,
+`../_shared/phase-manifest-contract.md`, and
 `../_shared/interrupted-artifact-production-recovery-contract.md` completely.
-Use only after the current Gap Matrix audit is complete and conformant with
-`READY_FOR_IMPLEMENTATION_PLAN: YES`.
+Use only after the current Gap Matrix audit is complete and conformant.
 
-## Allowlist and candidate
+## Phase manifest and candidate
 
-Stage only:
-
-```text
-docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md
-docs/specs/gap-matrices/audits/SPEC-EXEC-001-implementation-gap-matrix-audit.md
-docs/workflow-checkpoints/SPEC-EXEC-001-component-gap-matrix-conformance.md
-```
-
-If Plan generation was interrupted, the exact Plan output may remain unstaged
-as an untrusted candidate:
+Require `PHASE_MANIFEST_PATH` derived from the conformant Gap Matrix audit,
+current HEAD, and actual candidate. Interrupted Plan output may remain
+unstaged only when explicitly represented as an untrusted candidate in the
+manifest. Validate:
 
 ```text
-docs/specs/implementation-plans/SPEC-EXEC-001-implementation-plan.md
+node tools/verify-phase-manifest.mjs --manifest <PHASE_MANIFEST_PATH>
 ```
 
-Any other path blocks. Do not generate the Plan here.
+Any dirty path outside the manifest's effective set blocks. Do not generate the
+Plan here and do not embed project-specific paths in this skill.
 
 ## Completion
 
-Capture parent, verify current conformant audit, basis, metrics and readiness,
-write marker, stage only the allowlist, run cached checks, create exactly:
-
-```text
-checkpoint(SPEC-EXEC-001): preserve conformant component Gap Matrix audit
-```
+Capture parent, verify the current conformant audit, basis, metrics and
+readiness, validate the phase manifest, write its declared marker, stage
+exactly its effective path set, run cached checks, and create exactly the
+manifest's `commitMessage`.
 
 Return:
 

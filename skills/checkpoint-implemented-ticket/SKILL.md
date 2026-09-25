@@ -20,6 +20,7 @@ Read completely:
 - `skills/_shared/implementation-audit-routing-contract.md`;
 - `skills/_shared/baseline-drift-remediation-contract.md`;
 - `skills/_shared/remediation-preflight-contract.md`;
+- `skills/_shared/phase-manifest-contract.md`;
 - the target ticket and index;
 - the latest canonical implementation audit, when present;
 - the latest implementation-remediation artifact, when present.
@@ -94,32 +95,37 @@ REMEDIATION_CHECKPOINT = NOT_AUTHORIZED
 NO_COMMIT = YES
 ```
 
-The checkpoint kind and exact path allowlist must be recorded in the checkpoint
+The checkpoint kind and phase manifest must be recorded in the checkpoint
 marker before committing.
 
-## Allowlist rules
+## Phase manifest rules
 
-Build an exact path allowlist from the ticket and current canonical artifact.
-At minimum:
+Require `PHASE_MANIFEST_PATH` derived from the frozen ticket scope, canonical
+audit/remediation state, target fingerprint, current HEAD, and actual working-
+tree candidate. An untracked approved design artifact before this checkpoint
+is expected and must be represented by the manifest when authorized. An
+untracked before this checkpoint is expected design artifact is not an approval
+failure. The manifest must enumerate implementation, tests, evidence,
+audit, remediation, marker, and any explicitly derived index paths appropriate
+to the checkpoint kind. For audit checkpoints it must bind the exact target
+fingerprint; for remediation checkpoints it must bind the approved scope and
+preflight state.
 
-- include only the target ticket's implementation, tests, evidence, audit,
-  remediation, checkpoint marker, and explicitly derived index paths
-  appropriate to the checkpoint kind;
-- when the current workflow created or updated the target ticket's approved
-  Implementation Design, include that exact design artifact in the allowlist;
-  its being untracked before this checkpoint is expected and is not a design
-  approval failure;
-- for `AUDIT_CHECKPOINT`, include the exact implementation and test files
-  represented by the audit target fingerprint plus the audit artifacts;
-- exclude `.pi/`, `skills/`, `.codex/`, `node_modules/`, unrelated tickets,
-  unrelated source/tests, and upstream ADR/SPEC/Gap Matrix/Plan authority;
-- reject any staged or unstaged path outside the allowlist;
-- reject path deletion unless the ticket's frozen scope explicitly authorizes
-  it and replacement proof is present;
-- do not use `git add .`, `git add -A`, or an equivalent broad staging command.
+Validate before staging:
+
+```text
+node tools/verify-phase-manifest.mjs --manifest <PHASE_MANIFEST_PATH>
+```
+
+The manifest must exclude `.pi/`, skills, mirrors, `node_modules`, unrelated
+tickets, unrelated source/tests, upstream authority, and unauthorized
+deletions. Recovery candidates may appear only in `unstagedRecovery` and must
+remain untouched. Reject any staged or unstaged path outside the manifest's
+allowed sets. Never use `git add .`, `git add -A`, or an equivalent broad
+staging command.
 
 Use `git status --short`, `git diff --name-status`, and untracked-file
-inspection to classify the complete working tree before staging. Existing
+inspection to verify the manifest covers the complete working tree. Existing
 unrelated changes remain untouched and are not silently included.
 
 ## Checkpoint marker
@@ -137,7 +143,9 @@ CHECKPOINT_KIND = <kind>
 TICKET_ID = <ticket>
 PARENT_HEAD = <current HEAD>
 CHECKPOINT_SCOPE = <frozen scope>
-ALLOWLIST = <one path per line>
+PHASE_MANIFEST = <manifest path>
+PRESERVED_PATHS = <derived manifest paths>
+UNSTAGED_RECOVERY_PATHS = <derived manifest paths>
 EXCLUDED_DIRS = .pi/; skills/; .codex/; node_modules/
 SOURCE_AUDIT = <path or NOT_APPLICABLE>
 SOURCE_REMEDIATION = <path or NOT_APPLICABLE>
@@ -153,7 +161,7 @@ post-commit SHA inside the pre-commit marker.
 ## Commit protocol
 
 1. Capture `PARENT_HEAD = git rev-parse HEAD`.
-2. Revalidate the ticket, canonical audit/remediation state, and allowlist.
+2. Revalidate the ticket, canonical audit/remediation state, and phase manifest.
 3. Run required checks for the checkpoint kind:
    - implementation/remediation: required focused tests and typecheck;
    - remediation: additionally verify the complete
@@ -164,8 +172,8 @@ post-commit SHA inside the pre-commit marker.
      that excludes intentional Markdown hard breaks in audit artifacts;
    - finalization: only checks explicitly authorized by finalization.
 4. Write the marker.
-5. Stage only the exact allowlisted paths.
-6. Verify staged paths against the allowlist and verify no staged authority,
+5. Validate the phase manifest and stage exactly its effective path set.
+6. Verify staged paths against the manifest and verify no staged authority,
    workflow-runtime, unrelated, or destructive path exists.
 7. Run `git diff --cached --check` for implementation, test, checkpoint-marker,
    and non-audit evidence paths. Audit Markdown artifacts may contain

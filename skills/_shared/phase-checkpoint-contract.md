@@ -12,8 +12,11 @@ A phase checkpoint MUST:
 - run in the main worktree with one writer;
 - capture one stable `PARENT_HEAD`;
 - preserve the exact audited or remediated baseline and its lineage;
-- use an explicit phase allowlist, never `git add .` or `git add -A`;
-- reject every staged path outside that allowlist;
+- read `../_shared/phase-manifest-contract.md` and use one generated phase
+  manifest, never a repository-specific path list in the skill;
+- run `node tools/verify-phase-manifest.mjs --manifest <manifest-path>` before
+  staging;
+- reject every staged path outside the manifest's effective path set;
 - reject production/test/upstream/downstream files unless the phase skill
   explicitly lists them;
 - run the phase-required validation and the canonical artifact consistency
@@ -48,5 +51,5 @@ CANONICAL_ARTIFACT_CONSISTENCY = PASS
 NEXT_AUTHORIZED_OPERATION = <canonical next operation>
 ```
 
-Any uncertainty about the allowlist, parent, authority, semantic basis, or
+Any uncertainty about the manifest, parent, authority, semantic basis, or
 validation is a blocker and creates no commit.

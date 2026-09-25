@@ -11,7 +11,8 @@ metadata:
 
 # Checkpoint Component SPEC Audit
 
-Read `../_shared/phase-checkpoint-contract.md` completely before acting.
+Read `../_shared/phase-checkpoint-contract.md` and
+`../_shared/phase-manifest-contract.md` completely before acting.
 
 Create one local checkpoint for the exact current component-SPEC audit baseline.
 This operation preserves audit authority and routing evidence; it does not
@@ -36,25 +37,20 @@ The audit report, handoff, and blocked prior remediation evidence must be
 preserved exactly as the current baseline. Never discard, reset, clean, stash,
 or rewrite an unexpected path.
 
-## Exact allowlist for the current SPEC-EXEC-001 revalidation
+## Phase manifest
+
+Do not embed project, component, ticket, audit, handoff, or marker paths in this
+skill. Require `PHASE_MANIFEST_PATH` derived from the current SPEC audit,
+revalidation handoff, baseline, current HEAD, and actual candidate. The
+manifest must authorize the audit baseline, explicit handoff/evidence, and
+marker for this phase only. Validate before staging:
 
 ```text
-docs/specs/audits/SPEC-EXEC-001-component-conformance-audit.md
-docs/specs/SPEC-EXEC-001-IMA-MAJOR-013-spec-revalidation-handoff.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-002-implementation-remediation.md
-skills/checkpoint-component-spec-audit/SKILL.md
-docs/workflow-checkpoints/SPEC-EXEC-001-component-spec-audit.md
+node tools/verify-phase-manifest.mjs --manifest <PHASE_MANIFEST_PATH>
 ```
 
-The checkpoint skill itself is included because it is the newly introduced
-repository authority required to preserve and continue this SPEC phase. No
-other source, test, ADR, portfolio,
-SPEC, Gap Matrix, Plan, ticket, `.pi/`, `.codex/`, `skills/`, `tools/`, or
-unrelated path may be staged.
-
-Before staging, verify every current non-ignored dirty path is either one of the
-three existing allowlisted evidence paths, the checkpoint skill itself, or the
-operation's marker. Any other path blocks the checkpoint.
+Every dirty path must be in the manifest's effective path set. A missing,
+ambiguous, or project-specific hand-maintained path list blocks the checkpoint.
 
 ## Checkpoint protocol
 
@@ -68,39 +64,15 @@ operation's marker. Any other path blocks the checkpoint.
    active workflow before staging. Intentional two-space Markdown hard breaks
    in the independent audit report are permitted; any other trailing
    whitespace is a blocker and must not be normalized by this checkpoint.
-5. Write the marker at the exact allowlisted path with:
-
-```text
-CHECKPOINT_KIND = COMPONENT_SPEC_AUDIT_CHECKPOINT
-PARENT_HEAD = <parent>
-COMPONENT_SPEC = SPEC-EXEC-001
-SOURCE_AUDIT = docs/specs/audits/SPEC-EXEC-001-component-conformance-audit.md
-SOURCE_VERDICT = FAIL — COMPONENT_SPEC_NON_CONFORMANT
-READY_FOR_GAP_MATRIX = NO
-HANDOFF = docs/specs/SPEC-EXEC-001-IMA-MAJOR-013-spec-revalidation-handoff.md
-BLOCKED_PRIOR_REMEDIATION = docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-002-implementation-remediation.md
-PRODUCTION_FILES_CHANGED = 0
-TEST_FILES_CHANGED = 0
-CHECKS = PASS
-CHECKPOINT_COMMIT_MESSAGE = checkpoint(SPEC-EXEC-001): preserve component SPEC audit baseline
-```
-
-6. Stage only the exact allowlist. Never use `git add .` or `git add -A`.
-7. Verify staged paths are a subset of the allowlist and contain no production
-   code, tests, upstream authority, downstream planning, `.pi/`, `.codex/`,
-   unrelated skills, or unrelated ticket path.
-8. Run `git diff --cached --check`. Intentional two-space Markdown hard
-   breaks in `docs/specs/audits/SPEC-EXEC-001-component-conformance-audit.md`
-   may be reported by Git and are allowed; every other whitespace error blocks
-   the checkpoint.
-9. Create exactly one local commit:
-
-```text
-checkpoint(SPEC-EXEC-001): preserve component SPEC audit baseline
-```
-
-10. Verify the new commit has the captured parent and only the allowlisted paths.
-11. Do not push, merge, publish, reset, clean, stash, remediate, or re-audit in
+5. Write the marker declared by the manifest with the complete audit verdict,
+   handoff, parent, validation results, and zero production/test changes.
+6. Validate the phase manifest and stage exactly its effective path set. Never
+   use `git add .` or `git add -A`.
+7. Run `git diff --cached --check`; intentional audit-report hard breaks may be
+   allowed only when declared by the manifest policy.
+8. Create exactly one local commit using the manifest's `commitMessage`.
+9. Verify the new commit has the captured parent and only manifest paths.
+10. Do not push, merge, publish, reset, clean, stash, remediate, or re-audit in
     this operation.
 
 ## Completion

@@ -7,29 +7,32 @@ metadata:
 
 # Checkpoint Component Implementation Plan Generation
 
-Read `../_shared/phase-checkpoint-contract.md` and
+Read `../_shared/phase-checkpoint-contract.md`,
+`../_shared/phase-manifest-contract.md`, and
 `../_shared/interrupted-artifact-production-recovery-contract.md` completely.
-Use only after `plan-component-implementation` returns
-`COMPONENT_IMPLEMENTATION_PLAN_COMPLETE` and `READY_FOR_IMPLEMENTATION_PLAN_AUDIT`.
+Use only after the producer returns its complete result and the declared
+readiness gate for independent Plan audit.
 
-## Allowlist
+## Phase manifest
+
+Do not embed repository, component, or filename paths in this skill. Require
+`PHASE_MANIFEST_PATH` from the controller and verify that the manifest was
+derived from the conformant upstream checkpoint, the complete Plan result, the
+current HEAD, and the actual candidate. Run:
 
 ```text
-docs/specs/implementation-plans/SPEC-EXEC-001-implementation-plan.md
-docs/workflow-checkpoints/SPEC-EXEC-001-component-implementation-plan-generation.md
+node tools/verify-phase-manifest.mjs --manifest <PHASE_MANIFEST_PATH>
 ```
 
-Verify the conformant Gap Matrix checkpoint and Plan baselines match. Reject
-other authority, audits, tickets, code, tests and unrelated paths.
+The manifest must authorize only the generated Plan, its phase marker, and any
+producer-declared evidence. Reject every dirty path outside its effective path
+set; do not broaden it or treat an incomplete candidate as complete.
 
 ## Completion
 
-Capture parent, verify complete plan result and readiness, write marker, stage
-only the allowlist, run cached checks, and create exactly:
-
-```text
-checkpoint(SPEC-EXEC-001): preserve generated component Implementation Plan
-```
+Capture parent, verify the complete producer result and readiness, validate
+the phase manifest, write its declared marker, stage exactly its effective path
+set, run cached checks, and create exactly the manifest's `commitMessage`.
 
 Return:
 

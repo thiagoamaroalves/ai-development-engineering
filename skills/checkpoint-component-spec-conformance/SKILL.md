@@ -7,40 +7,30 @@ metadata:
 
 # Checkpoint Component SPEC Conformance
 
-Read `../_shared/phase-checkpoint-contract.md` and
+Read `../_shared/phase-checkpoint-contract.md`,
+`../_shared/phase-manifest-contract.md`, and
 `../_shared/interrupted-artifact-production-recovery-contract.md` completely.
-Use only after the current independent component SPEC audit returns
-`PASS — COMPONENT_SPEC_CONFORMANT` and `READY_FOR_GAP_MATRIX: YES`.
+Use only after the current independent component SPEC audit is conformant.
 
-## Allowlist and recovery candidate
+## Phase manifest and recovery candidate
 
-Stage only:
-
-```text
-docs/specs/audits/SPEC-EXEC-001-component-conformance-audit.md
-docs/workflow-checkpoints/SPEC-EXEC-001-component-spec-conformance.md
-```
-
-If Gap Matrix generation was interrupted, this exact output may remain
-explicitly preserved **unstaged**:
+Require `PHASE_MANIFEST_PATH` derived from the conformant SPEC audit, current
+HEAD, and actual candidate. An interrupted Gap Matrix candidate may remain
+unstaged only when represented as untrusted in the manifest. Validate:
 
 ```text
-docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md
+node tools/verify-phase-manifest.mjs --manifest <PHASE_MANIFEST_PATH>
 ```
 
-It is an untrusted candidate and is not included in this commit. Any other
-path blocks. Verify the audit is current, its source authority is unchanged,
-and no production/test/upstream path is changed.
+The manifest is the only path authority. Any other dirty path blocks; do not
+embed project-specific paths in this skill.
 
 ## Protocol
 
-Capture `PARENT_HEAD`; verify PASS verdict, implementability PASS, fingerprint,
-metrics and readiness; write the marker; stage only the audit and marker; run
-cached checks; create exactly:
-
-```text
-checkpoint(SPEC-EXEC-001): preserve conformant component SPEC audit
-```
+Capture `PARENT_HEAD`; verify PASS verdict, implementability, fingerprint,
+metrics and readiness; validate the phase manifest; write its declared marker;
+stage exactly its effective path set; run cached checks; and create exactly the
+manifest's `commitMessage`.
 
 Verify the exact parent. Do not generate Gap Matrix in this operation.
 

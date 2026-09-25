@@ -7,36 +7,31 @@ metadata:
 
 # Checkpoint Component Implementation Tickets Audit
 
-Read `../_shared/phase-checkpoint-contract.md` completely before acting.
-Use only after `audit-component-implementation-tickets` completes. Preserve the
-current ticket-set audit and its exact ticket-set baseline; do not remediate or
-change ticket status in this operation.
+Read `../_shared/phase-checkpoint-contract.md` and
+`../_shared/phase-manifest-contract.md` completely before acting. Use only
+after the independent ticket-set audit completes. Preserve the current audit
+and exact baseline; do not remediate or change ticket status.
 
-## Allowlist and preconditions
+## Phase manifest and preconditions
 
-Require a complete current ticket-set audit and actionable reassessment when
-findings exist. For `SPEC-EXEC-001`, the ticket-set evidence surface is:
+Require a complete current ticket-set audit, actionable reassessment when
+findings exist, and `PHASE_MANIFEST_PATH`. The manifest must be derived from
+the audited ticket set, source authority, current HEAD, and actual candidate.
+Validate:
 
 ```text
-docs/tickets/SPEC-EXEC-001/README.md
-docs/tickets/SPEC-EXEC-001/implementation-ticket-audit.md
-docs/workflow-checkpoints/SPEC-EXEC-001-component-implementation-tickets-audit.md
+node tools/verify-phase-manifest.mjs --manifest <PHASE_MANIFEST_PATH>
 ```
 
-If the audit explicitly changed ticket documents in the same audited baseline,
-those exact changed ticket paths may be cited in the operation allowlist; never
-stage an unlisted ticket. Reject ADRs, portfolio, SPECs, Gap Matrix, Plan,
-code, tests, runtime, mirrors, and unrelated paths.
+The manifest alone authorizes changed ticket documents. Reject every dirty path
+outside its effective path set; do not embed project-specific paths.
 
 ## Protocol and completion
 
-Capture parent; verify verdict, DAG/baseline evidence and next route; run
-required validation and whitespace checks; write the marker; stage only the
-explicit allowlist; run cached checks; create exactly:
-
-```text
-checkpoint(SPEC-EXEC-001): preserve component implementation-tickets audit baseline
-```
+Capture parent; verify verdict, DAG/baseline evidence and next route;
+validate the phase manifest; run required validation and whitespace checks;
+write its declared marker; stage exactly its effective path set; run cached
+checks; and create exactly the manifest's `commitMessage`.
 
 Verify the exact parent and do not remediate or implement. Return:
 

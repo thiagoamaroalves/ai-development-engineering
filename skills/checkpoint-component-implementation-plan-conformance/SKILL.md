@@ -7,39 +7,33 @@ metadata:
 
 # Checkpoint Component Implementation Plan Conformance
 
-Read `../_shared/phase-checkpoint-contract.md` and
+Read `../_shared/phase-checkpoint-contract.md`,
+`../_shared/phase-manifest-contract.md`, and
 `../_shared/interrupted-artifact-production-recovery-contract.md` completely.
-Use only after the current Implementation Plan audit is conformant and emits
-`READY_FOR_ISSUE_DECOMPOSITION: YES`.
+Use only after the current Plan audit is conformant and emits its issue-
+decomposition readiness gate.
 
-## Allowlist and candidate
+## Phase manifest and candidate
 
-Stage only:
-
-```text
-docs/specs/implementation-plans/SPEC-EXEC-001-implementation-plan.md
-docs/specs/implementation-plans/audits/SPEC-EXEC-001-implementation-plan-audit.md
-docs/workflow-checkpoints/SPEC-EXEC-001-component-implementation-plan-conformance.md
-```
-
-If ticket decomposition was interrupted, the exact ticket-set output may remain
-unstaged as an untrusted candidate:
+Require `PHASE_MANIFEST_PATH`. The manifest must be derived from the conformant
+Plan audit, current HEAD, and actual candidate. If downstream production was
+interrupted, its paths must be represented as untrusted candidate paths in the
+manifest and remain unstaged by this operation. Validate:
 
 ```text
-docs/tickets/SPEC-EXEC-001/README.md
-docs/tickets/SPEC-EXEC-001/implementation-ticket-audit.md
+node tools/verify-phase-manifest.mjs --manifest <PHASE_MANIFEST_PATH>
 ```
 
-Any other path blocks. Do not decompose tickets here.
+Any dirty path outside the manifest's effective path set blocks. Do not
+produce downstream artifacts here; the skill must contain no project-specific
+path literals.
 
 ## Completion
 
-Capture parent, verify current conformant Plan audit, basis, metrics and gate,
-write marker, stage only the allowlist, run cached checks, create exactly:
-
-```text
-checkpoint(SPEC-EXEC-001): preserve conformant Implementation Plan audit
-```
+Capture parent, verify the current conformant Plan audit, basis, metrics and
+gate, validate the phase manifest, write its declared marker, stage exactly its
+effective path set, run cached checks, and create exactly the manifest's
+`commitMessage`.
 
 Return:
 

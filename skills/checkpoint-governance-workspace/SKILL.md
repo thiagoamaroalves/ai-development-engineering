@@ -31,71 +31,38 @@ SINGLE_WRITER = YES
 
 The workflow controller must cite the current dirty-path inventory and this
 skill. Never infer preservation from a dirty workspace. Never discard, reset,
-clean, stash, or rewrite a path that is not explicitly in the allowlist. An
-interrupted remediation candidate may be explicitly preserved unstaged under
-the recovery exception below; it must never be included in this governance
-commit.
+clean, stash, or rewrite a path that is not explicitly in the phase manifest.
+An interrupted remediation candidate may be explicitly preserved unstaged in
+`paths.unstagedRecovery`; it must never be included in this governance commit.
 
-## Authorized preservation scope for this repository
+## Phase manifest and human authorization
 
-For the current governance reconciliation, the explicit allowlist is:
+Do not embed repository, project, component, ticket, or filename paths in this
+skill. Require `HUMAN_PRESERVATION_AUTHORIZATION = YES` and a controller-
+supplied `PHASE_MANIFEST_PATH`. The manifest must be derived from the current
+dirty inventory, explicitly authorized governance scope, current HEAD, and any
+untrusted recovery candidates. It must separate `paths.preserve`/`delete`
+from `paths.unstagedRecovery`; recovery candidates remain untouched and
+unstaged.
 
-```text
-.gitignore
-README.md
-package.json
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-envelope-schema-contract.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-003-registry-entry-reconstruction.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-004-contract-verdict-failure-semantics.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-006-manifest-completeness-freeze.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-007-manifest-identity-reconstruction-retry.md
-docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-009-historical-original-basis-replay.md
-docs/tickets/SPEC-EXEC-001/README.md
-docs/tickets/SPEC-EXEC-001/implementation-ticket-audit.md
-docs/tickets/SPEC-EXEC-001/implementation-ticket-remediation.md
-skills/**
-tools/**
-docs/workflow-checkpoints/SPEC-EXEC-001-governance-reconciliation.md
-```
-
-For the current interrupted workflow, these paths may be preserved
-**unstaged** as recovery candidates, but are not part of this checkpoint's
-staged allowlist:
+Validate the manifest before staging:
 
 ```text
-docs/specs/SPEC-EXEC-001-skill-contracts-and-capability-registry.md
-docs/specs/audits/SPEC-EXEC-001-component-conformance-audit.md
-docs/specs/gap-matrices/SPEC-EXEC-001-implementation-gap-matrix.md
+node tools/verify-phase-manifest.mjs --manifest <PHASE_MANIFEST_PATH>
 ```
 
-The SPEC candidate exception is valid only when the component audit is still
-`FAIL — COMPONENT_SPEC_NON_CONFORMANT` and the owning remediation is next. The
-conformant-audit and Gap Matrix candidate exception is valid only when the
-current component audit is `PASS — COMPONENT_SPEC_CONFORMANT`, its readiness is
-`READY_FOR_GAP_MATRIX: YES`, the next route is the SPEC-conformance checkpoint,
-and Gap Matrix production was interrupted. Candidates are never treated as
-complete.
-
-`skills/**` is the canonical versioned source. `package.json` is included only
-for workflow verification-script registration; it must not contain production
-or ticket behavior changes. `.codex/`, `.pi/`, `node_modules/`, production
-source, tests, and unrelated ticket paths are not
-included. Codex mirror changes remain generated/ignored and are not committed
-by this checkpoint.
-
-Before staging, verify every current non-ignored dirty path is either in this
-allowlist or is the exact explicitly preserved unstaged recovery candidate.
-The candidate must remain unstaged. Any other path blocks the checkpoint. A
-missing expected path is allowed only when it is not currently dirty; an
-unexpected path is never silently omitted.
+Only the manifest's effective path set may be staged. Every recovery candidate
+must be explicitly authorized, remain unstaged, and be represented in the
+manifest. Any other dirty path blocks. The manifest itself is the durable
+record of the human-approved scope; the skill must remain project-independent.
 
 ## Checkpoint protocol
 
 1. Capture `PARENT_HEAD = git rev-parse HEAD`.
 2. Re-read the complete current dirty-path inventory.
-3. Run `npm test`, `npm run typecheck`, `npm run verify:audit-governance`, and
-   `npm run verify:skill-mirror`.
-4. Write the reconciliation marker at the exact allowlisted path above with:
+3. Run `npm test`, `npm run typecheck`, `npm run verify:audit-governance`,
+   `npm run verify:skill-mirror`, and the phase-manifest verifier.
+4. Write the reconciliation marker declared by the manifest with:
 
 ```text
 CHECKPOINT_KIND = GOVERNANCE_RECONCILIATION_CHECKPOINT
@@ -103,7 +70,9 @@ PARENT_HEAD = <parent>
 PRESERVED_UNSTAGED_RECOVERY_CANDIDATES = <exact explicitly permitted candidates>
 HUMAN_PRESERVATION_AUTHORIZATION = YES
 PRESERVATION_SCOPE = EXPLICIT
-ALLOWLIST = <one path per line>
+PHASE_MANIFEST = <manifest path>
+PRESERVED_PATHS = <one derived path per line>
+UNSTAGED_RECOVERY_PATHS = <one derived path per line>
 EXCLUDED_DIRS = .pi/; .codex/; node_modules/
 TICKET_STATE_MUTATIONS = 0
 PRODUCTION_FILES_CHANGED = 0
@@ -112,19 +81,13 @@ CHECKS = PASS
 CHECKPOINT_COMMIT_MESSAGE = checkpoint(governance): preserve workflow reconciliation
 ```
 
-5. Stage only the exact governance allowlisted paths. Never stage any
-   preserved recovery candidate. Never use `git add .` or `git add -A`.
-6. Verify staged paths are a subset of the governance allowlist and contain
-   no production source, tests, `.pi/`, `.codex/`, `node_modules/`, or
-   unrelated ticket path. Verify the recovery candidate is not staged.
+5. Stage exactly the manifest's effective path set. Never stage any
+   `unstagedRecovery` candidate. Never use `git add .` or `git add -A`.
+6. Verify staged paths equal the manifest's effective path set and recovery
+   candidates remain unstaged.
 7. Run `git diff --cached --check`.
-8. Create exactly one local commit:
-
-```text
-checkpoint(governance): preserve workflow reconciliation
-```
-
-9. Verify the new commit has the captured parent and only the allowlisted paths.
+8. Create exactly one local commit using the manifest's `commitMessage`.
+9. Verify the new commit has the captured parent and only manifest paths.
 10. Do not push, merge, publish, reset, clean, stash, mark DONE, or start the
     ticket remediation in this operation.
 
