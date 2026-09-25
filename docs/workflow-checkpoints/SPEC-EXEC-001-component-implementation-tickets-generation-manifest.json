@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "manifestKind": "PHASE_CHECKPOINT",
+  "phaseId": "SPEC-EXEC-001-component-implementation-tickets-generation",
+  "operation": "checkpoint-component-implementation-tickets-generation",
+  "subject": {
+    "id": "SPEC-EXEC-001",
+    "type": "component"
+  },
+  "sourceAuthority": [
+    {
+      "path": "docs/workflow-checkpoints/SPEC-EXEC-001-component-implementation-plan-conformance.md",
+      "sha256": "72d7b38ad4a041e4a810a6f65bd81c284f6b8dd469fb116ea929f13af0b51932"
+    },
+    {
+      "path": "docs/specs/implementation-plans/audits/SPEC-EXEC-001-implementation-plan-audit.md",
+      "sha256": "5a3869bf5fbc0ac22db03cf0837c847ecbee96441c1ad270b345413f5828ac80"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/evidence/SPEC-EXEC-001-ticket-decomposition.md",
+      "sha256": "d0a171cacf541fa517672f58bfaf6474ba67663cd63c22de1a9330e8f9e1d6ad"
+    },
+    {
+      "path": "docs/workflow-checkpoints/SPEC-EXEC-001-governance-reconciliation.md",
+      "sha256": "8d568ab637898975a7801205e89587f994d6a11dbf53f5a2816b3625ccd81a3c"
+    },
+    {
+      "path": "docs/workflow-checkpoints/SPEC-EXEC-001-governance-reconciliation-manifest.json",
+      "sha256": "3c968db95142de847b7f2e362c4989a63f0212f13a868e8b3f2c27023ce98c8b"
+    }
+  ],
+  "target": {
+    "head": "d043b9f025d6845542a58f9e75c4f34f9e34f8da",
+    "semanticFingerprint": "09d7c5dc3a47f90a60612eb5b31384ad1b73c81b252ec640e15a6b87d683ae57"
+  },
+  "paths": {
+    "manifest": "docs/workflow-checkpoints/SPEC-EXEC-001-component-implementation-tickets-generation-manifest.json",
+    "preserve": [
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-capability-specific-envelope-and-payload-schemas.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-002-verdict-registry-and-structured-failure-semantics.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-003-version-semantics-overlap-rejection-and-deterministic-resolution.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-004-source-bound-normal-bootstrap-catalog-consumption.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-005-issuer-bound-registration-and-common-extensibility.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-006-exact-exec-basis-binding-at-the-dom-snapshot-boundary.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-007-complete-immutable-manifest-and-started-basis-freeze.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-008-registry-identity-and-semantic-reconstruction.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-009-registry-mutation-concurrency-and-idempotent-retry.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-010-manifest-identity-reconstruction-and-retry-lineage.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-011-safe-checkpoint-and-original-basis-historical-replay.md",
+      "docs/tickets/SPEC-EXEC-001/README.md",
+      "docs/tickets/SPEC-EXEC-001/evidence/SPEC-EXEC-001-ticket-decomposition.md"
+    ],
+    "delete": [
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-envelope-schema-contract.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-002-version-registry-catalogs-capabilities.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-003-registry-entry-reconstruction.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-004-contract-verdict-failure-semantics.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-005-authoritative-exact-basis-binding.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-006-manifest-completeness-freeze.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-007-manifest-identity-reconstruction-retry.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-008-checkpoint-resume-basis.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-009-historical-original-basis-replay.md"
+    ],
+    "unstagedRecovery": [],
+    "marker": "docs/workflow-checkpoints/SPEC-EXEC-001-component-implementation-tickets-generation.md"
+  },
+  "nextAuthorizedOperation": "audit-component-implementation-tickets",
+  "commitMessage": "checkpoint(SPEC-EXEC-001): preserve generated implementation tickets"
+}
