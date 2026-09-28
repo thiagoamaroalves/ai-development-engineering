@@ -4,7 +4,13 @@
 /.history/
 # skills/ is the canonical, versioned skill source. .codex/skills/ is a generated
 # compatibility mirror maintained by tools/verify-skill-mirror.mjs.
-/.pi/
+/.pi/*
+!/.pi/settings.json
+!/.pi/agents/
+!/.pi/agents/*.md
+!/.pi/extensions/
+!/.pi/extensions/workflow-orchestrator/
+!/.pi/extensions/workflow-orchestrator/**
 /node_modules/
 /docs/**/evidences/
 /docs/**/.audits/
