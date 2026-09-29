@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "manifestKind": "PHASE_CHECKPOINT",
+  "phaseId": "SPEC-EXEC-001-EXEC-001-TICKET-001-workspace-preservation-checkpoint-governance-workspace-ccc81cd0d5ff",
+  "operation": "checkpoint-governance-workspace",
+  "subject": {
+    "id": "SPEC-EXEC-001/EXEC-001-TICKET-001",
+    "type": "workspace"
+  },
+  "sourceAuthority": [
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-audit.md",
+      "sha256": "7086a500f9a963634e5c0d2f8223654fbc929e5b80f9d49533d687bab7e09207"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-checkpoints/EXEC-001-TICKET-001-audit-checkpoint-round-23.md",
+      "sha256": "a82944305dfb478b7b27b4d4fdb13a7e5e4578cbc9041f4bfe70289a88e1e7ad"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-capability-specific-envelope-and-payload-schemas.md",
+      "sha256": "5f4d692fbb908c8b95e6333bda9bc504ddbbda2333f7cf64426e1a7ac1159fd6"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design.md",
+      "sha256": "155185f684196648b0bf89c000de12ab76988017d99b1dbcc1e97e28e5730459"
+    }
+  ],
+  "target": {
+    "head": "ccc81cd0d5ff0de777368b8372fe47408bf8305a",
+    "semanticFingerprint": "c21d52859837764cd3bd22cc3c2cef5df7f8aeeba733724040eaec4d10cd2f3e"
+  },
+  "paths": {
+    "manifest": "docs/workflow-checkpoints/spec-exec-001-exec-001-ticket-001-workspace-preservation-checkpoint-governance-workspace-ccc81cd0d5ff-manifest.json",
+    "preserve": [],
+    "delete": [],
+    "unstagedRecovery": [
+      "README.md",
+      "package-lock.json",
+      "package.json",
+      "tests/exec-001-ticket-002.test.ts"
+    ],
+    "marker": "docs/workflow-checkpoints/spec-exec-001-exec-001-ticket-001-workspace-preservation-checkpoint-governance-workspace-ccc81cd0d5ff.md"
+  },
+  "nextAuthorizedOperation": "workflow-controller-replan",
+  "commitMessage": "checkpoint(governance): preserve workflow reconciliation"
+}
