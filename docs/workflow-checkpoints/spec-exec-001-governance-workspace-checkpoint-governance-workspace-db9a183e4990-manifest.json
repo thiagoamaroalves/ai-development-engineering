@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "manifestKind": "PHASE_CHECKPOINT",
+  "phaseId": "SPEC-EXEC-001-governance-workspace-checkpoint-governance-workspace-db9a183e4990189749cd8b163d14d2bf8d0495c2",
+  "operation": "checkpoint-governance-workspace",
+  "subject": {
+    "id": "SPEC-EXEC-001",
+    "type": "workspace"
+  },
+  "sourceAuthority": [
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-audit.md",
+      "sha256": "e221f1c55ec398935e73a3a461198a2e04785aa8b3f4cbdbb8a93dc5613694fa"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-checkpoints/EXEC-001-TICKET-001-remediation-checkpoint-round-22.md",
+      "sha256": "9e26e01bc61d847799f846132ca57e028817411dd2e757d06731010050ca8a71"
+    },
+    {
+      "path": "docs/workflow-checkpoints/SPEC-EXEC-001-component-implementation-tickets-conformance.md",
+      "sha256": "19ed06a29074bf58362072f80c7b1fe16d104dae84b8f7b8bd55ab4d922ad3cd"
+    }
+  ],
+  "target": {
+    "head": "db9a183e4990189749cd8b163d14d2bf8d0495c2",
+    "semanticFingerprint": "e4ae9eca4c531bbb3d0d231a1c26556cf8efe282a1b0b8aae8538a0199470c8b"
+  },
+  "paths": {
+    "manifest": "docs/workflow-checkpoints/spec-exec-001-governance-workspace-checkpoint-governance-workspace-db9a183e4990-manifest.json",
+    "preserve": [
+      ".pi/extensions/workflow-orchestrator/orchestrator.ts"
+    ],
+    "delete": [],
+    "unstagedRecovery": [
+      "README.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-architecture-audit.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-audit.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-behavior-audit.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design-conformance-audit.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-ticket-conformance-audit.md",
+      "package-lock.json",
+      "package.json",
+      "tests/exec-001-ticket-002.test.ts"
+    ],
+    "marker": "docs/workflow-checkpoints/spec-exec-001-governance-workspace-checkpoint-governance-workspace-db9a183e4990.md"
+  },
+  "nextAuthorizedOperation": "workflow-controller-replan",
+  "commitMessage": "checkpoint(governance): preserve workflow reconciliation"
+}

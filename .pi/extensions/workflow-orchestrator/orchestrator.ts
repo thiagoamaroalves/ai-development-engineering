@@ -83,6 +83,10 @@ function specialistTask(
   attempt: number,
 ): string {
   const artifact = relativePath(root, artifactPath);
+  const auditArtifactExclusions = [
+    input.canonicalAuditPath,
+    ...Object.values(input.specialistArtifacts),
+  ].map((path) => relativePath(root, path)).join("; ");
   return [
     `Load and execute the canonical skill ${specialist.skill}.`,
     `Ticket: ${relativePath(root, input.ticketPath)}`,
@@ -90,6 +94,8 @@ function specialistTask(
     `Ticket-set audit: ${relativePath(root, input.ticketSetAuditPath)}`,
     `Pinned AUDIT_TARGET_HEAD: ${input.targetHead}`,
     `Pinned AUDIT_TARGET_STATE_FINGERPRINT: ${targetStateFingerprint}`,
+    `AUDIT_ARTIFACT_EXCLUSIONS: ${auditArtifactExclusions}`,
+    "When independently checking the pinned semantic fingerprint, use the repository workspaceSnapshot helper and semantic-fingerprint-policy.json with exactly these audit-artifact exclusions. Do not include audit artifacts or .pi/runtime staging artifacts in the implementation fingerprint.",
     `AUDIT_WAVE_ID: ${auditWaveId}`,
     `SPECIALIST_ATTEMPT: ${attempt}/${MAX_SPECIALIST_ATTEMPTS}`,
     `Write the required specialist audit only to: ${artifact}`,
