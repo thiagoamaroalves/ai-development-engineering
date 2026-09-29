@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "manifestKind": "PHASE_CHECKPOINT",
+  "phaseId": "SPEC-EXEC-001-EXEC-001-TICKET-001-audit-checkpoint-047b2eae-25bd-4a37-8955-bfd39bfa26b0-1f27b0fe187325398524e351f56cacfc61eea1e4-c21d52859837764cd3bd22cc3c2cef5df7f8aeeba733724040eaec4d10cd2f3e",
+  "operation": "checkpoint-implemented-ticket",
+  "subject": {
+    "id": "EXEC-001-TICKET-001",
+    "type": "ticket"
+  },
+  "sourceAuthority": [
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-audit.md",
+      "sha256": "7086a500f9a963634e5c0d2f8223654fbc929e5b80f9d49533d687bab7e09207"
+    }
+  ],
+  "target": {
+    "head": "1f27b0fe187325398524e351f56cacfc61eea1e4",
+    "semanticFingerprint": "c21d52859837764cd3bd22cc3c2cef5df7f8aeeba733724040eaec4d10cd2f3e"
+  },
+  "paths": {
+    "manifest": "docs/workflow-checkpoints/exec-001-ticket-001-checkpoint-implemented-ticket-1f27b0fe1873-manifest.json",
+    "preserve": [
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-architecture-audit.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-behavior-audit.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-audit.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design-conformance-audit.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-ticket-conformance-audit.md"
+    ],
+    "delete": [],
+    "unstagedRecovery": [
+      "README.md",
+      "package-lock.json",
+      "package.json",
+      "tests/exec-001-ticket-002.test.ts"
+    ],
+    "marker": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-checkpoints/EXEC-001-TICKET-001-audit-checkpoint-round-23.md"
+  },
+  "nextAuthorizedOperation": "remediate-implemented-ticket",
+  "commitMessage": "checkpoint(SPEC-EXEC-001/EXEC-001-TICKET-001): AUDIT_CHECKPOINT round 23"
+}
