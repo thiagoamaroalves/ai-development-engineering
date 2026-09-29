@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "manifestKind": "PHASE_CHECKPOINT",
+  "phaseId": "SPEC-EXEC-001-governance-reconciliation-b68eb87d8afc21b5683e89f4ecd3aee8d8238306",
+  "operation": "checkpoint-governance-workspace",
+  "subject": {
+    "id": "SPEC-EXEC-001",
+    "type": "workspace"
+  },
+  "sourceAuthority": [
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-architecture-audit.md",
+      "sha256": "6f87e5aa1406c3d10b64bc384c5f921d6eec84dcdde3393abf0cb401d7d5f5c6"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-behavior-audit.md",
+      "sha256": "ed7ca9d9e4c3ca529edef296968d350feb69cc04f8469e6052726fe33e07abf9"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-audit.md",
+      "sha256": "dda7abaa5245f00e9ff5a302c7f0377df0567a46868150b469eb31bd78754eed"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design-conformance-audit.md",
+      "sha256": "ff21af082b8823fd3fd26a9f9ef70860cfbb787fc2feaad661060dd7333afa80"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-ticket-conformance-audit.md",
+      "sha256": "bb8627b49c89ddd5c3c617d32b60c3e22fe8af914114df1e8821880783ea3894"
+    }
+  ],
+  "target": {
+    "head": "b68eb87d8afc21b5683e89f4ecd3aee8d8238306",
+    "semanticFingerprint": "70f7ea178eabee7cef5e588756b093c1de366d85ce9171e05e2235e091996675"
+  },
+  "paths": {
+    "manifest": "docs/workflow-checkpoints/spec-exec-001-checkpoint-governance-workspace-b68eb87d8afc-manifest.json",
+    "preserve": [],
+    "delete": [],
+    "unstagedRecovery": [
+      "README.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-architecture-audit.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-behavior-audit.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-audit.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design-conformance-audit.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-ticket-conformance-audit.md",
+      "package-lock.json",
+      "package.json",
+      "tests/exec-001-ticket-002.test.ts"
+    ],
+    "marker": "docs/workflow-checkpoints/spec-exec-001-checkpoint-governance-workspace-b68eb87d8afc.md"
+  },
+  "nextAuthorizedOperation": "workflow-controller-replan",
+  "commitMessage": "checkpoint(governance): preserve workflow reconciliation"
+}
