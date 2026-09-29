@@ -11,7 +11,7 @@
       "workflow-audit-consolidator": { "model": "openai-codex/gpt-5.6-luna", "thinking": "max" },
       "workflow-behavior-auditor": { "model": "openai-codex/gpt-5.6-luna", "thinking": "max" },
       "workflow-checkpoint": { "model": "openai-codex/gpt-5.6-luna", "thinking": "max" },
-      "workflow-controller": { "model": "openai-codex/gpt-5.6-luna", "thinking": "max" },
+      "workflow-controller": { "model": "openai-codex/gpt-5.6-luna", "thinking": "high" },
       "workflow-design-auditor": { "model": "openai-codex/gpt-5.6-luna", "thinking": "max" },
       "workflow-implementer": { "model": "openai-codex/gpt-5.6-luna", "thinking": "max" },
       "workflow-independent-auditor": { "model": "openai-codex/gpt-5.6-luna", "thinking": "max" },

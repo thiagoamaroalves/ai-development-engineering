@@ -123,6 +123,16 @@ function controllerResponseKeys(value: unknown): string[] {
   return Object.keys(value as Record<string, unknown>);
 }
 
+function controllerHistorySummary(previous: WorkflowStepRecord[]): string {
+  const last = previous.at(-1);
+  return JSON.stringify({
+    completedStepCount: previous.length,
+    lastCompletedStep: last
+      ? { step: last.step, operation: last.operation, subject: last.subject, result: last.result }
+      : null,
+  });
+}
+
 function controllerTask(objective: string, head: string, previous: WorkflowStepRecord[], replanReason = ""): string {
   return [
     "Determine exactly one next authorized workflow operation from current canonical repository state.",
@@ -140,7 +150,7 @@ function controllerTask(objective: string, head: string, previous: WorkflowStepR
     "A completed phase checkpoint creates a new HEAD. On the next controller call, treat that current HEAD as authoritative, refresh the operation input and semantic basis, and do not reuse a pre-checkpoint plan or reject the phase solely because a non-semantic checkpoint overlay changed HEAD.",
     "Read exactly these shared contracts: skills/_shared/interrupted-remediation-recovery-contract.md and skills/_shared/interrupted-artifact-production-recovery-contract.md. Do not invent abbreviated or alternate authority paths. If an external failure left an authorized remediation target dirty while its current actionable source audit remains unchanged and no complete matching remediation report exists, select the owning remediation skill again in RESUME_OR_RECONCILE mode; do not require a checkpoint, do not route to re-audit, and do not treat a candidate ready marker as proof of completion. If an external failure left an authorized Gap Matrix, Plan, or ticket output dirty while its current source audit remains conformant and no complete matching output exists, select the owning producer again in RESUME_OR_RECONCILE mode after checkpointing the source authority; do not route downstream. Once a producer returns its exact complete result, select its generation checkpoint before selecting the independent audit.",
     ...(replanReason ? [`Previous controller plan was rejected and must be replanned: ${replanReason}`] : []),
-    `Previously completed orchestration steps (operational history only): ${JSON.stringify(previous)}`,
+    `Previously completed orchestration steps (operational history only; canonical artifacts remain authoritative): ${controllerHistorySummary(previous)}`,
   ].join("\n");
 }
 
@@ -348,11 +358,16 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
     const head = await currentHead(root);
     const maxControllerReplans = 3;
     let beforePlan = "";
+    let controllerBaselineFingerprint: string | undefined;
     let plan: WorkflowPlan | undefined;
     let replanReason = "";
 
     for (let attempt = 1; attempt <= maxControllerReplans; attempt++) {
-      beforePlan = await workspaceFingerprint(root, new Set());
+      // A bounded replan is still read-only. Reuse the already validated
+      // baseline between attempts and let the post-controller comparison
+      // detect any mutation or external workspace drift.
+      controllerBaselineFingerprint ??= await workspaceFingerprint(root, new Set());
+      beforePlan = controllerBaselineFingerprint;
       deps.onProgress?.(
         attempt === 1
           ? `Deriving authorized operation ${index} from canonical state…`
@@ -385,9 +400,11 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
         );
       }
       await assertPinnedHead(root, head);
-      if (beforePlan !== await workspaceFingerprint(root, new Set())) {
+      const afterControllerFingerprint = await workspaceFingerprint(root, new Set());
+      if (beforePlan !== afterControllerFingerprint) {
         throw new OrchestrationStop("TARGET_HEAD_DRIFT", "Read-only workflow controller modified the repository.");
       }
+      controllerBaselineFingerprint = afterControllerFingerprint;
       const candidate = planned.value as WorkflowPlan;
       if (![...candidate.authorityFiles, ...candidate.evidenceFiles].every((item) => typeof item === "string")) {
         throw new OrchestrationStop("PROCESS_AUTHORITY_DRIFT", "Controller returned non-string authority or evidence paths.");

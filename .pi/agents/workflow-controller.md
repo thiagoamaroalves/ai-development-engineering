@@ -3,7 +3,7 @@ name: workflow-controller
 description: Derive the next authorized engineering-workflow operation from canonical repository artifacts and skills.
 tools: read, grep, find, ls, bash
 inheritProjectContext: true
-inheritSkills: true
+inheritSkills: false
 defaultContext: fresh
 thinking: high
 ---
