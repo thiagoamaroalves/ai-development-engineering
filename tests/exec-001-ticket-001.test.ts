@@ -20,7 +20,6 @@ import {
   ValidatedExecContract,
 } from '../src/domain/exec-contract.ts'
 import {
-  AuthenticatedExecSchemaValidationPort,
   ExecContractSchemaDefinitions,
   type ExecSchemaDefinition,
   type ExecSchemaValidationPort,
@@ -139,15 +138,13 @@ test('preserves opaque identity references without normalization', () => {
     executionId: '  execution-opaque  ',
     activityId: ' activity-opaque ',
   }
-  const payload = {
-    ...(input.payload as Record<string, unknown>),
-    capabilityId: ' capability-opaque ',
-  }
-  const result = createDefaultValidator().validate({ ...input, envelope, payload })
-  assert.equal(result.status, 'INVALID')
-  if (result.status !== 'INVALID') return
-  assert.equal(result.failure.code, 'CONTRACT_INVALID')
-  assert.equal(result.failure.noEffect, true)
+  const result = createDefaultValidator().validate({ ...input, envelope })
+
+  assert.equal(result.status, 'VALID')
+  if (result.status !== 'VALID') return
+  assert.equal(result.value.envelope.executionId, '  execution-opaque  ')
+  assert.equal(result.value.envelope.activityId, ' activity-opaque ')
+  assert.equal(result.value.payload.capabilityId, 'capability-001')
 })
 
 test('uses canonical JSON Schema documents through the compiled validation adapter', () => {
@@ -288,57 +285,40 @@ test('rejects an always-true adapter when the structured input is invalid or unp
   assert.equal('value' in unprovenResult, false)
 })
 
-test('accepts an independently implemented authenticated adapter through the explicit producer contract', () => {
-  class IndependentSchemaAdapter extends AuthenticatedExecSchemaValidationPort {
-    constructor() {
-      super()
-    }
+test('accepts an owner-authorized receipt replay adapter through the explicit producer contract', () => {
+  const input = validInput()
+  const definitions = new ExecContractSchemaDefinitions()
+  const canonicalAdapter = new JsonSchemaExecValidator()
+  const envelopeValidation = canonicalAdapter.validate(definitions.envelope, input.envelope)
+  const payloadValidation = canonicalAdapter.validate(definitions.payload, input.payload)
+  assert.equal(envelopeValidation.valid, true)
+  assert.equal(payloadValidation.valid, true)
+  if (!envelopeValidation.valid || !payloadValidation.valid) return
 
-    validate(schema: ExecSchemaDefinition, value: unknown): SchemaValidationResult {
-      if (!value || typeof value !== 'object' || Array.isArray(value)) {
-        return Object.freeze({ valid: false, issues: Object.freeze(['A structured value is required.']) })
-      }
-      const required = schema.document.required
-      const properties = schema.document.properties
-      if (!Array.isArray(required)
-        || !required.every((key) => typeof key === 'string')
-        || !properties
-        || typeof properties !== 'object'
-        || Array.isArray(properties)) {
-        return Object.freeze({ valid: false, issues: Object.freeze(['The schema definition is malformed.']) })
-      }
-      const candidate = value as Record<string, unknown>
-      if (!required.every((key) => Object.prototype.propertyIsEnumerable.call(candidate, key))) {
-        return Object.freeze({ valid: false, issues: Object.freeze(['Required fields are missing.']) })
-      }
-      for (const [key, rule] of Object.entries(properties)) {
-        if (rule && typeof rule === 'object' && !Array.isArray(rule) && 'const' in rule
-          && candidate[key] !== (rule as { readonly const?: unknown }).const) {
-          return Object.freeze({ valid: false, issues: Object.freeze([`${key} does not match its schema constant.`]) })
-        }
-      }
-      return this.issueValidatedResult({
-        valid: true as const,
-        issues: Object.freeze([] as readonly string[]),
-        validatedInput: value,
-        schemaReference: schema.reference,
-        contentFingerprint: structuredContentFingerprint(value),
-      })
-    }
-  }
-
-  const adapter = new IndependentSchemaAdapter()
-  const result = new ValidateExecContract(adapter).validate(validInput())
+  const replayAdapter = canonicalAdapter.createReceiptReplayPort({
+    envelope: envelopeValidation,
+    payload: payloadValidation,
+  })
+  assert.equal(Object.isFrozen(replayAdapter), true)
+  const result = new ValidateExecContract(replayAdapter).validate(input)
   assert.equal(result.status, 'VALID')
-  const invalid = new ValidateExecContract(adapter).validate({
-    ...validInput(),
+  const invalid = new ValidateExecContract(replayAdapter).validate({
+    ...input,
     payload: {
-      ...(validInput().payload as Record<string, unknown>),
+      ...(input.payload as Record<string, unknown>),
       data: { unrelated: true },
     },
   })
   assert.equal(invalid.status, 'INVALID')
   if (invalid.status === 'INVALID') assert.equal(invalid.failure.code, 'CONTRACT_INVALID')
+
+  assert.throws(
+    () => canonicalAdapter.createReceiptReplayPort({
+      envelope: Object.freeze({ valid: true, issues: Object.freeze([]), validatedInput: input.envelope as object, schemaReference: definitions.envelope.reference, contentFingerprint: structuredContentFingerprint(input.envelope) }),
+      payload: payloadValidation,
+    }),
+    /genuine canonical validation results/,
+  )
 })
 
 test('rejects an untrusted wrapper even when it transports a genuine result', () => {
@@ -420,8 +400,9 @@ test('does not expose caller-mintable validation authority through the domain bo
   assert.equal('recordExecSchemaValidation' in execContractDomain, false)
   const validationEvidenceModule = await import('../src/domain/exec-validation-evidence-internal.ts')
   const schemaModule = await import('../src/domain/exec-schema.ts')
-  assert.equal('AuthenticatedExecSchemaValidationPort' in schemaModule, true)
-  assert.equal('isAuthenticatedExecSchemaValidationPort' in schemaModule, true)
+  assert.equal('AuthenticatedExecSchemaValidationPort' in schemaModule, false)
+  assert.equal('isAuthenticatedExecSchemaValidationPort' in schemaModule, false)
+  assert.equal('AuthenticatedExecSchemaValidationPort' in validationEvidenceModule, false)
   assert.equal('default' in validationEvidenceModule, false)
   assert.equal('registerIssuedSchemaValidationEvidence' in validationEvidenceModule, false)
   assert.equal('issueSchemaValidationEvidence' in validationEvidenceModule, false)
@@ -431,6 +412,11 @@ test('does not expose caller-mintable validation authority through the domain bo
 
   const definitions = new ExecContractSchemaDefinitions()
   const adapter = new JsonSchemaExecValidator()
+  class CallerCreatedValidator extends JsonSchemaExecValidator {}
+  const callerCreatedValidator = new CallerCreatedValidator()
+  const callerCreatedValidation = callerCreatedValidator.validate(definitions.envelope, validInput().envelope)
+  assert.equal(callerCreatedValidation.valid, false)
+  assert.match(callerCreatedValidation.issues.join(' '), /canonical schema adapter/)
   const input = validInput()
   const validation = adapter.validate(definitions.envelope, input.envelope)
   assert.equal(validation.valid, true)
@@ -543,6 +529,27 @@ test('rejects forged validation results and runtime-created canonical-looking re
     /authenticated successful schema validation result/,
   )
 
+  const callerOwnedPrototypeResult = Object.assign(
+    Object.create(CallerOwnedVerifier.prototype),
+    forgedResult(definitions.envelope.reference, input.envelope as object),
+  )
+  Object.defineProperty(callerOwnedPrototypeResult, 'canonicalResultType', {
+    configurable: false,
+    enumerable: false,
+    writable: false,
+    value: CallerOwnedVerifier,
+  })
+  Object.freeze(callerOwnedPrototypeResult)
+  assert.throws(
+    () => StructuredExecutionEnvelope.create(
+      input.envelope as never,
+      definitions.envelope.reference,
+      callerOwnedPrototypeResult,
+      new JsonSchemaExecValidator(),
+    ),
+    /authenticated successful schema validation result/,
+  )
+
   assert.throws(
     () => new (SchemaReference as unknown as new (...args: unknown[]) => unknown)('exec-envelope', '1.0.0'),
     /restricted to the contract boundary/,
@@ -628,17 +635,24 @@ test('rejects stale genuine evidence after envelope or payload current-content m
   assert.equal(payloadValidation.valid, true)
   if (!envelopeValidation.valid || !payloadValidation.valid) return
 
-  const stalePort: ExecSchemaValidationPort = {
-    validate: (schema, _value) => schema.reference === definitions.envelope.reference
-      ? envelopeValidation
-      : payloadValidation,
-  }
+  const stalePort = adapter.createReceiptReplayPort({
+    envelope: envelopeValidation,
+    payload: payloadValidation,
+  })
+  const control = new ValidateExecContract(stalePort).validate(input)
+  assert.equal(control.status, 'VALID')
   const originalExecutionId = Object.getOwnPropertyDescriptor(Object.prototype, 'executionId')
   const originalData = Object.getOwnPropertyDescriptor(Object.prototype, 'data')
   try {
     envelope.executionId = 'mutated-but-schema-valid'
     const staleValidEnvelope = new ValidateExecContract(stalePort).validate(input)
     assert.equal(staleValidEnvelope.status, 'INVALID')
+    if (staleValidEnvelope.status === 'INVALID') {
+      assert.equal(staleValidEnvelope.failure.noApproval, true)
+      assert.equal(staleValidEnvelope.failure.noCheckpoint, true)
+      assert.equal(staleValidEnvelope.failure.noEffect, true)
+      assert.equal('value' in staleValidEnvelope, false)
+    }
     envelope.executionId = 'execution-001'
 
     delete envelope.executionId
@@ -650,7 +664,12 @@ test('rejects stale genuine evidence after envelope or payload current-content m
     })
     const staleEnvelope = new ValidateExecContract(stalePort).validate(input)
     assert.equal(staleEnvelope.status, 'INVALID')
-    if (staleEnvelope.status === 'INVALID') assert.equal(staleEnvelope.failure.code, 'CONTRACT_INVALID')
+    if (staleEnvelope.status === 'INVALID') {
+      assert.equal(staleEnvelope.failure.code, 'CONTRACT_INVALID')
+      assert.equal(staleEnvelope.failure.noApproval, true)
+      assert.equal(staleEnvelope.failure.noCheckpoint, true)
+      assert.equal(staleEnvelope.failure.noEffect, true)
+    }
 
     Object.defineProperty(envelope, 'executionId', {
       configurable: true,
@@ -661,6 +680,12 @@ test('rejects stale genuine evidence after envelope or payload current-content m
     payload.data = { changed: true }
     const staleValidPayload = new ValidateExecContract(stalePort).validate(input)
     assert.equal(staleValidPayload.status, 'INVALID')
+    if (staleValidPayload.status === 'INVALID') {
+      assert.equal(staleValidPayload.failure.noApproval, true)
+      assert.equal(staleValidPayload.failure.noCheckpoint, true)
+      assert.equal(staleValidPayload.failure.noEffect, true)
+      assert.equal('value' in staleValidPayload, false)
+    }
     payload.data = { result: 'structured' }
 
     delete payload.data
@@ -672,7 +697,12 @@ test('rejects stale genuine evidence after envelope or payload current-content m
     })
     const stalePayload = new ValidateExecContract(stalePort).validate(input)
     assert.equal(stalePayload.status, 'INVALID')
-    if (stalePayload.status === 'INVALID') assert.equal(stalePayload.failure.code, 'CONTRACT_INVALID')
+    if (stalePayload.status === 'INVALID') {
+      assert.equal(stalePayload.failure.code, 'CONTRACT_INVALID')
+      assert.equal(stalePayload.failure.noApproval, true)
+      assert.equal(stalePayload.failure.noCheckpoint, true)
+      assert.equal(stalePayload.failure.noEffect, true)
+    }
   } finally {
     if (originalExecutionId) Object.defineProperty(Object.prototype, 'executionId', originalExecutionId)
     else delete (Object.prototype as Record<string, unknown>).executionId
