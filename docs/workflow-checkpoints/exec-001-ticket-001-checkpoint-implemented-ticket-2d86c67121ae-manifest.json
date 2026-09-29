@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "manifestKind": "PHASE_CHECKPOINT",
+  "phaseId": "SPEC-EXEC-001-EXEC-001-TICKET-001-remediation-2d86c67121aed144b000051f13f7d6f689c63beb-e3fcd413314a277c8e78b49f1eda6f64cf149699ac9d937278019dd864258cd7",
+  "operation": "checkpoint-implemented-ticket",
+  "subject": {
+    "id": "EXEC-001-TICKET-001",
+    "type": "ticket"
+  },
+  "sourceAuthority": [
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-audit.md",
+      "sha256": "7086a500f9a963634e5c0d2f8223654fbc929e5b80f9d49533d687bab7e09207"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-remediation.md",
+      "sha256": "630b15d328f51dfd89ed6eddad18a53fef37ddc657951164d4782b1d42746adc"
+    }
+  ],
+  "target": {
+    "head": "2d86c67121aed144b000051f13f7d6f689c63beb",
+    "semanticFingerprint": "e3fcd413314a277c8e78b49f1eda6f64cf149699ac9d937278019dd864258cd7"
+  },
+  "paths": {
+    "manifest": "docs/workflow-checkpoints/exec-001-ticket-001-checkpoint-implemented-ticket-2d86c67121ae-manifest.json",
+    "preserve": [
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-capability-specific-envelope-and-payload-schemas.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-remediation.md",
+      "docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-001-envelope-schema.md",
+      "docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-001-structured-consumption.md",
+      "docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-002-fail-closed.md",
+      "docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-002-required-fields.md",
+      "src/application/exec-contract.ts",
+      "src/domain/exec-schema.ts",
+      "src/domain/exec-validation-evidence-internal.ts",
+      "src/infrastructure/exec-schema-validator.ts",
+      "tests/exec-001-ticket-001.test.ts"
+    ],
+    "delete": [],
+    "unstagedRecovery": [
+      "README.md",
+      "package-lock.json",
+      "package.json",
+      "tests/exec-001-ticket-002.test.ts"
+    ],
+    "marker": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-checkpoints/EXEC-001-TICKET-001-remediation-checkpoint-round-24.md"
+  },
+  "nextAuthorizedOperation": "audit-implemented-ticket",
+  "commitMessage": "checkpoint(SPEC-EXEC-001/EXEC-001-TICKET-001): REMEDIATION_CHECKPOINT round 24"
+}

@@ -311,22 +311,32 @@ UNIT_SCOPE_LOST_BY_SPLIT = 0
 
 ```text
 IMPLEMENTATION_BASELINE = 8cf79cd37ebb02d0657c1fb191cea1d194b71f89
-IMPLEMENTATION_HEAD = 8cf79cd37ebb02d0657c1fb191cea1d194b71f89 (working tree implementation state)
+IMPLEMENTATION_HEAD = 2d86c67121aed144b000051f13f7d6f689c63beb (governance-only HEAD; remediation candidate is uncommitted)
+IMPLEMENTATION_STATE_FINGERPRINT = e3fcd413314a277c8e78b49f1eda6f64cf149699ac9d937278019dd864258cd7
+SOURCE_AUDIT_TARGET_HEAD = 1f27b0fe187325398524e351f56cacfc61eea1e4
+SOURCE_AUDIT_TARGET_STATE_FINGERPRINT = c21d52859837764cd3bd22cc3c2cef5df7f8aeeba733724040eaec4d10cd2f3e
 INITIAL_STATUS = READY
 STATUS_TRANSITIONS = READY -> IN_PROGRESS -> IMPLEMENTED -> VALIDATION_REQUIRED
 FINAL_STATUS = VALIDATION_REQUIRED
-DESIGN_DEVIATIONS = NONE
+SOURCE_AUDIT_DESIGN_DEVIATION = UNDECLARED_PRODUCER_PROTOCOL_AT_SOURCE_TARGET; remediation restores the approved authenticated producer boundary
+DESIGN_DEVIATIONS = CURRENT_REMEDIATION_RESTORES_APPROVED_DESIGN; independent re-audit pending
 
 CHANGED_FILES =
 src/domain/exec-contract.ts
 src/domain/exec-schema.ts
+src/domain/exec-validation-evidence-internal.ts
 src/application/exec-contract.ts
+src/infrastructure/exec-schema-validator.ts
 tests/exec-001-ticket-001.test.ts
 docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-001-envelope-schema.md
+docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-001-structured-consumption.md
+docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-002-fail-closed.md
 docs/tickets/SPEC-EXEC-001/evidence/TICKET-001/AC-EXEC-002-required-fields.md
+docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-capability-specific-envelope-and-payload-schemas.md
+docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-remediation.md
 
-AC-EXEC-001 = SATISFIED
-AC-EXEC-002 = SATISFIED
+AC-EXEC-001 = SATISFIED_BY_CURRENT_REMEDIATION_EVIDENCE; INDEPENDENT_REAUDIT_REQUIRED
+AC-EXEC-002 = SATISFIED_BY_CURRENT_REMEDIATION_EVIDENCE; INDEPENDENT_REAUDIT_REQUIRED
 
 COMPLETION_EVIDENCE =
 production_code: PRESENT
@@ -335,14 +345,15 @@ local_completion_evidence: PRESENT
 integration_evidence: NOT_APPLICABLE_BY_VALIDATED_SCOPE
 legacy_transition_evidence: PRESENT
 conformance_evidence: PRESENT
+remediation_evidence: PRESENT
 
-TESTS_RUN = npm test; npm run typecheck; npm run verify:audit-governance; npm run verify:skill-mirror; npm run verify:canonical-consistency
-TESTS_PASSED = npm test (78/78); typecheck; audit governance; skill mirror; canonical consistency
+TESTS_RUN = focused ticket 26/26; npm test; npm run typecheck; npm run verify:audit-governance; npm run verify:skill-mirror; npm run verify:canonical-consistency
+TESTS_PASSED = focused ticket (26/26); npm test (84/84); typecheck; audit governance; skill mirror; canonical consistency
 TESTS_FAILED = 0
 TESTS_SKIPPED = 0
-ENVIRONMENTAL_FAILURES = 0
+ENVIRONMENTAL_FAILURES = node --experimental-strip-types probe reports ERR_NO_TYPESCRIPT; not used as proof
 
-IMPLEMENTATION_STRUCTURAL_SELF_CHECK = PASS
+IMPLEMENTATION_STRUCTURAL_SELF_CHECK = PASS (remediation self-check; independent re-audit pending)
 DOMAIN_MODEL_CONFORMANT = YES
 AGGREGATE_BOUNDARIES_CONFORMANT = YES
 INVARIANT_PLACEMENT_CONFORMANT = YES
@@ -370,9 +381,10 @@ FAT_APPLICATION_SERVICE_INTRODUCED = NO
 GOD_COMPONENT_INTRODUCED = NO
 FOREIGN_AUTHORITY_DUPLICATION = 0
 
-REMAINING_BLOCKERS = NONE
+REMAINING_BLOCKERS = IMA-MAJOR-003 remains an integrated-only Plan/Ticket capability-handoff finding; it is preserved and not locally remediated. Local implementation findings are remediated pending independent re-audit.
 NEXT_GATE = TICKET_VALIDATION_REQUIRED
 ```
 
-This ticket now contains implementation evidence only; independent validation,
-remediation if required, and finalization remain downstream workflow phases.
+This ticket contains current implementation/remediation evidence only; the
+source audit remains the immutable defect authority, independent re-audit is
+mandatory, and finalization remains downstream.

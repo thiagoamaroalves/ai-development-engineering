@@ -9,10 +9,14 @@ import {
   SchemaReference,
 } from './exec-contract.ts'
 import {
+  AuthenticatedExecSchemaValidationPort,
+  isAuthenticatedExecSchemaValidationPort,
   isProducerIssuedValidationResult,
 } from './exec-validation-evidence-internal.ts'
 
 export {
+  AuthenticatedExecSchemaValidationPort,
+  isAuthenticatedExecSchemaValidationPort,
   isProducerIssuedValidationResult,
 }
 

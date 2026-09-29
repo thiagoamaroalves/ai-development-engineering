@@ -1,12 +1,13 @@
 # AC-EXEC-002 — Fail-closed rejection evidence
 
-- Evidence refresh target: `AUDIT_TARGET_HEAD=b68eb87d8afc21b5683e89f4ecd3aee8d8238306`; `AUDIT_BASIS_FINGERPRINT=70f7ea178eabee7cef5e588756b093c1de366d85ce9171e05e2235e091996675`; remediation candidate remains uncheckpointed at controller HEAD `7a3b3b0653c563be62357eff88aa8fbdaf3eaf4a`.
-- Invalid, text-only, missing-field, inherited-field, semver-invalid, caller-selected/custom/getter-backed schema, stale-result, one-side-invalid and untrusted adapter inputs return `CONTRACT_INVALID`.
-- Schema adapter exceptions and malformed adapter results normalize to the same canonical failure result.
-- Invalid results preserve immutable expected schema references and mark `noApproval`, `noCheckpoint` and `noEffect` true; no partial validated pair is returned.
-- Runtime constructor attempts for the envelope, payload and pair fail with a boundary error. Public value factories require a canonical privately branded successful result bound to the exact input, canonical schema reference and current fingerprint; the payload factory also rechecks the canonical capability identity and required result field before materialization. The owner-authorized receipt-replay seam accepts only genuine canonical receipts; a plain wrapper is not.
-- Direct witnesses are in `tests/exec-001-ticket-001.test.ts`, including exact-name caller-defined result rejection through the domain factory, caller-defined application-port rejection, copied-adapter rejection, owner-authorized receipt-replay consumption, untrusted-wrapper rejection, caller-created always-true subtype rejection for valid and capability-invalid inputs, getter-backed-definition rejection, runtime constructor guards and the generic delegation consumer regression.
-- Focused runtime command: `node_modules/.bin/tsx --test tests/exec-001-ticket-001.test.ts`.
-- Focused runtime result: PASS (25/25).
-- Focused strict static result: PASS, including the canonical evidence support module.
-- Environment probe: the equivalent `node --experimental-strip-types --test tests/exec-001-ticket-001.test.ts` command failed with `ERR_NO_TYPESCRIPT`; it was not used as proof.
+- Source-audit target: `AUDIT_TARGET_HEAD=1f27b0fe187325398524e351f56cacfc61eea1e4`; `AUDIT_TARGET_STATE_FINGERPRINT=c21d52859837764cd3bd22cc3c2cef5df7f8aeeba733724040eaec4d10cd2f3e`; source-audit SHA-256 `7086a500f9a963634e5c0d2f8223654fbc929e5b80f9d49533d687bab7e09207`.
+- Remediation candidate baseline: HEAD `2d86c67121aed144b000051f13f7d6f689c63beb`; implementation fingerprint `e3fcd413314a277c8e78b49f1eda6f64cf149699ac9d937278019dd864258cd7` over the changed production/test paths.
+- Invalid, text-only, missing-field, inherited-field, semver-invalid, caller-selected/custom/getter-backed schema, forged/copy/wrapper result, untrusted port, stale result, one-side-invalid, malformed adapter and throwing adapter inputs return `CONTRACT_INVALID`.
+- Invalid results remain immutable, expose no approval/checkpoint/effect signal, and never expose a partial validated pair.
+- The cold-start application-only witness rejects caller-supplied self-describing evidence before infrastructure bootstrap. The canonical adapter no longer relies on import order or a module-level bootstrap side effect.
+- The approved authenticated producer boundary is restored for independent adapter substitution; receipt replay and the hidden concrete result/token protocol are no longer used as the alternate-adapter proof.
+- Direct witnesses are in `tests/exec-001-ticket-001.test.ts`, including caller-injection, exact forged-result, copied-adapter, independent-adapter, stale/mutated-input, no-effect and no-partial-result cases.
+- Focused runtime command: `node_modules/.bin/tsx --test tests/exec-001-ticket-001.test.ts`; 26 tests passed, 0 failed.
+- Focused strict static result: PASS, including the authenticated evidence support module.
+- Full repository result: PASS (84/84); no test failures or skips.
+- Environment probe: the equivalent `node --experimental-strip-types --test tests/exec-001-ticket-001.test.ts` command fails with `ERR_NO_TYPESCRIPT` in this Node binary and is not used as proof.

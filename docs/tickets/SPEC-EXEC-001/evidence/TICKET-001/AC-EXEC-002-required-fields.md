@@ -1,12 +1,12 @@
 # AC-EXEC-002 — Required fields and fail-closed evidence
 
-- Evidence refresh target: `AUDIT_TARGET_HEAD=b68eb87d8afc21b5683e89f4ecd3aee8d8238306`; `AUDIT_BASIS_FINGERPRINT=70f7ea178eabee7cef5e588756b093c1de366d85ce9171e05e2235e091996675`; remediation candidate remains uncheckpointed at controller HEAD `7a3b3b0653c563be62357eff88aa8fbdaf3eaf4a`.
-- Direct witnesses cover compiled JSON Schema validation, malformed/text-only input, caller-selected/custom/getter-backed schema rejection, semver and whitespace rejection, missing fields, own-enumerable required-field enforcement, canonical branded evidence, untrusted wrapper rejection, caller-created verifier rejection, inherited fields, one-side-invalid input, forged/copy rejection, stale evidence, sparse arrays and non-JSON values.
-- Missing, malformed, semver-invalid, inherited, untrusted-producer, stale-result and schema-adapter-failure inputs return `CONTRACT_INVALID`.
-- Invalid results expose no approval, checkpoint or effect signal and never expose a partial validated pair.
-- The canonical result carries a private brand and producer authorization outside caller-controlled fields; the productive infrastructure module primes the one canonical result-type identity before consumers run. Domain value factories verify canonical provenance, exact input/reference binding and current fingerprint before construction; the payload factory also rechecks the canonical capability identity and required result field. Receipt replay is owner-authorized and requires genuine canonical receipts rather than caller-shaped result metadata.
-- Direct witnesses are in `tests/exec-001-ticket-001.test.ts`, including capability-specific schema selection, generic payload rejection, exact self-describing forged-result rejection, untrusted injected-port rejection, owner-authorized receipt replay, caller-created always-true subtype rejection, runtime constructor guards and the generic delegation consumer regression.
-- Focused runtime command: `node_modules/.bin/tsx --test tests/exec-001-ticket-001.test.ts`.
-- Focused runtime result: PASS (25/25).
-- Focused strict static result: PASS, including the canonical evidence support module.
-- Environment probe: the equivalent `node --experimental-strip-types --test tests/exec-001-ticket-001.test.ts` command failed with `ERR_NO_TYPESCRIPT`; it was not used as proof.
+- Source-audit target: `AUDIT_TARGET_HEAD=1f27b0fe187325398524e351f56cacfc61eea1e4`; `AUDIT_TARGET_STATE_FINGERPRINT=c21d52859837764cd3bd22cc3c2cef5df7f8aeeba733724040eaec4d10cd2f3e`; source-audit SHA-256 `7086a500f9a963634e5c0d2f8223654fbc929e5b80f9d49533d687bab7e09207`.
+- Remediation candidate baseline: HEAD `2d86c67121aed144b000051f13f7d6f689c63beb`; implementation fingerprint `e3fcd413314a277c8e78b49f1eda6f64cf149699ac9d937278019dd864258cd7` over the changed production/test paths.
+- Direct witnesses cover compiled JSON Schema validation, malformed/text-only input, semver and whitespace rejection, missing fields, own-enumerable required-field enforcement, inherited values, sparse arrays, non-JSON values, caller-selected/custom/getter-backed schema rejection, authenticated producer evidence, copied/forged result rejection, cold-start caller injection, independent adapter substitution, stale/mutated input, one-side-invalid input and no-effect flags.
+- Missing, malformed, semver-invalid, inherited, untrusted-producer, stale-result and schema-adapter-failure inputs return `CONTRACT_INVALID`; no validated value is constructed.
+- The result contract is owner-bound by the explicit authenticated producer/result ledger rather than caller-provided `canonicalResultType` or import-time first-use state. The application checks the authenticated producer before invoking the injected port.
+- Required structured fields remain enforced by the canonical definitions and immutable value boundaries; human text is never used as authority.
+- Focused runtime command: `node_modules/.bin/tsx --test tests/exec-001-ticket-001.test.ts`; 26 tests passed, 0 failed.
+- Focused strict static result: PASS, including the authenticated evidence support module.
+- Full repository result: PASS (84/84); no test failures or skips.
+- Environment probe: the equivalent `node --experimental-strip-types --test tests/exec-001-ticket-001.test.ts` command fails with `ERR_NO_TYPESCRIPT` in this Node binary and is not used as proof.
