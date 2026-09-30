@@ -3,9 +3,11 @@ import { relative, resolve, sep } from "node:path";
 
 import { fieldLast, fieldValues } from "./artifacts.ts";
 import { OrchestrationStop } from "./contracts.ts";
+import { captureLegacyCheckpointProof, readLegacyCheckpointMarker } from "./legacy-checkpoint.ts";
 import { isAuthorizedRecoveryTarget, routeOperation, type OperationReceipt, type TransitionCatalog } from "./workflow-routing.ts";
 import {
   createIntakeWorkflowBasis,
+  createLegacyCheckpointWorkflowBasis,
   createTransitionWorkflowBasis,
   resolveCurrentWorkflowResult,
   validateCurrentWorkflowBasis,
@@ -47,6 +49,44 @@ export async function validateAndCaptureWorkflowBasis(
       });
     }
     return createTransitionWorkflowBasis(root, source);
+  }
+
+  if (targetOperation === "reconcile-legacy-checkpoint-lineage") {
+    if (mode !== "recovery") {
+      throw new OrchestrationStop("PROCESS_AUTHORITY_DRIFT", "Legacy checkpoint lineage migration is available only as an explicitly declared recovery entry.", {
+        operation: targetOperation,
+        mode,
+      });
+    }
+    const currentCheckpointResult = await resolveCurrentWorkflowResult(root, "checkpoint-implemented-ticket", targetSubject);
+    if (currentCheckpointResult) {
+      throw new OrchestrationStop("CANONICAL_ARTIFACT_CONTRADICTION", "A V2 checkpoint result already exists for this ticket; legacy migration is not applicable.", {
+        subject: targetSubject,
+        currentResultId: currentCheckpointResult.resultId,
+        artifactPath: currentCheckpointResult.artifactPath,
+      });
+    }
+    const proof = await captureLegacyCheckpointProof(root, basis.artifactPath, targetSubject);
+    const sourceText = await readLegacyCheckpointMarker(root, proof);
+    const nextOperation = routeOperation(catalog, {
+      operation: "checkpoint-implemented-ticket",
+      subject: targetSubject,
+      status: "COMPLETE",
+      artifactPaths: [proof.markerPath],
+      gateArtifactPath: proof.markerPath,
+      gateField: "NEXT_AUTHORIZED_OPERATION",
+      gateValue: proof.nextOperation,
+      changedPaths: [],
+      reason: "validated legacy checkpoint handoff",
+    }, new Map([[proof.markerPath, sourceText]]));
+    if (nextOperation !== "audit-implemented-ticket") {
+      throw new OrchestrationStop("PROCESS_AUTHORITY_DRIFT", "The validated legacy checkpoint does not authorize the declared post-migration audit.", {
+        expectedOperation: "audit-implemented-ticket",
+        actualOperation: nextOperation,
+        markerPath: proof.markerPath,
+      });
+    }
+    return createLegacyCheckpointWorkflowBasis(proof);
   }
 
   const entryPolicy = catalog.controllerEntry[mode][targetOperation];

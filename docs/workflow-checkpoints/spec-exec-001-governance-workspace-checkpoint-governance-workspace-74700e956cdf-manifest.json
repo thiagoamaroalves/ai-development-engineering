@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "manifestKind": "PHASE_CHECKPOINT",
+  "phaseId": "SPEC-EXEC-001-governance-workspace-74700e956cdf8b562d1b6201d2edaf909c8ea464",
+  "operation": "checkpoint-governance-workspace",
+  "subject": {
+    "id": "SPEC-EXEC-001",
+    "type": "workspace"
+  },
+  "sourceAuthority": [
+    {
+      "path": "skills/checkpoint-governance-workspace/SKILL.md",
+      "sha256": "a85251f8c17a460fd9b19d15c6f860eae838ab6673511f739d010f6a5860d303"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-checkpoints/EXEC-001-TICKET-001-remediation-checkpoint-round-24.md",
+      "sha256": "b02083d791ea275cbc8b62ced6bd0e34a879315d0eae8c23c61c81cd021ab9ca"
+    },
+    {
+      "path": "docs/workflow-checkpoints/exec-001-ticket-001-checkpoint-implemented-ticket-2d86c67121ae-manifest.json",
+      "sha256": "1cd1c45c346d3ff4e8c1621a5c796e4b303ce4cfa8fe1acf14b9e181d82d36e2"
+    },
+    {
+      "path": "docs/workflow-checkpoints/SPEC-EXEC-001-component-implementation-tickets-conformance.md",
+      "sha256": "19ed06a29074bf58362072f80c7b1fe16d104dae84b8f7b8bd55ab4d922ad3cd"
+    },
+    {
+      "path": "docs/workflow-checkpoints/SPEC-EXEC-001-component-implementation-tickets-conformance-manifest.json",
+      "sha256": "99c728f6e55670609d9f9e7b8aacce1d500a8b3a13f61a41fc38e75d6984f33d"
+    }
+  ],
+  "target": {
+    "head": "74700e956cdf8b562d1b6201d2edaf909c8ea464",
+    "semanticFingerprint": "7c2ac148f8995c0efaf03657d0fc8b42a94a050d20fa2d6b8f1bfa2489d15f15"
+  },
+  "paths": {
+    "manifest": "docs/workflow-checkpoints/spec-exec-001-governance-workspace-checkpoint-governance-workspace-74700e956cdf-manifest.json",
+    "preserve": [
+      ".pi/extensions/workflow-orchestrator/README.md",
+      ".pi/extensions/workflow-orchestrator/full-orchestrator.ts",
+      ".pi/extensions/workflow-orchestrator/workflow-lineage.ts",
+      ".pi/extensions/workflow-orchestrator/workflow-preflight.ts",
+      ".pi/extensions/workflow-orchestrator/legacy-checkpoint.ts",
+      "skills/_shared/workflow-preflight-contract.md",
+      "skills/_shared/workflow-transition-contract.md",
+      "skills/_shared/workflow-transitions.json",
+      "skills/checkpoint-implemented-ticket/SKILL.md",
+      "skills/reconcile-legacy-checkpoint-lineage/SKILL.md"
+    ],
+    "delete": [],
+    "unstagedRecovery": [
+      ".pi/settings.json"
+    ],
+    "marker": "docs/workflow-checkpoints/spec-exec-001-governance-workspace-checkpoint-governance-workspace-74700e956cdf.md"
+  },
+  "nextAuthorizedOperation": "workflow-controller-replan",
+  "commitMessage": "checkpoint(governance): preserve workflow reconciliation"
+}

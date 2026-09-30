@@ -64,6 +64,7 @@ IMPLEMENTATION_CHECKPOINT
 AUDIT_CHECKPOINT
 REMEDIATION_CHECKPOINT
 FINALIZATION_CHECKPOINT
+LINEAGE_MIGRATION_CHECKPOINT
 ```
 
 - `IMPLEMENTATION_CHECKPOINT`: implementation, required tests, ticket-local
@@ -78,6 +79,44 @@ FINALIZATION_CHECKPOINT
   before re-audit.
 - `FINALIZATION_CHECKPOINT`: only the finalization skill may authorize this
   kind; this skill never changes a ticket to `DONE`.
+- `LINEAGE_MIGRATION_CHECKPOINT`: only the catalog-routed
+  `reconcile-legacy-checkpoint-lineage` operation may authorize this kind. It
+  commits the validated migration report and one new checkpoint marker so the
+  first V2 `checkpoint-implemented-ticket` result is persisted before its
+  authorized audit successor. It reanchors the migration target HEAD; any
+  recorded descendant path drift remains subject to the complete audit. It does
+  not change implementation or ticket state.
+
+For a `LINEAGE_MIGRATION_CHECKPOINT`, require the controller input to identify
+the migration report produced by the immediately preceding operation. Validate
+that report's exact ticket, `MIGRATION_VALIDATION = PASS`,
+`MIGRATION_GATE = LEGACY_CHECKPOINT_VALIDATED`, source checkpoint marker,
+checkpoint commit, phase manifest digest, `MIGRATION_REBASE_REQUIRED = YES`,
+the preserved-path drift proof, and
+`NEXT_AUTHORIZED_OPERATION = audit-implemented-ticket`. Require the report's
+`SOURCE_CHECKPOINT_TARGET_HEAD` to equal the checkpoint's captured parent HEAD.
+Include the migration
+report, source checkpoint marker, and source phase manifest in the current
+phase manifest's source authority. Preserve the migration report and new
+checkpoint marker in one local commit; keep every unrelated path, including
+ignored or excluded runtime configuration, in its derived `unstagedRecovery`
+set. Do not modify the historical checkpoint marker or its manifest.
+
+The new checkpoint marker must record:
+
+```text
+CHECKPOINT_KIND = LINEAGE_MIGRATION_CHECKPOINT
+SOURCE_LEGACY_CHECKPOINT = <validated historical marker path>
+SOURCE_LEGACY_CHECKPOINT_COMMIT = <validated historical checkpoint commit>
+SOURCE_LINEAGE_MIGRATION = <canonical migration report path>
+MIGRATION_REBASE_REQUIRED = YES
+NEXT_AUTHORIZED_OPERATION = audit-implemented-ticket
+```
+
+The `WORKFLOW_RESULT_V2` block for `checkpoint-implemented-ticket` must be
+appended to this new marker before commit using the exact identity, predecessor,
+and basis supplied by the extension. A migration report alone never authorizes
+the audit.
 
 For a `FINALIZATION_CHECKPOINT`, consume the finalization artifact's
 `DOWNSTREAM_RECONCILIATION_REQUIRED` field. When it is `YES`, the checkpoint
@@ -163,14 +202,17 @@ post-commit SHA inside the pre-commit marker.
 1. Capture `PARENT_HEAD = git rev-parse HEAD`.
 2. Revalidate the ticket, canonical audit/remediation state, and phase manifest.
 3. Run required checks for the checkpoint kind:
-   - implementation/remediation: required focused tests and typecheck;
-   - remediation: additionally verify the complete
-     `REMEDIATION_PREFLIGHT = PASS` record, campaign matrix, expanded-radius
-     decision, negative-witness evidence, semantic progress, and regression
-     self-checks before writing the marker;
-   - audit-only: artifact completeness plus staged-path whitespace checking
-     that excludes intentional Markdown hard breaks in audit artifacts;
-   - finalization: only checks explicitly authorized by finalization.
+    - implementation/remediation: required focused tests and typecheck;
+    - remediation: additionally verify the complete
+      `REMEDIATION_PREFLIGHT = PASS` record, campaign matrix, expanded-radius
+      decision, negative-witness evidence, semantic progress, and regression
+      self-checks before writing the marker;
+    - audit-only: artifact completeness plus staged-path whitespace checking
+      that excludes intentional Markdown hard breaks in audit artifacts;
+    - lineage migration: validate the migration proof, new marker, and phase
+      manifest; do not rerun implementation tests or typecheck because this
+      phase changes only workflow evidence;
+    - finalization: only checks explicitly authorized by finalization.
 4. Write the marker.
 5. Validate the phase manifest and stage exactly its effective path set.
 6. Verify staged paths against the manifest and verify no staged authority,

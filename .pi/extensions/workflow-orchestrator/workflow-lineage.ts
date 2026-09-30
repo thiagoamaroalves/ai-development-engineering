@@ -2,6 +2,11 @@ import { readFile, readdir, realpath } from "node:fs/promises";
 import { relative, resolve, sep } from "node:path";
 
 import { OrchestrationStop } from "./contracts.ts";
+import {
+  assertLegacyCheckpointProofCurrent,
+  isLegacyCheckpointProof,
+  type LegacyCheckpointProof,
+} from "./legacy-checkpoint.ts";
 
 const RESULT_BLOCK = /<!-- WORKFLOW_RESULT_V2\r?\n([\s\S]*?)\r?\n-->/g;
 const RESULT_FIELDS = [
@@ -45,6 +50,7 @@ export interface WorkflowArtifactSnapshot {
 export type WorkflowResultBasis =
   | { type: "none" }
   | { type: "intake"; artifacts: WorkflowArtifactSnapshot[] }
+  | { type: "legacy-checkpoint"; proof: LegacyCheckpointProof }
   | {
     type: "transition";
     source: {
@@ -157,6 +163,12 @@ export async function createIntakeWorkflowBasis(
   }
   const snapshots = await Promise.all(artifacts.map(({ artifactPath, fields }) => artifactSnapshot(root, artifactPath, fields)));
   const basis: WorkflowResultBasis = { type: "intake", artifacts: snapshots };
+  assertBasisBound(basis);
+  return basis;
+}
+
+export function createLegacyCheckpointWorkflowBasis(proof: LegacyCheckpointProof): WorkflowResultBasis {
+  const basis: WorkflowResultBasis = { type: "legacy-checkpoint", proof };
   assertBasisBound(basis);
   return basis;
 }
@@ -285,6 +297,9 @@ function validBasis(value: unknown): value is WorkflowResultBasis {
   if (basis.type === "intake") {
     return Object.keys(basis).length === 2 && Array.isArray(basis.artifacts) && basis.artifacts.length > 0
       && basis.artifacts.length <= 32 && basis.artifacts.every(validSnapshot);
+  }
+  if (basis.type === "legacy-checkpoint") {
+    return Object.keys(basis).length === 2 && isLegacyCheckpointProof(basis.proof);
   }
   if (basis.type === "transition" && Object.keys(basis).length === 2 && basis.source && typeof basis.source === "object" && !Array.isArray(basis.source)) {
     const source = basis.source as Record<string, unknown>;
@@ -523,6 +538,8 @@ async function assertRecordCurrent(
   try {
     if (record.basis.type === "intake") {
       for (const artifact of record.basis.artifacts) await assertArtifactSnapshotCurrent(root, artifact);
+    } else if (record.basis.type === "legacy-checkpoint") {
+      await assertLegacyCheckpointProofCurrent(root, record.basis.proof);
     } else if (record.basis.type === "transition") {
       const expected = record.basis.source;
       if (expected.operation === record.operation && expected.subject === record.subject) {

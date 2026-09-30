@@ -305,6 +305,12 @@
         "BLOCKED": "RECOVERY_CONTROLLER"
       }
     },
+    "reconcile-legacy-checkpoint-lineage": {
+      "gateField": "MIGRATION_GATE",
+      "routes": {
+        "LEGACY_CHECKPOINT_VALIDATED": "checkpoint-implemented-ticket"
+      }
+    },
     "checkpoint-implemented-ticket": {
       "gateField": "NEXT_AUTHORIZED_OPERATION",
       "dynamicNext": true,
@@ -342,6 +348,16 @@
           "HUMAN_PRESERVATION_AUTHORIZATION": "YES",
           "PRESERVATION_SCOPE": "EXPLICIT"
         }
+      },
+      "reconcile-legacy-checkpoint-lineage": {
+        "subjectFields": ["TICKET_ID"],
+        "revisionFields": [
+          "CHECKPOINT_KIND",
+          "PARENT_HEAD",
+          "PHASE_MANIFEST",
+          "NEXT_AUTHORIZED_OPERATION",
+          "CHECKPOINT_COMMIT_MESSAGE"
+        ]
       }
     },
     "sameOperationResume": [
@@ -365,7 +381,8 @@
       "audit-implemented-ticket",
       "review-implemented-ticket-structure",
       "remediate-implemented-ticket",
-      "finalize-implemented-ticket"
+      "finalize-implemented-ticket",
+      "reconcile-legacy-checkpoint-lineage"
     ]
   }
 }

@@ -28,6 +28,19 @@ and gate fields on the cited source artifacts. A changed or superseded upstream
 basis stops before semantic preflight. This enforces declared artifact lineage
 without a repository-wide content hash.
 
+An unversioned implemented-ticket checkpoint is not a transition basis. The
+only migration entry is the declared recovery operation
+`reconcile-legacy-checkpoint-lineage`; its code-validated basis binds the exact
+current conformant ticket-set revision and one current ticket marker, phase
+manifest, checkpoint commit, parent, committed path set, source digests, and
+pinned migration HEAD. A marker from an earlier generated ticket set cannot be
+migrated merely because its `TICKET_ID` was reused. It records committed
+descendant changes to manifest-preserved or deleted paths and requires the
+working tree to match that migration target. The migration operation writes a
+canonical proof result. A new ordinary implemented-ticket checkpoint reanchors
+the current HEAD and commits its first V2 result before the legacy handoff's
+audit successor can run.
+
 After an operation, the extension requires its structured receipt gate and
 predecessor link to match the newly appended current result record in the cited
 canonical artifact. It compares

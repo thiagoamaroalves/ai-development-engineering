@@ -115,6 +115,30 @@ for an operational failure, a blocked preflight that may require an earlier
 authorized step, an interrupted candidate, or a state the transition table
 cannot safely represent.
 
+Legacy implemented-ticket checkpoints are eligible for one explicit recovery
+path: `reconcile-legacy-checkpoint-lineage`. The extension validates the
+current generated ticket set and its independent conformance checkpoint,
+including their manifests, commits, and source authority. The ticket ID must
+resolve to exactly one artifact in that generated set, and the legacy ticket
+checkpoint must descend from the conformance checkpoint while preserving that
+exact ticket path. Its document digest is pinned at the migration target. A
+reused ID from an earlier SPEC decomposition is historical and cannot establish
+lineage for the current ticket. The extension
+then validates the ticket checkpoint marker, its phase manifest, the exact
+single-parent checkpoint commit and commit message, the manifest's complete
+committed path set, source-authority digests, and the unchanged marker and
+manifest at the pinned migration HEAD. Committed descendant changes to manifest-preserved or
+deleted paths are captured with their old and migration-target Git tree entries;
+the migration target must match the working tree. The migration records this
+proof in its own V2 result and requires a new checkpoint to reanchor the current
+HEAD before the original audit successor runs. That audit examines the complete
+current implementation state, including any recorded descendant drift. The
+normal `checkpoint-implemented-ticket` operation then commits the migration
+report and a new checkpoint marker carrying the first V2 result for that exact
+ticket and operation. The audit is dispatched only from that new persisted
+checkpoint result. No agent may backfill V2 lineage into a historical
+checkpoint marker by hand.
+
 Checkpoint operations retain their local commit authority and phase-manifest
 protocol. Their `NEXT_AUTHORIZED_OPERATION` value is checked against the
 configured edge before dispatch. The specialized implemented-ticket audit

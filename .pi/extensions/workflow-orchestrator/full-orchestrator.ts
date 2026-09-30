@@ -22,6 +22,7 @@ import {
 } from "./git-state.ts";
 import { runAuditSlice } from "./orchestrator.ts";
 import { createWorkflowResultContext, validateProducedWorkflowResult, type WorkflowResultContext } from "./workflow-lineage.ts";
+import { validateLegacyMigrationArtifact } from "./legacy-checkpoint.ts";
 import {
   loadTransitionCatalog,
   operationReceiptSchema,
@@ -268,11 +269,13 @@ function controllerTask(objective: string, head: string, previous: WorkflowStepR
     "Inspect canonical ADR/SPEC/Gap/Plan/Ticket/audit/remediation/finalization artifacts in the target repository.",
     "Return EXECUTE only when the chosen skill's preconditions and gate are explicitly evidenced.",
     "Every EXECUTE plan must include entryBasis. Prefer {type: transition, source: {operation, subject, artifactPath, gateField, gateValue}} for an exact catalog edge. Use {type: intake, artifactPath} only for an operation explicitly declared as a direct initial or exceptional recovery entry. The artifactPath must also appear in evidenceFiles. Use null for COMPLETE, BLOCKED, or HUMAN_REQUIRED.",
+    "If the initial candidate is BLOCKED because a canonical transition is missing a V2 lineage result, set operation to the exact operation authorized by the cited canonical gate. The extension may then make one recovery call to select a declared catalog ancestor or direct recovery migration; a recovery response cannot waive the missing-lineage check.",
     "Return HUMAN_REQUIRED for an authorized confirmation/choice; BLOCKED for missing or conflicting authority/evidence; COMPLETE only for a canonical terminal state.",
     "Return the controller plan as the exact structured schema supplied to this task; do not add a state fingerprint or later-step plan.",
     "Do not use console history or this prompt as canonical state. Do not modify files.",
     "Read skills/_shared/workflow-execution-topology-contract.md. For authorized ticket implementation/remediation/review in this repository, executionIsolation must be main under its guards; select worktree only when an explicit allocation/merge protocol is cited. Never infer a worktree policy.",
     "For operation audit-implemented-ticket, operationInputJson must encode the full AuditSliceInput expected by workflow_audit_implemented_ticket.",
+    "When recovery finds that an implemented-ticket checkpoint handoff lacks a current V2 result for checkpoint-implemented-ticket, use reconcile-legacy-checkpoint-lineage only as its declared direct recovery entry. First resolve the ticket ID against the current approved ticket-set generation and conformance checkpoints: ticket IDs can be reused after SPEC revalidation and decomposition, so markers that predate the current conformant ticket set are obsolete history and cannot establish lineage for the current ticket. Cite the latest checkpoint marker for that exact current ticket revision, set the matching TICKET_ID as subject, and let the extension validate the ticket-set manifests and commits plus the ticket marker, phase manifest, commit, source authority, and committed descendant path drift. The following normal checkpoint reanchors current HEAD before the audit. Never cite an obsolete or superseded checkpoint, add a V2 block to the historical marker, or route directly to the audit.",
     "For checkpoint operations, operationInputJson must contain phaseManifestPath, and phaseManifestPath must not be listed in evidenceFiles because it may be created by the checkpoint agent. Phase manifests are phase-scoped and HEAD-scoped: if an existing manifest target.head or operation differs from the current operation, treat it as historical evidence and derive a new current-head path; never reuse or overwrite it. If the current manifest file does not exist yet, that is not missing authority: the owning checkpoint agent must derive and create it from canonical artifacts, current HEAD, and the exact dirty candidate before validation. For other operations, operationInputJson must be an empty JSON object string unless the canonical skill requires bounded arguments worth preserving.",
     "When invoked for exceptional recovery after a checkpoint, use the live HEAD and rebuild operation input from canonical state; never reuse a stale pre-checkpoint plan.",
     "Read exactly these shared contracts: skills/_shared/interrupted-remediation-recovery-contract.md and skills/_shared/interrupted-artifact-production-recovery-contract.md. Do not invent abbreviated or alternate authority paths. If an external failure left an authorized remediation target dirty while its current actionable source audit remains unchanged and no complete matching remediation report exists, select the owning remediation skill again in RESUME_OR_RECONCILE mode; do not require a checkpoint, do not route to re-audit, and do not treat a candidate ready marker as proof of completion. If an external failure left an authorized Gap Matrix, Plan, or ticket output dirty while its current source audit remains conformant and no complete matching output exists, select the owning producer again in RESUME_OR_RECONCILE mode after checkpointing the source authority; do not route downstream. Once a producer returns its exact complete result, select its generation checkpoint before selecting the independent audit.",
@@ -561,7 +564,7 @@ async function validateWorkflowCatalog(root: string, catalog: TransitionCatalog)
   await validateAgent(root, CONSOLIDATOR.agent);
 }
 
-function preflightTask(plan: WorkflowPlan, objective: string, head: string): string {
+function preflightTask(plan: WorkflowPlan, objective: string, head: string, workflowResult: WorkflowResultContext): string {
   return [
     "Assess only semantic skill preconditions that code cannot decide. Do not repeat or override the deterministic checks already completed by the extension. Do not execute the skill or modify files.",
     `Objective: ${objective}`,
@@ -572,6 +575,7 @@ function preflightTask(plan: WorkflowPlan, objective: string, head: string): str
     `Evidence files: ${plan.evidenceFiles.join(", ")}`,
     `Bounded operation input: ${plan.operationInputJson}`,
     `Deterministic source gate already validated: ${plan.transitionBasis ? `${plan.transitionBasis.operation} ${plan.transitionBasis.gateField}=${plan.transitionBasis.gateValue} in ${plan.transitionBasis.artifactPath}` : "controller intake or exceptional recovery; cited paths and bounded input were validated"}`,
+    `Validated persisted workflow basis supplied by the extension: ${JSON.stringify(workflowResult.basis ?? { type: "none" })}`,
     "Read skills/_shared/workflow-preflight-contract.md and the complete selected skill. Inspect only facts that require semantic interpretation to decide whether the skill can begin safely.",
     "Return only the semantic skillPreconditions check. Do not report code-checked path existence, HEAD, gate fields, route values, changed paths, or JSON shape as your own findings.",
     "Use BLOCKED for unresolved semantic prerequisites and HUMAN_REQUIRED for a semantic decision requiring a person. Include the exact evidence and reason in blockers.",
@@ -715,6 +719,7 @@ async function runPreflight(
   plan: WorkflowPlan,
   objective: string,
   head: string,
+  workflowResult: WorkflowResultContext,
   delegate: FullWorkflowDependencies["delegate"],
 ): Promise<SemanticPreflightResponse> {
   await validateAgent(root, "workflow-preflight");
@@ -722,7 +727,7 @@ async function runPreflight(
     ownerRunId: executionId,
     nodeId: `preflight-${step}`,
     agent: "workflow-preflight",
-    task: preflightTask(plan, objective, head),
+    task: preflightTask(plan, objective, head, workflowResult),
     cwd: root,
     timeoutMs: PREFLIGHT_TIMEOUT_MS,
     structuredSchema: preflightSchema as unknown as Record<string, unknown>,
@@ -783,6 +788,11 @@ function successorPlan(
   let operationInputJson = "{}";
   if (nextOperation === "checkpoint-implemented-ticket" && previous.operation === "audit-implemented-ticket") {
     operationInputJson = JSON.stringify({ postCheckpointOperation });
+  } else if (nextOperation === "checkpoint-implemented-ticket" && previous.operation === "reconcile-legacy-checkpoint-lineage") {
+    operationInputJson = JSON.stringify({
+      legacyLineageMigration: true,
+      migrationReportPath: receipt.gateArtifactPath,
+    });
   }
   return {
     decision: "EXECUTE",
@@ -865,16 +875,24 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
           operation: candidate.operation,
         });
       }
-      await validateControllerEntry(
-        root,
-        catalog,
-        candidate.operation,
-        candidate.subject,
-        candidate.entryBasis,
-        candidate.evidenceFiles,
-        reason ? "recovery" : "initial",
-        failedOperation,
-      );
+      try {
+        await validateControllerEntry(
+          root,
+          catalog,
+          candidate.operation,
+          candidate.subject,
+          candidate.entryBasis,
+          candidate.evidenceFiles,
+          reason ? "recovery" : "initial",
+          failedOperation,
+        );
+      } catch (error) {
+        if (!reason && shouldRecoverFrom(error)) {
+          const detail = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+          return requestControllerPlan(step + 1, `Initial transition validation stopped ${candidate.operation}: ${detail}. Select only a declared recovery ancestor or direct recovery entry.`, candidate.operation);
+        }
+        throw error;
+      }
       if (reason && failedOperation) candidate.recoveryOriginOperation = failedOperation;
       await validateSelectedSkill(root, candidate.operation, candidate.authorityFiles);
       if (candidate.operation === "audit-implemented-ticket") {
@@ -887,6 +905,9 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
         }
       }
       return normalizeCheckpointInput(root, candidate, head);
+    }
+    if (!reason && candidate.decision === "BLOCKED" && catalog.operations[candidate.operation]) {
+      return requestControllerPlan(step + 1, `Initial controller plan was BLOCKED for ${candidate.operation}: ${candidate.reason}. Select only a declared recovery ancestor or direct recovery entry.`, candidate.operation);
     }
     return candidate;
   };
@@ -936,7 +957,7 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
         plan.recoveryOriginOperation,
       );
       workflowResult = await createWorkflowResultContext(root, plan.operation, plan.subject, `${executionId}:${index}`, capturedBasis);
-      preflight = await runPreflight(root, executionId, index, plan, input.objective, head, deps.delegate);
+      preflight = await runPreflight(root, executionId, index, plan, input.objective, head, workflowResult, deps.delegate);
       const confirmedBasis = await validateAndCaptureWorkflowBasis(
         root,
         catalog,
@@ -1024,6 +1045,13 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
         receipt = validateReceiptShape(delegated.value, plan.operation, definition.gateField, plan.subject);
       }
 
+      if (plan.operation === "reconcile-legacy-checkpoint-lineage") {
+        const basis = workflowResult.basis;
+        if (!basis || basis.type !== "legacy-checkpoint") {
+          throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Legacy migration execution has no extension-validated checkpoint proof.");
+        }
+        await validateLegacyMigrationArtifact(root, receipt, basis.proof);
+      }
       const artifactTexts = await readReceiptArtifacts(root, receipt);
       await validateProducedWorkflowResult(root, {
         operation: receipt.operation,
