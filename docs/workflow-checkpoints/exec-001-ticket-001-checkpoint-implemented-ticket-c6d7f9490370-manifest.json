@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "manifestKind": "PHASE_CHECKPOINT",
+  "phaseId": "SPEC-EXEC-001-EXEC-001-TICKET-001-lineage-migration-c6d7f949037045159bc7a951da224cff53aea7f3",
+  "operation": "checkpoint-implemented-ticket",
+  "subject": {
+    "id": "EXEC-001-TICKET-001",
+    "type": "ticket"
+  },
+  "sourceAuthority": [
+    {
+      "path": "docs/workflow-checkpoints/exec-001-ticket-001-legacy-checkpoint-lineage-8f17e2bb7957.md",
+      "sha256": "fd32aa3a862aebb7e85aa7a8e11ca3385c3a607bfe3c583d1ec54c8b0cd39210"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-checkpoints/EXEC-001-TICKET-001-remediation-checkpoint-round-24.md",
+      "sha256": "171830fa0e1972baedae3cb1dbea644aec7b212a4b24d5e67d88f5d0268a6f9d"
+    },
+    {
+      "path": "docs/workflow-checkpoints/exec-001-ticket-001-checkpoint-implemented-ticket-2d86c67121ae-manifest.json",
+      "sha256": "9877e912840f9f2439c85be69dba5937c5acc896ec7055ebbedbc98c95f1fc75"
+    }
+  ],
+  "target": {
+    "head": "c6d7f949037045159bc7a951da224cff53aea7f3",
+    "semanticFingerprint": "98a24cfa0eb53c3ec6c816b6447260e90d198d2a3a136d8d22bc1c72cc31424a"
+  },
+  "paths": {
+    "manifest": "docs/workflow-checkpoints/exec-001-ticket-001-checkpoint-implemented-ticket-c6d7f9490370-manifest.json",
+    "preserve": [
+      "docs/workflow-checkpoints/exec-001-ticket-001-legacy-checkpoint-lineage-8f17e2bb7957.md"
+    ],
+    "delete": [],
+    "unstagedRecovery": [],
+    "marker": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-checkpoints/EXEC-001-TICKET-001-lineage-migration-checkpoint-round-25.md"
+  },
+  "nextAuthorizedOperation": "audit-implemented-ticket",
+  "commitMessage": "checkpoint(SPEC-EXEC-001/EXEC-001-TICKET-001): LINEAGE_MIGRATION_CHECKPOINT round 25"
+}
