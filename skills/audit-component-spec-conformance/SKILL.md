@@ -103,7 +103,7 @@ Before auditing:
   conformant latest upstream audit. Otherwise stop with
   `AUDIT_BLOCKED_UPSTREAM_SPEC_NOT_CONFORMANT`.
 * If an approved portfolio obligation is materially defective and safe
-  validation is impossible, stop with `BLOCKED — PORTFOLIO DECOMPOSITION DEFECT`.
+  validation is impossible, stop with `BLOCKED — PORTFOLIO_DECOMPOSITION_DEFECT`.
 
 Do not invent missing architecture, reconstruct a missing upstream contract, or
 silently reinterpret the portfolio.
@@ -755,11 +755,9 @@ FINDINGS:
 - MINOR: <n>
 - INFO: <n>
 
-VERDICT:
-<verdict>
+VERDICT: <one exact verdict>
 
-READY_FOR_GAP_MATRIX:
-<YES|NO>
+READY_FOR_GAP_MATRIX: <YES|NO>
 
 REPORT:
 <path>

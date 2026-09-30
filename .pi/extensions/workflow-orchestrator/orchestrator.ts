@@ -17,6 +17,12 @@ import {
 } from "./contracts.ts";
 import { explicitTicketState, field, readRequired, requireFile, requireOneOf } from "./artifacts.ts";
 import {
+  createIntakeWorkflowBasis,
+  createWorkflowResultContext,
+  validateProducedWorkflowResult,
+  type WorkflowResultContext,
+} from "./workflow-lineage.ts";
+import {
   assertPinnedHead,
   loadSemanticFingerprintPolicy,
   repositoryRelative,
@@ -28,6 +34,8 @@ export interface AuditSliceDependencies {
   root: string;
   delegate(request: DelegationRequest): Promise<DelegationResult>;
   now?(): Date;
+  workflowSubject?: string;
+  workflowResult?: WorkflowResultContext;
 }
 
 export interface AuditSliceResult {
@@ -120,6 +128,8 @@ function consolidationTask(
   artifactPaths: Record<SpecialistKey, string>,
   auditWaveId: string,
   attempt: number,
+  workflowSubject: string,
+  workflowResult: WorkflowResultContext,
 ): string {
   const artifacts = keys.map((key) => `- ${key}: ${relativePath(root, artifactPaths[key])}`).join("\n");
   return [
@@ -144,6 +154,16 @@ function consolidationTask(
     "AUDIT_VERDICT: one canonical verdict authorized by consolidate-implementation-audit",
     "TICKET_GATE: READY_FOR_DONE or NOT_READY_FOR_DONE",
     "NEXT_AUTHORIZED_OPERATION: one value authorized by implementation-audit-routing-contract",
+    "Append exactly one terminal WORKFLOW_RESULT_V2 block to the canonical audit. Preserve earlier result blocks in this artifact. Copy the exact BASIS value below and set GATE_VALUE to the exact NEXT_AUTHORIZED_OPERATION:",
+    "<!-- WORKFLOW_RESULT_V2",
+    "OPERATION = audit-implemented-ticket",
+    `SUBJECT_ID = ${workflowSubject}`,
+    `RESULT_ID = ${workflowResult.resultId}`,
+    `SUPERSEDES_RESULT_ID = ${workflowResult.supersedesResultId ?? "NONE"}`,
+    "GATE_FIELD = NEXT_AUTHORIZED_OPERATION",
+    "GATE_VALUE = <exact NEXT_AUTHORIZED_OPERATION>",
+    `BASIS = ${JSON.stringify(workflowResult.basis ?? { type: "none" })}`,
+    "-->",
   ].join("\n");
 }
 
@@ -189,7 +209,33 @@ export async function runAuditSlice(input: AuditSliceInput, deps: AuditSliceDepe
     throw new OrchestrationStop("MISSING_AUTHORITY", "The skill-derived architecture profile requires its recorded reason.");
   }
 
-  explicitTicketState(await readRequired(root, input.ticketPath));
+  const ticketText = await readRequired(root, input.ticketPath);
+  explicitTicketState(ticketText);
+  const ticketSubject = field(ticketText, "TICKET_ID")
+    ?? field(ticketText, "id")
+    ?? ticketText.match(/^#\s+([A-Z0-9]+(?:-[A-Z0-9]+)*-TICKET-\d+)(?:\s|—|-)/m)?.[1];
+  if (!ticketSubject || (deps.workflowSubject && ticketSubject !== deps.workflowSubject)) {
+    throw new OrchestrationStop("CANONICAL_ARTIFACT_CONTRADICTION", "Implemented-ticket audit subject does not match the canonical ticket identity field.", {
+      expectedSubject: deps.workflowSubject,
+      actualSubject: ticketSubject,
+      ticketPath: input.ticketPath,
+    });
+  }
+  const workflowSubject = deps.workflowSubject ?? ticketSubject;
+  const workflowResult = deps.workflowResult
+    ?? await createWorkflowResultContext(
+      root,
+      "audit-implemented-ticket",
+      workflowSubject,
+      randomUUID(),
+      await createIntakeWorkflowBasis(root, [
+        { artifactPath: input.ticketPath, fields: ["TICKET_ID", "id", "STATUS"] },
+        { artifactPath: input.implementationDesignPath, fields: ["TICKET_ID", "id", "revision"] },
+        {
+          artifactPath: input.ticketSetAuditPath,
+          fields: ["TICKET_ID", "SPEC_ID", "GATE", "VERDICT", "IMPLEMENTATION_TICKETS_CONFORMANT", "READY_FOR_IMPLEMENTATION"],
+        },
+      ]));
   await readRequired(root, input.implementationDesignPath);
   const ticketAudit = await readRequired(root, input.ticketSetAuditPath);
   if (!ticketAudit.includes("IMPLEMENTATION_TICKETS_CONFORMANT") || !ticketAudit.includes("READY_FOR_IMPLEMENTATION")) {
@@ -330,7 +376,17 @@ export async function runAuditSlice(input: AuditSliceInput, deps: AuditSliceDepe
       ownerRunId: runtime.executionId,
       nodeId: `consolidation-attempt-${attempt}`,
       agent: CONSOLIDATOR.agent,
-      task: consolidationTask(input, root, keys, targetStateFingerprint, stagedArtifacts, auditWaveId, attempt),
+      task: consolidationTask(
+        input,
+        root,
+        keys,
+        targetStateFingerprint,
+        stagedArtifacts,
+        auditWaveId,
+        attempt,
+        workflowSubject,
+        workflowResult,
+      ),
       cwd: root,
     });
     if (result.runId) runtime.specialistRunIds.consolidation = result.runId;
@@ -401,6 +457,17 @@ export async function runAuditSlice(input: AuditSliceInput, deps: AuditSliceDepe
       "INCOMPLETE_CANONICAL_RESULT",
     )
     : undefined;
+
+  await validateProducedWorkflowResult(root, {
+    operation: "audit-implemented-ticket",
+    subject: workflowSubject,
+    resultId: workflowResult.resultId,
+    supersedesResultId: workflowResult.supersedesResultId,
+    basis: workflowResult.basis ?? { type: "none" },
+    gateField: "NEXT_AUTHORIZED_OPERATION",
+    gateValue: nextOperation,
+    artifactPath: input.canonicalAuditPath,
+  });
 
   try {
     for (const key of keys) {

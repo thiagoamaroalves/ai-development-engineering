@@ -649,14 +649,7 @@ DESIGN:
 TESTS:
 <commands and results>
 
-STRUCTURAL_REVIEW_RESULT:
-PASS
-|
-REQUIRES_FURTHER_REFINEMENT
-|
-BLOCKED_BY_IMPLEMENTATION_DESIGN
-|
-BLOCKED_BY_ARCHITECTURE
+STRUCTURAL_REVIEW_RESULT: PASS | REQUIRES_FURTHER_REFINEMENT | BLOCKED_BY_IMPLEMENTATION_DESIGN | BLOCKED_BY_ARCHITECTURE
 ```
 
 If the review is blocked, use the same report where possible, state the exact blocking reason, and do not imply that unreviewed code is conformant.

@@ -1546,16 +1546,31 @@ complete and actionable; use `BLOCKED_INSUFFICIENT_REASSESSMENT` or
 
 Modify the existing component Gap Matrix.
 
-Optionally create remediation evidence at:
+Create the required remediation report at:
 
 ```text
 docs/specs/gap-matrices/remediations/
 <SPEC-ID>-implementation-gap-matrix-remediation.md
 ```
 
-or repository-equivalent convention.
+or the repository's established equivalent convention.
 
 Do not create another competing Gap Matrix.
+
+The required remediation report must persist exactly one final
+`WORKFLOW_GATE` field in section `22. Reaudit Readiness`, matching the outcome.
+Use this exact field syntax with one listed value:
+
+```text
+WORKFLOW_GATE: <one exact value>
+```
+
+Use `READY_FOR_INDEPENDENT_GAP_MATRIX_REAUDIT` for a complete remediation,
+`REMEDIATION_INCOMPLETE` for a partial result, and `REMEDIATION_NOT_REQUIRED`
+when no finding needs a matrix change. For a blocked result, use
+`GAP_MATRIX_REBUILD_REQUIRED` or `ADR_CLARIFICATION_REQUIRED` when that is the
+exact required action; otherwise use `BLOCKED`. The operation receipt must cite
+this report as `gateArtifactPath`.
 
 ## 67. Required remediation report
 

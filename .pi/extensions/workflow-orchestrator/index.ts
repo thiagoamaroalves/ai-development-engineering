@@ -86,7 +86,7 @@ export default function workflowOrchestrator(pi: ExtensionAPI): void {
     label: "Orchestrate Engineering Workflow",
     description:
       "Continue the repository-defined engineering workflow from canonical state until completion, a blocker, a human gate, or the configured step bound. " +
-      "Every next operation is derived in a fresh read-only context from repository skills and artifacts; the extension does not embed a second transition table.",
+      "The controller selects the intake operation and handles exceptional recovery; normal gates follow the repository transition catalog, with a read-only preflight before each operation.",
     promptSnippet: "Continue the complete repository-authorized engineering workflow fail-closed",
     promptGuidelines: [
       "Use workflow_orchestrate for the complete engineering workflow; do not manually skip its canonical gates.",

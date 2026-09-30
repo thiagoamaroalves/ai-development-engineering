@@ -16,6 +16,7 @@ import {
   type DelegationResult,
 } from "../contracts.ts";
 import { runAuditSlice, type AuditSliceDependencies } from "../orchestrator.ts";
+import { workflowResultBlock } from "../workflow-lineage.ts";
 
 const execFileAsync = promisify(execFile);
 
@@ -59,7 +60,7 @@ async function fixture(options: { architecture?: boolean; state?: string; depend
     "implementation-audit-routing-contract.md",
     "workflow-execution-topology-contract.md",
   ]) await put(root, `skills/_shared/${shared}`, "fixture\n");
-  await put(root, "docs/tickets/T-001.md", `\`STATUS: ${options.state ?? "VALIDATION_REQUIRED"}\`\n`);
+  await put(root, "docs/tickets/T-001.md", `TICKET_ID = T-001\n\`STATUS: ${options.state ?? "VALIDATION_REQUIRED"}\`\n`);
   await put(root, "docs/design/T-001-design.md", "IMPLEMENTATION_DESIGN_READY\nIMPLEMENTATION_DESIGN_GATE: READY_FOR_IMPLEMENTATION\n");
   await put(
     root,
@@ -119,10 +120,16 @@ function successfulDelegate(fx: Fixture, options: { incompleteAgent?: string; bl
       consolidationAttempts += 1;
       if (options.consolidationFailure || consolidationAttempts <= (options.consolidationFailures ?? 0)) return { status: "failed", error: "synthetic consolidation failure" };
       const blocked = options.blockedAgent !== undefined;
+      const workflowSubject = request.task.match(/^SUBJECT_ID = (.+)$/m)?.[1] ?? "T-001";
+      const resultId = request.task.match(/^RESULT_ID = (.+)$/m)?.[1];
+      const supersedesText = request.task.match(/^SUPERSEDES_RESULT_ID = (.+)$/m)?.[1] ?? "NONE";
+      const basisText = request.task.match(/^BASIS = (.+)$/m)?.[1];
+      assert.ok(resultId, "synthetic consolidator must receive a workflow result ID");
+      assert.ok(basisText, "synthetic consolidator must receive the upstream workflow basis");
       await put(
         fx.root,
         fx.input.canonicalAuditPath,
-        `AUDIT_TARGET_HEAD: ${fx.head}\nAUDIT_TARGET_STATE_FINGERPRINT: ${targetStateFingerprint}\nAUDIT_WAVE_ID: ${auditWaveId}\nAUDIT_VERDICT: ${blocked ? "TICKET_IMPLEMENTATION_AUDIT_BLOCKED" : "TICKET_IMPLEMENTATION_CONFORMANT"}\nTICKET_GATE: ${blocked ? "NOT_READY_FOR_DONE" : "READY_FOR_DONE"}\nNEXT_AUTHORIZED_OPERATION: ${blocked ? "HUMAN_REQUIRED" : "finalize-implemented-ticket"}\n`,
+        `AUDIT_TARGET_HEAD: ${fx.head}\nAUDIT_TARGET_STATE_FINGERPRINT: ${targetStateFingerprint}\nAUDIT_WAVE_ID: ${auditWaveId}\nAUDIT_VERDICT: ${blocked ? "TICKET_IMPLEMENTATION_AUDIT_BLOCKED" : "TICKET_IMPLEMENTATION_CONFORMANT"}\nTICKET_GATE: ${blocked ? "NOT_READY_FOR_DONE" : "READY_FOR_DONE"}\nNEXT_AUTHORIZED_OPERATION: ${blocked ? "HUMAN_REQUIRED" : "finalize-implemented-ticket"}\n${workflowResultBlock({ resultId, supersedesResultId: supersedesText === "NONE" ? null : supersedesText, basis: JSON.parse(basisText) }, "audit-implemented-ticket", workflowSubject, "NEXT_AUTHORIZED_OPERATION", blocked ? "HUMAN_REQUIRED" : "finalize-implemented-ticket")}\n`,
       );
       return { status: "completed", runId: "run-consolidation" };
     }

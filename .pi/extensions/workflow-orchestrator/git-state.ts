@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readFile, readdir, realpath, stat } from "node:fs/promises";
+import { lstat, readFile, readlink } from "node:fs/promises";
 import { dirname, relative, resolve, sep } from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -162,40 +162,36 @@ function stripExcludedJsonPaths(value: unknown, currentPath: string, excludedPat
   return result;
 }
 
-async function keyScopedFileIsProcessOnly(root: string, relativePath: string, content: Buffer, rules: KeyScopedSemanticExclusion[]): Promise<boolean> {
-  const rule = rules.find((candidate) => candidate.path === relativePath);
-  if (!rule) return false;
-  let current: unknown;
-  let baseline: unknown;
+function sortJsonKeys(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(sortJsonKeys);
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(Object.entries(value as Record<string, unknown>).sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0).map(([key, child]) => [key, sortJsonKeys(child)]));
+}
+
+async function semanticOverlayContent(
+  root: string,
+  relativePath: string,
+  content: Buffer | undefined,
+  policy: SemanticFingerprintPolicy,
+): Promise<Buffer | undefined> {
+  if (policy.semanticExclusions.some((pattern) => globToRegExp(pattern).test(relativePath))) return undefined;
+  if (!content) return Buffer.from("DELETED");
+  const rule = policy.keyScopedExclusions.find((candidate) => candidate.path === relativePath);
+  if (!rule) return content;
   try {
-    current = JSON.parse(content.toString("utf8"));
-    baseline = JSON.parse(await git(root, ["show", `HEAD:${relativePath}`]));
+    const current = JSON.parse(content.toString("utf8"));
+    const normalizedCurrent = sortJsonKeys(stripExcludedJsonPaths(current, "", rule.jsonPaths));
+    let baseline: unknown;
+    try { baseline = JSON.parse(await git(root, ["show", `HEAD:${relativePath}`])); }
+    catch { baseline = undefined; }
+    if (baseline !== undefined) {
+      const normalizedBaseline = sortJsonKeys(stripExcludedJsonPaths(baseline, "", rule.jsonPaths));
+      if (JSON.stringify(normalizedCurrent) === JSON.stringify(normalizedBaseline)) return undefined;
+    }
+    return Buffer.from(JSON.stringify(normalizedCurrent) ?? "null");
   } catch {
-    return false;
+    return content;
   }
-  return JSON.stringify(stripExcludedJsonPaths(current, "", rule.jsonPaths)) === JSON.stringify(stripExcludedJsonPaths(baseline, "", rule.jsonPaths));
-}
-
-async function isSemanticallyExcluded(root: string, relativePath: string, content: Buffer, policy: SemanticFingerprintPolicy): Promise<boolean> {
-  if (policy.semanticExclusions.some((pattern) => globToRegExp(pattern).test(relativePath))) return true;
-  return keyScopedFileIsProcessOnly(root, relativePath, content, policy.keyScopedExclusions);
-}
-
-async function walk(path: string, root: string): Promise<string[]> {
-  const info = await stat(path);
-  if (info.isFile()) return [path];
-  if (!info.isDirectory()) return [];
-  const entries = await readdir(path, { withFileTypes: true });
-  const nested = await Promise.all(
-    entries
-      .filter((entry) => entry.name !== ".git" && entry.name !== "node_modules")
-      .filter((entry) => {
-        const rel = relative(root, resolve(path, entry.name)).split(sep).join("/");
-        return rel !== ".pi/npm" && rel !== ".pi/runtime";
-      })
-      .map((entry) => walk(resolve(path, entry.name), root)),
-  );
-  return nested.flat();
 }
 
 export interface WorkspaceSnapshot {
@@ -217,17 +213,29 @@ async function snapshotWorkspace(
 ): Promise<WorkspaceSnapshot> {
   const hash = createHash("sha256");
   const fileHashes = new Map<string, string>();
-  const files = (await walk(root, root)).sort();
-  for (const file of files) {
-    const canonical = await realpath(file);
-    const rel = relative(root, canonical).split(sep).join("/");
-    const content = await readFile(canonical);
-    if (ignored.has(rel) || excludedPrefixes.some((prefix) => rel === prefix.slice(0, -1) || rel.startsWith(prefix)) || (policy && await isSemanticallyExcluded(root, rel, content, policy))) continue;
+  const head = await currentHead(root);
+  const [trackedChanges, untracked] = await Promise.all([
+    gitNulSeparated(root, ["diff", "--name-only", "--no-renames", "-z", "HEAD", "--"]),
+    gitNulSeparated(root, ["ls-files", "--others", "--exclude-standard", "-z"]),
+  ]);
+  hash.update(`HEAD:${head}\0`);
+  for (const rel of [...new Set([...trackedChanges, ...untracked])].sort()) {
+    if (ignored.has(rel) || excludedPrefixes.some((prefix) => rel === prefix.slice(0, -1) || rel.startsWith(prefix))) continue;
+    const absolute = resolve(root, rel);
+    let content: Buffer | undefined;
+    try {
+      const info = await lstat(absolute);
+      content = info.isSymbolicLink() ? Buffer.from(`symlink:${await readlink(absolute)}`) : await readFile(absolute);
+    } catch {
+      content = undefined;
+    }
+    const semanticContent = policy ? await semanticOverlayContent(root, rel, content, policy) : (content ?? Buffer.from("DELETED"));
+    if (semanticContent === undefined) continue;
     hash.update(rel);
     hash.update("\0");
-    hash.update(content);
+    hash.update(semanticContent);
     hash.update("\0");
-    fileHashes.set(rel, createHash("sha256").update(content).digest("hex"));
+    fileHashes.set(rel, semanticContent.toString("base64"));
   }
   return { fingerprint: hash.digest("hex"), files: fileHashes };
 }
@@ -259,8 +267,72 @@ export function workspaceSnapshotDiff(before: WorkspaceSnapshot, after: Workspac
   };
 }
 
-export async function workspaceFingerprint(root: string, ignored: ReadonlySet<string>): Promise<string> {
-  return (await snapshotWorkspace(root, ignored, [])).fingerprint;
+async function gitNulSeparated(cwd: string, args: string[]): Promise<string[]> {
+  const { stdout } = await execFileAsync("git", args, {
+    cwd,
+    encoding: "utf8",
+    maxBuffer: 16 * 1024 * 1024,
+  });
+  return stdout.split("\0").filter((path) => path.length > 0);
+}
+
+export interface WorkflowStateSnapshot {
+  files: Map<string, Buffer | null>;
+}
+
+export interface WorkflowStateDiff {
+  added: string[];
+  removed: string[];
+  modified: string[];
+}
+
+/**
+ * Captures only Git-visible working-tree paths. Unlike the semantic audit
+ * fingerprint this does not walk/hash the repository or establish an audit
+ * identity; it detects changes made during one orchestration operation.
+ */
+export async function workflowStateSnapshot(root: string): Promise<WorkflowStateSnapshot> {
+  const { stdout } = await execFileAsync("git", ["status", "--porcelain=v1", "--no-renames", "-z", "--untracked-files=all"], {
+    cwd: root,
+    encoding: "utf8",
+    maxBuffer: 16 * 1024 * 1024,
+  });
+  const statusByPath = new Map<string, string>();
+  for (const entry of stdout.split("\0")) {
+    if (entry.length < 4) continue;
+    statusByPath.set(entry.slice(3), entry.slice(0, 2));
+  }
+  const files = new Map<string, Buffer | null>();
+  for (const [path, status] of [...statusByPath].sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)) {
+    try {
+      const absolute = resolve(root, path);
+      const info = await lstat(absolute);
+      const content = info.isSymbolicLink() ? Buffer.from(`symlink:${await readlink(absolute)}`) : info.isFile() ? await readFile(absolute) : Buffer.alloc(0);
+      files.set(path, Buffer.concat([Buffer.from(`${status}\0`), content]));
+    }
+    catch { files.set(path, Buffer.from(`${status}\0<DELETED>`)); }
+  }
+  return { files };
+}
+
+export function workflowStateDiff(before: WorkflowStateSnapshot, after: WorkflowStateSnapshot): WorkflowStateDiff {
+  const added: string[] = [];
+  const removed: string[] = [];
+  const modified: string[] = [];
+  for (const [path, content] of after.files) {
+    if (!before.files.has(path)) added.push(path);
+    else {
+      const previous = before.files.get(path);
+      if (previous === null || content === null ? previous !== content : !previous!.equals(content!)) modified.push(path);
+    }
+  }
+  for (const path of before.files.keys()) if (!after.files.has(path)) removed.push(path);
+  return { added: added.sort(), removed: removed.sort(), modified: modified.sort() };
+}
+
+export function sameWorkflowState(before: WorkflowStateSnapshot, after: WorkflowStateSnapshot): boolean {
+  const diff = workflowStateDiff(before, after);
+  return diff.added.length === 0 && diff.removed.length === 0 && diff.modified.length === 0;
 }
 
 export function repositoryRelative(root: string, path: string): string {

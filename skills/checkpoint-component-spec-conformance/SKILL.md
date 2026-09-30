@@ -1,8 +1,8 @@
 ---
 name: checkpoint-component-spec-conformance
-description: Create a guarded local checkpoint for a PASS component SPEC conformance audit before Gap Matrix generation.
+description: Create a guarded local checkpoint for a PASS component SPEC conformance audit before cross-SPEC portfolio validation.
 metadata:
-  short-description: Preserve conformant SPEC audit before Gap Matrix generation
+  short-description: Preserve conformant SPEC audit before cross-SPEC validation
 ---
 
 # Checkpoint Component SPEC Conformance
@@ -10,7 +10,8 @@ metadata:
 Read `../_shared/phase-checkpoint-contract.md`,
 `../_shared/phase-manifest-contract.md`, and
 `../_shared/interrupted-artifact-production-recovery-contract.md` completely.
-Use only after the current independent component SPEC audit is conformant.
+Use only after the current independent component SPEC audit is conformant and
+before the cross-SPEC portfolio conformance audit.
 
 ## Phase manifest and recovery candidate
 
@@ -32,7 +33,8 @@ metrics and readiness; validate the phase manifest; write its declared marker;
 stage exactly its effective path set; run cached checks; and create exactly the
 manifest's `commitMessage`.
 
-Verify the exact parent. Do not generate Gap Matrix in this operation.
+Verify the exact parent. Do not generate Gap Matrix or run the cross-SPEC audit
+in this operation.
 
 ## Completion
 
@@ -42,7 +44,7 @@ Return:
 CHECKPOINT_COMPLETE
 PHASE_CHECKPOINT_COMPLETE
 COMPONENT_SPEC_CONFORMANCE_CHECKPOINT_COMPLETE
-NEXT_AUTHORIZED_OPERATION = generate-component-implementation-gap-matrix
+NEXT_AUTHORIZED_OPERATION = audit-spec-portfolio-conformance
 ```
 
 Any failure returns `COMPONENT_SPEC_CONFORMANCE_CHECKPOINT_BLOCKED` and creates

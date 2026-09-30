@@ -58,7 +58,7 @@ export function createDelegator(pi: ExtensionAPI) {
         task: input.task,
         context: "fresh",
         cwd: input.cwd,
-        timeoutMs: SUBAGENT_TIMEOUT_MS,
+        timeoutMs: input.timeoutMs ?? SUBAGENT_TIMEOUT_MS,
         artifacts: true,
         skill: input.skill,
         intercomBridge: { mode: "off" },

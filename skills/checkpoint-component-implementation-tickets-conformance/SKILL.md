@@ -38,8 +38,14 @@ Return:
 CHECKPOINT_COMPLETE
 PHASE_CHECKPOINT_COMPLETE
 COMPONENT_IMPLEMENTATION_TICKETS_CONFORMANCE_CHECKPOINT_COMPLETE
-NEXT_AUTHORIZED_OPERATION = design-ticket-implementation
+NEXT_AUTHORIZED_OPERATION = <one exact operation derived below>
 ```
+
+Derive the next operation from the current ticket-set audit's
+`NEXT_TICKET_SET_OPERATION` under
+`skills/_shared/implementation-audit-routing-contract.md`. Preserve the
+selected READY ticket's design gate: use `design-ticket-implementation` when
+no current approved design exists; otherwise use `implement-ready-tickets`.
 
 Failures return `COMPONENT_IMPLEMENTATION_TICKETS_CONFORMANCE_CHECKPOINT_BLOCKED`
 and create no commit.

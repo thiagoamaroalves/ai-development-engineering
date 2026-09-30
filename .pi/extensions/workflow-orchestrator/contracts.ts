@@ -65,6 +65,8 @@ export interface DelegationRequest {
   signal?: AbortSignal;
   skill?: string | string[];
   structuredSchema?: Record<string, unknown>;
+  /** Short bounded runtime for read-only intake checks; omitted uses the normal delegation limit. */
+  timeoutMs?: number;
   /** In-process context supplied by a custom workflow tool invocation. */
   extensionContext?: ExtensionContext;
 }

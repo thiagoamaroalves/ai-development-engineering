@@ -738,6 +738,16 @@ SPEC_IMPLEMENTABILITY_CHECK
 
 `UNCLASSIFIED_REQUIREMENTS = 0` is mandatory for a complete matrix.
 
+In section `19. Completeness Proof`, end the canonical matrix with exactly this
+workflow field after proving the matrix is complete:
+
+```text
+WORKFLOW_GATE: COMPONENT_IMPLEMENTATION_GAP_MATRIX_COMPLETE
+```
+
+This field records the producer's completion gate for deterministic workflow
+routing. Do not emit it for a blocked or incomplete matrix.
+
 ## Final console response
 
 After creating the artifact, respond exactly in this shape, filling all

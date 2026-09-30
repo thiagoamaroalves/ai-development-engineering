@@ -962,16 +962,7 @@ Newly unblocked tickets:
 Upstream planning/spec gaps discovered:
 <count>
 
-Next gate:
-CHECKPOINT_REQUIRED
-|
-TICKET_VALIDATION_REQUIRED
-|
-MORE_READY_TICKETS_AVAILABLE
-|
-BLOCKED
-|
-COMPLETE
+NEXT_WORKFLOW_GATE: CHECKPOINT_REQUIRED | TICKET_VALIDATION_REQUIRED | MORE_READY_TICKETS_AVAILABLE | BLOCKED | COMPLETE
 ```
 
 Then list each executed ticket with its ID, initial/final status, changed

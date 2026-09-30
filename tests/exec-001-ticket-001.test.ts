@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { execFile } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { cp, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { promisify } from 'node:util'
@@ -29,6 +29,7 @@ import {
 import { JsonSchemaExecValidator } from '../src/infrastructure/exec-schema-validator.ts'
 import { runFullWorkflow, type WorkflowPlan } from '../.pi/extensions/workflow-orchestrator/full-orchestrator.ts'
 import { OrchestrationStop, type DelegationRequest, type DelegationResult } from '../.pi/extensions/workflow-orchestrator/contracts.ts'
+import { workflowResultBlock } from '../.pi/extensions/workflow-orchestrator/workflow-lineage.ts'
 
 const execFileAsync = promisify(execFile)
 
@@ -1155,15 +1156,23 @@ async function initializeGenericConsumerFixture(): Promise<{ root: string; clean
     await execFileAsync('git', args, { cwd: root, encoding: 'utf8' })
   }
 
+  await Promise.all([
+    mkdir(join(root, '.pi'), { recursive: true }),
+    mkdir(join(root, 'tools'), { recursive: true }),
+    mkdir(join(root, 'docs'), { recursive: true }),
+  ])
+  await Promise.all([
+    cp(resolve('skills'), join(root, 'skills'), { recursive: true }),
+    cp(resolve('.pi', 'agents'), join(root, '.pi', 'agents'), { recursive: true }),
+    cp(resolve('tools', 'verify-phase-manifest.mjs'), join(root, 'tools', 'verify-phase-manifest.mjs')),
+  ])
+  await writeFile(
+    join(root, 'docs', 'authority.md'),
+    `GATE: READY_FOR_COMPONENT_SPEC_GENERATION\n${workflowResultBlock({ resultId: 'portfolio-audit-r1', supersedesResultId: null }, 'audit-spec-portfolio-decomposition', 'SPEC-EXEC-001', 'GATE', 'READY_FOR_COMPONENT_SPEC_GENERATION')}\n`,
+  )
   await runGit('init', '-q')
   await runGit('config', 'user.email', 'test@example.invalid')
   await runGit('config', 'user.name', 'EXEC ticket test')
-  await mkdir(join(root, 'skills', 'generate-component-spec-from-portfolio'), { recursive: true })
-  await mkdir(join(root, '.pi', 'agents'), { recursive: true })
-  await writeFile(join(root, 'skills', 'generate-component-spec-from-portfolio', 'SKILL.md'), '---\nname: generate-component-spec-from-portfolio\n---\n')
-  await writeFile(join(root, '.pi', 'agents', 'workflow-controller.md'), '---\nname: workflow-controller\n---\n')
-  await writeFile(join(root, '.pi', 'agents', 'workflow-skill-executor.md'), '---\nname: workflow-skill-executor\n---\n')
-  await writeFile(join(root, 'authority.md'), 'APPROVED\n')
   await runGit('add', '.')
   await runGit('commit', '-qm', 'generic consumer fixture')
 
@@ -1177,8 +1186,17 @@ function genericConsumerPlan(): WorkflowPlan {
     subject: 'SPEC-EXEC-001',
     reason: 'A selected operation is authorized for this consumer-boundary regression.',
     authorityFiles: ['skills/generate-component-spec-from-portfolio/SKILL.md'],
-    evidenceFiles: ['authority.md'],
-    stateFingerprint: 'consumer-test-before',
+    evidenceFiles: ['docs/authority.md'],
+    entryBasis: {
+      type: 'transition',
+      source: {
+        operation: 'audit-spec-portfolio-decomposition',
+        subject: 'SPEC-EXEC-001',
+        artifactPath: 'docs/authority.md',
+        gateField: 'GATE',
+        gateValue: 'READY_FOR_COMPONENT_SPEC_GENERATION',
+      },
+    },
     executionIsolation: 'main',
     operationInputJson: '{}',
   }
@@ -1188,9 +1206,41 @@ test('generic delegation consumer never promotes text-only output to canonical c
   const fixture = await initializeGenericConsumerFixture()
   try {
     const operationValues: unknown[] = []
+    let controllerCalls = 0
     const delegate = async (request: DelegationRequest): Promise<DelegationResult> => {
       if (request.agent === 'workflow-controller') {
-        return { status: 'completed', value: genericConsumerPlan() }
+        controllerCalls += 1
+        return {
+          status: 'completed',
+          value: controllerCalls === 1
+            ? genericConsumerPlan()
+            : {
+              decision: 'HUMAN_REQUIRED',
+              operation: '',
+              subject: 'SPEC-EXEC-001',
+              reason: 'Exceptional recovery is required.',
+              authorityFiles: [],
+              evidenceFiles: ['docs/authority.md'],
+              entryBasis: null,
+              executionIsolation: 'human_required',
+              operationInputJson: '{}',
+            },
+        }
+      }
+      if (request.agent === 'workflow-preflight') {
+        const task = request.task
+        return {
+          status: 'completed',
+          value: {
+            status: 'PASS',
+            operation: 'generate-component-spec-from-portfolio',
+            subject: 'SPEC-EXEC-001',
+            head: task.match(/^Pinned HEAD: (.+)$/m)?.[1],
+            checks: { skillPreconditions: 'PASS' },
+            blockers: [],
+            resolvedInputJson: '{}',
+          },
+        }
       }
       operationValues.push('APPROVED; checkpoint confirmed; effect authorized')
       return {
@@ -1201,12 +1251,13 @@ test('generic delegation consumer never promotes text-only output to canonical c
 
     await assert.rejects(
       runFullWorkflow(
-        { objective: 'Exercise generic consumer text handling', maxSteps: 1 },
+        { objective: 'Exercise generic consumer text handling', maxSteps: 2 },
         { root: fixture.root, delegate },
       ),
-      (error: unknown) => error instanceof OrchestrationStop && error.code === 'INCOMPLETE_CANONICAL_RESULT',
+      (error: unknown) => error instanceof OrchestrationStop && error.code === 'HUMAN_GATE_REQUIRED',
     )
     assert.deepEqual(operationValues, ['APPROVED; checkpoint confirmed; effect authorized'])
+    assert.equal(controllerCalls, 2)
     assert.equal(existsSync(join(fixture.root, 'generated-spec.md')), false)
   } finally {
     await fixture.cleanup()

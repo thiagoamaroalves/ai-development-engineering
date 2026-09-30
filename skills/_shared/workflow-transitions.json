@@ -1,0 +1,371 @@
+{
+  "version": 3,
+  "resultAuthority": {
+    "version": 2,
+    "root": "docs",
+    "block": "WORKFLOW_RESULT_V2"
+  },
+  "operations": {
+    "audit-spec-portfolio-decomposition": {
+      "gateField": "GATE",
+      "routes": {
+        "READY_FOR_COMPONENT_SPEC_GENERATION": "generate-component-spec-from-portfolio",
+        "REMEDIATION_REQUIRED": "remediate-spec-portfolio-decomposition",
+        "ARCHITECTURE_DECISION_REQUIRED": "HUMAN_REQUIRED",
+        "AUDIT_BLOCKED": "RECOVERY_CONTROLLER"
+      }
+    },
+    "remediate-spec-portfolio-decomposition": {
+      "gateField": "GATE",
+      "routes": {
+        "READY_FOR_INDEPENDENT_DECOMPOSITION_REAUDIT": "audit-spec-portfolio-decomposition",
+        "REMEDIATION_INCOMPLETE": "RECOVERY_CONTROLLER",
+        "ARCHITECTURE_DECISION_REQUIRED": "HUMAN_REQUIRED",
+        "REMEDIATION_BLOCKED": "RECOVERY_CONTROLLER"
+      }
+    },
+    "generate-component-spec-from-portfolio": {
+      "gateField": "GATE",
+      "routes": {
+        "READY_FOR_SPEC_VALIDATION": "audit-component-spec-conformance"
+      }
+    },
+    "audit-component-spec-conformance": {
+      "gateField": "VERDICT",
+      "routes": {
+        "PASS — COMPONENT_SPEC_CONFORMANT": "checkpoint-component-spec-conformance",
+        "FAIL — COMPONENT_SPEC_NON_CONFORMANT": "checkpoint-component-spec-audit",
+        "BLOCKED — ADR_CLARIFICATION_REQUIRED": "HUMAN_REQUIRED",
+        "BLOCKED — PORTFOLIO_DECOMPOSITION_DEFECT": "RECOVERY_CONTROLLER",
+        "AUDIT_BLOCKED_PORTFOLIO_NOT_APPROVED": "RECOVERY_CONTROLLER",
+        "AUDIT_BLOCKED_UPSTREAM_SPEC_NOT_CONFORMANT": "RECOVERY_CONTROLLER",
+        "AUDIT_BLOCKED_SPECIFICATION_IDENTITY": "RECOVERY_CONTROLLER"
+      },
+      "assertions": {
+        "PASS — COMPONENT_SPEC_CONFORMANT": {
+          "READY_FOR_GAP_MATRIX": "YES"
+        },
+        "FAIL — COMPONENT_SPEC_NON_CONFORMANT": {
+          "READY_FOR_GAP_MATRIX": "NO"
+        }
+      },
+      "requireArtifactGate": true
+    },
+    "checkpoint-component-spec-audit": {
+      "gateField": "NEXT_AUTHORIZED_OPERATION",
+      "routes": {
+        "remediate-component-spec": "remediate-component-spec"
+      },
+      "requireArtifactGate": true
+    },
+    "remediate-component-spec": {
+      "gateField": "GATE",
+      "routes": {
+        "READY_FOR_INDEPENDENT_COMPONENT_SPEC_REAUDIT": "checkpoint-component-spec-remediation",
+        "REMEDIATION_INCOMPLETE": "RECOVERY_CONTROLLER",
+        "ADR_CLARIFICATION_REQUIRED": "HUMAN_REQUIRED",
+        "PORTFOLIO_REMEDIATION_REQUIRED": "RECOVERY_CONTROLLER",
+        "UPSTREAM_REMEDIATION_REQUIRED": "RECOVERY_CONTROLLER",
+        "REMEDIATION_BLOCKED": "RECOVERY_CONTROLLER"
+      }
+    },
+    "checkpoint-component-spec-remediation": {
+      "gateField": "NEXT_AUTHORIZED_OPERATION",
+      "routes": {
+        "audit-component-spec-conformance": "audit-component-spec-conformance"
+      },
+      "requireArtifactGate": true
+    },
+    "checkpoint-component-spec-conformance": {
+      "gateField": "NEXT_AUTHORIZED_OPERATION",
+      "routes": {
+        "audit-spec-portfolio-conformance": "audit-spec-portfolio-conformance"
+      },
+      "requireArtifactGate": true
+    },
+    "audit-spec-portfolio-conformance": {
+      "gateField": "GATE",
+      "routes": {
+        "READY_FOR_GAP_MATRIX": "generate-component-implementation-gap-matrix",
+        "CROSS_SPEC_REMEDIATION_REQUIRED": "RECOVERY_CONTROLLER",
+        "PORTFOLIO_RECOMPOSITION_REQUIRED": "RECOVERY_CONTROLLER",
+        "ARCHITECTURE_DECISION_REQUIRED": "HUMAN_REQUIRED",
+        "AUDIT_BLOCKED": "RECOVERY_CONTROLLER"
+      }
+    },
+    "generate-component-implementation-gap-matrix": {
+      "gateField": "WORKFLOW_GATE",
+      "routes": {
+        "COMPONENT_IMPLEMENTATION_GAP_MATRIX_COMPLETE": "checkpoint-component-gap-matrix-generation"
+      }
+    },
+    "checkpoint-component-gap-matrix-generation": {
+      "gateField": "NEXT_AUTHORIZED_OPERATION",
+      "routes": {
+        "audit-component-implementation-gap-matrix": "audit-component-implementation-gap-matrix"
+      },
+      "requireArtifactGate": true
+    },
+    "audit-component-implementation-gap-matrix": {
+      "gateField": "VERDICT",
+      "routes": {
+        "GAP_MATRIX_CONFORMANT": "checkpoint-component-gap-matrix-conformance",
+        "GAP_MATRIX_REMEDIATION_REQUIRED": "checkpoint-component-gap-matrix-audit",
+        "GAP_MATRIX_REBUILD_REQUIRED": "generate-component-implementation-gap-matrix",
+        "GAP_MATRIX_BLOCKED_BY_SPEC_AUTHORITY_GAP": "RECOVERY_CONTROLLER",
+        "AUDIT_BLOCKED_PORTFOLIO_NOT_APPROVED": "RECOVERY_CONTROLLER",
+        "AUDIT_BLOCKED_COMPONENT_SPEC_NOT_CONFORMANT": "RECOVERY_CONTROLLER",
+        "AUDIT_BLOCKED_UPSTREAM_SPEC_NOT_CONFORMANT": "RECOVERY_CONTROLLER"
+      }
+    },
+    "checkpoint-component-gap-matrix-audit": {
+      "gateField": "NEXT_AUTHORIZED_OPERATION",
+      "routes": {
+        "remediate-component-implementation-gap-matrix": "remediate-component-implementation-gap-matrix"
+      },
+      "requireArtifactGate": true
+    },
+    "remediate-component-implementation-gap-matrix": {
+      "gateField": "WORKFLOW_GATE",
+      "routes": {
+        "READY_FOR_INDEPENDENT_GAP_MATRIX_REAUDIT": "checkpoint-component-gap-matrix-remediation",
+        "REMEDIATION_INCOMPLETE": "RECOVERY_CONTROLLER",
+        "REMEDIATION_NOT_REQUIRED": "audit-component-implementation-gap-matrix",
+        "GAP_MATRIX_REBUILD_REQUIRED": "generate-component-implementation-gap-matrix",
+        "ADR_CLARIFICATION_REQUIRED": "HUMAN_REQUIRED",
+        "BLOCKED": "RECOVERY_CONTROLLER"
+      }
+    },
+    "checkpoint-component-gap-matrix-remediation": {
+      "gateField": "NEXT_AUTHORIZED_OPERATION",
+      "routes": {
+        "audit-component-implementation-gap-matrix": "audit-component-implementation-gap-matrix"
+      },
+      "requireArtifactGate": true
+    },
+    "checkpoint-component-gap-matrix-conformance": {
+      "gateField": "NEXT_AUTHORIZED_OPERATION",
+      "routes": {
+        "plan-component-implementation": "plan-component-implementation"
+      },
+      "requireArtifactGate": true
+    },
+    "plan-component-implementation": {
+      "gateField": "IMPLEMENTATION_PLAN_GATE",
+      "routes": {
+        "READY_FOR_IMPLEMENTATION_PLAN_AUDIT": "checkpoint-component-implementation-plan-generation",
+        "BLOCKED": "RECOVERY_CONTROLLER"
+      }
+    },
+    "checkpoint-component-implementation-plan-generation": {
+      "gateField": "NEXT_AUTHORIZED_OPERATION",
+      "routes": {
+        "audit-component-implementation-plan": "audit-component-implementation-plan"
+      },
+      "requireArtifactGate": true
+    },
+    "audit-component-implementation-plan": {
+      "gateField": "VERDICT",
+      "routes": {
+        "IMPLEMENTATION_PLAN_CONFORMANT": "checkpoint-component-implementation-plan-conformance",
+        "IMPLEMENTATION_PLAN_REMEDIATION_REQUIRED": "checkpoint-component-implementation-plan-audit",
+        "IMPLEMENTATION_PLAN_AUDIT_BLOCKED": "RECOVERY_CONTROLLER",
+        "IMPLEMENTATION_PLAN_BLOCKED_BY_UPSTREAM_AUTHORITY": "RECOVERY_CONTROLLER"
+      }
+    },
+    "checkpoint-component-implementation-plan-audit": {
+      "gateField": "NEXT_AUTHORIZED_OPERATION",
+      "routes": {
+        "remediate-component-implementation-plan": "remediate-component-implementation-plan"
+      },
+      "requireArtifactGate": true
+    },
+    "remediate-component-implementation-plan": {
+      "gateField": "GATE",
+      "routes": {
+        "READY_FOR_INDEPENDENT_IMPLEMENTATION_PLAN_REAUDIT": "checkpoint-component-implementation-plan-remediation",
+        "BLOCKED": "RECOVERY_CONTROLLER"
+      }
+    },
+    "checkpoint-component-implementation-plan-remediation": {
+      "gateField": "NEXT_AUTHORIZED_OPERATION",
+      "routes": {
+        "audit-component-implementation-plan": "audit-component-implementation-plan"
+      },
+      "requireArtifactGate": true
+    },
+    "checkpoint-component-implementation-plan-conformance": {
+      "gateField": "NEXT_AUTHORIZED_OPERATION",
+      "routes": {
+        "decompose-component-implementation-plan-into-tickets": "decompose-component-implementation-plan-into-tickets"
+      },
+      "requireArtifactGate": true
+    },
+    "decompose-component-implementation-plan-into-tickets": {
+      "gateField": "TICKET_DECOMPOSITION_GATE",
+      "routes": {
+        "READY_FOR_TICKET_AUDIT": "checkpoint-component-implementation-tickets-generation",
+        "BLOCKED": "RECOVERY_CONTROLLER"
+      }
+    },
+    "checkpoint-component-implementation-tickets-generation": {
+      "gateField": "NEXT_AUTHORIZED_OPERATION",
+      "routes": {
+        "audit-component-implementation-tickets": "audit-component-implementation-tickets"
+      },
+      "requireArtifactGate": true
+    },
+    "audit-component-implementation-tickets": {
+      "gateField": "VERDICT",
+      "routes": {
+        "IMPLEMENTATION_TICKETS_CONFORMANT": "checkpoint-component-implementation-tickets-conformance",
+        "IMPLEMENTATION_TICKETS_REMEDIATION_REQUIRED": "checkpoint-component-implementation-tickets-audit",
+        "TICKET_AUDIT_BLOCKED": "RECOVERY_CONTROLLER"
+      }
+    },
+    "checkpoint-component-implementation-tickets-audit": {
+      "gateField": "NEXT_AUTHORIZED_OPERATION",
+      "routes": {
+        "remediate-component-implementation-tickets": "remediate-component-implementation-tickets"
+      },
+      "requireArtifactGate": true
+    },
+    "remediate-component-implementation-tickets": {
+      "gateField": "GATE",
+      "routes": {
+        "READY_FOR_INDEPENDENT_TICKET_REAUDIT": "checkpoint-component-implementation-tickets-remediation",
+        "BLOCKED": "RECOVERY_CONTROLLER"
+      }
+    },
+    "checkpoint-component-implementation-tickets-remediation": {
+      "gateField": "NEXT_AUTHORIZED_OPERATION",
+      "routes": {
+        "audit-component-implementation-tickets": "audit-component-implementation-tickets"
+      },
+      "requireArtifactGate": true
+    },
+    "checkpoint-component-implementation-tickets-conformance": {
+      "gateField": "NEXT_AUTHORIZED_OPERATION",
+      "dynamicNext": true,
+      "allowedNext": [
+        "design-ticket-implementation",
+        "implement-ready-tickets"
+      ],
+      "requireArtifactGate": true
+    },
+    "design-ticket-implementation": {
+      "gateField": "IMPLEMENTATION_DESIGN_GATE",
+      "routes": {
+        "READY_FOR_IMPLEMENTATION": "implement-ready-tickets",
+        "BLOCKED": "RECOVERY_CONTROLLER"
+      }
+    },
+    "implement-ready-tickets": {
+      "gateField": "NEXT_WORKFLOW_GATE",
+      "routes": {
+        "CHECKPOINT_REQUIRED": "checkpoint-implemented-ticket",
+        "TICKET_VALIDATION_REQUIRED": "review-implemented-ticket-structure",
+        "MORE_READY_TICKETS_AVAILABLE": "implement-ready-tickets",
+        "BLOCKED": "RECOVERY_CONTROLLER",
+        "COMPLETE": "COMPLETE"
+      }
+    },
+    "audit-implemented-ticket": {
+      "gateField": "NEXT_AUTHORIZED_OPERATION",
+      "dynamicNext": true,
+      "allowedNext": [
+        "checkpoint-implemented-ticket",
+        "audit-implemented-ticket",
+        "remediate-implemented-ticket",
+        "finalize-implemented-ticket",
+        "HUMAN_REQUIRED"
+      ],
+      "requireArtifactGate": true
+    },
+    "review-implemented-ticket-structure": {
+      "gateField": "STRUCTURAL_REVIEW_RESULT",
+      "routes": {
+        "PASS": "audit-implemented-ticket",
+        "REQUIRES_FURTHER_REFINEMENT": "RECOVERY_CONTROLLER",
+        "BLOCKED_BY_IMPLEMENTATION_DESIGN": "RECOVERY_CONTROLLER",
+        "BLOCKED_BY_ARCHITECTURE": "HUMAN_REQUIRED"
+      }
+    },
+    "remediate-implemented-ticket": {
+      "gateField": "TICKET_GATE",
+      "routes": {
+        "READY_FOR_REAUDIT": "checkpoint-implemented-ticket",
+        "BLOCKED": "RECOVERY_CONTROLLER"
+      }
+    },
+    "finalize-implemented-ticket": {
+      "gateField": "TICKET_GATE",
+      "routes": {
+        "READY_FOR_DONE": "checkpoint-implemented-ticket",
+        "BLOCKED": "RECOVERY_CONTROLLER"
+      }
+    },
+    "checkpoint-implemented-ticket": {
+      "gateField": "NEXT_AUTHORIZED_OPERATION",
+      "dynamicNext": true,
+      "allowedNext": [
+        "audit-implemented-ticket",
+        "remediate-implemented-ticket",
+        "finalize-implemented-ticket",
+        "audit-component-implementation-tickets",
+        "design-ticket-implementation",
+        "implement-ready-tickets",
+        "COMPLETE",
+        "HUMAN_REQUIRED"
+      ],
+      "requireArtifactGate": true
+    },
+    "checkpoint-governance-workspace": {
+      "gateField": "NEXT_AUTHORIZED_OPERATION",
+      "routes": {
+        "workflow-controller-replan": "RECOVERY_CONTROLLER"
+      },
+      "requireArtifactGate": true
+    }
+  },
+  "controllerEntry": {
+    "initial": {
+      "audit-spec-portfolio-decomposition": {
+        "subjectFields": ["WORKFLOW_SUBJECT_ID", "PORTFOLIO_ID", "id"],
+        "revisionFields": ["revision"]
+      }
+    },
+    "recovery": {
+      "checkpoint-governance-workspace": {
+        "subjectFields": ["WORKFLOW_SUBJECT_ID"],
+        "requiredFields": {
+          "HUMAN_PRESERVATION_AUTHORIZATION": "YES",
+          "PRESERVATION_SCOPE": "EXPLICIT"
+        }
+      }
+    },
+    "sameOperationResume": [
+      "audit-spec-portfolio-decomposition",
+      "remediate-spec-portfolio-decomposition",
+      "generate-component-spec-from-portfolio",
+      "audit-component-spec-conformance",
+      "remediate-component-spec",
+      "audit-spec-portfolio-conformance",
+      "generate-component-implementation-gap-matrix",
+      "audit-component-implementation-gap-matrix",
+      "remediate-component-implementation-gap-matrix",
+      "plan-component-implementation",
+      "audit-component-implementation-plan",
+      "remediate-component-implementation-plan",
+      "decompose-component-implementation-plan-into-tickets",
+      "audit-component-implementation-tickets",
+      "remediate-component-implementation-tickets",
+      "design-ticket-implementation",
+      "implement-ready-tickets",
+      "audit-implemented-ticket",
+      "review-implemented-ticket-structure",
+      "remediate-implemented-ticket",
+      "finalize-implemented-ticket"
+    ]
+  }
+}

@@ -19,6 +19,16 @@ export function field(text: string, key: string): string | undefined {
   return match?.[1]?.trim();
 }
 
+export function fieldValues(text: string, key: string): string[] {
+  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return [...text.matchAll(new RegExp(`^\\s*${escaped}\\s*[:=]\\s*(.+?)\\s*$`, "gmi"))]
+    .map((match) => match[1].trim());
+}
+
+export function fieldLast(text: string, key: string): string | undefined {
+  return fieldValues(text, key).at(-1);
+}
+
 export function explicitTicketState(text: string): string {
   // Only the uppercase STATUS field in the ticket artifact is canonical.
   // Designs, indexes, audits, and prose may legitimately mention other

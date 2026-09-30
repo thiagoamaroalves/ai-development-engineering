@@ -2,7 +2,8 @@
 
 This project-local Pi extension coordinates the engineering process whose authority
 remains in `skills/*/SKILL.md`, `skills/_shared/*`, and the canonical artifacts those
-skills define. It does not own a duplicate transition table.
+skills define. Normal workflow edges are encoded once in
+`skills/_shared/workflow-transitions.json`; skills still own their semantic verdicts.
 
 ## End-to-end process discovered
 
@@ -31,14 +32,42 @@ stops rather than inventing a worktree protocol and never commits elsewhere.
 
 ## Runtime topology
 
-`workflow_orchestrate` asks a fresh, read-only `workflow-controller` subagent to inspect
-the current canonical repository state and choose exactly one authorized skill. The
-extension validates the selected skill and every cited authority/evidence path, then
-delegates the operation to a project-local execution identity with the exact canonical
-skill attached. It verifies stable HEAD, guarded main-tree scope, and requires a
-canonical workspace state change before replanning. Completion, blockers, and human
-gates are derived again from
-the resulting artifacts.
+`workflow_orchestrate` asks a fresh, read-only `workflow-controller` once at intake to
+select the entry operation. Every controller-selected operation must provide a
+structured entry basis: either a persisted source gate that routes to the selected
+operation, or direct evidence for an operation explicitly declared as an intake route.
+Recovery is limited in code to a declared resumable retry, a catalog ancestor of the
+failed operation with its own valid entry gate, or the explicit governance recovery
+entry. Before each operation, the extension validates the local skill and agent, cited
+paths, pinned HEAD, bounded input, and—on a normal transition—the previous operation's
+current `WORKFLOW_RESULT_V2` lineage leaf, persisted gate, exact subject, and catalog
+edge. Result records form one append-only chain per operation and subject; ambiguous
+branches and legacy unversioned transition artifacts stop before dispatch. A separate read-only
+`workflow-preflight` handles only semantic prerequisites that code cannot decide. The
+extension then delegates the exact skill, requires its receipt gate to be persisted in
+the cited canonical artifact, checks changed paths, and follows the deterministic
+transition catalog. The controller is called again only when a failure or semantic
+blocker needs recovery, or a gate explicitly routes to recovery. Explicit human gates
+stop before another skill starts; unrecoverable blockers stop after one recovery
+decision.
+
+Before the intake call, startup checks that every local workflow skill is registered
+or is an internal ticket-audit specialist, validates all required agents and core
+shared contracts, and loads the semantic fingerprint policy and checkpoint verifier.
+Missing or inconsistent process authority stops before a workflow skill runs.
+
+Every routed gate must exist in its cited artifact; a value present only in an agent
+response cannot advance the workflow. Each operation persists its result identity and
+predecessor and its direct basis beside the gate. The extension resolves the lineage leaf
+and checks upstream result IDs recursively, plus selected identity, revision, round,
+audit-target, and gate fields from source documents. This catches replaced upstream
+results and declared revision changes without hashing prose or the workspace. Filenames
+and timestamps do not select the lineage leaf. The main loop compares only Git-visible
+paths touched by the current operation; it does not SHA-fingerprint the whole workspace
+to decide whether a gate progressed. The specialized implemented-ticket audit keeps its
+separate semantic fingerprint, which pins the exact implementation state shared by
+independent auditors. Checkpoint phase manifests and parent/commit checks also remain
+in force.
 
 `audit-implemented-ticket` is the specialized parallel stage. Conformance, behavior,
 design, and conditionally architecture auditors run in fresh contexts against the same
@@ -62,11 +91,12 @@ and explicit join before consolidation.
 
 ## Fail-closed boundaries
 
-Execution stops on unknown or repeated state, missing skill/agent/authority/evidence,
-unsatisfied dependencies, incomplete results, controller mutation, HEAD or workspace
-drift, subagent failure, human gates, unsupported worktree requirements, or the bounded
-step limit. It never commits, merges, pushes, publishes, deletes branches, or converts
-an unknown outcome into success.
+Execution stops on missing skill/agent/authority/evidence, failed preflight,
+unsatisfied dependencies, incomplete or contradictory results, controller mutation,
+HEAD drift, undeclared operation changes, subagent failure, human gates, unsupported
+worktree requirements, or the bounded step limit. It never commits outside a
+checkpoint skill, merges, pushes, publishes, deletes branches, or converts an unknown
+outcome into success.
 
 ## Validation
 
@@ -80,5 +110,7 @@ pi --mode rpc --approve --no-session
 
 In RPC mode, `get_commands` must include `workflow-status`. The tests exercise the
 external orchestration boundary with temporary Git repositories and delegated-agent
-fakes, including happy path, blocked/unknown state, missing authority/skill/agent,
-subagent failure, incomplete result, drift, unmet dependency, and human gate.
+fakes, including one-time controller intake, catalog-routed multi-step flow, early
+semantic preflight stops, entry and recovery authorization, subject-bound gate
+lineage for each workflow family, missing startup authority, subagent failure, drift,
+unmet dependency, human gates, changed intake revisions, and stale downstream bases.
