@@ -415,7 +415,7 @@ test('rejects caller-supplied evidence before infrastructure bootstrap', async (
   `
   const { stdout } = await execFileAsync(
     process.execPath,
-    ['--import', 'tsx', '--input-type=module', '-e', script],
+    ['--experimental-strip-types', '--input-type=module', '-e', script],
     { cwd: resolve('.'), encoding: 'utf8' },
   )
   assert.equal(stdout.trim(), 'INVALID')
