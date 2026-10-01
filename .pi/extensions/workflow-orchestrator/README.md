@@ -42,14 +42,17 @@ entry. Before each operation, the extension validates the local skill and agent,
 paths, pinned HEAD, bounded input, and—on a normal transition—the previous operation's
 current `WORKFLOW_RESULT_V2` lineage leaf, persisted gate, exact subject, and catalog
 edge. Result records form one append-only chain per operation and subject; ambiguous
-branches and legacy unversioned transition artifacts stop before dispatch. The sole
-legacy implemented-ticket path is an explicit recovery migration that verifies the
+branches and legacy unversioned transition artifacts stop before dispatch. Legacy
+lineage has two explicit recovery routes. Implemented-ticket migration verifies the
 current approved ticket-set generation and conformance checkpoints before the ticket
 checkpoint, so a reused ticket ID cannot inherit a retired revision's lineage. It then
-verifies the checkpoint marker, phase manifest, commit, parent, committed paths, and source digests.
-It records any committed descendant changes to preserved paths and requires a new
-normal checkpoint to reanchor the current HEAD and persist the first V2 result before
-the audit.
+verifies the ticket checkpoint marker, phase manifest, commit, parent, committed paths,
+and source digests, records any committed descendant changes to preserved paths, and
+requires a new normal checkpoint to reanchor HEAD before the audit. Ticket-set audit
+migration verifies the current generation, conformance audit, and one current ready-
+ticket design, then writes a separate V2 migration report that can route only to a
+fresh independent ticket-set audit. Neither route backfills V2 into historical
+artifacts.
 A separate read-only
 `workflow-preflight` handles only semantic prerequisites that code cannot decide. The
 extension then delegates the exact skill, requires its receipt gate to be persisted in

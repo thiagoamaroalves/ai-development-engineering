@@ -311,6 +311,12 @@
         "LEGACY_CHECKPOINT_VALIDATED": "checkpoint-implemented-ticket"
       }
     },
+    "reconcile-legacy-ticket-set-audit-lineage": {
+      "gateField": "MIGRATION_GATE",
+      "routes": {
+        "LEGACY_TICKET_SET_AUDIT_VALIDATED": "audit-component-implementation-tickets"
+      }
+    },
     "checkpoint-implemented-ticket": {
       "gateField": "NEXT_AUTHORIZED_OPERATION",
       "dynamicNext": true,
@@ -339,6 +345,15 @@
       "audit-spec-portfolio-decomposition": {
         "subjectFields": ["WORKFLOW_SUBJECT_ID", "PORTFOLIO_ID", "id"],
         "revisionFields": ["revision"]
+      },
+      "checkpoint-governance-workspace": {
+        "subjectFields": ["COMPONENT"],
+        "requiredFields": {
+          "CHECKPOINT_KIND": "COMPONENT_IMPLEMENTATION_TICKETS_CONFORMANCE_CHECKPOINT",
+          "AUDIT_VERDICT": "IMPLEMENTATION_TICKETS_CONFORMANT",
+          "IMPLEMENTATION_GATE": "READY_FOR_IMPLEMENTATION",
+          "TICKET_SET_AUDIT_COMPLETE": "YES"
+        }
       }
     },
     "recovery": {
@@ -358,6 +373,15 @@
           "NEXT_AUTHORIZED_OPERATION",
           "CHECKPOINT_COMMIT_MESSAGE"
         ]
+      },
+      "reconcile-legacy-ticket-set-audit-lineage": {
+        "subjectFields": ["COMPONENT"],
+        "requiredFields": {
+          "CHECKPOINT_KIND": "COMPONENT_IMPLEMENTATION_TICKETS_CONFORMANCE_CHECKPOINT",
+          "AUDIT_VERDICT": "IMPLEMENTATION_TICKETS_CONFORMANT",
+          "IMPLEMENTATION_GATE": "READY_FOR_IMPLEMENTATION",
+          "TICKET_SET_AUDIT_COMPLETE": "YES"
+        }
       }
     },
     "sameOperationResume": [

@@ -3,9 +3,12 @@ import { relative, resolve, sep } from "node:path";
 
 import { OrchestrationStop } from "./contracts.ts";
 import {
+  assertLegacyTicketSetAuditProofCurrent,
   assertLegacyCheckpointProofCurrent,
   isLegacyCheckpointProof,
+  isLegacyTicketSetAuditProof,
   type LegacyCheckpointProof,
+  type LegacyTicketSetAuditProof,
 } from "./legacy-checkpoint.ts";
 
 const RESULT_BLOCK = /<!-- WORKFLOW_RESULT_V2\r?\n([\s\S]*?)\r?\n-->/g;
@@ -51,6 +54,7 @@ export type WorkflowResultBasis =
   | { type: "none" }
   | { type: "intake"; artifacts: WorkflowArtifactSnapshot[] }
   | { type: "legacy-checkpoint"; proof: LegacyCheckpointProof }
+  | { type: "legacy-ticket-set-audit"; proof: LegacyTicketSetAuditProof }
   | {
     type: "transition";
     source: {
@@ -169,6 +173,12 @@ export async function createIntakeWorkflowBasis(
 
 export function createLegacyCheckpointWorkflowBasis(proof: LegacyCheckpointProof): WorkflowResultBasis {
   const basis: WorkflowResultBasis = { type: "legacy-checkpoint", proof };
+  assertBasisBound(basis);
+  return basis;
+}
+
+export function createLegacyTicketSetAuditWorkflowBasis(proof: LegacyTicketSetAuditProof): WorkflowResultBasis {
+  const basis: WorkflowResultBasis = { type: "legacy-ticket-set-audit", proof };
   assertBasisBound(basis);
   return basis;
 }
@@ -300,6 +310,9 @@ function validBasis(value: unknown): value is WorkflowResultBasis {
   }
   if (basis.type === "legacy-checkpoint") {
     return Object.keys(basis).length === 2 && isLegacyCheckpointProof(basis.proof);
+  }
+  if (basis.type === "legacy-ticket-set-audit") {
+    return Object.keys(basis).length === 2 && isLegacyTicketSetAuditProof(basis.proof);
   }
   if (basis.type === "transition" && Object.keys(basis).length === 2 && basis.source && typeof basis.source === "object" && !Array.isArray(basis.source)) {
     const source = basis.source as Record<string, unknown>;
@@ -540,6 +553,8 @@ async function assertRecordCurrent(
       for (const artifact of record.basis.artifacts) await assertArtifactSnapshotCurrent(root, artifact);
     } else if (record.basis.type === "legacy-checkpoint") {
       await assertLegacyCheckpointProofCurrent(root, record.basis.proof);
+    } else if (record.basis.type === "legacy-ticket-set-audit") {
+      await assertLegacyTicketSetAuditProofCurrent(root, record.basis.proof);
     } else if (record.basis.type === "transition") {
       const expected = record.basis.source;
       if (expected.operation === record.operation && expected.subject === record.subject) {

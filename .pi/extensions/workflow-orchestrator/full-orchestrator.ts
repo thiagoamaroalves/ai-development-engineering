@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { access, readFile, realpath, readdir } from "node:fs/promises";
 import { dirname, relative, resolve, sep } from "node:path";
 
@@ -22,7 +22,10 @@ import {
 } from "./git-state.ts";
 import { runAuditSlice } from "./orchestrator.ts";
 import { createWorkflowResultContext, validateProducedWorkflowResult, type WorkflowResultContext } from "./workflow-lineage.ts";
-import { validateLegacyMigrationArtifact } from "./legacy-checkpoint.ts";
+import {
+  validateLegacyMigrationArtifact,
+  validateLegacyTicketSetAuditMigrationArtifact,
+} from "./legacy-checkpoint.ts";
 import {
   loadTransitionCatalog,
   operationReceiptSchema,
@@ -265,6 +268,7 @@ function controllerTask(objective: string, head: string, previous: WorkflowStepR
     ...(failedOperation ? [`Operation requiring recovery: ${failedOperation}`] : []),
     "The repository skills and their referenced shared contracts are process authority.",
     "Read skills/_shared/workflow-transition-contract.md and skills/_shared/workflow-transitions.json. Normal transitions after this plan are deterministic; do not plan later steps.",
+    "At initial intake, use only controllerEntry.initial operations. A stale or incomplete phase manifest from a previous invocation is not recovery authority. When the objective explicitly orders a governance preservation checkpoint before ticket work, select the declared initial checkpoint-governance-workspace entry first; recovery entries require a failed-operation context supplied by this orchestrator in the same run.",
     "Discover applicable skills; read every skill required for this decision completely.",
     "Inspect canonical ADR/SPEC/Gap/Plan/Ticket/audit/remediation/finalization artifacts in the target repository.",
     "Return EXECUTE only when the chosen skill's preconditions and gate are explicitly evidenced.",
@@ -276,7 +280,8 @@ function controllerTask(objective: string, head: string, previous: WorkflowStepR
     "Read skills/_shared/workflow-execution-topology-contract.md. For authorized ticket implementation/remediation/review in this repository, executionIsolation must be main under its guards; select worktree only when an explicit allocation/merge protocol is cited. Never infer a worktree policy.",
     "For operation audit-implemented-ticket, operationInputJson must encode the full AuditSliceInput expected by workflow_audit_implemented_ticket.",
     "When recovery finds that an implemented-ticket checkpoint handoff lacks a current V2 result for checkpoint-implemented-ticket, use reconcile-legacy-checkpoint-lineage only as its declared direct recovery entry. First resolve the ticket ID against the current approved ticket-set generation and conformance checkpoints: ticket IDs can be reused after SPEC revalidation and decomposition, so markers that predate the current conformant ticket set are obsolete history and cannot establish lineage for the current ticket. Cite the latest checkpoint marker for that exact current ticket revision, set the matching TICKET_ID as subject, and let the extension validate the ticket-set manifests and commits plus the ticket marker, phase manifest, commit, source authority, and committed descendant path drift. The following normal checkpoint reanchors current HEAD before the audit. Never cite an obsolete or superseded checkpoint, add a V2 block to the historical marker, or route directly to the audit.",
-    "For checkpoint operations, operationInputJson must contain phaseManifestPath, and phaseManifestPath must not be listed in evidenceFiles because it may be created by the checkpoint agent. Phase manifests are phase-scoped and HEAD-scoped: if an existing manifest target.head or operation differs from the current operation, treat it as historical evidence and derive a new current-head path; never reuse or overwrite it. If the current manifest file does not exist yet, that is not missing authority: the owning checkpoint agent must derive and create it from canonical artifacts, current HEAD, and the exact dirty candidate before validation. For other operations, operationInputJson must be an empty JSON object string unless the canonical skill requires bounded arguments worth preserving.",
+    "When recovery finds that the current component ticket-set audit lacks V2 lineage, use reconcile-legacy-ticket-set-audit-lineage only as its declared direct recovery entry. Cite the current ticket-set conformance checkpoint as entryBasis and exactly one current implementation design as evidence. The extension validates the current generation and conformance checkpoints, their manifests/commits/source digests, the exact conformance audit and ready-ticket design, and binds all source digests at the live HEAD. The migration report may route only to a fresh independent audit-component-implementation-tickets operation. Never modify an existing implemented-ticket audit result or add V2 to the historical ticket-set audit/checkpoint.",
+    "For checkpoint operations, operationInputJson must contain phaseManifestPath, and phaseManifestPath must not be listed in evidenceFiles because it may be created by the checkpoint agent. Reuse a manifest only when operation and target HEAD match, all sourceAuthority digests are current, and its declared marker exists. Never overwrite an incomplete or stale manifest: derive a fresh path and pass the stale manifest path only as preserveUnstagedRecoveryPaths. If no usable manifest exists, that is not missing authority: the owning checkpoint agent must derive and create one from canonical artifacts, current HEAD, and the exact dirty candidate before validation. For other operations, operationInputJson must be an empty JSON object string unless the canonical skill requires bounded arguments worth preserving.",
     "When invoked for exceptional recovery after a checkpoint, use the live HEAD and rebuild operation input from canonical state; never reuse a stale pre-checkpoint plan.",
     "Read exactly these shared contracts: skills/_shared/interrupted-remediation-recovery-contract.md and skills/_shared/interrupted-artifact-production-recovery-contract.md. Do not invent abbreviated or alternate authority paths. If an external failure left an authorized remediation target dirty while its current actionable source audit remains unchanged and no complete matching remediation report exists, select the owning remediation skill again in RESUME_OR_RECONCILE mode; do not require a checkpoint, do not route to re-audit, and do not treat a candidate ready marker as proof of completion. If an external failure left an authorized Gap Matrix, Plan, or ticket output dirty while its current source audit remains conformant and no complete matching output exists, select the owning producer again in RESUME_OR_RECONCILE mode after checkpointing the source authority; do not route downstream. Once a producer returns its exact complete result, select its generation checkpoint before selecting the independent audit.",
     ...(replanReason ? [`Previous controller plan was rejected and must be replanned: ${replanReason}`] : []),
@@ -405,14 +410,51 @@ async function currentManifestMatches(root: string, manifestPath: string, operat
     const canonicalManifest = await realpath(absolute);
     const parsed = JSON.parse(await readFile(canonicalManifest, "utf8")) as Record<string, unknown>;
     const target = parsed.target as Record<string, unknown> | undefined;
-    return parsed.manifestKind === "PHASE_CHECKPOINT" && parsed.operation === operation && target?.head === head;
+    const paths = parsed.paths as Record<string, unknown> | undefined;
+    const sourceAuthority = parsed.sourceAuthority;
+    if (parsed.manifestKind !== "PHASE_CHECKPOINT" || parsed.operation !== operation || target?.head !== head
+      || !paths || typeof paths.marker !== "string" || !Array.isArray(sourceAuthority) || sourceAuthority.length === 0) return false;
+    await assertPathResolvesInside(root, paths.marker);
+    await access(resolve(root, paths.marker));
+    for (const source of sourceAuthority) {
+      if (!source || typeof source !== "object") return false;
+      const item = source as Record<string, unknown>;
+      if (typeof item.path !== "string" || typeof item.sha256 !== "string" || !/^[0-9a-f]{64}$/.test(item.sha256)) return false;
+      try {
+        await assertPathResolvesInside(root, item.path);
+        const digest = createHash("sha256").update(await readFile(resolve(root, item.path))).digest("hex");
+        if (digest !== item.sha256) return false;
+      } catch {
+        return false;
+      }
+    }
+    return true;
   } catch (error) {
     if (error instanceof OrchestrationStop) throw error;
     return false;
   }
 }
 
-async function normalizeCheckpointInput(root: string, plan: WorkflowPlan, head: string): Promise<WorkflowPlan> {
+async function manifestPathExists(root: string, manifestPath: string): Promise<boolean> {
+  try {
+    await access(resolve(root, manifestPath));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function freshPhaseManifestPath(root: string, plan: WorkflowPlan, head: string): Promise<string> {
+  const base = defaultPhaseManifestPath(plan, head);
+  if (!(await manifestPathExists(root, base))) return base;
+  let candidate = base.replace(/-manifest\.json$/, `-${randomUUID().slice(0, 8)}-manifest.json`);
+  while (await manifestPathExists(root, candidate)) {
+    candidate = base.replace(/-manifest\.json$/, `-${randomUUID().slice(0, 8)}-manifest.json`);
+  }
+  return candidate;
+}
+
+export async function normalizeCheckpointInput(root: string, plan: WorkflowPlan, head: string): Promise<WorkflowPlan> {
   const evidenceFiles = plan.evidenceFiles.filter((candidate) => !candidate.toLowerCase().endsWith("manifest.json"));
   if (!isCheckpointOperation(plan.operation)) return { ...plan, evidenceFiles };
   let input: Record<string, unknown>;
@@ -429,9 +471,19 @@ async function normalizeCheckpointInput(root: string, plan: WorkflowPlan, head: 
   const requestedManifestPath = typeof input.phaseManifestPath === "string" && input.phaseManifestPath.trim() !== ""
     ? input.phaseManifestPath
     : undefined;
-  const manifestPath = requestedManifestPath && await currentManifestMatches(root, requestedManifestPath, plan.operation, head)
-    ? requestedManifestPath
-    : defaultPhaseManifestPath(plan, head);
+  const defaultPath = defaultPhaseManifestPath(plan, head);
+  const candidatePaths = [...new Set([requestedManifestPath, defaultPath].filter((item): item is string => Boolean(item)))];
+  const manifestStates = await Promise.all(candidatePaths.map(async (candidate) => ({
+    path: candidate,
+    exists: await manifestPathExists(root, candidate),
+    current: await currentManifestMatches(root, candidate, plan.operation, head),
+  })));
+  const manifestPath = manifestStates.find((state) => state.current)?.path
+    ?? manifestStates.find((state) => !state.exists)?.path
+    ?? await freshPhaseManifestPath(root, plan, head);
+  const staleManifestPaths = manifestStates
+    .filter((state) => state.exists && !state.current && state.path !== manifestPath)
+    .map((state) => state.path);
   const absolute = resolve(root, manifestPath);
   const relativePath = relative(root, absolute);
   if (!relativePath || relativePath === ".." || relativePath.startsWith(`..${sep}`) || relativePath.startsWith(sep)) {
@@ -439,10 +491,15 @@ async function normalizeCheckpointInput(root: string, plan: WorkflowPlan, head: 
   }
   await assertPathResolvesInside(root, manifestPath);
   const normalizedManifestPath = relativePath.split(sep).join("/");
+  const recoveryPaths = [...new Set(staleManifestPaths.filter((candidate) => candidate !== normalizedManifestPath))];
   return {
     ...plan,
     evidenceFiles,
-    operationInputJson: JSON.stringify({ ...input, phaseManifestPath: normalizedManifestPath }),
+    operationInputJson: JSON.stringify({
+      ...input,
+      phaseManifestPath: normalizedManifestPath,
+      ...(recoveryPaths.length > 0 ? { preserveUnstagedRecoveryPaths: recoveryPaths } : {}),
+    }),
   };
 }
 
@@ -1052,6 +1109,13 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
         }
         await validateLegacyMigrationArtifact(root, receipt, basis.proof);
       }
+      if (plan.operation === "reconcile-legacy-ticket-set-audit-lineage") {
+        const basis = workflowResult.basis;
+        if (!basis || basis.type !== "legacy-ticket-set-audit") {
+          throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Ticket-set audit migration has no extension-validated source proof.");
+        }
+        await validateLegacyTicketSetAuditMigrationArtifact(root, receipt, basis.proof);
+      }
       const artifactTexts = await readReceiptArtifacts(root, receipt);
       await validateProducedWorkflowResult(root, {
         operation: receipt.operation,
@@ -1069,6 +1133,13 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
       const after = await workflowStateSnapshot(root);
       const diff = workflowStateDiff(before, after);
       const changedPaths = observedChangedPaths(diff);
+      if (plan.operation === "reconcile-legacy-ticket-set-audit-lineage"
+        && (changedPaths.length !== 1 || changedPaths[0] !== receipt.gateArtifactPath)) {
+        throw new OrchestrationStop("PROCESS_AUTHORITY_DRIFT", "Ticket-set audit migration changed paths outside its one validated migration report.", {
+          expectedChangedPath: receipt.gateArtifactPath,
+          changedPaths,
+        });
+      }
       if (!isCheckpointOperation(plan.operation)) {
         const declaredChangedPaths = [...receipt.changedPaths].sort();
         if (!samePaths(changedPaths, declaredChangedPaths)) {

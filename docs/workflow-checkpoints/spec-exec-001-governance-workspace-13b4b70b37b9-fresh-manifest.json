@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "manifestKind": "PHASE_CHECKPOINT",
+  "phaseId": "SPEC-EXEC-001-governance-workspace-13b4b70b37b9-fresh",
+  "operation": "checkpoint-governance-workspace",
+  "subject": {
+    "id": "SPEC-EXEC-001",
+    "type": "workspace"
+  },
+  "sourceAuthority": [
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-architecture-audit.md",
+      "sha256": "46060c2d76dd10d5838011eaf433af520145cbcec1423c1d4582f4ede03eb2d0"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-audit.md",
+      "sha256": "ce095f861d09d81de11a666b005045af3c1f1cb564556927a203ba4b5e6114e7"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-behavior-audit.md",
+      "sha256": "178f21c73393f1dd0147599847ad94166ce5f09ee908ca323a4c68e9ae46e167"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design-conformance-audit.md",
+      "sha256": "36081af7a15a488fae00e3b416c923a7f29c31be350abd65de6785ec3df51061"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-ticket-conformance-audit.md",
+      "sha256": "96a278d32fca6e21acd1853a9ca6addb315ba7d347cb6a1f965d2b1029116f0b"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-checkpoints/EXEC-001-TICKET-001-lineage-migration-checkpoint-round-25.md",
+      "sha256": "9e965ea901f4790f74a687dbd63dc5c5abc5c8d1e832bdad87a1945154d96bb5"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/implementation-ticket-audit.md",
+      "sha256": "f466d5fa9780f3859e0c61e8f2f2e19e2e64e12fa5b996b6001ce0bc6e73ef36"
+    },
+    {
+      "path": "docs/workflow-checkpoints/SPEC-EXEC-001-component-implementation-tickets-conformance-manifest.json",
+      "sha256": "99c728f6e55670609d9f9e7b8aacce1d500a8b3a13f61a41fc38e75d6984f33d"
+    },
+    {
+      "path": "docs/workflow-checkpoints/SPEC-EXEC-001-component-implementation-tickets-conformance.md",
+      "sha256": "19ed06a29074bf58362072f80c7b1fe16d104dae84b8f7b8bd55ab4d922ad3cd"
+    },
+    {
+      "path": "skills/_shared/phase-checkpoint-contract.md",
+      "sha256": "b57b78b4e5c87ffc013bf5e8e54506062c3687dcf265082e175fbde259ef5b8a"
+    },
+    {
+      "path": "skills/_shared/phase-manifest-contract.md",
+      "sha256": "0608281f540f9676668280516b264e9ff7d1ea8057d907a66f0f8fdd57d4527b"
+    },
+    {
+      "path": "skills/_shared/workflow-preflight-contract.md",
+      "sha256": "932c860dae0b587dea0bff15384e7428de77d640d469aaefbe56d75d745f041c"
+    },
+    {
+      "path": "skills/_shared/workflow-transition-contract.md",
+      "sha256": "c9b67ab20c7c57df5d086a196037293b61dd49dfca0d02fe4f9bb58cd4b1ec4f"
+    },
+    {
+      "path": "skills/_shared/workflow-transitions.json",
+      "sha256": "58ee6dded26c4a4486b8cff723da6468a48b1362e82f1a92a998b327f7e18d91"
+    },
+    {
+      "path": "skills/checkpoint-governance-workspace/SKILL.md",
+      "sha256": "59db0eb6b17a491d56a5da07907d7d7cab706e56370d583a80250b0590d69e61"
+    },
+    {
+      "path": ".pi/agents/workflow-controller.md",
+      "sha256": "641ebe11723098e073bd0ef39547f534fd87f405e6d957c8f5e0047d11d655fe"
+    }
+  ],
+  "target": {
+    "head": "13b4b70b37b9e3f84df21fe7db8381427fa2f95c",
+    "semanticFingerprint": "b10a12b6eced00572c29b12d381cedb9dc9886687fd6f5fd86d0051c1fcd4928"
+  },
+  "paths": {
+    "manifest": "docs/workflow-checkpoints/spec-exec-001-governance-workspace-13b4b70b37b9-fresh-manifest.json",
+    "preserve": [
+      ".pi/agents/workflow-controller.md",
+      ".pi/extensions/workflow-orchestrator/README.md",
+      ".pi/extensions/workflow-orchestrator/full-orchestrator.ts",
+      ".pi/extensions/workflow-orchestrator/legacy-checkpoint.ts",
+      ".pi/extensions/workflow-orchestrator/test/full-orchestrator.test.ts",
+      ".pi/extensions/workflow-orchestrator/test/workflow-preflight.test.ts",
+      ".pi/extensions/workflow-orchestrator/workflow-lineage.ts",
+      ".pi/extensions/workflow-orchestrator/workflow-preflight.ts",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-architecture-audit.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-audit.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-behavior-audit.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-implementation-design-conformance-audit.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-ticket-conformance-audit.md",
+      "skills/_shared/workflow-preflight-contract.md",
+      "skills/_shared/workflow-transition-contract.md",
+      "skills/_shared/workflow-transitions.json",
+      "skills/checkpoint-governance-workspace/SKILL.md",
+      "skills/reconcile-legacy-ticket-set-audit-lineage/SKILL.md"
+    ],
+    "delete": [],
+    "unstagedRecovery": [
+      "docs/workflow-checkpoints/spec-exec-001-checkpoint-governance-workspace-13b4b70b37b9-manifest.json"
+    ],
+    "marker": "docs/workflow-checkpoints/spec-exec-001-governance-workspace-13b4b70b37b9-fresh.md"
+  },
+  "nextAuthorizedOperation": "workflow-controller-replan",
+  "commitMessage": "checkpoint(governance): preserve workflow reconciliation"
+}

@@ -107,6 +107,49 @@ test("normal transition preflight fails when the source gate artifact is missing
   } finally { await fx.cleanup(); }
 });
 
+test("governance checkpoint is an explicit initial entry and ticket-set audit migration is recovery-routed", async () => {
+  const fx = await makeRoot();
+  try {
+    const catalog = await loadTransitionCatalog(repositoryRoot);
+    const artifactPath = "docs/SPEC-X-ticket-set-conformance.md";
+    await writeFile(path.join(fx.root, artifactPath), [
+      "CHECKPOINT_KIND = COMPONENT_IMPLEMENTATION_TICKETS_CONFORMANCE_CHECKPOINT",
+      "COMPONENT = SPEC-X",
+      "AUDIT_VERDICT = IMPLEMENTATION_TICKETS_CONFORMANT",
+      "IMPLEMENTATION_GATE = READY_FOR_IMPLEMENTATION",
+      "TICKET_SET_AUDIT_COMPLETE = YES",
+      "NEXT_AUTHORIZED_OPERATION = design-ticket-implementation",
+      "",
+    ].join("\n"));
+    const intake = { type: "intake" as const, artifactPath };
+
+    await validateControllerEntry(
+      fx.root,
+      catalog,
+      "checkpoint-governance-workspace",
+      "SPEC-X",
+      intake,
+      [artifactPath],
+      "initial",
+    );
+    await validateControllerEntry(
+      fx.root,
+      catalog,
+      "reconcile-legacy-ticket-set-audit-lineage",
+      "SPEC-X",
+      intake,
+      [artifactPath],
+      "recovery",
+      "audit-component-implementation-tickets",
+    );
+    assert.equal(
+      catalog.operations["reconcile-legacy-ticket-set-audit-lineage"].routes?.LEGACY_TICKET_SET_AUDIT_VALIDATED,
+      "audit-component-implementation-tickets",
+    );
+    assert.equal(isAuthorizedRecoveryTarget(catalog, "audit-component-implementation-tickets", "reconcile-legacy-ticket-set-audit-lineage"), true);
+  } finally { await fx.cleanup(); }
+});
+
 const flowFamilies = [
   {
     family: "portfolio decomposition",
@@ -450,13 +493,33 @@ test("direct portfolio intake requires declared operation, cited evidence, and s
   } finally { await fx.cleanup(); }
 });
 
-test("governance checkpoint is available only as a declared, subject-bound recovery entry", async () => {
+test("governance checkpoint is available as a declared, subject-bound initial or recovery entry", async () => {
   const fx = await makeRoot();
   try {
     const catalog = await loadTransitionCatalog(repositoryRoot);
-    const artifactPath = "docs/SPEC-EXEC-001-governance-change.md";
-    await writeFile(path.join(fx.root, artifactPath), "WORKFLOW_SUBJECT_ID: SPEC-EXEC-001\nHUMAN_PRESERVATION_AUTHORIZATION: YES\nPRESERVATION_SCOPE: EXPLICIT\n");
+    const artifactPath = "docs/SPEC-EXEC-001-ticket-set-conformance.md";
+    await writeFile(path.join(fx.root, artifactPath), [
+      "CHECKPOINT_KIND = COMPONENT_IMPLEMENTATION_TICKETS_CONFORMANCE_CHECKPOINT",
+      "COMPONENT = SPEC-EXEC-001",
+      "WORKFLOW_SUBJECT_ID = SPEC-EXEC-001",
+      "AUDIT_VERDICT = IMPLEMENTATION_TICKETS_CONFORMANT",
+      "IMPLEMENTATION_GATE = READY_FOR_IMPLEMENTATION",
+      "TICKET_SET_AUDIT_COMPLETE = YES",
+      "HUMAN_PRESERVATION_AUTHORIZATION = YES",
+      "PRESERVATION_SCOPE = EXPLICIT",
+      "NEXT_AUTHORIZED_OPERATION = design-ticket-implementation",
+      "",
+    ].join("\n"));
     const basis = { type: "intake" as const, artifactPath };
+    await validateControllerEntry(
+      fx.root,
+      catalog,
+      "checkpoint-governance-workspace",
+      "SPEC-EXEC-001",
+      basis,
+      [artifactPath],
+      "initial",
+    );
     await validateControllerEntry(
       fx.root,
       catalog,
@@ -468,16 +531,8 @@ test("governance checkpoint is available only as a declared, subject-bound recov
       "implement-ready-tickets",
     );
     await assert.rejects(
-      validateControllerEntry(
-        fx.root,
-        catalog,
-        "checkpoint-governance-workspace",
-        "SPEC-EXEC-001",
-        basis,
-        [artifactPath],
-        "initial",
-      ),
-      (error: unknown) => error instanceof OrchestrationStop && error.code === "PROCESS_AUTHORITY_DRIFT",
+      validateControllerEntry(fx.root, catalog, "checkpoint-governance-workspace", "SPEC-OTHER", basis, [artifactPath], "initial"),
+      (error: unknown) => error instanceof OrchestrationStop && error.code === "CANONICAL_ARTIFACT_CONTRADICTION",
     );
   } finally { await fx.cleanup(); }
 });

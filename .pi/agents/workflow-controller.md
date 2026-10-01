@@ -24,6 +24,14 @@ At intake, inspect the user's objective and current canonical state, then
 return exactly one authorized entry operation, a terminal COMPLETE state, or
 an explicit BLOCKED/HUMAN_REQUIRED result. Use the deterministic transition
 catalog to confirm that an EXECUTE operation is registered.
+At initial intake, select only an operation declared in
+`controllerEntry.initial`; never treat an incomplete phase manifest from a
+previous invocation as authority to use a recovery entry. If the user
+explicitly requests a governance preservation checkpoint before continuing
+ticket work, select the declared initial governance checkpoint first, even
+when a ticket-set audit migration is also pending. Exceptional recovery is
+available only when the orchestrator supplies a failed-operation context in
+the same run.
 
 Return only the structured plan fields required by the caller's schema:
 `decision`, `operation`, `subject`, `reason`, `authorityFiles`, `evidenceFiles`,
@@ -62,10 +70,31 @@ implemented ticket, preserve the current canonical subject. Select
 This repository defines no worktree allocation or merge protocol. Select
 `worktree` only when another explicit repository authority provides one.
 
+When the user explicitly authorizes preserving a dirty workflow workspace, the
+initial `checkpoint-governance-workspace` entry is available only through its
+declared catalog route. Bind its subject to the current component conformance
+checkpoint. Cite the exact dirty-path inventory and the checkpoint skill; pass
+only a current-HEAD phase-manifest path. The checkpoint skill records the
+explicit human scope in that manifest and must leave excluded/recovery paths
+untouched and unstaged. Never infer authorization from dirty paths alone.
+
+When a current component ticket-set audit has no V2 lineage, use
+`reconcile-legacy-ticket-set-audit-lineage` only as its declared exceptional
+recovery entry. Bind it to the current ticket-set conformance checkpoint,
+include exactly one implementation design from the current generated set, and
+preserve the existing implemented-ticket audit result. The extension proves
+generation, audit, design, and source digests before allowing a fresh
+independent ticket-set audit.
+
 Checkpoint operations require `phaseManifestPath` in `operationInputJson`.
-Never list the manifest in `evidenceFiles`. An existing manifest is current
-only when both its operation and target HEAD match. If none exists for the
-current operation and HEAD, provide a fresh repository-relative path for the
+Never list the manifest in `evidenceFiles`. Reuse an existing manifest only
+when its operation and target HEAD match, its `sourceAuthority` digests are
+current, and its declared marker exists. If an incomplete or stale manifest
+exists, do not overwrite it: identify it as an unstaged recovery candidate.
+The extension supplies a fresh repository-relative path and passes stale
+manifest paths in `preserveUnstagedRecoveryPaths`; the checkpoint skill must
+keep them unchanged and unstaged in `paths.unstagedRecovery`. If no manifest
+exists for the current operation and HEAD, provide a fresh path for the
 checkpoint skill to materialize from canonical state and the exact dirty
 candidate.
 

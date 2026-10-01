@@ -100,7 +100,10 @@ confirms the persisted gate authorizes the selected operation.
 Direct intake evidence is permitted only for operations explicitly declared in
 `controllerEntry.initial` or `controllerEntry.recovery`; it must exist inside
 the repository, satisfy its subject binding rule, and contain any required
-structured fields declared by the catalog.
+structured fields declared by the catalog. The governance checkpoint's direct
+initial route is usable only when the current request explicitly authorizes the
+preservation; its phase manifest must then record the exact approved paths and
+target HEAD. A dirty workspace alone never supplies that authorization.
 
 For normal completed operations, the extension validates the receipt, the
 persisted result block, and its predecessor link, then follows
@@ -138,6 +141,15 @@ report and a new checkpoint marker carrying the first V2 result for that exact
 ticket and operation. The audit is dispatched only from that new persisted
 checkpoint result. No agent may backfill V2 lineage into a historical
 checkpoint marker by hand.
+
+A current component ticket-set audit that predates V2 lineage has a separate
+recovery route: `reconcile-legacy-ticket-set-audit-lineage`. The extension
+validates the current generation and conformance checkpoints, their manifests,
+commits, ancestry, source digests, the current conformant audit, and exactly one
+current ready-ticket design bound to that audit. The migration report receives
+its own V2 result and may route only to a fresh independent ticket-set audit.
+It must not rewrite the historical audit or checkpoint, and must leave any
+implemented-ticket audit result untouched.
 
 Checkpoint operations retain their local commit authority and phase-manifest
 protocol. Their `NEXT_AUTHORIZED_OPERATION` value is checked against the

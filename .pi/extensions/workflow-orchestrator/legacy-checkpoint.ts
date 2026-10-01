@@ -28,6 +28,24 @@ export interface TicketRevisionProof {
   ticketSha256: string;
 }
 
+export interface LegacyTicketSetAuditProof {
+  specId: string;
+  targetHead: string;
+  generationMarkerPath: string;
+  generationManifestPath: string;
+  generationCommit: string;
+  conformanceMarkerPath: string;
+  conformanceManifestPath: string;
+  conformanceCommit: string;
+  auditPath: string;
+  auditSha256: string;
+  ticketId: string;
+  ticketPath: string;
+  ticketSha256: string;
+  designPath: string;
+  designSha256: string;
+}
+
 export interface LegacyCheckpointProof {
   markerPath: string;
   subject: string;
@@ -92,6 +110,45 @@ export function isLegacyCheckpointProof(value: unknown): value is LegacyCheckpoi
     && proof.preservedPathDrift.every(validPreservedPathDrift)
     && proof.nextOperation === MIGRATABLE_NEXT_OPERATION
     && typeof proof.commitMessage === "string" && proof.commitMessage.length > 0 && proof.commitMessage.length <= 500;
+}
+
+export function isLegacyTicketSetAuditProof(value: unknown): value is LegacyTicketSetAuditProof {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const proof = value as Record<string, unknown>;
+  const keys = [
+    "specId",
+    "targetHead",
+    "generationMarkerPath",
+    "generationManifestPath",
+    "generationCommit",
+    "conformanceMarkerPath",
+    "conformanceManifestPath",
+    "conformanceCommit",
+    "auditPath",
+    "auditSha256",
+    "ticketId",
+    "ticketPath",
+    "ticketSha256",
+    "designPath",
+    "designSha256",
+  ];
+  return Object.keys(proof).length === keys.length
+    && keys.every((key) => key in proof)
+    && typeof proof.specId === "string" && /^[A-Z0-9]+(?:-[A-Z0-9]+)*$/.test(proof.specId)
+    && typeof proof.targetHead === "string" && /^[0-9a-f]{40}$/.test(proof.targetHead)
+    && typeof proof.generationMarkerPath === "string" && proof.generationMarkerPath.startsWith("docs/workflow-checkpoints/")
+    && typeof proof.generationManifestPath === "string" && proof.generationManifestPath.startsWith("docs/workflow-checkpoints/")
+    && typeof proof.generationCommit === "string" && /^[0-9a-f]{40}$/.test(proof.generationCommit)
+    && typeof proof.conformanceMarkerPath === "string" && proof.conformanceMarkerPath.startsWith("docs/workflow-checkpoints/")
+    && typeof proof.conformanceManifestPath === "string" && proof.conformanceManifestPath.startsWith("docs/workflow-checkpoints/")
+    && typeof proof.conformanceCommit === "string" && /^[0-9a-f]{40}$/.test(proof.conformanceCommit)
+    && typeof proof.auditPath === "string" && proof.auditPath.startsWith("docs/tickets/")
+    && typeof proof.auditSha256 === "string" && /^[0-9a-f]{64}$/.test(proof.auditSha256)
+    && typeof proof.ticketId === "string" && /^[A-Z0-9]+(?:-[A-Z0-9]+)*-TICKET-\d+$/.test(proof.ticketId)
+    && typeof proof.ticketPath === "string" && proof.ticketPath.startsWith("docs/tickets/")
+    && typeof proof.ticketSha256 === "string" && /^[0-9a-f]{64}$/.test(proof.ticketSha256)
+    && typeof proof.designPath === "string" && proof.designPath.startsWith("docs/tickets/")
+    && typeof proof.designSha256 === "string" && /^[0-9a-f]{64}$/.test(proof.designSha256);
 }
 
 function validTicketRevisionProof(value: unknown): value is TicketRevisionProof {
@@ -537,6 +594,224 @@ async function verifyCurrentTicketRevision(
     ticketPath,
     ticketSha256: sha256(ticketText),
   };
+}
+
+export function legacyTicketSetAuditMigrationReportPath(specId: string, conformanceCommit: string): string {
+  const slug = specId.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "component";
+  return `docs/workflow-checkpoints/${slug}-legacy-ticket-set-audit-lineage-${conformanceCommit.slice(0, 12)}.md`;
+}
+
+async function verifyLegacyTicketSetAuditProof(
+  root: string,
+  specId: string,
+  targetHead: string,
+  designPath: string,
+  options: { requireCurrent: boolean; expected?: LegacyTicketSetAuditProof },
+): Promise<LegacyTicketSetAuditProof> {
+  const expectedGenerationMarker = `docs/workflow-checkpoints/${specId}-component-implementation-tickets-generation.md`;
+  const expectedConformanceMarker = `docs/workflow-checkpoints/${specId}-component-implementation-tickets-conformance.md`;
+  const expectedAuditPath = `docs/tickets/${specId}/implementation-ticket-audit.md`;
+  const designPrefix = `docs/tickets/${specId}/`;
+  const designMatch = designPath.match(/^docs\/tickets\/([^/]+)\/([A-Z0-9]+(?:-[A-Z0-9]+)*-TICKET-\d+)-implementation-design\.md$/);
+  if (!/^[A-Z0-9]+(?:-[A-Z0-9]+)*$/.test(specId) || !/^[0-9a-f]{40}$/.test(targetHead)
+    || designPath !== `${designPrefix}${designMatch?.[2] ?? ""}-implementation-design.md` || designMatch?.[1] !== specId) {
+    throw new OrchestrationStop("INVALID_PATH", "Legacy ticket-set audit migration requires the exact current component design path.", {
+      specId,
+      targetHead,
+      designPath,
+    });
+  }
+  safeRepoPath(root, expectedGenerationMarker, "Current ticket generation marker");
+  safeRepoPath(root, expectedConformanceMarker, "Current ticket-set conformance marker");
+  safeRepoPath(root, expectedAuditPath, "Current ticket-set audit");
+  safeRepoPath(root, designPath, "Current implementation design");
+
+  const generation = await verifyTicketSetCheckpoint(root, specId, targetHead, "generation", options.requireCurrent);
+  const conformance = await verifyTicketSetCheckpoint(root, specId, targetHead, "conformance", options.requireCurrent);
+  const auditPath = requireSingleField(conformance.markerText, "SOURCE_AUDIT", conformance.markerPath);
+  const auditText = await gitFile(root, targetHead, auditPath);
+  const ticketId = designMatch![2];
+  const ticketNumber = ticketId.match(/-TICKET-(\d+)$/)?.[1];
+  const ticketLabel = ticketNumber ? `TICKET-${ticketNumber}` : "";
+  const readyTicketRows = ticketLabel
+    ? auditText.split(/\r?\n/).filter((line) => line.includes(`| ${ticketLabel} |`) && /\|\s*READY\s*\/\s*READY\s*\|/.test(line))
+    : [];
+  const ticketCandidates = generation.manifest.paths.preserve.filter((path) =>
+    path.startsWith(`docs/tickets/${specId}/`)
+    && path.slice(`docs/tickets/${specId}/`.length).startsWith(`${ticketId}-`)
+    && path.slice(`docs/tickets/${specId}/`.length).split("/").length === 1
+    && path.toLowerCase().endsWith(".md"));
+  if (auditPath !== expectedAuditPath || ticketCandidates.length !== 1 || readyTicketRows.length !== 1
+    || fieldLast(auditText, "VERDICT") !== "IMPLEMENTATION_TICKETS_CONFORMANT"
+    || fieldLast(auditText, "IMPLEMENTATION_GATE") !== "READY_FOR_IMPLEMENTATION"
+    || fieldLast(auditText, "CURRENT_HEAD") !== conformance.targetHead
+    || !(fieldLast(auditText, "TICKET_DECOMPOSITION_BASELINE") ?? "").includes(generation.manifest.target.head)
+    || auditText.includes("<!-- WORKFLOW_RESULT_V2")) {
+    throw new OrchestrationStop("MISSING_AUTHORITY", "The current generated ticket set does not have one eligible legacy conformance audit for migration.", {
+      specId,
+      auditPath,
+      currentAuditVerdict: fieldLast(auditText, "VERDICT"),
+      currentImplementationGate: fieldLast(auditText, "IMPLEMENTATION_GATE"),
+      auditHead: fieldLast(auditText, "CURRENT_HEAD"),
+      expectedAuditHead: conformance.targetHead,
+      ticketId,
+      readyTicketRows,
+      ticketCandidates,
+    });
+  }
+
+  const ticketPath = ticketCandidates[0];
+  const designText = await gitFile(root, targetHead, designPath);
+  const designTicketId = fieldLast(designText, "Ticket ID") ?? "";
+  const designTicketPath = fieldLast(designText, "Ticket path") ?? "";
+  const expectedAuditBasis = fieldLast(conformance.markerText, "AUDIT_BASIS_FINGERPRINT") ?? "";
+  if (designTicketId !== ticketId || designTicketPath !== ticketPath
+    || fieldLast(designText, "DESIGN_INPUT_TICKET_STATE") !== "READY"
+    || fieldLast(designText, "TICKET_SET_AUDIT_VERDICT") !== "IMPLEMENTATION_TICKETS_CONFORMANT"
+    || fieldLast(designText, "TICKET_SET_IMPLEMENTATION_GATE") !== "READY_FOR_IMPLEMENTATION"
+    || fieldLast(designText, "TICKET_SET_AUDIT_TARGET_HEAD") !== conformance.targetHead
+    || !(fieldLast(designText, "TICKET_SET_AUDIT_BASIS_FINGERPRINT") ?? "").includes(expectedAuditBasis)
+    || fieldLast(designText, "IMPLEMENTATION_DESIGN_GATE") !== "READY_FOR_IMPLEMENTATION") {
+    throw new OrchestrationStop("MISSING_AUTHORITY", "The selected implementation design is not bound to the current conformant ticket-set audit.", {
+      specId,
+      designPath,
+      ticketId,
+      designTicketId,
+      ticketPath,
+      designTicketPath,
+      expectedAuditBasis,
+      designAuditBasis: fieldLast(designText, "TICKET_SET_AUDIT_BASIS_FINGERPRINT"),
+      designAuditTargetHead: fieldLast(designText, "TICKET_SET_AUDIT_TARGET_HEAD"),
+      currentConformanceTargetHead: conformance.targetHead,
+    });
+  }
+
+  const ticketText = await gitFile(root, targetHead, ticketPath);
+  const proof: LegacyTicketSetAuditProof = {
+    specId,
+    targetHead,
+    generationMarkerPath: generation.markerPath,
+    generationManifestPath: generation.manifestPath,
+    generationCommit: generation.commit,
+    conformanceMarkerPath: conformance.markerPath,
+    conformanceManifestPath: conformance.manifestPath,
+    conformanceCommit: conformance.commit,
+    auditPath,
+    auditSha256: sha256(auditText),
+    ticketId,
+    ticketPath,
+    ticketSha256: sha256(ticketText),
+    designPath,
+    designSha256: sha256(designText),
+  };
+  if (!isLegacyTicketSetAuditProof(proof)) {
+    throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Validated ticket-set audit migration proof is malformed.", { proof });
+  }
+  if (options.requireCurrent) {
+    for (const path of [proof.auditPath, proof.ticketPath, proof.designPath]) {
+      await currentRepoFile(root, path, "Current ticket-set migration source");
+      await assertWorkingTreeMatches(root, targetHead, path, "Current ticket-set migration source");
+    }
+  }
+  if (options.expected && JSON.stringify(proof) !== JSON.stringify(options.expected)) {
+    throw new OrchestrationStop("CANONICAL_ARTIFACT_CONTRADICTION", "Legacy ticket-set audit migration proof changed after intake.", {
+      expected: options.expected,
+      actual: proof,
+    });
+  }
+  return proof;
+}
+
+export async function captureLegacyTicketSetAuditProof(
+  root: string,
+  specId: string,
+  conformanceMarkerPath: string,
+  designPath: string,
+): Promise<LegacyTicketSetAuditProof> {
+  const head = (await git(root, ["rev-parse", "--verify", "HEAD"])).trim();
+  if (!/^[0-9a-f]{40}$/.test(head)) {
+    throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Current Git HEAD is not a valid commit identity.");
+  }
+  const expectedMarker = `docs/workflow-checkpoints/${specId}-component-implementation-tickets-conformance.md`;
+  if (conformanceMarkerPath !== expectedMarker) {
+    throw new OrchestrationStop("INVALID_PATH", "Ticket-set audit migration accepts only the current conformance checkpoint marker.", {
+      conformanceMarkerPath,
+      expectedMarker,
+    });
+  }
+  return verifyLegacyTicketSetAuditProof(root, specId, head, designPath, { requireCurrent: true });
+}
+
+export async function assertLegacyTicketSetAuditProofCurrent(root: string, proof: LegacyTicketSetAuditProof): Promise<void> {
+  if (!isLegacyTicketSetAuditProof(proof)) {
+    throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Persisted ticket-set audit migration basis is malformed.");
+  }
+  const head = (await git(root, ["rev-parse", "--verify", "HEAD"])).trim();
+  if (!(await isAncestor(root, proof.targetHead, head))) {
+    throw new OrchestrationStop("CANONICAL_ARTIFACT_CONTRADICTION", "The state captured by ticket-set audit migration is not an ancestor of the current HEAD.", {
+      migrationTargetHead: proof.targetHead,
+      currentHead: head,
+    });
+  }
+  await verifyLegacyTicketSetAuditProof(root, proof.specId, proof.targetHead, proof.designPath, {
+    requireCurrent: false,
+    expected: proof,
+  });
+}
+
+export async function validateLegacyTicketSetAuditMigrationArtifact(
+  root: string,
+  receipt: { operation: string; subject: string; artifactPaths: string[]; gateArtifactPath: string; gateValue: string },
+  proof: LegacyTicketSetAuditProof,
+): Promise<void> {
+  const expectedPath = legacyTicketSetAuditMigrationReportPath(proof.specId, proof.conformanceCommit);
+  if (receipt.operation !== "reconcile-legacy-ticket-set-audit-lineage" || receipt.subject !== proof.specId
+    || receipt.gateValue !== "LEGACY_TICKET_SET_AUDIT_VALIDATED" || receipt.gateArtifactPath !== expectedPath
+    || !receipt.artifactPaths.includes(expectedPath)) {
+    throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Ticket-set migration receipt does not identify its deterministic proof artifact and gate.", {
+      expectedPath,
+      receipt,
+    });
+  }
+  const absolute = safeRepoPath(root, expectedPath, "Ticket-set migration report");
+  const info = await lstat(absolute).catch(() => undefined);
+  if (!info?.isFile() || info.isSymbolicLink()) {
+    throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Ticket-set migration report is missing or is not a regular file.", { expectedPath });
+  }
+  const text = await currentRepoFile(root, expectedPath, "Ticket-set migration report");
+  const required: Record<string, string> = {
+    MIGRATION_KIND: "LEGACY_COMPONENT_IMPLEMENTATION_TICKET_AUDIT_LINEAGE",
+    COMPONENT_ID: proof.specId,
+    SOURCE_GENERATION_MARKER: proof.generationMarkerPath,
+    SOURCE_GENERATION_MANIFEST: proof.generationManifestPath,
+    SOURCE_GENERATION_COMMIT: proof.generationCommit,
+    SOURCE_TICKET_SET_CONFORMANCE_MARKER: proof.conformanceMarkerPath,
+    SOURCE_TICKET_SET_CONFORMANCE_MANIFEST: proof.conformanceManifestPath,
+    SOURCE_TICKET_SET_CONFORMANCE_COMMIT: proof.conformanceCommit,
+    SOURCE_TICKET_SET_AUDIT: proof.auditPath,
+    SOURCE_TICKET_SET_AUDIT_SHA256: proof.auditSha256,
+    SOURCE_TICKET_SET_AUDIT_VERDICT: "IMPLEMENTATION_TICKETS_CONFORMANT",
+    SOURCE_TICKET_SET_AUDIT_GATE: "READY_FOR_IMPLEMENTATION",
+    CURRENT_READY_TICKET_ID: proof.ticketId,
+    CURRENT_READY_TICKET_PATH: proof.ticketPath,
+    CURRENT_READY_TICKET_SHA256: proof.ticketSha256,
+    CURRENT_IMPLEMENTATION_DESIGN: proof.designPath,
+    CURRENT_IMPLEMENTATION_DESIGN_SHA256: proof.designSha256,
+    CURRENT_HEAD_AT_MIGRATION: proof.targetHead,
+    NEXT_AUTHORIZED_OPERATION: "audit-component-implementation-tickets",
+    MIGRATION_VALIDATION: "PASS",
+    MIGRATION_GATE: "LEGACY_TICKET_SET_AUDIT_VALIDATED",
+  };
+  const mismatches = Object.entries(required).flatMap(([field, expected]) => {
+    const values = fieldValues(text, field);
+    return values.length === 1 && values[0] === expected ? [] : [{ field, expected, actual: values }];
+  });
+  if (mismatches.length > 0) {
+    throw new OrchestrationStop("CANONICAL_ARTIFACT_CONTRADICTION", "Ticket-set migration report does not reproduce the extension-validated source proof.", {
+      expectedPath,
+      mismatches,
+    });
+  }
 }
 
 async function verifyCheckpoint(

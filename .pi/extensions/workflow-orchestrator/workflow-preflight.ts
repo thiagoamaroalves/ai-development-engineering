@@ -3,11 +3,17 @@ import { relative, resolve, sep } from "node:path";
 
 import { fieldLast, fieldValues } from "./artifacts.ts";
 import { OrchestrationStop } from "./contracts.ts";
-import { captureLegacyCheckpointProof, readLegacyCheckpointMarker } from "./legacy-checkpoint.ts";
+import {
+  captureLegacyCheckpointProof,
+  captureLegacyTicketSetAuditProof,
+  legacyTicketSetAuditMigrationReportPath,
+  readLegacyCheckpointMarker,
+} from "./legacy-checkpoint.ts";
 import { isAuthorizedRecoveryTarget, routeOperation, type OperationReceipt, type TransitionCatalog } from "./workflow-routing.ts";
 import {
   createIntakeWorkflowBasis,
   createLegacyCheckpointWorkflowBasis,
+  createLegacyTicketSetAuditWorkflowBasis,
   createTransitionWorkflowBasis,
   resolveCurrentWorkflowResult,
   validateCurrentWorkflowBasis,
@@ -87,6 +93,46 @@ export async function validateAndCaptureWorkflowBasis(
       });
     }
     return createLegacyCheckpointWorkflowBasis(proof);
+  }
+
+  if (targetOperation === "reconcile-legacy-ticket-set-audit-lineage") {
+    if (mode !== "recovery") {
+      throw new OrchestrationStop("PROCESS_AUTHORITY_DRIFT", "Legacy ticket-set audit migration is available only as an explicitly declared recovery entry.", {
+        operation: targetOperation,
+        mode,
+      });
+    }
+    const currentAuditResult = await resolveCurrentWorkflowResult(root, "audit-component-implementation-tickets", targetSubject);
+    if (currentAuditResult) {
+      throw new OrchestrationStop("CANONICAL_ARTIFACT_CONTRADICTION", "A V2 ticket-set audit result already exists; legacy audit migration is not applicable.", {
+        subject: targetSubject,
+        currentResultId: currentAuditResult.resultId,
+        artifactPath: currentAuditResult.artifactPath,
+      });
+    }
+    const currentMigration = await resolveCurrentWorkflowResult(root, targetOperation, targetSubject);
+    if (currentMigration) {
+      throw new OrchestrationStop("CANONICAL_ARTIFACT_CONTRADICTION", "A V2 legacy ticket-set migration result already exists; continue from its persisted route instead of migrating again.", {
+        subject: targetSubject,
+        currentResultId: currentMigration.resultId,
+        artifactPath: currentMigration.artifactPath,
+      });
+    }
+    const designPaths = evidenceFiles.filter((path) => /-implementation-design\.md$/i.test(normalizeEvidencePath(path)));
+    if (designPaths.length !== 1) {
+      throw new OrchestrationStop("MISSING_AUTHORITY", "Ticket-set audit migration requires exactly one cited current implementation design.", {
+        designPaths,
+      });
+    }
+    const proof = await captureLegacyTicketSetAuditProof(root, targetSubject, basis.artifactPath, normalizeEvidencePath(designPaths[0]));
+    const expectedMigrationPath = legacyTicketSetAuditMigrationReportPath(targetSubject, proof.conformanceCommit);
+    if (catalog.operations[targetOperation]?.routes?.LEGACY_TICKET_SET_AUDIT_VALIDATED !== "audit-component-implementation-tickets") {
+      throw new OrchestrationStop("PROCESS_AUTHORITY_DRIFT", "Ticket-set migration does not authorize the independent ticket-set audit route.", {
+        expectedOperation: "audit-component-implementation-tickets",
+        migrationPath: expectedMigrationPath,
+      });
+    }
+    return createLegacyTicketSetAuditWorkflowBasis(proof);
   }
 
   const entryPolicy = catalog.controllerEntry[mode][targetOperation];

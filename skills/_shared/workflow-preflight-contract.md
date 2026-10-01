@@ -41,6 +41,15 @@ canonical proof result. A new ordinary implemented-ticket checkpoint reanchors
 the current HEAD and commits its first V2 result before the legacy handoff's
 audit successor can run.
 
+An unversioned component ticket-set audit has a distinct recovery migration,
+`reconcile-legacy-ticket-set-audit-lineage`. Its code-validated basis must bind
+the current generation and conformance checkpoint commits, the source audit,
+the one current ready ticket and its implementation design, all source
+digests, and the pinned migration HEAD. It refuses migration when a current V2
+ticket-set audit result already exists. The migration report is a separate
+artifact and routes only to a fresh independent ticket-set audit; it must not
+modify any implemented-ticket audit result.
+
 After an operation, the extension requires its structured receipt gate and
 predecessor link to match the newly appended current result record in the cited
 canonical artifact. It compares

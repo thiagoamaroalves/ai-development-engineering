@@ -8,7 +8,7 @@ import { promisify } from "node:util";
 import test from "node:test";
 
 import { OrchestrationStop, type DelegationRequest, type DelegationResult } from "../contracts.ts";
-import { runFullWorkflow, type WorkflowPlan } from "../full-orchestrator.ts";
+import { normalizeCheckpointInput, runFullWorkflow, type WorkflowPlan } from "../full-orchestrator.ts";
 import { loadTransitionCatalog, type TransitionDefinition } from "../workflow-routing.ts";
 import { workflowResultBlock } from "../workflow-lineage.ts";
 
@@ -105,6 +105,37 @@ function plan(overrides: Partial<WorkflowPlan> = {}): WorkflowPlan {
     ...overrides,
   };
 }
+
+test("checkpoint normalization preserves an incomplete current-head manifest and selects a fresh path", async () => {
+  const fx = await makeRoot();
+  try {
+    const head = await git(fx.root, "rev-parse", "HEAD");
+    const staleManifest = "docs/workflow-checkpoints/governance-current-manifest.json";
+    await mkdir(path.dirname(path.join(fx.root, staleManifest)), { recursive: true });
+    await writeFile(path.join(fx.root, staleManifest), JSON.stringify({
+      schemaVersion: 1,
+      manifestKind: "PHASE_CHECKPOINT",
+      operation: "checkpoint-governance-workspace",
+      target: { head },
+      sourceAuthority: [],
+      paths: { manifest: staleManifest, marker: "docs/workflow-checkpoints/governance-current-marker.md" },
+    }));
+    const candidate = plan({
+      operation: "checkpoint-governance-workspace",
+      operationInputJson: JSON.stringify({ phaseManifestPath: staleManifest }),
+      evidenceFiles: [staleManifest, "docs/entry-governance-authorized.md"],
+    });
+
+    const normalized = await normalizeCheckpointInput(fx.root, candidate, head);
+    const input = JSON.parse(normalized.operationInputJson) as Record<string, unknown>;
+    assert.notEqual(input.phaseManifestPath, staleManifest);
+    assert.deepEqual(input.preserveUnstagedRecoveryPaths, [staleManifest]);
+    assert.deepEqual(normalized.evidenceFiles, ["docs/entry-governance-authorized.md"]);
+    const status = await git(fx.root, "status", "--short", "--untracked-files=all");
+    assert.match(status, /\?\? docs\/workflow-checkpoints\/governance-current-manifest\.json/);
+    assert.equal(status.includes(String(input.phaseManifestPath)), false);
+  } finally { await fx.cleanup(); }
+});
 
 function completePlan(): WorkflowPlan {
   return plan({
