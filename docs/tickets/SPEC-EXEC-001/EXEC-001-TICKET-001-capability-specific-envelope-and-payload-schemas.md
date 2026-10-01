@@ -213,13 +213,13 @@ TICKET_LOCAL_CLOSURE = YES
 ## 14a. Authority Consumption Proof
 
 ```text
-AUTHORITY_CONSUMPTION_PROOF = AUTHORITY_CONSUMABLE for the bounded local semantic contract
-AUTHORITY_STATUS = DEFINED
-CONTRACT_STATUS = DEFINED
-LOCAL_TESTABILITY = YES for local witness harness/contract evidence
-PRODUCTIVE_AVAILABILITY = YES for unit-owned local execution after prerequisites; foreign integrated producers remain NO
-DEPENDENCY_CLASSES = preserved exactly from Unit/Plan; no downstream promotion
-BLOCKING_EFFECT = internal prerequisites block execution; REQUIRED_FOR_INTEGRATED_PROOF blocks only integrated proof
+AUTHORITY_CONSUMPTION_PROOF = no aggregate ticket-level result; see exact per-capability Unit/Plan evidence below; no downstream AUTHORITY_CONSUMABLE promotion is claimed
+AUTHORITY_STATUS = DEFINED per capability; see exact Unit/Plan records in §6 and normalized records in §14b
+CONTRACT_STATUS = DEFINED per capability; see exact Unit/Plan records in §6 and normalized records in §14b
+LOCAL_TESTABILITY = per-capability values from the Unit/Plan and §14b; YES for a fixture/harness is contract-level evidence only
+PRODUCTIVE_AVAILABILITY = NO for fixture/harness and unavailable integrated-producer records; no promotion is claimed
+DEPENDENCY_CLASSES = preserve exact per-capability Unit/Plan values in §6/§14b; no downstream promotion
+BLOCKING_EFFECT = per-capability Unit/Plan value; INFORMATIONAL and REQUIRED_FOR_INTEGRATED_PROOF do not block local closure
 CALLER_SUPPLIED_AUTHORITY_BYPASS = 0
 ```
 
@@ -309,6 +309,12 @@ UNIT_SCOPE_LOST_BY_SPLIT = 0
 
 ## 27. Implementation Execution Evidence
 
+The following ledger is preserved as historical evidence from the earlier
+uncommitted remediation candidate. Its `IMPLEMENTATION_HEAD=2d86c671...`, test
+counts, and candidate-state claims are not current and must not be used as
+current execution evidence. The current ticket-set audit observation is recorded
+below the historical ledger; TICKET-001 remains `VALIDATION_REQUIRED`.
+
 ```text
 IMPLEMENTATION_BASELINE = 8cf79cd37ebb02d0657c1fb191cea1d194b71f89
 IMPLEMENTATION_HEAD = 2d86c67121aed144b000051f13f7d6f689c63beb (governance-only HEAD; remediation candidate is uncommitted)
@@ -385,6 +391,31 @@ REMAINING_BLOCKERS = IMA-MAJOR-003 remains an integrated-only Plan/Ticket capabi
 NEXT_GATE = TICKET_VALIDATION_REQUIRED
 ```
 
-This ticket contains current implementation/remediation evidence only; the
-source audit remains the immutable defect authority, independent re-audit is
-mandatory, and finalization remains downstream.
+### Current Ticket-Set Audit Evidence
+
+```text
+EVIDENCE_KIND = CURRENT_TICKET_SET_AUDIT_OBSERVATION; not a new implementation validation
+SOURCE_AUDIT = docs/tickets/SPEC-EXEC-001/implementation-ticket-audit.md
+SOURCE_AUDIT_RESULT_ID = aa04ca26-295c-49a0-9ac6-41745e94375d:1
+SOURCE_AUDIT_SHA256 = 418d6e310edc5077deb59b36e02b978a495a1905cc74036e3ccadb42ec30623d
+SOURCE_AUDIT_TARGET_HEAD = b0ec30cb1d326a33a1c778e695e915d0c24e3ad0
+REMEDIATION_OPERATION_START_HEAD = f8e47f19e79de17fe7f8859444cf51e816abd454
+TICKET_SET_AUDIT_CHECKPOINT_HEAD = f8e47f19e79de17fe7f8859444cf51e816abd454 (checkpoint parent b0ec30cb1d326a33a1c778e695e915d0c24e3ad0; ticket/index content unchanged)
+REMEDIATION_CHECKPOINT_HEAD = 8f17e2bb7957e5829184ae99b256a2548dd4fd91 (TICKET-001 remediation checkpoint round 24)
+TICKET_LINEAGE_MIGRATION_CHECKPOINT_HEAD = 13b4b70b37b9e3f84df21fe7db8381427fa2f95c (round 25)
+IMPLEMENTATION_STATE_FINGERPRINT = b10a12b6eced00572c29b12d381cedb9dc9886687fd6f5fd86d0051c1fcd4928 (per current implementation audit target)
+TICKET_STATUS_AT_SOURCE_AUDIT = VALIDATION_REQUIRED
+AUDIT_REPOSITORY_NPM_TEST = ENVIRONMENTAL_FAILURE: Node v22.22.1 ERR_NO_TYPESCRIPT; 10 selected test files failed to load; 0 test bodies executed
+AUDIT_TICKET_SET_TARGETED_COMMAND = npx tsx --test tests/exec-001-ticket-001.test.ts tests/exec-001-ticket-002.test.ts
+AUDIT_TICKET_SET_TARGETED_TESTS_RUN = 51
+AUDIT_TICKET_SET_TARGETED_TESTS_PASSED = 49
+AUDIT_TICKET_SET_TARGETED_TESTS_FAILED = 2 (nested-loader ERR_NO_TYPESCRIPT environmental failures; not product behavior failures)
+AUDIT_TICKET_SET_TARGETED_TESTS_SKIPPED = 0
+PRODUCT_FAILURES_INFERRED_FROM_ENVIRONMENTAL_RUN_FAILURES = 0 (source audit classifies these outcomes as environment-only; this is not a passing test result)
+REMEDIATION_OPERATION_TESTS_RUN = NONE (ticket-artifact-only change; no code or tests changed)
+```
+
+This current audit observation refreshes the evidence identity and test-count
+record without claiming successful implementation validation or changing ticket
+status. The source audit remains the immutable defect authority; an independent
+ticket-set re-audit is mandatory, and finalization remains downstream.

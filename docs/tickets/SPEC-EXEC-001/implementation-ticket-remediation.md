@@ -1,5 +1,7 @@
 # SPEC-EXEC-001 — Implementation Ticket Remediation
 
+> **Historical section notice:** The report that follows this notice records an earlier remediation round for a different source-audit revision (source SHA-256 `e0eef0a6f57a279d4a843bc884da841520f0c0e675aaf5a55e576079720f46bc`, findings `CITA-MAJOR-001` and `CITA-MINOR-001`). Its completion claim is preserved as historical evidence only and is not current remediation evidence. The current audit's findings and current gate are recorded in the terminal “Current Remediation Round” section below; the older gate must not be consumed for this round.
+
 ## Remediation Verdict / Mode
 
 ```text
@@ -422,3 +424,263 @@ NEXT_AUTHORITY = audit-component-implementation-tickets
 The required next operation is the independent ticket-set re-audit. This report
 makes no conformance or implementation-readiness determination and grants no
 implementation authorization.
+
+---
+
+# Current Remediation Round — CITA-MAJOR-002 / CITA-MINOR-002
+
+## Remediation Verdict / Mode
+
+```text
+REMEDIATION_VERDICT = COMPONENT_IMPLEMENTATION_TICKET_REMEDIATION_COMPLETE
+MODE = WRITE_ALLOWED / AUDIT_DRIVEN / FINDING_DRIVEN / TARGETED / SURGICAL
+SUBJECT = SPEC-EXEC-001 implementation ticket set
+SPEC = SPEC-EXEC-001
+PORTFOLIO = SPEC-PORTFOLIO-001
+TICKET_FOLDER = docs/tickets/SPEC-EXEC-001/
+TICKET_INDEX = docs/tickets/SPEC-EXEC-001/README.md
+SOURCE_AUDIT = docs/tickets/SPEC-EXEC-001/implementation-ticket-audit.md
+SOURCE_AUDIT_RESULT_ID = aa04ca26-295c-49a0-9ac6-41745e94375d:1
+SOURCE_AUDIT_SHA256 = 418d6e310edc5077deb59b36e02b978a495a1905cc74036e3ccadb42ec30623d
+SOURCE_AUDIT_VERDICT = IMPLEMENTATION_TICKETS_REMEDIATION_REQUIRED
+IMPLEMENTATION_GATE_BEFORE = NOT_READY_FOR_IMPLEMENTATION
+AUDITED_HEAD = b0ec30cb1d326a33a1c778e695e915d0c24e3ad0
+CURRENT_HEAD_AT_OPERATION_ENTRY = f8e47f19e79de17fe7f8859444cf51e816abd454
+AUDIT_CHECKPOINT_PARENT_HEAD = b0ec30cb1d326a33a1c778e695e915d0c24e3ad0
+AUDIT_CHECKPOINT_HEAD = f8e47f19e79de17fe7f8859444cf51e816abd454
+AUDIT_CHECKPOINT_OVERLAY = verified audit, lineage, checkpoint marker, and phase manifests only; ticket files and README unchanged
+AUDIT_BASIS_FINGERPRINT = HEAD:b0ec30cb1d326a33a1c778e695e915d0c24e3ad0; generationTarget:d043b9f025d6845542a58f9e75c4f34f9e34f8da; generationCommit:eab1e40b79724b222f7f51d8199df2d65fe7c22b; conformanceCommit:8cf79cd37ebb02d0657c1fb191cea1d194b71f89; lineageResult:847dacd1-d0ad-4546-8bab-53cd68ac2d30:1; ticketSetAggregateSHA256:58aeaee15c591f0733a07922f3ea755e52ab16f36c5210032bd59d141e296482; README_SHA256:b49f3ffd81c15fba6934901cbdb91ca30598063dbde10f616866eb4603403d87; authorityHashes:{portfolio:c449388972279d8add520564a9614cfa236f87b6c8932a70d5bc2d28eef6be86,component:556f4b5ad0b1c8f10d4fd00964d84e1af5bb959724d023eed9bda12a282411b2,upstream:cb4a21924d9619b8349d6cc239d7998633c402d7ea3d7461c2d4d8498f9a014c,gap:1497c11cb68f15806c505d21e85c5ddc1ae5edc76ae126315958aa4f5d2c19de,plan:c7248bc0cc496c662a49fd40a56aafe2869ca795bb717d1b4ac9d625fd79b47f,planAudit:5a3869bf5fbc0ac22db03cf0837c847ecbee96441c1ad270b345413f5828ac80}
+BASELINE_DRIFT_STATUS = DRIFT_ASSESSED
+BASELINE_DRIFT_CLASSIFICATION = LOCALIZED_IMPLEMENTATION_DRIFT (source-audit reassessment complete and actionable); post-audit checkpoint overlay is documentary only
+REASSESSMENT_COMPLETE = YES
+FINDINGS_ARE_ACTIONABLE = YES
+BASELINE_REMEDIATION_READINESS = READY
+AUDIT_BASIS_STALE = NO (ticket-set aggregate, README digest, and all authority digests match the audited basis)
+REMEDIATION_CANDIDATE_FINGERPRINT = SHA256 bf0204b6b0423bc710154397ba5acadf6b96d74d118bb83e12262e19a3c2e45b over sorted (repository-relative path + TAB + per-file SHA256 + LF) entries for the 11 primary ticket files and README
+REMEDIATION_ENTRY_STATE = COMPONENT_IMPLEMENTATION_TICKET_REMEDIATION_ALLOWED
+REMEDIATION_RECOVERY_MODE = RESUME_OR_RECONCILE (reconcile prior report whose finding ledger/source revision is stale)
+INTERRUPTED_ATTEMPT_DETECTED = NO (prior report belongs to an earlier completed audit round)
+CANDIDATE_STATE_CLASSIFICATION = CONTRADICTORY (prior report is historical and does not match this audit's findings/source digest)
+CANDIDATE_PATHS = docs/tickets/SPEC-EXEC-001/implementation-ticket-remediation.md (earlier-round report); primary tickets and README matched the audit basis at intake
+COMPLETE_CURRENT_REMEDIATION_EVIDENCE = NO at intake; YES after this round
+SOURCE_AUDIT_UNMODIFIED = YES
+ACCEPTED_AUTHORITY_UNMODIFIED = YES
+DIRTY_TICKET_TARGET_AT_INTAKE = NO
+PREEXISTING_WORKFLOW_GOVERNANCE_OVERLAY = preserved untouched as enumerated by the audit checkpoint manifest; not a ticket-set candidate
+IMPLEMENTATION_PERFORMED = NO
+SELF_APPROVAL = NO
+```
+
+The audit checkpoint proves the current transition's parent is the audited `b0ec30c...` state and that the descendant checkpoint only adds audit/lineage/checkpoint artifacts. The 11 primary tickets and README were unchanged between that parent and operation entry; their ticket aggregate (`58aea...`), README digest, and all six authority digests equal the canonical audit fingerprint. The source audit's assessed repository/ticket drift remains the original remediation basis; it is not silently replaced by a new baseline. The pre-existing workflow/governance overlay listed as `unstagedRecovery` in the checkpoint manifest was preserved and not touched by this operation.
+
+## Baseline and Upstream Authority
+
+```text
+PORTFOLIO_DECOMPOSITION_APPROVED = PASS
+COMPONENT_SPEC_CONFORMANT = PASS
+SPEC_IMPLEMENTABILITY_CHECK = PASS
+GAP_MATRIX_CONFORMANT = PASS
+IMPLEMENTATION_PLAN_CONFORMANT = PASS
+READY_FOR_ISSUE_DECOMPOSITION = PASS
+TICKET_AUDIT_VERDICT = IMPLEMENTATION_TICKETS_REMEDIATION_REQUIRED
+UPSTREAM_ESCALATIONS = NONE
+PORTFOLIO_BASELINE = SPEC-PORTFOLIO-001 rev2; SHA-256 c449388972279d8add520564a9614cfa236f87b6c8932a70d5bc2d28eef6be86
+COMPONENT_SPEC_BASELINE = SPEC-EXEC-001 rev5; SHA-256 556f4b5ad0b1c8f10d4fd00964d84e1af5bb959724d023eed9bda12a282411b2
+UPSTREAM_SPEC_BASELINE = SPEC-DOM-001 rev4; SHA-256 cb4a21924d9619b8349d6cc239d7998633c402d7ea3d7461c2d4d8498f9a014c
+GAP_MATRIX_BASELINE = 18 active Gaps; SHA-256 1497c11cb68f15806c505d21e85c5ddc1ae5edc76ae126315958aa4f5d2c19de
+IMPLEMENTATION_PLAN_BASELINE = SHA-256 c7248bc0cc496c662a49fd40a56aafe2869ca795bb717d1b4ac9d625fd79b47f
+PLAN_AUDIT_BASELINE = SHA-256 5a3869bf5fbc0ac22db03cf0837c847ecbee96441c1ad270b345413f5828ac80
+TICKET_SET_BASELINE = aggregate SHA-256 58aeaee15c591f0733a07922f3ea755e52ab16f36c5210032bd59d141e296482
+TICKET_INDEX_BASELINE = README SHA-256 b49f3ffd81c15fba6934901cbdb91ca30598063dbde10f616866eb4603403d87
+```
+
+No accepted ADR, portfolio, SPEC, Gap Matrix, Plan, Plan audit, implementation, or test authority changed. The source audit's `BASELINE_REASSESSMENT_PROOF` is complete, actionable, and consumed without replacing its old baseline.
+
+## Finding Intake and Remediation Ledger
+
+| Finding | Validation | Root Cause | Ticket Change | Evidence | Result |
+|---|---|---|---|---|---|
+| CITA-MAJOR-002 | CONFIRMED across TICKET-001 through TICKET-011: each §14a had a generic `AUTHORITY_CONSUMABLE` / productive-availability assertion that conflicted with the capability-specific Unit/witness records and lacked a promotion record | SUMMARY_CONFLATED_WITH_CAPABILITY_RECORD; local fixture testability was promoted to productive availability | Rewrote §14a in all 11 primary tickets to remove the aggregate `AUTHORITY_CONSUMABLE` claim, preserve per-capability authority/contract/testability/dependency/blocking data by reference to the exact Unit/Plan and §14b records, state fixture/unavailable producer availability as NO, and make no downstream promotion | Source audit §35 finding; Plan/Unit records; shared authority-completeness contract; updated primary ticket §14a records | REMEDIATED |
+| CITA-MINOR-002 | CONFIRMED: TICKET-001 §27 called an earlier `2d86c671...` candidate current and described its ledger as uncommitted despite later preserved checkpoint lineage | STALE_EXECUTION_EVIDENCE_IDENTITY_AND_COUNTS | Labeled the old §27 ledger historical without deleting its lineage; added the current ticket-set audit identity/target and the audit-observed test-run counts/environmental failures; preserved `VALIDATION_REQUIRED` | Source audit §§25–27, §35; TICKET-001 ticket/lineage checkpoints; current source audit | REMEDIATED |
+
+```text
+FINDINGS_RECEIVED = 2
+FINDINGS_CONFIRMED = 2
+FINDINGS_REMEDIATED = 2
+FINDINGS_ALREADY_REMEDIATED = 0
+FINDINGS_REJECTED_BY_VALID_EVIDENCE = 0
+FINDINGS_PARTIAL = 0
+FINDINGS_BLOCKED = 0
+CURRENT_FINDING_IDS = CITA-MAJOR-002, CITA-MINOR-002
+```
+
+No finding was rejected, superseded, or treated as closed by this report. Independent re-audit remains the only authority that may close the findings or issue a conformance/readiness verdict.
+
+## Ticket Changes and Preservation
+
+```text
+TICKETS_BEFORE = 11
+TICKETS_AFTER = 11
+TICKETS_ADDED = 0
+TICKETS_REMOVED = 0
+TICKETS_SPLIT = 0
+TICKETS_MERGED = 0
+TICKET_PRIMARY_ARTIFACTS_CHANGED = 11 (all §14a summaries; TICKET-001 also receives current §27 evidence)
+TICKET_INDEX_CHANGED = NO (recalculated values already agree after ticket correction)
+DECOMPOSITION_EVIDENCE_CHANGED = NO
+TICKET_STATUS_MUTATIONS = 0
+DOWNSTREAM_TICKET_STATE_MUTATIONS = 0
+INITIAL_DAG_STATE = preserved
+DEPENDS_ON = preserved
+BLOCKED_BY = preserved
+UNBLOCKS = preserved
+WAVES = preserved
+PARALLELIZATION = preserved
+UNIT_BOUNDARIES_AND_SCOPE = preserved
+GAP_IDENTITIES_AND_SEMANTICS = preserved
+ACCEPTANCE_AND_FINAL_PROOF_OWNERSHIP = preserved
+```
+
+TICKET-001 remains `VALIDATION_REQUIRED`; TICKET-002 through TICKET-011 remain factually `BLOCKED`. No ticket was made READY, promoted, unblocked, or changed in scope. `ISSUE_READY` remains distinct from ticket status.
+
+## TICKET-001 Current Execution Evidence Reconciliation
+
+The old `2d86c671...` ledger remains intact but is explicitly historical. The new §27 record binds the ticket's current state to source audit result `aa04ca26-295c-49a0-9ac6-41745e94375d:1` at `b0ec30cb1d326a33a1c778e695e915d0c24e3ad0`, records current implementation fingerprint `b10a12b6eced00572c29b12d381cedb9dc9886687fd6f5fd86d0051c1fcd4928`, and preserves the lineage through TICKET-001 remediation checkpoint `8f17e2bb7957e5829184ae99b256a2548dd4fd91` and lineage checkpoint `13b4b70b37b9e3f84df21fe7db8381427fa2f95c`. It distinguishes the current ticket-set audit from the implementation content checkpoint and does not claim that this ticket-set remediation newly ran implementation tests.
+
+Current audit-observed execution data is explicit: `npm test` selected 10 files but executed zero test bodies because the Node 22.22.1 TypeScript loader failed with `ERR_NO_TYPESCRIPT`; the TICKET-001/TICKET-002 targeted `npx tsx --test` run executed 51 cases, 49 passed and two nested-loader probes failed for the same environment limitation. The environmental failures are not reported as product test passes or hidden; no product behavior failure is inferred. The ticket status remains `VALIDATION_REQUIRED` pending independent implementation audit.
+
+## Traceability, Closure, Acceptance, and Final Proof
+
+```text
+ADR_TO_PORTFOLIO_TO_REQUIREMENT_TO_GAP_TO_UNIT_TO_TICKET = COMPLETE (11/11)
+PORTFOLIO_OBLIGATIONS_MAPPED = 6/6
+UNMAPPED_PORTFOLIO_OBLIGATIONS = 0
+IMPLEMENTATION_UNITS_TOTAL = 11
+IMPLEMENTATION_UNITS_FULLY_DECOMPOSED = 11
+IMPLEMENTATION_UNITS_NOT_DECOMPOSED = 0
+ACTIVE_LOCAL_GAPS = 18
+GAPS_FULLY_COVERED = 18
+UNMAPPED_LOCAL_GAPS = 0
+FALSE_TICKET_SPLITS = 0
+FALSE_TICKET_MERGES = 0
+OWNERSHIP_ERRORS = 0
+FOREIGN_CAPABILITY_DUPLICATION = 0
+NORMATIVE_DEPENDENCY_DIRECTION_DRIFT = 0
+TICKETS_WITH_LOCAL_CLOSURE_NO = 0
+LOCAL_AC_REQUIRING_DOWNSTREAM = 0
+LOCAL_AC_CONTRADICTING_DOES_NOT_IMPLEMENT = 0
+LOCAL_AC_REQUIRING_UNAVAILABLE_FOREIGN_CAPABILITY = 0
+TICKETS_WITH_UNAVAILABLE_REQUIRED_CAPABILITY = 0
+WITNESS_NOT_EXECUTABLE_AT_LOCAL_CLOSURE = 0
+ACCEPTANCE_OBLIGATIONS = 22
+UNCOVERED_ACCEPTANCE_OBLIGATIONS = 0
+UNRESOLVED_TICKET_FINAL_PROOF_OWNERS = 0
+FINAL_PROOF_PREMATURE = 0
+```
+
+The original Plan/Unit capability IDs, authority owner, producer, consumer, contract, per-capability `AUTHORITY_STATUS`, `CONTRACT_STATUS`, `LOCAL_TESTABILITY`, `PRODUCTIVE_AVAILABILITY`, evidence, dependency class, and blocking effect remain in the ticket Unit records and §14b. Local fixtures remain contract-level evidence only; all external integrated-proof capability records remain unavailable productively. No capability promotion, ownership change, synthetic ticket, or foreign lifecycle work was introduced.
+
+## Dependencies, Status, Graphs, Waves, and Parallelization
+
+```text
+READY_TICKETS = 0
+BLOCKED_TICKETS = 10
+VALIDATION_REQUIRED_TICKETS = 1
+STATUS_ERRORS = 0
+DEPENDENCY_ERRORS = 0
+BLOCKER_ERRORS = 0
+KNOWN_EXTERNAL_BLOCKERS = 0
+HIDDEN_EXTERNAL_BLOCKERS = 0
+UNBLOCK_GRAPH_MISMATCHES = 0
+DEPENDENCY_GRAPH_CYCLE = NO
+BLOCKER_GRAPH_CYCLE = NO
+UNSAFE_WAVE_ASSIGNMENTS = 0
+INVALID_PARALLELIZATIONS = 0
+DOWNSTREAM_PROMOTION_WITHOUT_NEW_EVIDENCE = 0
+```
+
+The current status/blocker graph and Plan DAG remain unchanged and reconcile. No true blocker was hidden; no external blocker was invented; no downstream ticket state was mutated. Integrated-only foreign capabilities remain handoffs and do not create local blockers.
+
+## Tests, Completion Evidence, and Index/Metrics
+
+No code or tests were changed and no test code was added. The current execution observations and environment limitations are recorded in TICKET-001 §27 as above. The ticket index was mechanically rechecked against all 11 primary tickets; its existing status, blocker, dependency, coverage, proof-owner, and metric values remain correct after remediation, so no README rewrite was needed.
+
+```text
+PRODUCER_CONSUMER_CONTRACT_ERRORS_BEFORE = 11
+PRODUCER_CONSUMER_CONTRACT_ERRORS_AFTER = 0
+CAPABILITY_AVAILABILITY_CLASSIFICATION_ERRORS_BEFORE = 11
+CAPABILITY_AVAILABILITY_CLASSIFICATION_ERRORS_AFTER = 0
+DOWNSTREAM_PROMOTION_WITHOUT_NEW_EVIDENCE_BEFORE = 11
+DOWNSTREAM_PROMOTION_WITHOUT_NEW_EVIDENCE_AFTER = 0
+TICKET_INTERNALLY_INCONSISTENT_BEFORE = 11
+TICKET_INTERNALLY_INCONSISTENT_AFTER = 0
+STALE_CURRENT_STATE_EXECUTION_LEDGER_BEFORE = 1
+STALE_CURRENT_STATE_EXECUTION_LEDGER_AFTER = 0
+COMPLETION_EVIDENCE_ALLOCATION_ERRORS = 0
+CRITICAL_TEST_GAPS = 0
+INSUFFICIENT_COMPLETION_GATES = 0
+INDEX_STATUS_MISMATCHES = 0
+INDEX_BLOCKER_MISMATCHES = 0
+INDEX_DEPENDENCY_MISMATCHES = 0
+INDEX_COVERAGE_MISMATCHES = 0
+INDEX_FINAL_PROOF_MISMATCHES = 0
+INDEX_METRIC_MISMATCHES = 0
+INDEX_MISMATCHES = 0
+```
+
+## Change-Boundary Proof
+
+```text
+ADRS_CHANGED = NO
+PORTFOLIO_CHANGED = NO
+COMPONENT_SPEC_CHANGED = NO
+UPSTREAM_SPECS_CHANGED = NO
+GAP_MATRIX_CHANGED = NO
+IMPLEMENTATION_PLAN_CHANGED = NO
+PLAN_AUDIT_CHANGED = NO
+PRODUCTION_CODE_CHANGED = NO
+TESTS_CHANGED = NO
+TICKET_PRIMARY_ARTIFACTS_CHANGED = 11
+TICKET_INDEX_CHANGED = NO
+DECOMPOSITION_EVIDENCE_CHANGED = NO
+REMEDIATION_EVIDENCE_CREATED_OR_UPDATED = YES
+```
+
+```text
+FILES_CHANGED =
+docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-capability-specific-envelope-and-payload-schemas.md
+docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-002-verdict-registry-and-structured-failure-semantics.md
+docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-003-version-semantics-overlap-rejection-and-deterministic-resolution.md
+docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-004-source-bound-normal-bootstrap-catalog-consumption.md
+docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-005-issuer-bound-registration-and-common-extensibility.md
+docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-006-exact-exec-basis-binding-at-the-dom-snapshot-boundary.md
+docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-007-complete-immutable-manifest-and-started-basis-freeze.md
+docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-008-registry-identity-and-semantic-reconstruction.md
+docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-009-registry-mutation-concurrency-and-idempotent-retry.md
+docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-010-manifest-identity-reconstruction-and-retry-lineage.md
+docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-011-safe-checkpoint-and-original-basis-historical-replay.md
+docs/tickets/SPEC-EXEC-001/implementation-ticket-remediation.md
+```
+
+## Re-audit Handoff
+
+```text
+ALL_VALIDATED_FINDINGS_REMEDIATED = YES
+UPSTREAM_ESCALATIONS = NONE
+REMEDIATION_EXIT_STATE = READY_FOR_INDEPENDENT_TICKET_REAUDIT
+IMPLEMENTATION_READINESS = NOT_DECLARED
+GATE = READY_FOR_INDEPENDENT_TICKET_REAUDIT
+NEXT_AUTHORITY = audit-component-implementation-tickets
+```
+
+The independent ticket-set re-audit is mandatory. This report neither closes findings nor declares tickets conformant or ready for implementation.
+
+<!-- WORKFLOW_RESULT_V2
+OPERATION = remediate-component-implementation-tickets
+SUBJECT_ID = SPEC-EXEC-001
+RESULT_ID = 30e816e4-129c-4aad-9961-d2b5991dfea5:2
+SUPERSEDES_RESULT_ID = NONE
+GATE_FIELD = GATE
+GATE_VALUE = READY_FOR_INDEPENDENT_TICKET_REAUDIT
+BASIS = {"type":"transition","source":{"operation":"checkpoint-component-implementation-tickets-audit","subject":"SPEC-EXEC-001","resultId":"30e816e4-129c-4aad-9961-d2b5991dfea5:1","artifactPath":"docs/workflow-checkpoints/spec-exec-001-checkpoint-component-implementation-tickets-audit-b0ec30cb1d32.md","gateField":"NEXT_AUTHORIZED_OPERATION","gateValue":"remediate-component-implementation-tickets","fields":{"AUDIT_BASIS_FINGERPRINT":["HEAD:b0ec30cb1d326a33a1c778e695e915d0c24e3ad0; generationTarget:d043b9f025d6845542a58f9e75c4f34f9e34f8da; generationCommit:eab1e40b79724b222f7f51d8199df2d65fe7c22b; conformanceCommit:8cf79cd37ebb02d0657c1fb191cea1d194b71f89; lineageResult:847dacd1-d0ad-4546-8bab-53cd68ac2d30:1; ticketSetAggregateSHA256:58aeaee15c591f0733a07922f3ea755e52ab16f36c5210032bd59d141e296482; README_SHA256:b49f3ffd81c15fba6934901cbdb91ca30598063dbde10f616866eb4603403d87; authorityHashes:{portfolio:c449388972279d8add520564a9614cfa236f87b6c8932a70d5bc2d28eef6be86,component:556f4b5ad0b1c8f10d4fd00964d84e1af5bb959724d023eed9bda12a282411b2,upstream:cb4a21924d9619b8349d6cc239d7998633c402d7ea3d7461c2d4d8498f9a014c,gap:1497c11cb68f15806c505d21e85c5ddc1ae5edc76ae126315958aa4f5d2c19de,plan:c7248bc0cc496c662a49fd40a56aafe2869ca795bb717d1b4ac9d625fd79b47f,planAudit:5a3869bf5fbc0ac22db03cf0837c847ecbee96441c1ad270b345413f5828ac80}"],"AUDIT_VERDICT":["IMPLEMENTATION_TICKETS_REMEDIATION_REQUIRED"],"NEXT_AUTHORIZED_OPERATION":["remediate-component-implementation-tickets"],"PARENT_HEAD":["b0ec30cb1d326a33a1c778e695e915d0c24e3ad0"],"TICKET_DECOMPOSITION_GATE":["READY_FOR_INDEPENDENT_TICKET_REAUDIT"]}}}
+-->

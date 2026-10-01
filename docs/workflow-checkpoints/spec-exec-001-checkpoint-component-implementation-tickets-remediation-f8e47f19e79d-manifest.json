@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "manifestKind": "PHASE_CHECKPOINT",
+  "phaseId": "spec-exec-001-checkpoint-component-implementation-tickets-remediation-f8e47f19e79d",
+  "operation": "checkpoint-component-implementation-tickets-remediation",
+  "subject": {
+    "id": "SPEC-EXEC-001",
+    "type": "component"
+  },
+  "sourceAuthority": [
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/implementation-ticket-audit.md",
+      "sha256": "418d6e310edc5077deb59b36e02b978a495a1905cc74036e3ccadb42ec30623d"
+    },
+    {
+      "path": "docs/workflow-checkpoints/spec-exec-001-legacy-ticket-set-audit-lineage-8cf79cd37ebb.md",
+      "sha256": "1acc11a79bf20fd0c26ca8faacb0f316a347d88dff3ca3b04feee6575408badd"
+    },
+    {
+      "path": "docs/workflow-checkpoints/spec-exec-001-checkpoint-component-implementation-tickets-audit-b0ec30cb1d32.md",
+      "sha256": "fc19f1d3687ac94c71e51d3206cb27b98024e6c8f5519f5dd88c95ba4022985f"
+    },
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/implementation-ticket-remediation.md",
+      "sha256": "541b7fdd570c17a56a4631b75914e1bf4185e9a78fe939aa938f8361423260fb"
+    }
+  ],
+  "target": {
+    "head": "f8e47f19e79de17fe7f8859444cf51e816abd454",
+    "semanticFingerprint": "09d7c5dc3a47f90a60612eb5b31384ad1b73c81b252ec640e15a6b87d683ae57"
+  },
+  "paths": {
+    "manifest": "docs/workflow-checkpoints/spec-exec-001-checkpoint-component-implementation-tickets-remediation-f8e47f19e79d-manifest.json",
+    "preserve": [
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-001-capability-specific-envelope-and-payload-schemas.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-002-verdict-registry-and-structured-failure-semantics.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-003-version-semantics-overlap-rejection-and-deterministic-resolution.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-004-source-bound-normal-bootstrap-catalog-consumption.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-005-issuer-bound-registration-and-common-extensibility.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-006-exact-exec-basis-binding-at-the-dom-snapshot-boundary.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-007-complete-immutable-manifest-and-started-basis-freeze.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-008-registry-identity-and-semantic-reconstruction.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-009-registry-mutation-concurrency-and-idempotent-retry.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-010-manifest-identity-reconstruction-and-retry-lineage.md",
+      "docs/tickets/SPEC-EXEC-001/EXEC-001-TICKET-011-safe-checkpoint-and-original-basis-historical-replay.md",
+      "docs/tickets/SPEC-EXEC-001/implementation-ticket-remediation.md"
+    ],
+    "delete": [],
+    "unstagedRecovery": [
+      ".gitignore",
+      ".pi/agents/workflow-checkpoint.md",
+      ".pi/agents/workflow-controller.md",
+      ".pi/extensions/workflow-orchestrator/README.md",
+      ".pi/extensions/workflow-orchestrator/contracts.ts",
+      ".pi/extensions/workflow-orchestrator/full-orchestrator.ts",
+      ".pi/extensions/workflow-orchestrator/git-state.ts",
+      ".pi/extensions/workflow-orchestrator/index.ts",
+      ".pi/extensions/workflow-orchestrator/orchestrator.ts",
+      ".pi/extensions/workflow-orchestrator/run-logger.ts",
+      ".pi/extensions/workflow-orchestrator/subagents-client.ts",
+      ".pi/extensions/workflow-orchestrator/test/full-orchestrator.test.ts",
+      ".pi/extensions/workflow-orchestrator/test/run-logger.test.ts",
+      ".pi/extensions/workflow-orchestrator/test/subagents-client.test.ts",
+      ".pi/extensions/workflow-orchestrator/test/workflow-lineage.test.ts",
+      ".pi/extensions/workflow-orchestrator/test/workflow-routing.test.ts",
+      ".pi/extensions/workflow-orchestrator/workflow-lineage.ts",
+      ".pi/extensions/workflow-orchestrator/workflow-routing.ts",
+      "docs/workflow-checkpoints/spec-exec-001-checkpoint-component-implementation-tickets-audit-b0ec30cb1d32-manifest.json",
+      "docs/workflow-checkpoints/spec-exec-001-checkpoint-governance-workspace-13b4b70b37b9-manifest.json",
+      "skills/_shared/phase-checkpoint-contract.md",
+      "skills/_shared/phase-manifest-contract.md",
+      "skills/_shared/workflow-execution-topology-contract.md",
+      "skills/checkpoint-implemented-ticket/SKILL.md"
+    ],
+    "marker": "docs/workflow-checkpoints/spec-exec-001-checkpoint-component-implementation-tickets-remediation-f8e47f19e79d.md"
+  },
+  "nextAuthorizedOperation": "audit-component-implementation-tickets",
+  "commitMessage": "checkpoint(SPEC-EXEC-001): preserve implementation ticket remediation"
+}
