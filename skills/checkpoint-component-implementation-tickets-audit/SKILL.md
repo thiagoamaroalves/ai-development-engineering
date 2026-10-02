@@ -7,10 +7,19 @@ metadata:
 
 # Checkpoint Component Implementation Tickets Audit
 
+For this checkpoint operation, the workflow extension derives and validates
+the manifest, marker, candidate set, and commit directly in the active
+worktree. Do not delegate checkpoint execution or Git staging/commit to an
+agent. All semantic audit and remediation work remains owned by its respective
+independent skill.
+
 Read `../_shared/phase-checkpoint-contract.md` and
 `../_shared/phase-manifest-contract.md` completely before acting. Use only
 after the independent ticket-set audit completes. Preserve the current audit
-and exact baseline; do not remediate or change ticket status.
+and exact baseline; do not remediate or change ticket status. The extension may
+remove only redundant line terminators after the current extension-owned V2
+result block before hashing or whitespace validation; it leaves report content
+and lineage fields intact.
 
 ## Phase manifest and preconditions
 

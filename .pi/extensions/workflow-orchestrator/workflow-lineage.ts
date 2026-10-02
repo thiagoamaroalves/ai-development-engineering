@@ -1,6 +1,7 @@
-import { readFile, readdir, realpath } from "node:fs/promises";
+import { appendFile, open, readFile, readdir, realpath } from "node:fs/promises";
 import { relative, resolve, sep } from "node:path";
 
+import { fieldLast } from "./artifacts.ts";
 import { OrchestrationStop } from "./contracts.ts";
 import {
   assertLegacyTicketSetAuditProofCurrent,
@@ -84,6 +85,16 @@ interface RawWorkflowResultRecord extends WorkflowResultRecord {}
 
 function normalizePath(path: string): string {
   return path.replaceAll("\\", "/").replace(/^\.\//, "");
+}
+
+function canonicalJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value && typeof value === "object") {
+    const entries = Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0);
+    return `{${entries.map(([key, item]) => `${JSON.stringify(key)}:${canonicalJson(item)}`).join(",")}}`;
+  }
+  return JSON.stringify(value) ?? "undefined";
 }
 
 function docsMarkdownPath(path: string): boolean {
@@ -522,9 +533,189 @@ export function workflowResultBlock(context: WorkflowResultContext, operation: s
   ].join("\n");
 }
 
+const COMPONENT_TICKET_SET_AUDIT = "audit-component-implementation-tickets";
+const COMPONENT_TICKET_SET_AUDIT_CHECKPOINT = "checkpoint-component-implementation-tickets-audit";
+
+/** Normalize only redundant line endings after the current extension-owned ticket-set audit block. */
+export async function normalizeTicketSetAuditWorkflowResultEnding(
+  root: string,
+  expected: WorkflowResultRecord,
+): Promise<boolean> {
+  if (expected.operation !== COMPONENT_TICKET_SET_AUDIT) {
+    throw new OrchestrationStop("PROCESS_AUTHORITY_DRIFT", "Terminal workflow metadata normalization is limited to the component ticket-set audit.", {
+      operation: expected.operation,
+    });
+  }
+  const artifactPath = normalizePath(expected.artifactPath);
+  if (artifactPath !== expected.artifactPath || !docsMarkdownPath(artifactPath)) {
+    throw new OrchestrationStop("INVALID_PATH", "Ticket-set audit workflow metadata requires a canonical Markdown artifact under docs/.", {
+      artifactPath: expected.artifactPath,
+    });
+  }
+  const docsRoot = await realpath(resolve(root, "docs"));
+  const absolute = await realpath(resolve(root, artifactPath));
+  const docsRelative = relative(docsRoot, absolute);
+  if (docsRelative === ".." || docsRelative.startsWith(`..${sep}`) || docsRelative.startsWith(sep)) {
+    throw new OrchestrationStop("INVALID_PATH", "Ticket-set audit artifact resolves outside docs/.", { artifactPath });
+  }
+  const text = await readFile(absolute, "utf8");
+  const records = parseWorkflowResultRecords(text, artifactPath, { operation: expected.operation, subject: expected.subject })
+    .filter((record) => record.resultId === expected.resultId);
+  if (records.length !== 1 || records[0].supersedesResultId !== expected.supersedesResultId
+    || records[0].gateField !== expected.gateField || records[0].gateValue !== expected.gateValue
+    || records[0].artifactPath !== artifactPath
+    || canonicalJson(records[0].basis) !== canonicalJson(expected.basis)) {
+    throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Ticket-set audit artifact does not contain exactly the expected workflow result record.", {
+      artifactPath,
+      resultId: expected.resultId,
+      matches: records.length,
+    });
+  }
+  const block = workflowResultBlock(expected, expected.operation, expected.subject, expected.gateField, expected.gateValue);
+  const blockStart = text.lastIndexOf(block);
+  if (blockStart < 0) return false;
+  const suffix = text.slice(blockStart + block.length);
+  if (!/^(?:\r?\n)*$/.test(suffix) || suffix === "\n") return false;
+  const current = await resolveCurrentWorkflowResult(root, expected.operation, expected.subject);
+  if (!current || current.resultId !== expected.resultId || current.artifactPath !== artifactPath) {
+    throw new OrchestrationStop("CANONICAL_ARTIFACT_CONTRADICTION", "Only the current ticket-set audit result may have its terminal metadata ending normalized.", {
+      artifactPath,
+      expectedResultId: expected.resultId,
+      currentResultId: current?.resultId,
+    });
+  }
+
+  const terminalBlockEnd = Buffer.byteLength(text.slice(0, blockStart + block.length), "utf8");
+  const handle = await open(absolute, "r+");
+  try {
+    if (await handle.readFile("utf8") !== text) {
+      throw new OrchestrationStop("CANONICAL_ARTIFACT_CONTRADICTION", "Ticket-set audit artifact changed before its terminal metadata was normalized.", {
+        artifactPath,
+        resultId: expected.resultId,
+      });
+    }
+    await handle.truncate(terminalBlockEnd);
+    await handle.write(Buffer.from("\n"), 0, 1, terminalBlockEnd);
+    await handle.sync();
+  } finally {
+    await handle.close();
+  }
+  return true;
+}
+
+/**
+ * The extension owns only this terminal process-metadata block for the ticket-set
+ * audit. The audit skill remains the sole owner of the report body and verdict.
+ */
+export async function ensureTicketSetAuditWorkflowResultBlock(
+  root: string,
+  expected: WorkflowResultRecord,
+): Promise<void> {
+  if (expected.operation !== COMPONENT_TICKET_SET_AUDIT) {
+    throw new OrchestrationStop("PROCESS_AUTHORITY_DRIFT", "Extension-owned workflow metadata is limited to the component ticket-set audit.", {
+      operation: expected.operation,
+    });
+  }
+  const artifactPath = normalizePath(expected.artifactPath);
+  if (artifactPath !== expected.artifactPath || !docsMarkdownPath(artifactPath)) {
+    throw new OrchestrationStop("INVALID_PATH", "Ticket-set audit workflow metadata requires a canonical Markdown artifact under docs/.", {
+      artifactPath: expected.artifactPath,
+    });
+  }
+  const docsRoot = await realpath(resolve(root, "docs"));
+  const absolute = await realpath(resolve(root, artifactPath));
+  const docsRelative = relative(docsRoot, absolute);
+  if (docsRelative === ".." || docsRelative.startsWith(`..${sep}`) || docsRelative.startsWith(sep)) {
+    throw new OrchestrationStop("INVALID_PATH", "Ticket-set audit artifact resolves outside docs/.", { artifactPath });
+  }
+
+  const block = workflowResultBlock(expected, expected.operation, expected.subject, expected.gateField, expected.gateValue);
+  const readCanonicalArtifact = async (): Promise<string> => {
+    try {
+      return await readFile(absolute, "utf8");
+    } catch (error) {
+      throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Ticket-set audit result artifact is missing or unreadable.", {
+        artifactPath,
+        cause: String(error),
+      });
+    }
+  };
+  const assertExpectedRecord = async (text: string): Promise<void> => {
+    const records = parseWorkflowResultRecords(text, artifactPath, { operation: expected.operation, subject: expected.subject })
+      .filter((record) => record.resultId === expected.resultId);
+    if (records.length !== 1 || records[0].supersedesResultId !== expected.supersedesResultId
+      || records[0].gateField !== expected.gateField || records[0].gateValue !== expected.gateValue
+      || records[0].artifactPath !== artifactPath
+      || canonicalJson(records[0].basis) !== canonicalJson(expected.basis)) {
+      throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Ticket-set audit artifact does not contain exactly the expected workflow result record.", {
+        artifactPath,
+        resultId: expected.resultId,
+        matches: records.length,
+      });
+    }
+    if (!text.replaceAll("\r\n", "\n").endsWith(`${block}\n`)) {
+      throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Ticket-set audit workflow result must be the exact terminal metadata block.", {
+        artifactPath,
+        resultId: expected.resultId,
+      });
+    }
+  };
+  let text = await readCanonicalArtifact();
+  const current = await resolveCurrentWorkflowResult(root, expected.operation, expected.subject);
+  const alreadyPresent = parseWorkflowResultRecords(text, artifactPath, { operation: expected.operation, subject: expected.subject })
+    .some((record) => record.resultId === expected.resultId);
+  if (alreadyPresent) {
+    await normalizeTicketSetAuditWorkflowResultEnding(root, expected);
+    text = await readCanonicalArtifact();
+    await assertExpectedRecord(text);
+    if (!current || current.resultId !== expected.resultId) {
+      throw new OrchestrationStop("CANONICAL_ARTIFACT_CONTRADICTION", "Ticket-set audit workflow result is present but is not the current lineage leaf.", {
+        expectedResultId: expected.resultId,
+        currentResultId: current?.resultId,
+      });
+    }
+    return;
+  }
+
+  if ((current?.resultId ?? null) !== expected.supersedesResultId) {
+    throw new OrchestrationStop("CANONICAL_ARTIFACT_CONTRADICTION", "Ticket-set audit predecessor changed before extension metadata could be appended.", {
+      expectedPredecessor: expected.supersedesResultId,
+      currentPredecessor: current?.resultId ?? null,
+    });
+  }
+  const persistedGate = fieldLast(text, expected.gateField);
+  if (persistedGate !== expected.gateValue) {
+    throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Ticket-set audit report does not persist the exact gate value returned in its receipt.", {
+      artifactPath,
+      gateField: expected.gateField,
+      expectedGateValue: expected.gateValue,
+      actualGateValue: persistedGate,
+    });
+  }
+
+  const separator = text.endsWith("\n\n") ? "" : text.endsWith("\n") ? "\n" : "\n\n";
+  const suffix = `${separator}${block}\n`;
+  await appendFile(absolute, suffix, "utf8");
+  const updated = await readCanonicalArtifact();
+  if (!updated.startsWith(text) || updated.slice(text.length) !== suffix) {
+    throw new OrchestrationStop("CANONICAL_ARTIFACT_CONTRADICTION", "Ticket-set audit artifact changed while extension metadata was being appended.", {
+      artifactPath,
+      resultId: expected.resultId,
+    });
+  }
+  await assertExpectedRecord(updated);
+  const updatedCurrent = await resolveCurrentWorkflowResult(root, expected.operation, expected.subject);
+  if (!updatedCurrent || updatedCurrent.resultId !== expected.resultId) {
+    throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Extension metadata did not become the current ticket-set audit workflow result.", {
+      expectedResultId: expected.resultId,
+      currentResultId: updatedCurrent?.resultId,
+    });
+  }
+}
+
 async function assertArtifactSnapshotCurrent(root: string, expected: WorkflowArtifactSnapshot): Promise<void> {
   const actual = await artifactSnapshot(root, expected.artifactPath, Object.keys(expected.fields));
-  if (JSON.stringify(actual.fields) !== JSON.stringify(expected.fields)) {
+  if (canonicalJson(actual.fields) !== canonicalJson(expected.fields)) {
     throw new OrchestrationStop("CANONICAL_ARTIFACT_CONTRADICTION", "Workflow source artifact identity or revision fields changed after the result was produced.", {
       artifactPath: expected.artifactPath,
       expectedFields: expected.fields,
@@ -533,12 +724,80 @@ async function assertArtifactSnapshotCurrent(root: string, expected: WorkflowArt
   }
 }
 
+async function capturedTicketAuditContext(
+  root: string,
+  record: WorkflowResultRecord,
+  context: LineageReadContext,
+): Promise<{ auditRoot?: WorkflowResultRecord; auditCheckpointRoot?: WorkflowResultRecord }> {
+  let auditRoot: WorkflowResultRecord | undefined;
+  let auditCheckpointRoot: WorkflowResultRecord | undefined;
+  let current: WorkflowResultRecord | undefined = record;
+  const visited = new Set<string>();
+
+  while (current) {
+    const key = `${current.operation}\u0000${current.subject}\u0000${current.resultId}`;
+    if (visited.has(key)) break;
+    visited.add(key);
+
+    if (current.operation === COMPONENT_TICKET_SET_AUDIT && !auditRoot) {
+      auditRoot = current;
+      const checkpoint = await resolveCurrentWorkflowResult(root, COMPONENT_TICKET_SET_AUDIT_CHECKPOINT, current.subject, context);
+      if (checkpoint?.basis.type === "transition"
+        && checkpoint.basis.source.operation === COMPONENT_TICKET_SET_AUDIT
+        && checkpoint.basis.source.subject === current.subject
+        && checkpoint.basis.source.resultId === current.resultId) {
+        auditCheckpointRoot = checkpoint;
+      }
+    }
+
+    if (current.operation === COMPONENT_TICKET_SET_AUDIT_CHECKPOINT) {
+      const latestCheckpoint = await resolveCurrentWorkflowResult(root, COMPONENT_TICKET_SET_AUDIT_CHECKPOINT, current.subject, context);
+      if (latestCheckpoint?.resultId === current.resultId) {
+        auditCheckpointRoot = current;
+        if (!auditRoot && current.basis.type === "transition"
+          && current.basis.source.operation === COMPONENT_TICKET_SET_AUDIT
+          && current.basis.source.subject === current.subject) {
+          auditRoot = await findWorkflowResultById(
+            root,
+            current.basis.source.operation,
+            current.basis.source.subject,
+            current.basis.source.resultId,
+            context,
+          ) ?? undefined;
+        }
+      }
+    }
+
+    if (auditRoot && auditCheckpointRoot) break;
+    if (current.basis.type !== "transition") break;
+    current = await findWorkflowResultById(
+      root,
+      current.basis.source.operation,
+      current.basis.source.subject,
+      current.basis.source.resultId,
+      context,
+    ) ?? undefined;
+  }
+
+  return { auditRoot, auditCheckpointRoot };
+}
+
 async function assertRecordCurrent(
   root: string,
   record: WorkflowResultRecord,
   visiting = new Set<string>(),
   context: LineageReadContext = createLineageReadContext(),
+  capturedTicketAuditRoot?: WorkflowResultRecord,
+  capturedTicketAuditAncestors?: ReadonlySet<string>,
+  capturedTicketAuditCheckpointRoot?: WorkflowResultRecord,
 ): Promise<void> {
+  if (!capturedTicketAuditRoot) {
+    const ticketAuditContext = await capturedTicketAuditContext(root, record, context);
+    capturedTicketAuditRoot = ticketAuditContext.auditRoot ?? record;
+    capturedTicketAuditCheckpointRoot = ticketAuditContext.auditCheckpointRoot;
+    capturedTicketAuditAncestors = await capturedTicketAuditAncestorIds(root, capturedTicketAuditRoot, context);
+  }
+  const supersededTicketAuditAncestors = capturedTicketAuditAncestors ?? new Set<string>();
   const key = `${record.operation}\u0000${record.subject}\u0000${record.resultId}`;
   if (visiting.has(key)) {
     throw new OrchestrationStop("AMBIGUOUS_STATE", "Workflow result basis contains a cycle.", {
@@ -578,12 +837,70 @@ async function assertRecordCurrent(
             currentPredecessor: predecessor,
           });
         }
-        await assertRecordCurrent(root, predecessor, visiting, context);
+        await assertRecordCurrent(
+          root,
+          predecessor,
+          visiting,
+          context,
+          capturedTicketAuditRoot,
+          supersededTicketAuditAncestors,
+          capturedTicketAuditCheckpointRoot,
+        );
         return;
       }
       const current = await resolveCurrentWorkflowResult(root, expected.operation, expected.subject, context);
       if (!current || current.resultId !== expected.resultId || current.artifactPath !== expected.artifactPath
         || current.gateField !== expected.gateField || current.gateValue !== expected.gateValue) {
+        if (capturedTicketAuditRoot.operation === COMPONENT_TICKET_SET_AUDIT
+          && current?.operation === COMPONENT_TICKET_SET_AUDIT
+          && current.subject === capturedTicketAuditRoot.subject
+          && current.resultId === capturedTicketAuditRoot.resultId
+          && expected.operation === COMPONENT_TICKET_SET_AUDIT
+          && expected.subject === capturedTicketAuditRoot.subject
+          && supersededTicketAuditAncestors.has(expected.resultId)) {
+          const superseded = await findWorkflowResultById(root, expected.operation, expected.subject, expected.resultId, context);
+          if (!superseded || superseded.artifactPath !== expected.artifactPath
+            || superseded.gateField !== expected.gateField || superseded.gateValue !== expected.gateValue) {
+            throw new OrchestrationStop("CANONICAL_ARTIFACT_CONTRADICTION", "Captured ticket-set audit ancestor no longer matches its persisted source record.", {
+              expectedSource: expected,
+              supersededRecord: superseded,
+            });
+          }
+          if (expected.artifactPath !== capturedTicketAuditRoot.artifactPath) {
+            await assertArtifactSnapshotCurrent(root, { artifactPath: expected.artifactPath, fields: expected.fields });
+          }
+          // The pre-dispatch basis validation already proved this audit ancestor
+          // current before its successor was created. Its own old basis may now
+          // be superseded as part of the same valid re-audit chain.
+          return;
+        }
+        if (capturedTicketAuditRoot.operation === COMPONENT_TICKET_SET_AUDIT
+          && current?.operation === COMPONENT_TICKET_SET_AUDIT_CHECKPOINT
+          && current.subject === capturedTicketAuditRoot.subject
+          && capturedTicketAuditCheckpointRoot?.operation === COMPONENT_TICKET_SET_AUDIT_CHECKPOINT
+          && capturedTicketAuditCheckpointRoot.subject === capturedTicketAuditRoot.subject
+          && current.resultId === capturedTicketAuditCheckpointRoot.resultId
+          && capturedTicketAuditCheckpointRoot.basis.type === "transition"
+          && capturedTicketAuditCheckpointRoot.basis.source.operation === COMPONENT_TICKET_SET_AUDIT
+          && capturedTicketAuditCheckpointRoot.basis.source.subject === capturedTicketAuditRoot.subject
+          && capturedTicketAuditCheckpointRoot.basis.source.resultId === capturedTicketAuditRoot.resultId
+          && expected.operation === COMPONENT_TICKET_SET_AUDIT_CHECKPOINT
+          && expected.subject === capturedTicketAuditRoot.subject
+          && expected.resultId === capturedTicketAuditCheckpointRoot.supersedesResultId) {
+          const superseded = await findWorkflowResultById(root, expected.operation, expected.subject, expected.resultId, context);
+          if (!superseded || superseded.artifactPath !== expected.artifactPath
+            || superseded.gateField !== expected.gateField || superseded.gateValue !== expected.gateValue) {
+            throw new OrchestrationStop("CANONICAL_ARTIFACT_CONTRADICTION", "Captured ticket-set audit checkpoint predecessor no longer matches its persisted source record.", {
+              expectedSource: expected,
+              supersededRecord: superseded,
+            });
+          }
+          await assertArtifactSnapshotCurrent(root, { artifactPath: expected.artifactPath, fields: expected.fields });
+          // A re-audit checkpoint replaces the previous audit checkpoint, while
+          // the re-audit itself legitimately depends on the earlier checkpoint
+          // through its completed remediation cycle.
+          return;
+        }
         throw new OrchestrationStop("CANONICAL_ARTIFACT_CONTRADICTION", "Workflow result is stale because its upstream transition result was superseded or changed.", {
           operation: record.operation,
           subject: record.subject,
@@ -593,11 +910,52 @@ async function assertRecordCurrent(
         });
       }
       await assertArtifactSnapshotCurrent(root, { artifactPath: expected.artifactPath, fields: expected.fields });
-      await assertRecordCurrent(root, current, visiting, context);
+      await assertRecordCurrent(
+        root,
+        current,
+        visiting,
+        context,
+        capturedTicketAuditRoot,
+        supersededTicketAuditAncestors,
+        capturedTicketAuditCheckpointRoot,
+      );
     }
   } finally {
     visiting.delete(key);
   }
+}
+
+async function capturedTicketAuditAncestorIds(
+  root: string,
+  auditRoot: WorkflowResultRecord,
+  context: LineageReadContext,
+): Promise<ReadonlySet<string>> {
+  const result = new Set<string>();
+  if (auditRoot.operation !== COMPONENT_TICKET_SET_AUDIT || auditRoot.supersedesResultId === null) return result;
+  const current = await resolveCurrentWorkflowResult(root, auditRoot.operation, auditRoot.subject, context);
+  if (!current || current.resultId !== auditRoot.resultId) return result;
+  const records = await collectRecords(root, auditRoot.operation, auditRoot.subject, context);
+  const byId = new Map(records.map((item) => [item.resultId, item] as const));
+  let predecessorId: string | null = auditRoot.supersedesResultId;
+  while (predecessorId !== null) {
+    if (result.has(predecessorId)) {
+      throw new OrchestrationStop("AMBIGUOUS_STATE", "Ticket-set audit predecessor chain contains a cycle.", {
+        subject: auditRoot.subject,
+        resultId: predecessorId,
+      });
+    }
+    const predecessor = byId.get(predecessorId);
+    if (!predecessor) {
+      throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Ticket-set audit result is missing a persisted predecessor record.", {
+        subject: auditRoot.subject,
+        resultId: auditRoot.resultId,
+        missingPredecessor: predecessorId,
+      });
+    }
+    result.add(predecessorId);
+    predecessorId = predecessor.supersedesResultId;
+  }
+  return result;
 }
 
 export async function validateCurrentWorkflowBasis(
@@ -663,7 +1021,7 @@ export async function validateProducedWorkflowResult(
   const current = await resolveCurrentWorkflowResult(root, expected.operation, expected.subject, context);
   if (!current || current.resultId !== expected.resultId
     || current.supersedesResultId !== expected.supersedesResultId
-    || JSON.stringify(current.basis) !== JSON.stringify(expected.basis ?? { type: "none" })
+    || canonicalJson(current.basis) !== canonicalJson(expected.basis ?? { type: "none" })
     || current.artifactPath !== normalizePath(expected.artifactPath)
     || current.gateField !== expected.gateField || current.gateValue !== expected.gateValue) {
     throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Operation did not publish the expected current workflow result and predecessor link in its gate artifact.", {

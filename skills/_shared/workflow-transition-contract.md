@@ -31,7 +31,14 @@ only in an agent response.
 
 ## Persisted result lineage
 
-Every operation appends one terminal block to its `gateArtifactPath`:
+Every operation persists one terminal block in its `gateArtifactPath`. The
+selected skill or deterministic checkpoint driver normally appends it. For
+`audit-component-implementation-tickets` only, the workflow extension appends
+the block after it validates the complete audit receipt, exact persisted gate,
+and unchanged predecessor. This keeps report content under the audit skill's
+ownership while making the process metadata deterministic.
+
+The block format is:
 
 ```text
 <!-- WORKFLOW_RESULT_V2
@@ -52,6 +59,11 @@ blocks when updating that artifact; never rewrite or remove lineage history.
 Place the block after the canonical gate so it is the artifact's terminal
 workflow record.
 
+For the ticket-set audit exception, the extension preserves the complete
+existing artifact bytes and appends only this block. On an idempotent retry it
+may normalize redundant line terminators after that exact extension-owned
+terminal block; it does not rewrite report content before the block.
+
 The extension resolves records by the exact `(OPERATION, SUBJECT_ID)` pair.
 `SUPERSEDES_RESULT_ID` forms a single linked chain: it must identify the prior
 current result, and the chain must have one root, no forks, no cycles, and one
@@ -65,6 +77,14 @@ timestamps, and workspace-wide hashes do not select the leaf. The source-field
 snapshot covers declared subject, required, and revision fields plus recognized
 machine fields for identity, revision, round, version, audit target, and gate;
 it does not hash prose or unrelated workspace files.
+
+When a current `audit-component-implementation-tickets` operation creates its
+successor, that new result may supersede an earlier ticket-set audit already
+captured in its valid entry-basis chain. The extension accepts only those exact
+historical audit result IDs while validating that successor, because the new
+audit output replaces the old report. It continues to validate the current
+checkpoint/remediation source chain and all other source snapshots. This rule
+does not authorize entry from a stale audit result.
 
 Transition artifacts without a valid result block cannot establish currentness
 and are rejected before semantic preflight. Direct intake artifacts are source
@@ -165,9 +185,14 @@ be reachable from a catalog edge or declared in `controllerEntry.initial` or
 `controllerEntry.recovery`. Direct entries bind a cited artifact to the
 selected subject; `requiredFields` declares exact machine-checkable values
 such as explicit preservation authorization. Add operations that may resume
-after an interruption to `controllerEntry.sameOperationResume`; checkpoints
-cannot resume through that list. Every successor must be an existing top-level
-workflow skill or one of `COMPLETE`, `HUMAN_REQUIRED`, and
+after an interruption to `controllerEntry.sameOperationResume`. Only the
+deterministic component ticket-set audit and remediation checkpoints may resume
+there, and only after their failure-atomic driver has removed its uncommitted
+marker and manifest and restored the prior index. A failed ticket-set
+checkpoint cannot route to an ancestor operation such as the audit that
+produced its source; it must retry that same checkpoint or stop. Other
+checkpoints cannot resume through the list. Every successor must be an existing
+top-level workflow skill or one of `COMPLETE`, `HUMAN_REQUIRED`, and
 `RECOVERY_CONTROLLER`. Internal specialist audits are not top-level operations.
 
 Keep audit findings, authority sufficiency, root-cause analysis, remediation

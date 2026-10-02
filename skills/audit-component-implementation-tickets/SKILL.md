@@ -975,6 +975,10 @@ obligation, or missing required architecture guard.
 
 ## 19. Final console response
 
+Persist the machine-readable fields below in the canonical `REPORT` artifact
+and return the same values in the console response. They are checkpoint
+evidence as well as user-facing status.
+
 Use:
 
 ```text
@@ -993,6 +997,7 @@ FINDINGS_ARE_ACTIONABLE: <YES|NO>
 BASELINE_REMEDIATION_READINESS: <READY|BLOCKED_INSUFFICIENT_REASSESSMENT>
 AUDIT_BASIS_FINGERPRINT: <exact basis>
 BASELINE_REASSESSMENT_PROOF: <path or inline section when drift exists>
+FINDING_IDS: <comma-separated canonical finding IDs, or NONE>
 
 DIMENSIONS:
 - AUTHORITY_TRACEABILITY: <PASS|FAIL|BLOCKED>

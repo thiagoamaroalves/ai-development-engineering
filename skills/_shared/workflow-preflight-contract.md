@@ -1,13 +1,35 @@
 # Workflow Preflight Contract
 
-Every operation selected by `workflow_orchestrate` passes deterministic checks
-and a short read-only semantic preflight before its full skill execution.
-Preflight is an intake gate, not a shortened audit or remediation.
+Every delegated operation selected by `workflow_orchestrate` passes
+deterministic checks and a short read-only semantic preflight before its full
+skill execution, except the component implementation-ticket audit. That
+read-only audit begins after deterministic extension checks and owns its own
+semantic preconditions in Section 1; it can stop with its canonical blocked
+outcome before auditing the ticket set. The two implementation-ticket-set
+checkpoint operations are also exceptions: the extension's deterministic
+checkpoint driver performs their complete machine-checkable preconditions and
+path/lineage validation directly. Preflight is an intake gate, not a shortened
+audit or remediation.
+
+For component implementation-ticket audit and remediation, the extension may
+provide a bounded static analysis of ticket inventory, IDs, index parity,
+status fields, internal dependency/blocker targets, reciprocity, graph cycles,
+and source fingerprints. This is advisory evidence only. `COMPLETE` means the
+analysis inputs were parsed, not that the ticket set conforms. `INCOMPLETE`
+means its observations are partial.
+
+For the audit, this analysis is candidate evidence for the full 54-check
+independent checklist; it does not replace any check or semantic judgment. For
+remediation, it is only a pre-remediation snapshot. The remediation operation
+still performs its semantic preflight, validates the current audit and baseline
+before writing, revalidates every finding, and recomputes affected facts after
+ticket or index changes. The initial snapshot never proves the result.
 
 ## Deterministic extension checks
 
-Before semantic preflight, the extension verifies the selected operation and
-agent against the local catalog, validates cited paths and bounded input,
+Before semantic preflight or deterministic checkpoint execution, the extension
+verifies the selected operation against the local catalog, validates cited
+paths and bounded input,
 pins the current HEAD, and checks that the operation's skill exists with the
 matching declared name. For controller-selected entry and recovery operations,
 it requires a structured `entryBasis`, resolves the current
@@ -26,7 +48,11 @@ Each persisted result also carries a direct basis. Code follows upstream result
 IDs recursively and compares selected identity, revision, round, audit-target,
 and gate fields on the cited source artifacts. A changed or superseded upstream
 basis stops before semantic preflight. This enforces declared artifact lineage
-without a repository-wide content hash.
+without a repository-wide content hash. When the component ticket-set audit
+produces a current re-audit result, code allows that result to supersede only
+historical ticket-set audit ancestors in the exact basis chain that was current
+before dispatch. It still checks the captured checkpoint/remediation chain and
+rejects stale audit entry bases.
 
 An unversioned implemented-ticket checkpoint is not a transition basis. The
 only migration entry is the declared recovery operation
@@ -64,7 +90,8 @@ recovery from current canonical state.
 
 The preflight agent reads the selected skill's complete preconditions and only
 the evidence whose meaning requires judgment to determine whether execution
-can safely start. It returns one structured result:
+can safely start. It returns one structured result for operations that use this
+stage:
 
 ```json
 {
@@ -94,13 +121,17 @@ own preflight. `HUMAN_REQUIRED` stops immediately.
 ## Semantic judgments by phase
 
 - **Audit:** semantic sufficiency of the selected authority and evidence for
-  the audit profile; domain-specific proof obligations.
+  the audit profile; domain-specific proof obligations. The component
+  implementation-ticket audit performs this gate within its own Section 1
+  preconditions and still executes its complete independent checklist.
 - **Remediation:** whether the source findings and baseline permit safe
   remediation, and whether an unresolved issue needs upstream judgment.
 - **Artifact production:** whether approved source meaningfully supports the
   requested output and its scope.
 - **Checkpoint:** whether the skill's canonical phase evidence permits the
-  authorized local checkpoint.
+  authorized local checkpoint. For the ticket-set audit and remediation
+  checkpoints, the extension validates this evidence deterministically rather
+  than delegating the decision to a preflight agent.
 - **Implementation or review:** whether the approved design and ticket
   content are semantically ready for the selected work.
 - **Finalization:** whether semantic completion criteria and explicit

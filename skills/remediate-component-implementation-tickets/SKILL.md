@@ -190,6 +190,22 @@ AUDIT_BASIS_FINGERPRINT
 BASELINE_REASSESSMENT_PROOF
 ```
 
+### Extension-computed ticket-set snapshot
+
+The orchestrator may supply `TicketSetStaticAnalysis` with the initial ticket
+inventory, IDs, index rows, status fields, internal dependency and blocker
+edges, reciprocity, graph cycles, and source fingerprints. Verify each supplied
+fingerprint against the current ticket files and index before using the parsed
+facts. `COMPLETE` means only that the bounded inputs were parsed;
+`INCOMPLETE` means unavailable observations are unknown.
+
+When fingerprints match, use the parsed facts as the starting ticket-set
+snapshot and avoid repeating equivalent text parsing or graph traversal. This
+does not replace upstream authority and baseline review, finding-by-finding
+revalidation, semantic classification, any required metric, or any other step
+in this skill. Recompute affected facts from current files after every ticket
+or index change; the supplied snapshot is never post-remediation evidence.
+
 Track drift:
 
 ```text
@@ -239,8 +255,6 @@ Implementation drift that changes Gap or Plan conclusions requires a fresh
 audit only when the existing audit did not assess that delta. Ticket-only drift
 still requires finding-by-finding revalidation; never overwrite a newer valid
 correction mechanically.
-Ticket-only drift requires finding-by-finding revalidation; never overwrite a
-newer valid correction mechanically.
 
 ## 3. Finding intake and validity
 
@@ -776,6 +790,11 @@ Ticket files, index, and remediation evidence may change.
 
 ## 19. Final console response
 
+Persist the `CHECKPOINT_EVIDENCE` block in `REMEDIATION_REPORT` and return the
+same values in the console response. These fields serialize the already-required
+remediation proof for the deterministic checkpoint; they do not change the
+semantic gate.
+
 Success:
 
 ```text
@@ -852,6 +871,36 @@ GATE:
 READY_FOR_INDEPENDENT_TICKET_REAUDIT
 
 REMEDIATION_REPORT: <path>
+
+CHECKPOINT_EVIDENCE:
+REMEDIATION_VERDICT = COMPONENT_IMPLEMENTATION_TICKET_REMEDIATION_COMPLETE
+GATE = READY_FOR_INDEPENDENT_TICKET_REAUDIT
+SOURCE_AUDIT = <exact current audit path>
+SOURCE_AUDIT_RESULT_ID = <exact current audit WORKFLOW_RESULT_V2 result ID>
+SOURCE_AUDIT_SHA256 = <lowercase SHA-256 of the complete source audit artifact>
+FINDINGS_RECEIVED = <n>
+FINDINGS_REMEDIATED = <n>
+TICKET_FOLDER = <canonical ticket folder>
+TICKET_INDEX = <canonical ticket index path>
+TICKETS_AFTER = <n>
+DEPENDENCY_GRAPH_CYCLE = NO
+BLOCKER_GRAPH_CYCLE = NO
+INITIAL_DAG_STATE_PRESERVED = YES
+DOWNSTREAM_TICKET_STATE_MUTATIONS = 0
+REMEDIATION_CANDIDATE_FINGERPRINT = SHA256 <lowercase SHA-256> over sorted path/hash rows
+FILES_CHANGED =
+<one repository-relative path per line: every modified ticket artifact, index,
+or remediation evidence file; exclude this remediation report>
+
+The candidate fingerprint covers every current primary ticket artifact
+identified by the index plus the index itself. Sort repository-relative paths
+case-sensitively; for each path, append `<path>\t<lowercase-file-SHA256>\n`;
+the recorded digest is SHA-256 over the concatenated UTF-8 rows. `FILES_CHANGED`
+contains every actual remediation output except the report containing this
+block. These fields are required machine evidence for the guarded local
+checkpoint; they do not replace the remediation analysis or change its verdict.
+Do not list or modify an implemented-ticket audit, remediation, finalization,
+checkpoint, or legacy-lineage result in this ticket-set remediation scope.
 ```
 
 Blocked:

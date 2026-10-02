@@ -29,7 +29,7 @@ Read completely:
 
 ```text
 CHECKPOINT_ONLY
-MAIN_WORKTREE_ONLY
+ACTIVE_WORKTREE_ONLY
 ALLOWLIST_REQUIRED
 SINGLE_WRITER
 LINEAGE_PRESERVING
@@ -47,10 +47,16 @@ Require:
 
 ```text
 executionIsolation = main
+the active worktree root and Git directory are stable at intake
 HEAD is stable at intake
 one target ticket is identified
 no unresolved unrelated working-tree change is included
 ```
+
+`executionIsolation = main` means the current workflow invocation's checkout;
+it does not require the repository's primary worktree or the `main` branch. An
+already-active linked worktree is valid. Do not switch branches or create,
+move, remove, or select another worktree.
 
 Stop with `CHECKPOINT_BLOCKED` when the target, scope, allowlist, or parent
 state cannot be determined. Never commit a mixed or ambiguous working tree.

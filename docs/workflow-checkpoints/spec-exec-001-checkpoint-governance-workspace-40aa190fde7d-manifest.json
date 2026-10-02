@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "manifestKind": "PHASE_CHECKPOINT",
+  "phaseId": "SPEC-EXEC-001-checkpoint-governance-workspace-40aa190fde7d31497a4b85887d92e820e829fb1b",
+  "operation": "checkpoint-governance-workspace",
+  "subject": {
+    "id": "SPEC-EXEC-001",
+    "type": "workspace"
+  },
+  "sourceAuthority": [
+    {
+      "path": "docs/tickets/SPEC-EXEC-001/implementation-ticket-audit.md",
+      "sha256": "9963a49298f0d9e06ccf5fcf7b1a1d1c5468bf989189693fac1fd590ad8e888f"
+    },
+    {
+      "path": "docs/workflow-checkpoints/SPEC-EXEC-001-component-implementation-tickets-audit-566ab73a71885ed1880a3b158e882d03618a4581-manifest.json",
+      "sha256": "6caefdee1aca3d1b7cecdeb63d8b93fb9892b981a2db8e932a802f569a7e2ca8"
+    },
+    {
+      "path": "docs/workflow-checkpoints/SPEC-EXEC-001-component-implementation-tickets-conformance-manifest.json",
+      "sha256": "99c728f6e55670609d9f9e7b8aacce1d500a8b3a13f61a41fc38e75d6984f33d"
+    },
+    {
+      "path": "docs/workflow-checkpoints/SPEC-EXEC-001-component-implementation-tickets-conformance.md",
+      "sha256": "19ed06a29074bf58362072f80c7b1fe16d104dae84b8f7b8bd55ab4d922ad3cd"
+    },
+    {
+      "path": "docs/workflow-checkpoints/spec-exec-001-checkpoint-component-implementation-tickets-audit-566ab73a7188.md",
+      "sha256": "ac1f09cd9687d222af571d6bb061cfb770ae5ef3a708e8f1703440d70e915a1b"
+    },
+    {
+      "path": "skills/_shared/phase-checkpoint-contract.md",
+      "sha256": "ae277ba70dca4bab1eb1024e2f51b72e0614dca187f9d0e61f082f800d396671"
+    },
+    {
+      "path": "skills/_shared/phase-manifest-contract.md",
+      "sha256": "12b23bff70d399b2c3b3e5d63bd191eb751b60f5922c1c7af4b022da9a60d065"
+    },
+    {
+      "path": "skills/_shared/workflow-transition-contract.md",
+      "sha256": "db81353ac414dff40a1cbb9ca956277cdf22fc159dfb41619a9af8b1cc120b5d"
+    },
+    {
+      "path": "skills/_shared/workflow-transitions.json",
+      "sha256": "9215b1e3fa06e5b8cf20b2ef556c5433c10ccd1c8cb93d5c56d1b78541794d77"
+    },
+    {
+      "path": "skills/checkpoint-governance-workspace/SKILL.md",
+      "sha256": "59db0eb6b17a491d56a5da07907d7d7cab706e56370d583a80250b0590d69e61"
+    }
+  ],
+  "target": {
+    "head": "40aa190fde7d31497a4b85887d92e820e829fb1b",
+    "semanticFingerprint": "09d7c5dc3a47f90a60612eb5b31384ad1b73c81b252ec640e15a6b87d683ae57"
+  },
+  "paths": {
+    "manifest": "docs/workflow-checkpoints/spec-exec-001-checkpoint-governance-workspace-40aa190fde7d-manifest.json",
+    "preserve": [
+      ".gitignore",
+      ".pi/agents/workflow-checkpoint.md",
+      ".pi/agents/workflow-controller.md",
+      ".pi/extensions/workflow-orchestrator/README.md",
+      ".pi/extensions/workflow-orchestrator/contracts.ts",
+      ".pi/extensions/workflow-orchestrator/full-orchestrator.ts",
+      ".pi/extensions/workflow-orchestrator/git-state.ts",
+      ".pi/extensions/workflow-orchestrator/index.ts",
+      ".pi/extensions/workflow-orchestrator/orchestrator.ts",
+      ".pi/extensions/workflow-orchestrator/subagents-client.ts",
+      ".pi/extensions/workflow-orchestrator/test/full-orchestrator.test.ts",
+      ".pi/extensions/workflow-orchestrator/test/subagents-client.test.ts",
+      ".pi/extensions/workflow-orchestrator/test/workflow-lineage.test.ts",
+      ".pi/extensions/workflow-orchestrator/test/workflow-preflight.test.ts",
+      ".pi/extensions/workflow-orchestrator/test/workflow-routing.test.ts",
+      ".pi/extensions/workflow-orchestrator/workflow-lineage.ts",
+      ".pi/extensions/workflow-orchestrator/workflow-routing.ts",
+      ".pi/extensions/workflow-orchestrator/phase-checkpoint.ts",
+      ".pi/extensions/workflow-orchestrator/run-logger.ts",
+      ".pi/extensions/workflow-orchestrator/test/phase-checkpoint.test.ts",
+      ".pi/extensions/workflow-orchestrator/test/run-logger.test.ts",
+      ".pi/extensions/workflow-orchestrator/ticket-set-analysis.ts",
+      "skills/_shared/authority-completeness-gates.md",
+      "skills/_shared/phase-checkpoint-contract.md",
+      "skills/_shared/phase-manifest-contract.md",
+      "skills/_shared/workflow-execution-topology-contract.md",
+      "skills/_shared/workflow-preflight-contract.md",
+      "skills/_shared/workflow-transition-contract.md",
+      "skills/_shared/workflow-transitions.json",
+      "skills/audit-component-implementation-tickets/SKILL.md",
+      "skills/checkpoint-component-implementation-tickets-audit/SKILL.md",
+      "skills/checkpoint-component-implementation-tickets-remediation/SKILL.md",
+      "skills/checkpoint-implemented-ticket/SKILL.md",
+      "skills/remediate-component-implementation-tickets/SKILL.md",
+      "tools/verify-phase-manifest.mjs"
+    ],
+    "delete": [],
+    "unstagedRecovery": [
+      "docs/workflow-checkpoints/spec-exec-001-checkpoint-component-implementation-tickets-audit-b0ec30cb1d32-manifest.json",
+      "docs/workflow-checkpoints/spec-exec-001-checkpoint-governance-workspace-13b4b70b37b9-manifest.json"
+    ],
+    "marker": "docs/workflow-checkpoints/spec-exec-001-checkpoint-governance-workspace-40aa190fde7d.md"
+  },
+  "nextAuthorizedOperation": "workflow-controller-replan",
+  "commitMessage": "checkpoint(governance): preserve workflow reconciliation"
+}

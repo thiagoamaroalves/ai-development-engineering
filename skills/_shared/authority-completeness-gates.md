@@ -20,14 +20,25 @@ completion derivation.
 ## Audit artifact ownership and immutability
 
 Audit artifacts are historical snapshots of the audit execution that produced
-them. The corresponding audit skill owns their creation and updates:
+them. The corresponding audit skill owns their substantive report content,
+evidence, findings, and verdict:
 
 ```text
-AUDIT_ARTIFACT_IMMUTABILITY = REQUIRED
-ONLY_THE_CORRESPONDING_AUDIT_SKILL_MAY_CREATE_OR_UPDATE_AN_AUDIT_ARTIFACT
-AUDIT ARTIFACTS ARE OWNED BY THEIR AUDIT SKILL.
-OTHER SKILLS MAY READ AND CITE THEM, NEVER MUTATE THEM.
+AUDIT_ARTIFACT_IMMUTABILITY = REQUIRED, EXCEPT FOR THE EXTENSION-OWNED TERMINAL WORKFLOW_RESULT_V2 BLOCK
+ONLY_THE_CORRESPONDING_AUDIT_SKILL_MAY_CREATE_OR_UPDATE_SUBSTANTIVE_AUDIT_CONTENT
+AUDIT CONTENT IS OWNED BY ITS AUDIT SKILL.
+OTHER SKILLS MAY READ AND CITE AUDIT CONTENT, NEVER MUTATE IT.
 ```
+
+For `audit-component-implementation-tickets` only, the workflow extension owns
+the terminal `WORKFLOW_RESULT_V2` process-metadata block. After a `COMPLETE`
+receipt, it may append that exact block to the cited Markdown gate artifact only
+when the persisted gate equals the receipt and the current predecessor still
+matches the captured result basis. The extension must preserve the report bytes,
+append no other content, and stop on an existing conflicting or malformed block.
+This exception does not grant the extension authority over the report body,
+evidence, findings, or verdict. All other audit artifacts follow the ownership
+rule above.
 
 This rule applies to canonical and specialist audit artifacts, including
 `PORTFOLIO_AUDIT`, `COMPONENT_SPEC_AUDIT`, `GAP_MATRIX_AUDIT`,

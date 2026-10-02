@@ -43,6 +43,10 @@ export interface TransitionCatalog {
 }
 
 const TRANSITION_PATH = "skills/_shared/workflow-transitions.json";
+const FAILURE_ATOMIC_RESUMABLE_CHECKPOINTS = new Set([
+  "checkpoint-component-implementation-tickets-audit",
+  "checkpoint-component-implementation-tickets-remediation",
+]);
 
 export async function loadTransitionCatalog(root: string): Promise<TransitionCatalog> {
   try {
@@ -150,7 +154,8 @@ export async function loadTransitionCatalog(root: string): Promise<TransitionCat
       }
     }
     for (const operation of sameOperationResume as string[]) {
-      if (operation.startsWith("checkpoint-") || operation === "checkpoint-governance-workspace") {
+      if ((operation.startsWith("checkpoint-") || operation === "checkpoint-governance-workspace")
+        && !FAILURE_ATOMIC_RESUMABLE_CHECKPOINTS.has(operation)) {
         throw new Error(`${operation} cannot use same-operation recovery`);
       }
     }
@@ -170,6 +175,11 @@ export async function loadTransitionCatalog(root: string): Promise<TransitionCat
 
 export function isAuthorizedRecoveryTarget(catalog: TransitionCatalog, failedOperation: string, candidateOperation: string): boolean {
   if (!catalog.operations[failedOperation] || !catalog.operations[candidateOperation]) return false;
+  if (FAILURE_ATOMIC_RESUMABLE_CHECKPOINTS.has(failedOperation)) {
+    return candidateOperation === failedOperation
+      && FAILURE_ATOMIC_RESUMABLE_CHECKPOINTS.has(failedOperation)
+      && catalog.controllerEntry.sameOperationResume.includes(candidateOperation);
+  }
   if (failedOperation === candidateOperation) return catalog.controllerEntry.sameOperationResume.includes(candidateOperation);
 
   const visited = new Set<string>();
@@ -202,10 +212,10 @@ export function operationReceiptSchema(definition: TransitionDefinition): Record
       operation: { type: "string", minLength: 1, maxLength: 120 },
       subject: { type: "string", minLength: 1, maxLength: 240 },
       status: { enum: ["COMPLETE", "BLOCKED", "HUMAN_REQUIRED", "PARTIAL", "ERROR"] },
-      artifactPaths: { type: "array", items: { type: "string", minLength: 1 }, minItems: 1, maxItems: 64 },
-      gateArtifactPath: { type: "string", minLength: 1, maxLength: 1024 },
+      artifactPaths: { type: "array", items: { type: "string", minLength: 1 }, maxItems: 64 },
+      gateArtifactPath: { type: "string", maxLength: 1024 },
       gateField: { type: "string", minLength: 1, maxLength: 80 },
-      gateValue: { enum: knownGateValues },
+      gateValue: { enum: [...knownGateValues, ""] },
       changedPaths: { type: "array", items: { type: "string", minLength: 1 }, maxItems: 128 },
       reason: { type: "string", maxLength: 4000 },
     },
@@ -219,13 +229,23 @@ export function validateReceiptShape(value: unknown, operation: string, expected
   const receipt = value as Record<string, unknown>;
   const stringArray = (item: unknown): item is string[] => Array.isArray(item) && item.every((entry) => typeof entry === "string");
   const statuses: OperationStatus[] = ["COMPLETE", "BLOCKED", "HUMAN_REQUIRED", "PARTIAL", "ERROR"];
-  if (receipt.operation !== operation || receipt.subject !== expectedSubject
-    || !statuses.includes(receipt.status as OperationStatus) || !stringArray(receipt.artifactPaths)
-    || receipt.artifactPaths.length === 0 || typeof receipt.gateArtifactPath !== "string"
-    || !receipt.artifactPaths.includes(receipt.gateArtifactPath) || receipt.gateField !== expectedGateField
-    || typeof receipt.gateValue !== "string" || receipt.gateValue.trim() === ""
-    || !stringArray(receipt.changedPaths) || typeof receipt.reason !== "string") {
-    throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Workflow operation receipt has missing or contradictory fields.", {
+  const issues: string[] = [];
+  const complete = receipt.status === "COMPLETE";
+  if (receipt.operation !== operation) issues.push("operation");
+  if (receipt.subject !== expectedSubject) issues.push("subject");
+  if (!statuses.includes(receipt.status as OperationStatus)) issues.push("status");
+  if (!stringArray(receipt.artifactPaths) || (complete && receipt.artifactPaths.length === 0)) issues.push("artifactPaths");
+  if (typeof receipt.gateArtifactPath !== "string") issues.push("gateArtifactPath");
+  else if (complete && receipt.gateArtifactPath.trim() === "") issues.push("gateArtifactPath");
+  else if (receipt.gateArtifactPath !== "" && stringArray(receipt.artifactPaths)
+    && !receipt.artifactPaths.includes(receipt.gateArtifactPath)) issues.push("gateArtifactPath:not-in-artifactPaths");
+  if (receipt.gateField !== expectedGateField) issues.push("gateField");
+  if (typeof receipt.gateValue !== "string" || (complete && receipt.gateValue.trim() === "")) issues.push("gateValue");
+  else if (!complete && receipt.gateValue.trim() !== "" && receipt.gateArtifactPath === "") issues.push("gateValue:missing-artifact");
+  if (!stringArray(receipt.changedPaths)) issues.push("changedPaths");
+  if (typeof receipt.reason !== "string") issues.push("reason");
+  if (issues.length > 0) {
+    throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", `Workflow operation receipt has missing or contradictory fields: ${issues.join(",") || "unknown"}; receivedKeys=${Object.keys(receipt).sort().join(",")}.`, {
       operation,
       expectedSubject,
       expectedGateField,

@@ -25,10 +25,12 @@ quality boundary:
 The initial portfolio decomposition is an input: no skill in this repository creates
 it. The repository defines no branch allocation, worktree integration, merge,
 or push authority. Local commits are authorized only through the dedicated
-checkpoint operation. Authorized ticket-scoped implementation, remediation, and
-structural review therefore run in the guarded main working tree under
-`skills/_shared/workflow-execution-topology-contract.md`; the orchestrator still
-stops rather than inventing a worktree protocol and never commits elsewhere.
+checkpoint operation. The orchestrator runs authorized work in the active
+checkout from which it was invoked, whether that is the primary checkout or an
+already-existing linked worktree. `executionIsolation = main` means no
+additional worktree is allocated; it does not require the repository's primary
+worktree or `main` branch. The orchestrator never switches branches or creates,
+moves, removes, or selects another worktree without explicit authority.
 
 ## Runtime topology
 
@@ -38,8 +40,11 @@ structured entry basis: either a persisted source gate that routes to the select
 operation, or direct evidence for an operation explicitly declared as an intake route.
 Recovery is limited in code to a declared resumable retry, a catalog ancestor of the
 failed operation with its own valid entry gate, or the explicit governance recovery
-entry. Before each operation, the extension validates the local skill and agent, cited
-paths, pinned HEAD, bounded input, and—on a normal transition—the previous operation's
+entry. The deterministic ticket-set checkpoints use failure-atomic rollback and
+may retry only themselves; a failed checkpoint cannot dispatch its upstream audit
+or remediation operation again. Before each operation, the extension validates the local skill and, when
+delegating, its agent; it also validates cited paths, pinned HEAD, bounded input,
+and—on a normal transition—the previous operation's
 current `WORKFLOW_RESULT_V2` lineage leaf, persisted gate, exact subject, and catalog
 edge. Result records form one append-only chain per operation and subject; ambiguous
 branches and legacy unversioned transition artifacts stop before dispatch. Legacy
@@ -54,10 +59,21 @@ ticket design, then writes a separate V2 migration report that can route only to
 fresh independent ticket-set audit. Neither route backfills V2 into historical
 artifacts.
 A separate read-only
-`workflow-preflight` handles only semantic prerequisites that code cannot decide. The
-extension then delegates the exact skill, requires its receipt gate to be persisted in
+`workflow-preflight` handles semantic prerequisites that code cannot decide,
+except for the read-only component implementation-ticket audit and the two
+implementation-ticket-set checkpoint operations. The ticket audit runs its own
+Section 1 semantic preconditions and receives advisory static observations for
+mechanically decidable ticket inventory, identity, index, status, dependency,
+blocker, reciprocity, and cycle checks; the independent auditor still executes
+all 54 checks. The checkpoint operations are owned by an extension-side
+deterministic driver: it validates the current
+audit/remediation lineage and phase-specific evidence, derives the allowlist,
+runs checkpoint checks, and commits without an LLM checkpoint agent. The
+extension delegates other exact skills, requires their receipt gate to be persisted in
 the cited canonical artifact, checks changed paths, and follows the deterministic
-transition catalog. The controller is called again only when a failure or semantic
+transition catalog. For the ticket-set audit, the extension also appends the
+validated terminal `WORKFLOW_RESULT_V2` block while preserving the audit skill's
+report content. The controller is called again only when a failure or semantic
 blocker needs recovery, or a gate explicitly routes to recovery. Explicit human gates
 stop before another skill starts; unrecoverable blockers stop after one recovery
 decision.
@@ -80,14 +96,20 @@ separate semantic fingerprint, which pins the exact implementation state shared 
 independent auditors. Checkpoint phase manifests and parent/commit checks also remain
 in force.
 
+For a ticket-set re-audit, the new result can supersede historical ticket-audit
+ancestors in the exact entry-basis chain captured before dispatch. The extension
+still validates the current checkpoint and remediation chain, so the new audit
+does not invalidate itself after replacing the old report.
+
 `audit-implemented-ticket` is the specialized parallel stage. Conformance, behavior,
 design, and conditionally architecture auditors run in fresh contexts against the same
 pinned HEAD. Their artifacts are not shared before all specialists join. A separate
 consolidator then creates the canonical audit. No failed specialist is replaced by an
 inline fallback, and the implementer never certifies its own work.
 
-Canonical process state lives only in repository artifacts. Runtime state is limited
-to execution IDs, subagent run IDs, step records, timestamps, and operational errors.
+Canonical process state lives only in repository artifacts. Local session logs are
+diagnostic metadata, never workflow authority or evidence. Runtime captures execution
+IDs, subagent run IDs, step records, timestamps, and operational errors.
 
 ## Pi entry points
 
@@ -100,14 +122,30 @@ The project pins `pi-subagents@0.68.0` in `.pi/settings.json`. Delegation uses i
 structured event API with `context: "fresh"`, result schemas, cancellation propagation,
 and explicit join before consolidation.
 
+## Local run logs
+
+The extension appends metadata-only JSONL events to `.pi/session-logs/`, with one
+file per workflow execution ID. Events cover workflow start/finish, controller
+decisions, ticket-set static-analysis summaries, operation routing and stops, and
+delegated-agent start/finish with elapsed time and run ID. Prompts, agent
+responses, and artifact contents are not logged. Error summaries are bounded
+and common credential patterns are redacted.
+
+Token usage is recorded per agent only when the subagent response includes
+provider-reported usage; otherwise the event marks usage as unavailable. The
+extension does not estimate token counts. Logging is best-effort and does not
+change workflow outcomes if the local log cannot be written. `.pi/session-logs/`
+is excluded from Git.
+
 ## Fail-closed boundaries
 
 Execution stops on missing skill/agent/authority/evidence, failed preflight,
 unsatisfied dependencies, incomplete or contradictory results, controller mutation,
 HEAD drift, undeclared operation changes, subagent failure, human gates, unsupported
-worktree requirements, or the bounded step limit. It never commits outside a
-checkpoint skill, merges, pushes, publishes, deletes branches, or converts an unknown
-outcome into success.
+requirements for an additional allocated worktree, or the bounded step limit.
+It never commits outside an authorized checkpoint skill/driver, merges, pushes,
+publishes, deletes branches, stages recovery paths, or converts an unknown outcome
+into success.
 
 ## Validation
 

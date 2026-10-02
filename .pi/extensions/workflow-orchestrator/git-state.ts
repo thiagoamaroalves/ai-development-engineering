@@ -82,6 +82,18 @@ export async function currentHead(root: string): Promise<string> {
   return git(root, ["rev-parse", "--verify", "HEAD"]);
 }
 
+export async function currentDirtyPaths(root: string): Promise<Set<string>> {
+  const [tracked, untracked] = await Promise.all([
+    git(root, ["diff", "--name-only", "HEAD", "--"]),
+    git(root, ["ls-files", "--others", "--exclude-standard"]),
+  ]);
+  return new Set(
+    [...tracked.split(/\r?\n/), ...untracked.split(/\r?\n/)]
+      .map((item) => item.trim())
+      .filter(Boolean),
+  );
+}
+
 export async function assertPinnedHead(root: string, expected: string): Promise<void> {
   const actual = await currentHead(root);
   if (actual !== expected) {

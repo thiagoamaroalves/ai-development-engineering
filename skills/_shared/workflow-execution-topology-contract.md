@@ -10,12 +10,15 @@ expansion.
 WORKTREE_ALLOCATION_AUTHORITY = NONE
 BRANCH_MERGE_AUTHORITY = NONE
 COMMIT_AUTHORITY = LOCAL_CHECKPOINT_ONLY
-MAIN_TREE_TICKET_MUTATION = AUTHORIZED_WITH_GUARDS
+ACTIVE_WORKTREE_TICKET_MUTATION = AUTHORIZED_WITH_GUARDS
 ```
 
-The repository has no worktree allocation or merge protocol. Therefore the
-workflow must not select `worktree` for an otherwise authorized ticket-scoped
-implementation, remediation, or structural review operation.
+The workflow operates in the active Git worktree from which it was invoked.
+That worktree may be the repository's primary checkout or any already-existing
+linked worktree. Lack of worktree-allocation authority does not prohibit using
+the active linked worktree. The workflow must not switch branches or create,
+move, remove, or select another worktree; those actions still require a separate
+repository authority.
 
 ## Isolation selection
 
@@ -25,7 +28,10 @@ Use:
 main
 ```
 
-for an authorized ticket-scoped mutation when the following guards hold:
+for an authorized ticket-scoped mutation or checkpoint in the current active
+worktree when the following guards hold. `executionIsolation = main` means
+execute directly in the current workflow invocation's checkout; it does not
+mean the repository's primary checkout or the `main` branch:
 
 - the current HEAD is stable before and after the operation;
 - one workflow writer owns the working tree for the operation;
@@ -45,9 +51,11 @@ Use:
 worktree
 ```
 
-only when a separate repository authority explicitly provides allocation,
-branch/base selection, merge or supersession recording, conflict handling, and
-cleanup. This repository currently provides none of those authorities.
+only when a separate repository authority explicitly requires the orchestrator
+to allocate or select an additional worktree and provides branch/base selection,
+merge or supersession recording, conflict handling, and cleanup. This repository
+currently provides none of those authorities. An already-active linked worktree
+does not require `executionIsolation = worktree` and is not a blocker.
 
 Use:
 
@@ -55,8 +63,8 @@ Use:
 human_required
 ```
 
-when the selected skill explicitly requires worktree isolation but no valid
-worktree protocol exists. Never silently downgrade such a requirement.
+when the selected skill explicitly requires a separate allocated worktree but
+no valid worktree protocol exists. Never silently downgrade such a requirement.
 
 An explicitly human-authorized preservation of unrelated workflow/process
 changes may use `checkpoint-governance-workspace` before ticket-local mutation.
@@ -68,15 +76,21 @@ Phase-specific checkpoint skills preserve audited and remediated SPEC, Gap
 Matrix, Implementation Plan, and ticket-set baselines before the next mutation
 or independent re-audit. They are not interchangeable with
 `checkpoint-implemented-ticket`; each exact allowlist and canonical next
-operation must be evidenced.
+operation must be evidenced. Every such checkpoint runs in the active worktree
+and validates its manifest, staged paths, parent, and resulting commit there.
+
+The ticket-set audit and remediation checkpoints are executed by the
+orchestrator's deterministic driver, not a delegated checkpoint agent. This
+does not alter their authority or widen their allowlist; it only assigns the
+mechanical validation, staging, and local commit to code with explicit guards.
 
 ## Controller rule
 
 For `implement-ready-tickets`, `remediate-implemented-ticket`, and
 `review-implemented-ticket-structure`, select `executionIsolation = main` when
 the operation is authorized and the guards above are satisfied. The absence of
-worktree authority is not permission to invent a worktree; it is the reason the
-repository's guarded main-tree mode is used for these ticket-local operations.
+worktree-allocation authority means the workflow stays in the active checkout;
+it does not require or imply the repository's primary worktree.
 
 For `checkpoint-implemented-ticket`, `executionIsolation = main` is required.
 That skill is the only workflow operation allowed to create a local checkpoint

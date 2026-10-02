@@ -11,21 +11,29 @@ import {
   type DelegationRequest,
   type DelegationResult,
 } from "./contracts.ts";
+import { fieldLast } from "./artifacts.ts";
 import {
   assertCheckpointAdvance,
   assertPinnedHead,
   currentHead,
+  currentDirtyPaths,
   sameWorkflowState,
   workflowStateDiff,
   workflowStateSnapshot,
   loadSemanticFingerprintPolicy,
 } from "./git-state.ts";
 import { runAuditSlice } from "./orchestrator.ts";
-import { createWorkflowResultContext, validateProducedWorkflowResult, type WorkflowResultContext } from "./workflow-lineage.ts";
+import {
+  createWorkflowResultContext,
+  ensureTicketSetAuditWorkflowResultBlock,
+  validateProducedWorkflowResult,
+  type WorkflowResultContext,
+} from "./workflow-lineage.ts";
 import {
   validateLegacyMigrationArtifact,
   validateLegacyTicketSetAuditMigrationArtifact,
 } from "./legacy-checkpoint.ts";
+import { executeTicketSetCheckpoint, isDeterministicTicketSetCheckpoint } from "./phase-checkpoint.ts";
 import {
   loadTransitionCatalog,
   operationReceiptSchema,
@@ -35,6 +43,8 @@ import {
   type TransitionCatalog,
 } from "./workflow-routing.ts";
 import { validateAndCaptureWorkflowBasis, validateControllerEntry, type TransitionBasis, type WorkflowEntryBasis } from "./workflow-preflight.ts";
+import { appendWorkflowRunEvent, safeFailureFields } from "./run-logger.ts";
+import { analyzeTicketSet, type TicketSetStaticAnalysis } from "./ticket-set-analysis.ts";
 
 const planSchema = {
   type: "object",
@@ -268,7 +278,7 @@ function controllerTask(objective: string, head: string, previous: WorkflowStepR
     ...(failedOperation ? [`Operation requiring recovery: ${failedOperation}`] : []),
     "The repository skills and their referenced shared contracts are process authority.",
     "Read skills/_shared/workflow-transition-contract.md and skills/_shared/workflow-transitions.json. Normal transitions after this plan are deterministic; do not plan later steps.",
-    "At initial intake, use only controllerEntry.initial operations. A stale or incomplete phase manifest from a previous invocation is not recovery authority. When the objective explicitly orders a governance preservation checkpoint before ticket work, select the declared initial checkpoint-governance-workspace entry first; recovery entries require a failed-operation context supplied by this orchestrator in the same run.",
+    "At initial intake, first inspect the latest V2 result for the requested subject. If its exact persisted gate has a catalogued successor, select that successor using entryBasis.type=transition and cite the source result; the extension validates the current result, identity, gate, and route. Use controllerEntry.initial only for direct intake without a current persisted transition. A stale or incomplete phase manifest is not workflow authority and does not invalidate a current transition. When the objective explicitly orders a governance preservation checkpoint before ticket work, select the declared initial checkpoint-governance-workspace entry first; recovery entries still require a failed-operation context supplied by this orchestrator in the same run.",
     "Discover applicable skills; read every skill required for this decision completely.",
     "Inspect canonical ADR/SPEC/Gap/Plan/Ticket/audit/remediation/finalization artifacts in the target repository.",
     "Return EXECUTE only when the chosen skill's preconditions and gate are explicitly evidenced.",
@@ -277,11 +287,12 @@ function controllerTask(objective: string, head: string, previous: WorkflowStepR
     "Return HUMAN_REQUIRED for an authorized confirmation/choice; BLOCKED for missing or conflicting authority/evidence; COMPLETE only for a canonical terminal state.",
     "Return the controller plan as the exact structured schema supplied to this task; do not add a state fingerprint or later-step plan.",
     "Do not use console history or this prompt as canonical state. Do not modify files.",
-    "Read skills/_shared/workflow-execution-topology-contract.md. For authorized ticket implementation/remediation/review in this repository, executionIsolation must be main under its guards; select worktree only when an explicit allocation/merge protocol is cited. Never infer a worktree policy.",
+    "Read skills/_shared/workflow-execution-topology-contract.md. For authorized ticket implementation/remediation/review/checkpoint in this repository, executionIsolation=main means run in the active checkout where workflow_orchestrate was invoked, whether primary or linked; it never means switch to the primary worktree or main branch. An already-active linked worktree is valid. Select worktree only when an explicit authority requires allocation/selection of an additional worktree and provides its protocol. Never create, move, remove, or switch worktrees without that authority.",
     "For operation audit-implemented-ticket, operationInputJson must encode the full AuditSliceInput expected by workflow_audit_implemented_ticket.",
     "When recovery finds that an implemented-ticket checkpoint handoff lacks a current V2 result for checkpoint-implemented-ticket, use reconcile-legacy-checkpoint-lineage only as its declared direct recovery entry. First resolve the ticket ID against the current approved ticket-set generation and conformance checkpoints: ticket IDs can be reused after SPEC revalidation and decomposition, so markers that predate the current conformant ticket set are obsolete history and cannot establish lineage for the current ticket. Cite the latest checkpoint marker for that exact current ticket revision, set the matching TICKET_ID as subject, and let the extension validate the ticket-set manifests and commits plus the ticket marker, phase manifest, commit, source authority, and committed descendant path drift. The following normal checkpoint reanchors current HEAD before the audit. Never cite an obsolete or superseded checkpoint, add a V2 block to the historical marker, or route directly to the audit.",
     "When recovery finds that the current component ticket-set audit lacks V2 lineage, use reconcile-legacy-ticket-set-audit-lineage only as its declared direct recovery entry. Cite the current ticket-set conformance checkpoint as entryBasis and exactly one current implementation design as evidence. The extension validates the current generation and conformance checkpoints, their manifests/commits/source digests, the exact conformance audit and ready-ticket design, and binds all source digests at the live HEAD. The migration report may route only to a fresh independent audit-component-implementation-tickets operation. Never modify an existing implemented-ticket audit result or add V2 to the historical ticket-set audit/checkpoint.",
-    "For checkpoint operations, operationInputJson must contain phaseManifestPath, and phaseManifestPath must not be listed in evidenceFiles because it may be created by the checkpoint agent. Reuse a manifest only when operation and target HEAD match, all sourceAuthority digests are current, and its declared marker exists. Never overwrite an incomplete or stale manifest: derive a fresh path and pass the stale manifest path only as preserveUnstagedRecoveryPaths. If no usable manifest exists, that is not missing authority: the owning checkpoint agent must derive and create one from canonical artifacts, current HEAD, and the exact dirty candidate before validation. For other operations, operationInputJson must be an empty JSON object string unless the canonical skill requires bounded arguments worth preserving.",
+    "For checkpoint operations, operationInputJson must contain phaseManifestPath, and phaseManifestPath must not be listed in evidenceFiles because it may be created by the checkpoint agent. Reuse a manifest only when operation and target HEAD match, all sourceAuthority digests are current, and its declared marker exists. Never overwrite an incomplete or stale manifest: derive a fresh path. Include a stale manifest under preserveUnstagedRecoveryPaths only if it is currently dirty or untracked; a clean tracked historical manifest stays untouched and is not part of the new manifest's dirty-path set. If no usable manifest exists, that is not missing authority: the owning checkpoint agent must derive and create one from canonical artifacts, current HEAD, and the exact dirty candidate before validation. For other operations, operationInputJson must be an empty JSON object string unless the canonical skill requires bounded arguments worth preserving.",
+    "For checkpoint-governance-workspace, require the exact HUMAN_PRESERVATION_AUTHORIZATION and PRESERVATION_SCOPE fields plus the explicit PRESERVED_PATHS_BEGIN/END and UNSTAGED_RECOVERY_PATHS_BEGIN/END blocks in the objective. The extension validates their disjoint union against the live dirty inventory and passes them to the checkpoint skill. Do not shorten or infer cited repository paths; the SPEC ticket audit report is under docs/tickets/<SPEC_ID>/implementation-ticket-audit.md.",
     "When invoked for exceptional recovery after a checkpoint, use the live HEAD and rebuild operation input from canonical state; never reuse a stale pre-checkpoint plan.",
     "Read exactly these shared contracts: skills/_shared/interrupted-remediation-recovery-contract.md and skills/_shared/interrupted-artifact-production-recovery-contract.md. Do not invent abbreviated or alternate authority paths. If an external failure left an authorized remediation target dirty while its current actionable source audit remains unchanged and no complete matching remediation report exists, select the owning remediation skill again in RESUME_OR_RECONCILE mode; do not require a checkpoint, do not route to re-audit, and do not treat a candidate ready marker as proof of completion. If an external failure left an authorized Gap Matrix, Plan, or ticket output dirty while its current source audit remains conformant and no complete matching output exists, select the owning producer again in RESUME_OR_RECONCILE mode after checkpointing the source authority; do not route downstream. Once a producer returns its exact complete result, select its generation checkpoint before selecting the independent audit.",
     ...(replanReason ? [`Previous controller plan was rejected and must be replanned: ${replanReason}`] : []),
@@ -403,6 +414,30 @@ function defaultPhaseManifestPath(plan: WorkflowPlan, head: string): string {
   return `docs/workflow-checkpoints/${subject}-${plan.operation}-${head.slice(0, 12)}-manifest.json`;
 }
 
+function defaultPhaseMarkerPath(plan: WorkflowPlan, head: string): string {
+  const subject = plan.subject.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "phase";
+  return `docs/workflow-checkpoints/${subject}-${plan.operation}-${head.slice(0, 12)}.md`;
+}
+
+async function freshPhaseMarkerPath(root: string, plan: WorkflowPlan, head: string): Promise<string> {
+  const base = defaultPhaseMarkerPath(plan, head);
+  if (!(await manifestPathExists(root, base))) return base;
+  let candidate = base.replace(/\.md$/, `-${randomUUID().slice(0, 8)}.md`);
+  while (await manifestPathExists(root, candidate)) {
+    candidate = base.replace(/\.md$/, `-${randomUUID().slice(0, 8)}.md`);
+  }
+  return candidate;
+}
+
+async function markerFromManifest(root: string, manifestPath: string): Promise<string> {
+  const parsed = JSON.parse(await readFile(resolve(root, manifestPath), "utf8")) as Record<string, unknown>;
+  const paths = parsed.paths as Record<string, unknown> | undefined;
+  if (typeof paths?.marker !== "string") {
+    throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Current phase manifest does not declare its checkpoint marker.", { manifestPath });
+  }
+  return paths.marker;
+}
+
 async function currentManifestMatches(root: string, manifestPath: string, operation: string, head: string): Promise<boolean> {
   await assertPathResolvesInside(root, manifestPath);
   const absolute = resolve(root, manifestPath);
@@ -454,7 +489,12 @@ async function freshPhaseManifestPath(root: string, plan: WorkflowPlan, head: st
   return candidate;
 }
 
-export async function normalizeCheckpointInput(root: string, plan: WorkflowPlan, head: string): Promise<WorkflowPlan> {
+export async function normalizeCheckpointInput(
+  root: string,
+  plan: WorkflowPlan,
+  head: string,
+  governanceScope?: GovernancePreservationScope,
+): Promise<WorkflowPlan> {
   const evidenceFiles = plan.evidenceFiles.filter((candidate) => !candidate.toLowerCase().endsWith("manifest.json"));
   if (!isCheckpointOperation(plan.operation)) return { ...plan, evidenceFiles };
   let input: Record<string, unknown>;
@@ -478,9 +518,22 @@ export async function normalizeCheckpointInput(root: string, plan: WorkflowPlan,
     exists: await manifestPathExists(root, candidate),
     current: await currentManifestMatches(root, candidate, plan.operation, head),
   })));
-  const manifestPath = manifestStates.find((state) => state.current)?.path
-    ?? manifestStates.find((state) => !state.exists)?.path
-    ?? await freshPhaseManifestPath(root, plan, head);
+  const deterministicTicketSetCheckpoint = isDeterministicTicketSetCheckpoint(plan.operation);
+  const governanceCheckpoint = plan.operation === "checkpoint-governance-workspace";
+  const manifestPath = deterministicTicketSetCheckpoint
+    ? manifestStates.find((state) => !state.exists)?.path ?? await freshPhaseManifestPath(root, plan, head)
+    : manifestStates.find((state) => state.current)?.path
+      ?? manifestStates.find((state) => !state.exists)?.path
+      ?? await freshPhaseManifestPath(root, plan, head);
+  const currentManifest = !deterministicTicketSetCheckpoint && manifestStates.find((state) => state.path === manifestPath && state.current);
+  const requestedMarkerPath = typeof input.phaseMarkerPath === "string" && input.phaseMarkerPath.trim() !== ""
+    ? input.phaseMarkerPath
+    : undefined;
+  const phaseMarkerPath = currentManifest
+    ? await markerFromManifest(root, manifestPath)
+    : requestedMarkerPath && !(await manifestPathExists(root, requestedMarkerPath))
+      ? requestedMarkerPath
+      : await freshPhaseMarkerPath(root, plan, head);
   const staleManifestPaths = manifestStates
     .filter((state) => state.exists && !state.current && state.path !== manifestPath)
     .map((state) => state.path);
@@ -491,14 +544,52 @@ export async function normalizeCheckpointInput(root: string, plan: WorkflowPlan,
   }
   await assertPathResolvesInside(root, manifestPath);
   const normalizedManifestPath = relativePath.split(sep).join("/");
-  const recoveryPaths = [...new Set(staleManifestPaths.filter((candidate) => candidate !== normalizedManifestPath))];
+  const dirtyPaths = await currentDirtyPaths(root);
+  const authorizedPreservePaths = governanceScope?.preservePaths ?? [];
+  const authorizedRecoveryPaths = governanceScope?.unstagedRecoveryPaths ?? [];
+  const evidencePathSet = new Set([...evidenceFiles, ...authorizedPreservePaths]);
+  const declaredRecoveryPaths = Array.isArray(input.preserveUnstagedRecoveryPaths)
+    ? input.preserveUnstagedRecoveryPaths.filter((candidate): candidate is string => typeof candidate === "string")
+    : [];
+  let recoveryPaths: string[];
+  if (governanceCheckpoint && governanceScope) {
+    const preserveSet = new Set(authorizedPreservePaths);
+    const recoverySet = new Set(authorizedRecoveryPaths);
+    const missingOrClean = [...preserveSet, ...recoverySet].filter((candidate) => !dirtyPaths.has(candidate));
+    const unclassified = [...dirtyPaths].filter((candidate) => !preserveSet.has(candidate) && !recoverySet.has(candidate));
+    if (missingOrClean.length || unclassified.length) {
+      throw new OrchestrationStop("PROCESS_AUTHORITY_DRIFT", "Governance preservation scope does not classify the exact current dirty-path inventory.", {
+        missingOrClean,
+        unclassified,
+        dirtyPaths: [...dirtyPaths].sort(),
+      });
+    }
+    await validateCitedPaths(root, authorizedPreservePaths, "evidence");
+    recoveryPaths = [...authorizedRecoveryPaths].sort();
+  } else {
+    recoveryPaths = [...new Set([
+      ...declaredRecoveryPaths,
+      ...staleManifestPaths,
+      ...dirtyPaths,
+    ])]
+      .filter((candidate) => candidate !== normalizedManifestPath
+        && dirtyPaths.has(candidate)
+        && !evidencePathSet.has(candidate))
+      .sort();
+  }
   return {
     ...plan,
-    evidenceFiles,
+    evidenceFiles: [...new Set([...evidenceFiles, ...authorizedPreservePaths])],
     operationInputJson: JSON.stringify({
       ...input,
       phaseManifestPath: normalizedManifestPath,
-      ...(recoveryPaths.length > 0 ? { preserveUnstagedRecoveryPaths: recoveryPaths } : {}),
+      phaseMarkerPath,
+      ...(governanceCheckpoint ? {
+        humanPreservationAuthorization: "YES",
+        preservationScope: "EXPLICIT",
+        authorizedPreservePaths,
+        preserveUnstagedRecoveryPaths: recoveryPaths,
+      } : recoveryPaths.length > 0 ? { preserveUnstagedRecoveryPaths: recoveryPaths } : {}),
     }),
   };
 }
@@ -522,6 +613,56 @@ function canonicalJson(value: unknown): string {
       .map(([key, child]) => [key, normalize(child)]));
   };
   return JSON.stringify(normalize(value)) ?? "undefined";
+}
+
+export interface GovernancePreservationScope {
+  preservePaths: string[];
+  unstagedRecoveryPaths: string[];
+}
+
+function governanceScopeBlock(objective: string, start: string, end: string): string[] {
+  const lines = objective.split(/\r?\n/);
+  const starts = lines.flatMap((line, index) => line.trim() === start ? [index] : []);
+  const ends = lines.flatMap((line, index) => line.trim() === end ? [index] : []);
+  if (starts.length !== 1 || ends.length !== 1 || ends[0] <= starts[0]) {
+    throw new OrchestrationStop("MISSING_AUTHORITY", `Governance preservation request must contain one explicit ${start}/${end} block.`);
+  }
+  const values = lines.slice(starts[0] + 1, ends[0]).map((line) => line.trim()).filter(Boolean);
+  if (values.length === 0 || new Set(values).size !== values.length) {
+    throw new OrchestrationStop("MISSING_AUTHORITY", `Governance preservation block ${start}/${end} is empty or contains duplicate paths.`);
+  }
+  for (const value of values) {
+    if (value.startsWith("/") || value.includes("\\") || value.split("/").some((part) => part === "" || part === "." || part === "..")) {
+      throw new OrchestrationStop("INVALID_PATH", "Governance preservation scope contains a non-canonical repository-relative path.", { candidate: value });
+    }
+  }
+  return values;
+}
+
+function governancePreservationScope(objective: string): GovernancePreservationScope {
+  if (!/^HUMAN_PRESERVATION_AUTHORIZATION\s*=\s*YES\s*$/m.test(objective)
+    || !/^PRESERVATION_SCOPE\s*=\s*EXPLICIT\s*$/m.test(objective)) {
+    throw new OrchestrationStop("HUMAN_GATE_REQUIRED", "Governance checkpoint requires explicit human preservation authorization and scope.");
+  }
+  const preservePaths = governanceScopeBlock(objective, "PRESERVED_PATHS_BEGIN", "PRESERVED_PATHS_END");
+  const unstagedRecoveryPaths = governanceScopeBlock(objective, "UNSTAGED_RECOVERY_PATHS_BEGIN", "UNSTAGED_RECOVERY_PATHS_END");
+  const overlap = preservePaths.filter((candidate) => unstagedRecoveryPaths.includes(candidate));
+  if (overlap.length > 0) {
+    throw new OrchestrationStop("PROCESS_AUTHORITY_DRIFT", "Governance checkpoint preservation and recovery path sets overlap.", { overlap });
+  }
+  return { preservePaths, unstagedRecoveryPaths };
+}
+
+function governancePreservationScopeIfPresent(objective: string): GovernancePreservationScope | undefined {
+  const markers = [
+    "PRESERVED_PATHS_BEGIN",
+    "PRESERVED_PATHS_END",
+    "UNSTAGED_RECOVERY_PATHS_BEGIN",
+    "UNSTAGED_RECOVERY_PATHS_END",
+  ];
+  return markers.some((marker) => objective.split(/\r?\n/).some((line) => line.trim() === marker))
+    ? governancePreservationScope(objective)
+    : undefined;
 }
 
 async function validateAuditSliceInput(root: string, value: unknown, head: string): Promise<AuditSliceInput> {
@@ -611,7 +752,7 @@ async function validateWorkflowCatalog(root: string, catalog: TransitionCatalog)
   for (const operation of Object.keys(catalog.operations)) {
     const skillPath = `skills/${operation}/SKILL.md`;
     await validateSelectedSkill(root, operation, [skillPath]);
-    await validateAgent(root, executionAgent(operation));
+    if (!isDeterministicTicketSetCheckpoint(operation)) await validateAgent(root, executionAgent(operation));
   }
   for (const specialist of [...BASE_SPECIALISTS, ARCHITECTURE_SPECIALIST]) {
     await validateSelectedSkill(root, specialist.skill, [`skills/${specialist.skill}/SKILL.md`]);
@@ -641,8 +782,17 @@ function preflightTask(plan: WorkflowPlan, objective: string, head: string, work
   ].join("\n");
 }
 
-function operationTask(plan: WorkflowPlan, head: string, gateField: string, workflowResult: WorkflowResultContext): string {
+function operationTask(
+  plan: WorkflowPlan,
+  head: string,
+  gateField: string,
+  workflowResult: WorkflowResultContext,
+  ticketSetAnalysis?: TicketSetStaticAnalysis,
+  objective = "",
+): string {
   const checkpoint = isCheckpointOperation(plan.operation);
+  const ticketSetAudit = plan.operation === "audit-component-implementation-tickets";
+  const ticketSetRemediation = plan.operation === "remediate-component-implementation-tickets";
   return [
     `Execute exactly the canonical skill: ${plan.operation}`,
     `Subject: ${plan.subject}`,
@@ -650,23 +800,48 @@ function operationTask(plan: WorkflowPlan, head: string, gateField: string, work
     `Controller reason: ${plan.reason}`,
     `Canonical evidence: ${plan.evidenceFiles.join(", ")}`,
     `Bounded arguments: ${plan.operationInputJson}`,
+    ...(plan.operation === "checkpoint-governance-workspace"
+      ? [
+        `Explicit human authorization and exact scope from the initiating request:\n${objective}`,
+        "Use authorizedPreservePaths only for paths inside PRESERVED_PATHS_BEGIN/END; use preserveUnstagedRecoveryPaths only for paths inside UNSTAGED_RECOVERY_PATHS_BEGIN/END. Do not infer or expand either set.",
+      ]
+      : []),
     "Read the complete skill and every referenced contract before acting.",
     "Return only outcomes authorized by that skill. Stop on any missing authority, drift, blocker, or human gate.",
     "Read skills/_shared/workflow-transition-contract.md. At the end, return the required structured operation receipt using the exact selected operation, current subject, canonical result paths, and exact gate field/value. The receipt does not choose the next operation; the extension routes it from workflow-transitions.json.",
     `The configured gateField for this operation is exactly: ${gateField}. Set gateArtifactPath to the one canonical result artifact whose gate determines this receipt.`,
-    "Append one terminal WORKFLOW_RESULT_V2 block to gateArtifactPath. Preserve any earlier WORKFLOW_RESULT_V2 blocks already in that artifact. Copy every identity, predecessor, and BASIS value below exactly, and set GATE_VALUE to the exact persisted gate value:",
-    "<!-- WORKFLOW_RESULT_V2",
-    `OPERATION = ${plan.operation}`,
-    `SUBJECT_ID = ${plan.subject}`,
-    `RESULT_ID = ${workflowResult.resultId}`,
-    `SUPERSEDES_RESULT_ID = ${workflowResult.supersedesResultId ?? "NONE"}`,
-    `GATE_FIELD = ${gateField}`,
-    "GATE_VALUE = <exact persisted gate value>",
-    `BASIS = ${JSON.stringify(workflowResult.basis ?? { type: "none" })}`,
-    "-->",
+    "For COMPLETE receipts, gateArtifactPath must also appear as an identical string in artifactPaths. For COMPLETE checkpoint operations, use phaseMarkerPath as gateArtifactPath and include that exact marker path in artifactPaths.",
+    "For BLOCKED, HUMAN_REQUIRED, PARTIAL, or ERROR receipts, cite only artifacts that actually exist. Do not create an artifact just to fill the receipt. When there is no persisted result artifact, return artifactPaths=[], gateArtifactPath=\"\", and gateValue=\"\". When a non-complete receipt has an existing diagnostic artifact but no persisted route gate, keep gateArtifactPath and gateValue empty.",
+    ...(ticketSetAudit
+      ? ["The workflow extension owns the terminal WORKFLOW_RESULT_V2 process-metadata block for this audit. Do not create, edit, move, or remove that block; after validating the audit report and its persisted gate, the extension appends exactly one block. The audit skill remains responsible for the complete report body, evidence, findings, and verdict."]
+      : [
+        "Only when the skill produced a COMPLETE canonical result, append one terminal WORKFLOW_RESULT_V2 block to gateArtifactPath. Preserve any earlier WORKFLOW_RESULT_V2 blocks already in that artifact. Copy every identity, predecessor, and BASIS value below exactly, and set GATE_VALUE to the exact persisted gate value. For non-COMPLETE outcomes, do not create or modify a result artifact or append workflow metadata:",
+        "<!-- WORKFLOW_RESULT_V2",
+        `OPERATION = ${plan.operation}`,
+        `SUBJECT_ID = ${plan.subject}`,
+        `RESULT_ID = ${workflowResult.resultId}`,
+        `SUPERSEDES_RESULT_ID = ${workflowResult.supersedesResultId ?? "NONE"}`,
+        `GATE_FIELD = ${gateField}`,
+        "GATE_VALUE = <exact persisted gate value>",
+        `BASIS = ${JSON.stringify(workflowResult.basis ?? { type: "none" })}`,
+        "-->",
+      ]),
+    ...(ticketSetAnalysis ? [
+      `TICKET_SET_STATIC_ANALYSIS_MODE = ${ticketSetAudit ? "AUDIT_BASELINE" : "REMEDIATION_BASELINE"}`,
+      "The following extension-generated ticket-set analysis is advisory evidence for mechanically decidable inventory, identity, index, status-field, dependency, blocker, reciprocity, cycle, and source-fingerprint observations.",
+      "Verify any observation against its canonical source files. COMPLETE means the analysis could parse its bounded inputs; it does not mean the ticket set conforms. INCOMPLETE means some mechanical coverage was unavailable and must be treated as unknown.",
+      "Confirm the listed source fingerprints against the current ticket files and index. For matching fingerprints, use the supported mechanical observations as precomputed candidate evidence; do not repeat equivalent text parsing or graph enumeration. Investigate any observation affecting a finding and recompute when coverage is INCOMPLETE or a source differs.",
+      ...(ticketSetAudit ? [
+        "Complete and report all 54 checks defined by the selected skill, including all comparisons to normative upstream authority. Static observations do not establish semantic correctness, replace any check, or authorize a verdict.",
+      ] : ticketSetRemediation ? [
+        "Use this only as the pre-remediation snapshot for initial ticket inventory, IDs, index rows, status fields, dependency/blocker edges, reciprocity, cycles, and source fingerprints. Before any write, still complete every upstream, baseline, and finding-validity check in the remediation skill.",
+        "After changing any ticket or index, recompute affected counts, relationships, metrics, and graphs from the current files; never use this starting snapshot as post-remediation evidence. Preserve every skill section, finding, required metric, escalation, report field, change-boundary proof, and independent re-audit gate. Static observations do not establish semantic correctness or authorize a remediation verdict.",
+      ] : []),
+      JSON.stringify(ticketSetAnalysis),
+    ] : []),
     "List every repository path changed by this operation in changedPaths. List the canonical current result artifacts in artifactPaths. Use repository-relative forward-slash paths exactly as Git reports them. Status describes execution completeness: use COMPLETE when the skill produced a complete canonical outcome, even if its domain gate routes upstream; use BLOCKED only when no complete result was produced, HUMAN_REQUIRED for a human decision, and PARTIAL or ERROR for interrupted/failed execution.",
     checkpoint
-      ? "A local commit is authorized only under the checkpoint skill's phase-manifest protocol. If phaseManifestPath does not exist, derive and create it from canonical authority and the exact dirty candidate before running verify-phase-manifest; do not merge, push, publish, reset, clean, or perform another workflow phase."
+      ? "A local commit is authorized only under the checkpoint skill's phase-manifest protocol. Use phaseMarkerPath exactly as paths.marker; never overwrite a different historical marker. If phaseManifestPath does not exist, derive and create it from canonical authority and the exact dirty candidate before running verify-phase-manifest. Treat every path in preserveUnstagedRecoveryPaths as the exact permitted recovery boundary: include it in paths.unstagedRecovery and leave it unchanged and unstaged. Do not add or omit recovery paths; do not merge, push, publish, reset, clean, or perform another workflow phase."
       : "Do not commit, merge, push, publish, delete branches, or perform another workflow phase.",
   ].join("\n");
 }
@@ -823,6 +998,50 @@ async function readReceiptArtifacts(root: string, receipt: OperationReceipt): Pr
   return artifacts;
 }
 
+export async function validateOperationReceipt(
+  root: string,
+  value: unknown,
+  operation: string,
+  gateField: string,
+  expectedSubject: string,
+): Promise<OperationReceipt> {
+  try {
+    return validateReceiptShape(value, operation, gateField, expectedSubject);
+  } catch (error) {
+    if (!(error instanceof OrchestrationStop) || operation !== "audit-component-implementation-tickets"
+      || !/subject/.test(error.message) || !value || typeof value !== "object" || Array.isArray(value)) {
+      throw error;
+    }
+
+    const raw = value as Record<string, unknown>;
+    if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(expectedSubject)) throw error;
+    const receipt = validateReceiptShape({ ...raw, subject: expectedSubject }, operation, gateField, expectedSubject);
+    const canonicalPath = `docs/tickets/${expectedSubject}/implementation-ticket-audit.md`;
+    if (receipt.status !== "COMPLETE" || receipt.gateArtifactPath !== canonicalPath
+      || !receipt.artifactPaths.includes(canonicalPath)) throw error;
+    await assertPathResolvesInside(root, canonicalPath);
+    let report: string;
+    try {
+      report = await readFile(resolve(root, canonicalPath), "utf8");
+    } catch (readError) {
+      throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Ticket-set audit receipt subject cannot be reconciled because its canonical report is missing or unreadable.", {
+        expectedSubject,
+        canonicalPath,
+        cause: String(readError),
+      });
+    }
+    if (fieldLast(report, "SPEC") !== expectedSubject || fieldLast(report, "REPORT") !== canonicalPath
+      || fieldLast(report, gateField) !== receipt.gateValue
+      || !report.split(/\r?\n/).includes("COMPONENT_IMPLEMENTATION_TICKET_AUDIT_COMPLETE")) {
+      throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Ticket-set audit receipt subject differs from the selected subject and the canonical report does not prove the selected component identity and gate.", {
+        expectedSubject,
+        canonicalPath,
+      });
+    }
+    return receipt;
+  }
+}
+
 function observedChangedPaths(diff: ReturnType<typeof workflowStateDiff>): string[] {
   return [...diff.added, ...diff.modified, ...diff.removed].sort();
 }
@@ -877,9 +1096,12 @@ function shouldRecoverFrom(error: unknown): boolean {
   return ["SUBAGENT_FAILURE", "INCOMPLETE_CANONICAL_RESULT", "PROCESS_AUTHORITY_DRIFT", "CANONICAL_ARTIFACT_CONTRADICTION", "AMBIGUOUS_STATE", "DEPENDENCY_NOT_READY", "MISSING_AUTHORITY"].includes(error.code);
 }
 
-export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkflowDependencies): Promise<FullWorkflowResult> {
+async function runFullWorkflowCore(
+  input: FullWorkflowInput,
+  deps: FullWorkflowDependencies,
+  executionId: string,
+): Promise<FullWorkflowResult> {
   const root = resolve(deps.root);
-  const executionId = randomUUID();
   const steps: WorkflowStepRecord[] = [];
   const catalog = await loadTransitionCatalog(root);
   await validateWorkflowCatalog(root, catalog);
@@ -916,6 +1138,12 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
       ...rawCandidate,
       authorityFiles: [...new Set([...rawCandidate.authorityFiles, ...WORKFLOW_FRAMEWORK_AUTHORITY])],
     };
+    await appendWorkflowRunEvent(root, executionId, "controller_decision", {
+      step,
+      decision: candidate.decision,
+      operation: candidate.operation,
+      subject: candidate.subject,
+    });
     await validateCitedPaths(root, candidate.authorityFiles, "authority");
     await validateCitedPaths(root, candidate.evidenceFiles, "evidence");
     if (reason && candidate.decision === "COMPLETE") {
@@ -961,7 +1189,13 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
           throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Controller audit input is incomplete for the current HEAD.", { cause: String(error) });
         }
       }
-      return normalizeCheckpointInput(root, candidate, head);
+      const scope = candidate.operation === "checkpoint-governance-workspace"
+        ? governancePreservationScopeIfPresent(input.objective)
+        : undefined;
+      if (!reason && candidate.operation === "checkpoint-governance-workspace" && !scope) {
+        governancePreservationScope(input.objective);
+      }
+      return normalizeCheckpointInput(root, candidate, head, scope);
     }
     if (!reason && candidate.decision === "BLOCKED" && catalog.operations[candidate.operation]) {
       return requestControllerPlan(step + 1, `Initial controller plan was BLOCKED for ${candidate.operation}: ${candidate.reason}. Select only a declared recovery ancestor or direct recovery entry.`, candidate.operation);
@@ -972,7 +1206,17 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
   let plan = await requestControllerPlan(1, "");
   for (let index = 1; index <= input.maxSteps; index++) {
     const head = await currentHead(root);
-    plan = await normalizeCheckpointInput(root, plan, head);
+    const planScope = plan.operation === "checkpoint-governance-workspace"
+      ? governancePreservationScopeIfPresent(input.objective)
+      : undefined;
+    plan = await normalizeCheckpointInput(root, plan, head, planScope);
+    await appendWorkflowRunEvent(root, executionId, "workflow_step_planned", {
+      step: index,
+      decision: plan.decision,
+      operation: plan.operation,
+      subject: plan.subject,
+      targetHead: head,
+    });
     if (plan.decision === "COMPLETE") return { executionId, status: "COMPLETE", reason: plan.reason, steps };
     if (plan.decision === "HUMAN_REQUIRED" || plan.executionIsolation === "human_required") {
       throw new OrchestrationStop("HUMAN_GATE_REQUIRED", plan.reason, { plan });
@@ -987,7 +1231,7 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
     await validateSelectedSkill(root, plan.operation, plan.authorityFiles);
     await validateCitedPaths(root, plan.authorityFiles, "authority");
     await validateCitedPaths(root, plan.evidenceFiles, "evidence");
-    await validateAgent(root, executionAgent(plan.operation));
+    if (!isDeterministicTicketSetCheckpoint(plan.operation)) await validateAgent(root, executionAgent(plan.operation));
     await assertPinnedHead(root, head);
 
     // Every phase gets a short read-only semantic preflight before its main skill.
@@ -1014,7 +1258,60 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
         plan.recoveryOriginOperation,
       );
       workflowResult = await createWorkflowResultContext(root, plan.operation, plan.subject, `${executionId}:${index}`, capturedBasis);
-      preflight = await runPreflight(root, executionId, index, plan, input.objective, head, workflowResult, deps.delegate);
+      if (plan.operation === "audit-component-implementation-tickets") {
+        preflight = await validatePreflight(root, {
+          status: "PASS",
+          operation: plan.operation,
+          subject: plan.subject,
+          head,
+          checks: { skillPreconditions: "PASS" },
+          blockers: [],
+          resolvedInputJson: plan.operationInputJson,
+        }, plan, head);
+        await appendWorkflowRunEvent(root, executionId, "operation_preflight_skipped", {
+          step: index,
+          operation: plan.operation,
+          subject: plan.subject,
+          targetHead: head,
+          preflightMode: "audit-skill-owns-semantic-preconditions",
+        });
+      } else if (isDeterministicTicketSetCheckpoint(plan.operation)) {
+        preflight = await validatePreflight(root, {
+          status: "PASS",
+          operation: plan.operation,
+          subject: plan.subject,
+          head,
+          checks: { skillPreconditions: "PASS" },
+          blockers: [],
+          resolvedInputJson: plan.operationInputJson,
+        }, plan, head);
+        await appendWorkflowRunEvent(root, executionId, "operation_preflight_completed", {
+          step: index,
+          operation: plan.operation,
+          subject: plan.subject,
+          targetHead: head,
+          preflightMode: "deterministic-extension-validation",
+        });
+      } else if (plan.operation === "checkpoint-governance-workspace" && planScope) {
+        preflight = await validatePreflight(root, {
+          status: "PASS",
+          operation: plan.operation,
+          subject: plan.subject,
+          head,
+          checks: { skillPreconditions: "PASS" },
+          blockers: [],
+          resolvedInputJson: plan.operationInputJson,
+        }, plan, head);
+        await appendWorkflowRunEvent(root, executionId, "operation_preflight_skipped", {
+          step: index,
+          operation: plan.operation,
+          subject: plan.subject,
+          targetHead: head,
+          preflightMode: "deterministic-authorization-and-path-scope; checkpoint-skill-validates-phase-preconditions",
+        });
+      } else {
+        preflight = await runPreflight(root, executionId, index, plan, input.objective, head, workflowResult, deps.delegate);
+      }
       const confirmedBasis = await validateAndCaptureWorkflowBasis(
         root,
         catalog,
@@ -1034,6 +1331,13 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
         });
       }
     } catch (error) {
+      await appendWorkflowRunEvent(root, executionId, "operation_preflight_stopped", {
+        step: index,
+        operation: plan.operation,
+        subject: plan.subject,
+        targetHead: head,
+        ...safeFailureFields(error),
+      });
       if (!shouldRecoverFrom(error)) throw error;
       const detail = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
       const recovered = await requestControllerPlan(index + 1, `Preflight stopped ${plan.operation} before execution: ${detail}. Select only the same operation when declared resumable, a catalog ancestor with a valid source gate, or the declared governance recovery entry; otherwise stop.`, plan.operation);
@@ -1050,6 +1354,16 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
       continue;
     }
     plan = { ...plan, operationInputJson: preflight.resolvedInputJson };
+    const postPreflightScope = plan.operation === "checkpoint-governance-workspace"
+      ? governancePreservationScopeIfPresent(input.objective)
+      : undefined;
+    plan = await normalizeCheckpointInput(root, plan, head, postPreflightScope);
+    await appendWorkflowRunEvent(root, executionId, "operation_started", {
+      step: index,
+      operation: plan.operation,
+      subject: plan.subject,
+      targetHead: head,
+    });
     const before = await workflowStateSnapshot(root);
     let receipt: OperationReceipt;
     let postCheckpointOperation: string | undefined;
@@ -1058,6 +1372,25 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
 
     try {
       deps.onProgress?.(`Executing ${plan.operation} for ${plan.subject}…`);
+      let ticketSetAnalysis: TicketSetStaticAnalysis | undefined;
+      if (plan.operation === "audit-component-implementation-tickets"
+        || plan.operation === "remediate-component-implementation-tickets") {
+        const analysisStartedAt = Date.now();
+        ticketSetAnalysis = await analyzeTicketSet(root, plan.subject);
+        await appendWorkflowRunEvent(root, executionId, "ticket_set_static_analysis_completed", {
+          step: index,
+          operation: plan.operation,
+          subject: plan.subject,
+          mode: plan.operation === "audit-component-implementation-tickets" ? "AUDIT_BASELINE" : "REMEDIATION_BASELINE",
+          status: ticketSetAnalysis.status,
+          ticketFiles: ticketSetAnalysis.ticketFiles,
+          uniqueTicketIds: ticketSetAnalysis.uniqueTicketIds,
+          sourceFingerprints: ticketSetAnalysis.sourceFingerprints.length,
+          issueCount: ticketSetAnalysis.issues.length,
+          issueCodes: [...new Set(ticketSetAnalysis.issues.map((item) => item.code))],
+          elapsedMs: Date.now() - analysisStartedAt,
+        });
+      }
       if (plan.operation === "audit-implemented-ticket") {
         let auditInput: AuditSliceInput;
         try { auditInput = JSON.parse(plan.operationInputJson) as AuditSliceInput; }
@@ -1068,6 +1401,7 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
           delegate: deps.delegate,
           workflowSubject: plan.subject,
           workflowResult,
+          logExecutionId: executionId,
         });
         postCheckpointOperation = result.postCheckpointOperation;
         auditSummary = `${result.verdict}/${result.gate}`;
@@ -1082,12 +1416,27 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
           changedPaths: [],
           reason: auditSummary,
         };
+      } else if (isDeterministicTicketSetCheckpoint(plan.operation)) {
+        const result = await executeTicketSetCheckpoint({
+          root,
+          executionId,
+          step: index,
+          operation: plan.operation,
+          subject: plan.subject,
+          parentHead: head,
+          operationInputJson: plan.operationInputJson,
+          evidenceFiles: plan.evidenceFiles,
+          workflowResult,
+          catalog,
+          onEvent: async (event) => { await appendWorkflowRunEvent(root, executionId, event.event, event.fields); },
+        });
+        receipt = result.receipt;
       } else {
         const delegated = await deps.delegate({
           ownerRunId: executionId,
           nodeId: `operation-${index}`,
           agent: executionAgent(plan.operation),
-          task: operationTask(plan, head, definition.gateField, workflowResult),
+          task: operationTask(plan, head, definition.gateField, workflowResult, ticketSetAnalysis, input.objective),
           cwd: root,
           skill: plan.operation,
           structuredSchema: operationReceiptSchema(definition),
@@ -1099,7 +1448,45 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
             error: delegated.error,
           });
         }
-        receipt = validateReceiptShape(delegated.value, plan.operation, definition.gateField, plan.subject);
+        receipt = await validateOperationReceipt(root, delegated.value, plan.operation, definition.gateField, plan.subject);
+        const delegatedSubject = delegated.value && typeof delegated.value === "object" && !Array.isArray(delegated.value)
+          ? (delegated.value as Record<string, unknown>).subject
+          : undefined;
+        if (delegatedSubject !== receipt.subject) {
+          await appendWorkflowRunEvent(root, executionId, "receipt_subject_reconciled", {
+            step: index,
+            operation: plan.operation,
+            receivedSubject: typeof delegatedSubject === "string" ? delegatedSubject : null,
+            canonicalSubject: receipt.subject,
+            proof: receipt.gateArtifactPath,
+          });
+        }
+      }
+
+      if (receipt.status !== "COMPLETE") {
+        await assertPinnedHead(root, head);
+        const incompleteAfter = await workflowStateSnapshot(root);
+        const observedChanges = observedChangedPaths(workflowStateDiff(before, incompleteAfter));
+        const declaredChanges = [...receipt.changedPaths].sort();
+        if (!samePaths(observedChanges, declaredChanges) || observedChanges.length > 0) {
+          const message = "A non-complete operation receipt must match the workspace state and must not leave changes behind.";
+          if (receipt.status === "BLOCKED") {
+            throw new OrchestrationStop("MISSING_AUTHORITY", message, {
+              receipt,
+              declaredChangedPaths: declaredChanges,
+              observedChangedPaths: observedChanges,
+            });
+          }
+          throw new OrchestrationStop("PROCESS_AUTHORITY_DRIFT", message, {
+            receipt,
+            declaredChangedPaths: declaredChanges,
+            observedChangedPaths: observedChanges,
+          });
+        }
+        routeOperation(catalog, receipt, new Map());
+        throw new OrchestrationStop("PROCESS_AUTHORITY_DRIFT", "A non-complete operation receipt unexpectedly resolved to a workflow successor.", {
+          receipt,
+        });
       }
 
       if (plan.operation === "reconcile-legacy-checkpoint-lineage") {
@@ -1115,6 +1502,18 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
           throw new OrchestrationStop("INCOMPLETE_CANONICAL_RESULT", "Ticket-set audit migration has no extension-validated source proof.");
         }
         await validateLegacyTicketSetAuditMigrationArtifact(root, receipt, basis.proof);
+      }
+      if (plan.operation === "audit-component-implementation-tickets" && receipt.status === "COMPLETE") {
+        await ensureTicketSetAuditWorkflowResultBlock(root, {
+          operation: receipt.operation,
+          subject: receipt.subject,
+          resultId: workflowResult.resultId,
+          supersedesResultId: workflowResult.supersedesResultId,
+          basis: workflowResult.basis ?? { type: "none" },
+          artifactPath: receipt.gateArtifactPath,
+          gateField: receipt.gateField,
+          gateValue: receipt.gateValue,
+        });
       }
       const artifactTexts = await readReceiptArtifacts(root, receipt);
       await validateProducedWorkflowResult(root, {
@@ -1163,6 +1562,19 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
       }
       if (!isCheckpointOperation(plan.operation)) receipt = { ...receipt, changedPaths };
       const nextOperation = routeOperation(catalog, receipt, artifactTexts);
+      await appendWorkflowRunEvent(root, executionId, "operation_completed", {
+        step: index,
+        operation: receipt.operation,
+        subject: receipt.subject,
+        status: receipt.status,
+        gateField: receipt.gateField,
+        gateValue: receipt.gateValue,
+        nextOperation,
+        parentHead: head,
+        ...(isCheckpointOperation(plan.operation) ? { commitHead: afterHead } : {}),
+        artifactPaths: receipt.artifactPaths,
+        changedPaths,
+      });
       steps.push({
         step: index,
         operation: plan.operation,
@@ -1188,6 +1600,13 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
         plan = successorPlan(plan, nextOperation, receipt, postCheckpointOperation);
       }
     } catch (error) {
+      await appendWorkflowRunEvent(root, executionId, "operation_stopped", {
+        step: index,
+        operation: plan.operation,
+        subject: plan.subject,
+        targetHead: head,
+        ...safeFailureFields(error),
+      });
       if (requestedRecovery) throw error;
       if (!shouldRecoverFrom(error)) throw error;
       const operationHead = await currentHead(root);
@@ -1218,4 +1637,29 @@ export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkfl
     maxSteps: input.maxSteps,
     steps,
   });
+}
+
+export async function runFullWorkflow(input: FullWorkflowInput, deps: FullWorkflowDependencies): Promise<FullWorkflowResult> {
+  const executionId = randomUUID();
+  const startedAt = Date.now();
+  await appendWorkflowRunEvent(deps.root, executionId, "workflow_started", {
+    operation: "workflow_orchestrate",
+  });
+  try {
+    const result = await runFullWorkflowCore(input, deps, executionId);
+    await appendWorkflowRunEvent(deps.root, executionId, "workflow_completed", {
+      operation: "workflow_orchestrate",
+      status: result.status,
+      durationMs: Math.max(0, Date.now() - startedAt),
+      stepCount: result.steps.length,
+    });
+    return result;
+  } catch (error) {
+    await appendWorkflowRunEvent(deps.root, executionId, "workflow_stopped", {
+      operation: "workflow_orchestrate",
+      durationMs: Math.max(0, Date.now() - startedAt),
+      ...safeFailureFields(error),
+    });
+    throw error;
+  }
 }

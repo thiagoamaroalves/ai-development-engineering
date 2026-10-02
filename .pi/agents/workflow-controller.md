@@ -24,9 +24,13 @@ At intake, inspect the user's objective and current canonical state, then
 return exactly one authorized entry operation, a terminal COMPLETE state, or
 an explicit BLOCKED/HUMAN_REQUIRED result. Use the deterministic transition
 catalog to confirm that an EXECUTE operation is registered.
-At initial intake, select only an operation declared in
-`controllerEntry.initial`; never treat an incomplete phase manifest from a
-previous invocation as authority to use a recovery entry. If the user
+At initial intake, first inspect the latest V2 result for the requested
+subject. If its exact persisted gate has a catalogued successor, select that
+successor with `entryBasis.type = transition` and cite the source result; the
+extension validates its identity, current lineage leaf, gate, and route. Use
+`controllerEntry.initial` only for direct intake without a current persisted
+transition. A stale or incomplete phase manifest is not workflow authority and
+does not invalidate a current transition. If the user
 explicitly requests a governance preservation checkpoint before continuing
 ticket work, select the declared initial governance checkpoint first, even
 when a ticket-set audit migration is also pending. Exceptional recovery is
@@ -54,8 +58,11 @@ requires a human decision, stop. When a complete result and the transition
 catalog identify an upstream blocker, select only the failed operation when it
 is declared resumable, a catalog ancestor with a currently persisted source
 gate, or the explicit governance recovery entry. The extension verifies the
-entry basis and rejects unrelated or downstream operations. Never skip the
-blocker or select a convenient fallback.
+entry basis and rejects unrelated or downstream operations. If a deterministic
+ticket-set checkpoint fails, retry only that checkpoint after its driver has
+removed its uncommitted artifacts and restored the original Git index; never
+re-run its upstream audit or remediation operation as a recovery shortcut. Never
+skip the blocker or select a convenient fallback.
 
 For implementation-ticket intake or recovery, inspect the latest current canonical ticket-set audit. A historical remediation report in isolation is
 not current routing authority. When the current audit says
@@ -67,8 +74,13 @@ Git-tracked status is not an approval predicate.
 For a component SPEC, Gap Matrix, Implementation Plan, ticket set, or
 implemented ticket, preserve the current canonical subject. Select
 `executionIsolation = main` for guarded ticket-local mutation and checkpoints.
-This repository defines no worktree allocation or merge protocol. Select
-`worktree` only when another explicit repository authority provides one.
+Here `main` means execute in the active checkout where `workflow_orchestrate`
+was invoked, not the repository's primary worktree or `main` branch. An
+already-existing linked worktree is a valid active checkout and is never a
+reason to block or redirect the workflow. This repository defines no authority
+to allocate, move, remove, or switch to another worktree; select `worktree` only
+when another explicit repository authority requires and governs that separate
+allocation.
 
 When the user explicitly authorizes preserving a dirty workflow workspace, the
 initial `checkpoint-governance-workspace` entry is available only through its
@@ -90,13 +102,22 @@ Checkpoint operations require `phaseManifestPath` in `operationInputJson`.
 Never list the manifest in `evidenceFiles`. Reuse an existing manifest only
 when its operation and target HEAD match, its `sourceAuthority` digests are
 current, and its declared marker exists. If an incomplete or stale manifest
-exists, do not overwrite it: identify it as an unstaged recovery candidate.
-The extension supplies a fresh repository-relative path and passes stale
-manifest paths in `preserveUnstagedRecoveryPaths`; the checkpoint skill must
-keep them unchanged and unstaged in `paths.unstagedRecovery`. If no manifest
-exists for the current operation and HEAD, provide a fresh path for the
-checkpoint skill to materialize from canonical state and the exact dirty
-candidate.
+exists, do not overwrite it; use a fresh repository-relative path. Preserve a
+stale manifest in `paths.unstagedRecovery` only if it is currently dirty or
+untracked; a clean tracked historical manifest remains untouched but is not in
+the new dirty-path set. The checkpoint skill derives the new manifest from
+canonical state and the exact dirty candidate.
+
+For `checkpoint-governance-workspace`, the initiating objective must contain
+`HUMAN_PRESERVATION_AUTHORIZATION = YES`,
+`PRESERVATION_SCOPE = EXPLICIT`, and exact
+`PRESERVED_PATHS_BEGIN`/`PRESERVED_PATHS_END` plus
+`UNSTAGED_RECOVERY_PATHS_BEGIN`/`UNSTAGED_RECOVERY_PATHS_END` blocks. Do not
+summarize or infer those path sets. The extension validates their disjoint
+union against the live dirty-path inventory and passes the checked sets to the
+checkpoint skill. Copy canonical repository-relative paths exactly, including
+their `docs/` prefix; the SPEC ticket audit report is
+`docs/tickets/<SPEC_ID>/implementation-ticket-audit.md`.
 
 For `audit-implemented-ticket`, provide a complete `AuditSliceInput` when its
 paths and profile are already canonical. The read-only preflight may resolve

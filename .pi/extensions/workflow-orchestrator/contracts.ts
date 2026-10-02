@@ -58,6 +58,8 @@ export interface AuditSliceInput {
 
 export interface DelegationRequest {
   ownerRunId: string;
+  /** Optional log grouping ID; kept local and never sent to the Pi event bus. */
+  logExecutionId?: string;
   nodeId: string;
   agent: string;
   task: string;
@@ -76,6 +78,15 @@ export interface DelegationResult {
   runId?: string;
   error?: string;
   value?: unknown;
+  usage?: TokenUsage;
+}
+
+export interface TokenUsage {
+  input?: number;
+  output?: number;
+  cacheRead?: number;
+  cacheWrite?: number;
+  total?: number;
 }
 
 export interface AuditRuntimeState {

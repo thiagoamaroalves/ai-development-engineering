@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { Type } from "typebox";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
@@ -6,6 +7,7 @@ import { repositoryRoot } from "./git-state.ts";
 import { runAuditSlice } from "./orchestrator.ts";
 import { runFullWorkflow } from "./full-orchestrator.ts";
 import { createDelegator } from "./subagents-client.ts";
+import { appendWorkflowRunEvent, safeFailureFields } from "./run-logger.ts";
 
 const inputSchema = Type.Object({
   ticketPath: Type.String({ minLength: 1 }),
@@ -47,12 +49,31 @@ export default function workflowOrchestrator(pi: ExtensionAPI): void {
     ],
     parameters: inputSchema,
     async execute(_toolCallId, params, signal, onUpdate, ctx) {
+      const executionId = randomUUID();
+      const startedAt = Date.now();
+      let root: string | undefined;
       try {
         onUpdate?.({ content: [{ type: "text", text: "Validating canonical state and pinned HEAD…" }], details: undefined });
-        const root = await repositoryRoot(ctx.cwd);
+        root = await repositoryRoot(ctx.cwd);
+        await appendWorkflowRunEvent(root, executionId, "workflow_started", {
+          operation: "workflow_audit_implemented_ticket",
+          targetHead: params.targetHead,
+        });
         const result = await runAuditSlice(params as AuditSliceInput, {
           root,
           delegate: (request) => delegate({ ...request, signal, extensionContext: ctx }),
+          executionId,
+          logExecutionId: executionId,
+        });
+        await appendWorkflowRunEvent(root, executionId, "workflow_completed", {
+          operation: "workflow_audit_implemented_ticket",
+          status: "COMPLETE",
+          durationMs: Math.max(0, Date.now() - startedAt),
+          gateField: "AUDIT_VERDICT",
+          gateValue: result.verdict,
+          nextOperation: result.nextOperation,
+          targetHead: result.runtime.targetHead,
+          artifactPaths: [result.canonicalAuditPath],
         });
         return {
           content: [{
@@ -72,6 +93,14 @@ export default function workflowOrchestrator(pi: ExtensionAPI): void {
         const stop = error instanceof OrchestrationStop
           ? error
           : new OrchestrationStop("SUBAGENT_FAILURE", "Unexpected orchestration failure.", { cause: String(error) });
+        if (root) {
+          await appendWorkflowRunEvent(root, executionId, "workflow_stopped", {
+            operation: "workflow_audit_implemented_ticket",
+            durationMs: Math.max(0, Date.now() - startedAt),
+            targetHead: params.targetHead,
+            ...safeFailureFields(stop),
+          });
+        }
         return {
           content: [{ type: "text", text: `ORCHESTRATION_STOPPED\nCODE: ${stop.code}\nREASON: ${stop.message}` }],
           details: { stopped: true, code: stop.code, message: stop.message, details: stop.details },
@@ -90,6 +119,7 @@ export default function workflowOrchestrator(pi: ExtensionAPI): void {
     promptSnippet: "Continue the complete repository-authorized engineering workflow fail-closed",
     promptGuidelines: [
       "Use workflow_orchestrate for the complete engineering workflow; do not manually skip its canonical gates.",
+      "Run in the active checkout supplied by the caller, including an already-existing linked worktree; primary-versus-linked status alone is never a blocker. Do not switch branches or create, move, remove, or select another worktree without explicit repository authority.",
       "When workflow_orchestrate stops for a human gate or missing authority, report the stop instead of selecting a convenient fallback.",
     ],
     parameters: Type.Object({

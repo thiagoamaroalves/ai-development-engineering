@@ -5,6 +5,8 @@
 # skills/ is the canonical, versioned skill source. .codex/skills/ is a generated
 # compatibility mirror maintained by tools/verify-skill-mirror.mjs.
 /.pi/*
+# Local, metadata-only workflow run logs; never repository artifacts.
+/.pi/session-logs/
 !/.pi/settings.json
 !/.pi/agents/
 !/.pi/agents/*.md

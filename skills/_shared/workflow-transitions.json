@@ -400,6 +400,8 @@
       "decompose-component-implementation-plan-into-tickets",
       "audit-component-implementation-tickets",
       "remediate-component-implementation-tickets",
+      "checkpoint-component-implementation-tickets-audit",
+      "checkpoint-component-implementation-tickets-remediation",
       "design-ticket-implementation",
       "implement-ready-tickets",
       "audit-implemented-ticket",

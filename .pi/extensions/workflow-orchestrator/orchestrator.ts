@@ -34,6 +34,10 @@ export interface AuditSliceDependencies {
   root: string;
   delegate(request: DelegationRequest): Promise<DelegationResult>;
   now?(): Date;
+  /** Optional ID for the local run log; defaults to the audit wave ID. */
+  logExecutionId?: string;
+  /** Optional ID for callers that own the enclosing workflow execution. */
+  executionId?: string;
   workflowSubject?: string;
   workflowResult?: WorkflowResultContext;
 }
@@ -247,7 +251,7 @@ export async function runAuditSlice(input: AuditSliceInput, deps: AuditSliceDepe
   const specialists = input.architectureRequired ? [...BASE_SPECIALISTS, ARCHITECTURE_SPECIALIST] : [...BASE_SPECIALISTS];
   const keys = specialists.map((item) => item.key) as SpecialistKey[];
   const runtime: AuditRuntimeState = {
-    executionId: randomUUID(),
+    executionId: deps.executionId ?? randomUUID(),
     targetHead: input.targetHead,
     targetStateFingerprint: "pending",
     specialistRunIds: {},
@@ -288,6 +292,7 @@ export async function runAuditSlice(input: AuditSliceInput, deps: AuditSliceDepe
         try {
           const result = await deps.delegate({
             ownerRunId: runtime.executionId,
+            logExecutionId: deps.logExecutionId ?? runtime.executionId,
             nodeId: attempt === 1 ? specialist.key : `${specialist.key}-retry-${attempt}`,
             agent: specialist.agent,
             task: specialistTask(
@@ -374,6 +379,7 @@ export async function runAuditSlice(input: AuditSliceInput, deps: AuditSliceDepe
   for (let attempt = 1; attempt <= MAX_CONSOLIDATION_ATTEMPTS; attempt += 1) {
     const result = await deps.delegate({
       ownerRunId: runtime.executionId,
+      logExecutionId: deps.logExecutionId ?? runtime.executionId,
       nodeId: `consolidation-attempt-${attempt}`,
       agent: CONSOLIDATOR.agent,
       task: consolidationTask(

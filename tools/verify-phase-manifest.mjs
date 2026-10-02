@@ -82,8 +82,8 @@ for (const [index, value] of paths.unstagedRecovery.entries()) ensurePath(value,
 const effectiveSet = new Set(effective);
 const recoverySet = new Set(paths.unstagedRecovery);
 
-const tracked = execFileSync("git", ["diff", "--name-only", "HEAD", "--"], { cwd: repo, encoding: "utf8" }).split(/\r?\n/).filter(Boolean);
-const untracked = execFileSync("git", ["ls-files", "--others", "--exclude-standard"], { cwd: repo, encoding: "utf8" }).split(/\r?\n/).filter(Boolean);
+const tracked = execFileSync("git", ["diff", "--name-only", "-z", "HEAD", "--"], { cwd: repo, encoding: "utf8" }).split("\0").filter(Boolean);
+const untracked = execFileSync("git", ["ls-files", "--others", "--exclude-standard", "-z"], { cwd: repo, encoding: "utf8" }).split("\0").filter(Boolean);
 const dirty = new Set([...tracked, ...untracked]);
 const expected = new Set([...effectiveSet, ...recoverySet]);
 const missing = [...expected].filter((value) => !dirty.has(value));
@@ -94,6 +94,16 @@ if (missing.length || unexpected.length) {
   if (unexpected.length) details.push(`unexpected dirty paths: ${unexpected.join(", ")}`);
   fail(details.join("\n"));
 }
+const stagedOutput = execFileSync("git", ["diff", "--cached", "--name-only", "--no-renames", "-z", "HEAD", "--"], { cwd: repo, encoding: "utf8" });
+const staged = new Set(stagedOutput.split("\0").filter(Boolean));
+const stagedOutsideEffective = [...staged].filter((value) => !effectiveSet.has(value));
+const stagedRecovery = [...staged].filter((value) => recoverySet.has(value));
+if (stagedOutsideEffective.length || stagedRecovery.length) {
+  const details = [];
+  if (stagedOutsideEffective.length) details.push(`staged paths outside effective set: ${stagedOutsideEffective.join(", ")}`);
+  if (stagedRecovery.length) details.push(`recovery paths must remain unstaged: ${stagedRecovery.join(", ")}`);
+  fail(details.join("\n"));
+}
 for (const value of paths.delete) {
   if (fs.existsSync(path.resolve(repo, value))) fail(`declared deletion still exists: ${value}`);
 }
@@ -101,4 +111,5 @@ console.log("PHASE_MANIFEST_VALID = PASS");
 console.log(`PHASE_MANIFEST_PATH = ${paths.manifest}`);
 console.log(`PRESERVED_PATHS = ${effectiveSet.size}`);
 console.log(`UNSTAGED_RECOVERY_PATHS = ${recoverySet.size}`);
+console.log(`STAGED_PATHS_WITHIN_EFFECTIVE_SET = ${staged.size}`);
 console.log(`NEXT_AUTHORIZED_OPERATION = ${manifest.nextAuthorizedOperation}`);

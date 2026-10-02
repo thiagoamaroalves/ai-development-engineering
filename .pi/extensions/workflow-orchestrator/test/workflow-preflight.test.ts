@@ -204,7 +204,7 @@ const flowFamilies = [
     failedOperation: "design-ticket-implementation",
     unrelatedFailure: "checkpoint-governance-workspace",
     resumableOperation: "remediate-component-implementation-tickets",
-    nonResumableOperation: "checkpoint-component-implementation-tickets-audit",
+    nonResumableOperation: "checkpoint-component-implementation-tickets-generation",
   },
   {
     family: "implemented ticket",

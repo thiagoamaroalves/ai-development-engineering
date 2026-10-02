@@ -73,6 +73,13 @@ Before staging, run:
 node tools/verify-phase-manifest.mjs --manifest <manifest-path>
 ```
 
+The verifier MUST use the active worktree containing the current workflow
+invocation. `git rev-parse --show-toplevel` from that invocation resolves the
+repository root for this run; do not substitute the repository's primary
+worktree, common Git directory, another checkout, or a branch with the same
+commit. The manifest and its dirty-path inventory are evaluated only against
+this active worktree's files and index.
+
 The verifier MUST:
 
 1. load and schema-check the manifest;
@@ -83,8 +90,9 @@ The verifier MUST:
 6. require the exact dirty-path set to equal the effective manifest path set
    plus `unstagedRecovery`;
 7. require every recovery candidate to remain outside the staged effective set;
-8. reject duplicate, missing, unexpected, or undeclared deletions; and
-9. return `PHASE_MANIFEST_VALID = PASS` only when every check succeeds.
+8. reject staged paths outside the effective set;
+9. reject duplicate, missing, unexpected, or undeclared deletions; and
+10. return `PHASE_MANIFEST_VALID = PASS` only when every check succeeds.
 
 The checkpoint then stages exactly the manifest's effective path set, reruns
 cached validation and `git diff --cached --check`, and creates the commit
